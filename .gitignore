@@ -21,3 +21,14 @@ data/*.db-shm
 # سیستم
 .DS_Store
 Thumbs.db
+# Runtime data
+data/*.db
+data/*.json
+
+# Environment
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
