@@ -1,0 +1,144 @@
+{
+  "version": "3.0",
+  "editable": true,
+  "menus": [
+    {
+      "id": "final",
+      "label": "جمع‌بندی نهایی",
+      "icon": "🏁",
+      "original": "جمع‌بندی نهایی"
+    },
+    {
+      "id": "hunt",
+      "label": "شکار ورود",
+      "icon": "🎯",
+      "original": "شکار ورود"
+    },
+    {
+      "id": "exit",
+      "label": "خروج",
+      "icon": "🚪",
+      "original": "خروج"
+    },
+    {
+      "id": "live",
+      "label": "لایو",
+      "icon": "📡",
+      "original": "لایو"
+    },
+    {
+      "id": "backtest",
+      "label": "بک‌تست",
+      "icon": "📉",
+      "original": "بک‌تست"
+    },
+    {
+      "id": "options",
+      "label": "اختیار",
+      "icon": "🎟",
+      "original": "اختیار"
+    },
+    {
+      "id": "notify",
+      "label": "اعلان‌ها",
+      "icon": "📨",
+      "original": "اعلان‌ها"
+    },
+    {
+      "id": "map",
+      "label": "نقشه بازار",
+      "icon": "🗺",
+      "original": "نقشه بازار"
+    },
+    {
+      "id": "filter",
+      "label": "فیلترنویسی",
+      "icon": "🧪",
+      "original": "فیلترنویسی"
+    },
+    {
+      "id": "fund",
+      "label": "بنیادی",
+      "icon": "📊",
+      "original": "بنیادی"
+    },
+    {
+      "id": "value",
+      "label": "سهام ارزنده",
+      "icon": "💎",
+      "original": "سهام ارزنده"
+    },
+    {
+      "id": "big",
+      "label": "تحرکات بزرگان",
+      "icon": "⚡",
+      "original": "تحرکات بزرگان"
+    },
+    {
+      "id": "tablo",
+      "label": "تابلو کستیک",
+      "icon": "📐",
+      "original": "تابلو کستیک"
+    },
+    {
+      "id": "hot",
+      "label": "پول داغ",
+      "icon": "🔥",
+      "original": "پول داغ"
+    },
+    {
+      "id": "game",
+      "label": "بازی بازار",
+      "icon": "🎲",
+      "original": "بازی بازار"
+    },
+    {
+      "id": "industry",
+      "label": "صنعت",
+      "icon": "🏭",
+      "original": "صنعت"
+    },
+    {
+      "id": "portfolio",
+      "label": "پورتفو",
+      "icon": "💼",
+      "original": "پورتفو"
+    },
+    {
+      "id": "alerts",
+      "label": "هشدارها",
+      "icon": "🔔",
+      "original": "هشدارها"
+    },
+    {
+      "id": "settings",
+      "label": "تنظیمات",
+      "icon": "⚙️",
+      "original": "تنظیمات"
+    },
+    {
+      "id": "watch",
+      "label": "دیده‌بان",
+      "icon": "👁",
+      "original": "دیده‌بان"
+    },
+    {
+      "id": "forex",
+      "label": "فارکس",
+      "icon": "💱",
+      "original": "فارکس"
+    },
+    {
+      "id": "excellent",
+      "label": "عالی v0.7",
+      "icon": "✨",
+      "original": "عالی v0.7"
+    },
+    {
+      "id": "guide",
+      "label": "راهنما",
+      "icon": "📖",
+      "original": "راهنما"
+    }
+  ]
+}

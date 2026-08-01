@@ -1,0 +1,30 @@
+{
+  "name": "shekar-saham-desktop",
+  "version": "0.9.0",
+  "description": "شکار سهام - نسخه دسکتاپ ویندوز - بهتر از فراز",
+  "main": "main.js",
+  "author": "Shekar Saham Team",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64",
+    "build:all": "electron-builder --win --mac --linux"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "build": {
+    "appId": "com.shekarsaham.desktop",
+    "productName": "شکار سهام",
+    "files": ["main.js"],
+    "win": {
+      "target": "nsis",
+      "icon": "../frontend/favicon.svg"
+    },
+    "directories": {
+      "output": "dist"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+
+      - name: Lint (pyflakes)
+        working-directory: backend
+        run: |
+          pip install pyflakes
+          python -m pyflakes app/ || exit 1
+
+      - name: Tests
+        working-directory: backend
+        run: python -m pytest tests/ -q
+
+      - name: Dependency audit
+        working-directory: backend
+        run: |
+          pip install pip-audit
+          pip-audit -r requirements.txt
+
+  build-docker:
+    runs-on: ubuntu-latest
+    needs: test-backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t shekar-saham:${{ github.sha }} .

@@ -1,0 +1,11 @@
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.git
+.gitignore
+data/*.db
+data/backups
+screenshots
+*.zip
+.env

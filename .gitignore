@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# Node / Frontend
+node_modules/
+dist/
+coverage/
+
+# داده و رازها
+data/*.db
+data/*.db-wal
+data/*.db-shm
+.env
+*.env.local
+
+# سیستم
+.DS_Store
+Thumbs.db

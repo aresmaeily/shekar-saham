@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>صفحه نماد | شکار سهام</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/static/css/app.css" />
+  <link rel="stylesheet" href="/static/css/symbol.css" />
+  <script src="/static/vendor/lightweight-charts.standalone.production.js"></script>
+</head>
+<body class="symbol-page">
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <!-- v1.5: صفحه قفل حالت خصوصی (فقط مالک) -->
+  <div id="authLock" class="auth-lock hidden">
+    <div class="auth-card">
+      <div class="auth-logo">🔒</div>
+      <h2>شکار سهام — حالت خصوصی</h2>
+      <p class="muted">این داشبورد فقط برای مالک فعال است. برای مشاهده خروجی‌ها رمز را وارد کنید.</p>
+      <form id="authForm" autocomplete="off">
+        <input id="authPassword" class="text-input" type="password" placeholder="رمز مالک…" required autofocus />
+        <button class="btn primary" id="authBtn" type="submit">ورود</button>
+      </form>
+      <p class="muted" id="authMsg"></p>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <a class="logo" href="/" title="بازگشت">🎯</a>
+      <div>
+        <h1 id="symTitle">نماد</h1>
+        <p class="tagline" id="symSub">—</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="search-box">
+        <input id="symSearch" class="text-input" placeholder="جستجوی نماد..." />
+        <div id="symSearchResults" class="search-results hidden"></div>
+      </div>
+      <button class="btn ghost" id="btnBack" onclick="location.href='/'">← داشبورد</button>
+      <button class="btn ghost" id="btnTheme" title="تغییر تم صفحه 🌓">🌓</button>
+      <button class="btn primary" id="btnPf">＋ پورتفو</button>
+      <button class="btn ghost" id="btnRefresh">↻</button>
+    </div>
+  </header>
+
+  <section class="sym-hero" id="hero">
+    <div class="price-block">
+      <div class="price" id="hPrice">—</div>
+      <div class="plp" id="hPlp">—</div>
+    </div>
+    <div class="hero-stats" id="heroStats"></div>
+    <div class="hero-grades">
+      <span class="grade" id="hGrade">—</span>
+      <span class="grade fund" id="hFundGrade">—</span>
+      <span class="side-pill" id="hSide">—</span>
+    </div>
+  </section>
+
+  <nav class="tabs" id="symTabs">
+    <button class="tab active" data-panel="chart">📈 نمودار</button>
+    <button class="tab" data-panel="board">📋 تابلو</button>
+    <button class="tab" data-panel="tablo">📐 کستیک</button>
+    <button class="tab" data-panel="fund">📊 بنیادی</button>
+    <button class="tab" data-panel="hot">🔥 پول داغ دقیق</button>
+    <button class="tab" data-panel="hist">⏱ تاریخچه</button>
+  </nav>
+
+  <main class="sym-main">
+    <section class="panel active" id="panel-chart">
+      <div class="chart-toolbar">
+        <div class="seg" id="chartMode">
+          <button class="active" data-mode="candle">کندل روزانه</button>
+          <button data-mode="line">خطی درون‌روز</button>
+        </div>
+        <span class="muted" id="chartNote">نمودار داخلی (Lightweight Charts) — داده OHLCV از موتور شکار سهام</span>
+      </div>
+      <div id="tvChart" class="chart-box"></div>
+      <div class="filters" id="moreCharts" style="margin-top:.6rem;gap:.4rem"></div>
+      <div class="tv-embed-wrap">
+        <div class="panel-head" style="margin:1rem 0 .5rem">
+          <div>
+            <h3 style="margin:0">TradingView (در صورت دسترسی)</h3>
+            <p class="muted">اگر نماد در TradingView باشد نمایش داده می‌شود؛ وگرنه از نمودار داخلی استفاده کنید.</p>
+          </div>
+        </div>
+        <div class="tv-frame" id="tvFrame">
+          <div class="muted" style="padding:1rem">برای نمادهای بورس تهران معمولاً داده TradingView محدود است. نمودار داخلی معیار اصلی است.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-board">
+      <div class="board-grid">
+        <div class="card">
+          <h3>پنج مظنه</h3>
+          <div class="ob" id="orderbook"></div>
+        </div>
+        <div class="card">
+          <h3>حقیقی / حقوقی</h3>
+          <div class="kv" id="clientType"></div>
+        </div>
+        <div class="card">
+          <h3>سیگنال موتور</h3>
+          <div class="kv" id="signalBox"></div>
+          <div id="reasonsBox" style="margin-top:.75rem"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-tablo">
+      <div class="cards" id="tabloCards"></div>
+      <div class="kv" id="tabloKv" style="margin-top:1rem"></div>
+    </section>
+
+    <section class="panel" id="panel-fund">
+      <div class="cards" id="fundCards"></div>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="quarterTable">
+          <thead>
+            <tr>
+              <th>دوره</th><th>فروش</th><th>سود خالص</th><th>EPS</th><th>حاشیه٪</th><th>رشد فروش</th><th>رشد سود</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="muted" id="codalLine" style="margin-top:.75rem"></p>
+    </section>
+
+    <section class="panel" id="panel-hot">
+      <div class="cards" id="hotCards"></div>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="largeTrades">
+          <thead>
+            <tr><th>زمان</th><th>سمت</th><th>قیمت</th><th>حجم</th><th>ارزش</th><th>سطح</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-hist">
+      <div id="histSpark" class="hist-spark"></div>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="histTable">
+          <thead>
+            <tr>
+              <th>زمان</th><th>قیمت</th><th>%</th><th>حجم</th><th>قدرت</th><th>پول داغ</th><th>ورود</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>صفحه نماد · شکار سهام v0.3</span>
+    <span id="lastUpdate">—</span>
+  </footer>
+
+  <script type="module" src="/static/js/modules/render/tradingview_excellent.js"></script>
+  <script type="module" src="/static/js/modules/theme.js"></script>
+  <script type="module" src="/static/js/modules/auth.js"></script>
+  <script src="/static/js/symbol.js"></script>
+</body>
+</html>

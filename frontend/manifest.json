@@ -1,0 +1,35 @@
+{
+  "name": "شکار سهام v3",
+  "short_name": "شکار سهام",
+  "description": "پلتفرم تابلوخوانی و شکار سهام بورس ایران + فارکس - بهتر از نوآوران و فراز",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070b14",
+  "theme_color": "#22d3ee",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/static/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": [
+    "finance",
+    "business"
+  ],
+  "lang": "fa",
+  "dir": "rtl",
+  "version": "3.0.0"
+}

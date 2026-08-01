@@ -1,0 +1,17 @@
+{
+  "appId": "com.shekarsaham.app",
+  "appName": "شکار سهام",
+  "webDir": "../frontend",
+  "server": {
+    "url": "http://127.0.0.1:8000",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000
+    }
+  },
+  "android": {
+    "backgroundColor": "#070b14"
+  }
+}

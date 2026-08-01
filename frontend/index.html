@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>شکار سهام v3.0 | تابلوخوانی هوشمند</title>
+  <meta name="description" content="شکار سهام — لایو WebSocket، تلگرام، بک‌تست، اختیار معامله" />
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/static/manifest.json" />
+  <link rel="stylesheet" href="/static/css/app.css" />
+  <link rel="stylesheet" href="/static/css/symbol.css" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <!-- v1.5: صفحه قفل حالت خصوصی (فقط مالک) -->
+  <div id="authLock" class="auth-lock hidden">
+    <div class="auth-card">
+      <div class="auth-logo">🔒</div>
+      <h2>شکار سهام — حالت خصوصی</h2>
+      <p class="muted">این داشبورد فقط برای مالک فعال است. برای مشاهده خروجی‌ها رمز را وارد کنید.</p>
+      <form id="authForm" autocomplete="off">
+        <input id="authPassword" class="text-input" type="password" placeholder="رمز مالک…" required autofocus />
+        <button class="btn primary" id="authBtn" type="submit">ورود</button>
+      </form>
+      <p class="muted" id="authMsg"></p>
+    </div>
+  </div>
+
+  <!-- v0.6.2 - P0-1: Trust level banner - برجسته و غیرقابل نادیده گرفتن -->
+  <div id="trustBanner" class="trust-banner hidden">
+    <span id="trustBannerIcon">⚠️</span>
+    <span id="trustBannerText">در حال بررسی سطح اعتماد داده...</span>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">🎯</div>
+      <div>
+        <h1>شکار سهام <span class="ver">v3.0</span></h1>
+        <p class="tagline">لایو · تلگرام · بک‌تست · اختیار</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="source-pill" id="sourcePill" title="منبع داده">
+        <span class="dot"></span>
+        <span id="sourceText">در حال اتصال…</span>
+      </div>
+      <div class="source-pill" id="wsPill" title="WebSocket">
+        <span class="dot"></span>
+        <span id="wsText">WS…</span>
+      </div>
+      <div class="source-pill mock" id="trustPill" title="سطح اعتماد داده">
+        <span class="dot"></span>
+        <span id="trustText">trust…</span>
+      </div>
+      <button class="btn ghost" id="btnTheme" title="تغییر تم صفحه 🌓">🌓</button>
+      <button class="btn ghost" id="btnLogout" title="خروج از حالت خصوصی" style="display:none">🚪 خروج</button>
+      <button class="btn ghost" id="btnRefresh" title="به‌روزرسانی">
+        <span class="icon">↻</span> بروزرسانی
+      </button>
+      <button class="btn primary" id="btnAuto" data-on="1">
+        <span class="icon">●</span> زنده
+      </button>
+    </div>
+  </header>
+
+  <nav class="tabs" id="mainTabs">
+    <button class="tab active" data-tab="final">🏁 جمع‌بندی نهایی</button>
+    <button class="tab" data-tab="hunt">🎯 شکار ورود</button>
+    <button class="tab" data-tab="exit">🚪 خروج</button>
+    <button class="tab" data-tab="live">📡 لایو</button>
+    <button class="tab" data-tab="backtest">📉 بک‌تست</button>
+    <button class="tab" data-tab="options">🎟 اختیار</button>
+    <button class="tab" data-tab="notify">📨 اعلان‌ها</button>
+    <button class="tab" data-tab="map">🗺 نقشه بازار</button>
+    <button class="tab" data-tab="filter">🧪 فیلترنویسی</button>
+    <button class="tab" data-tab="fund">📊 بنیادی</button>
+    <button class="tab" data-tab="value">💎 سهام ارزنده</button>
+    <button class="tab" data-tab="big">⚡ تحرکات بزرگان</button>
+    <button class="tab" data-tab="tablo">📐 تابلو کستیک</button>
+    <button class="tab" data-tab="hot">🔥 پول داغ</button>
+    <button class="tab" data-tab="game">🎲 بازی بازار</button>
+    <button class="tab" data-tab="industry">🏭 صنعت</button>
+    <button class="tab" data-tab="portfolio">💼 پورتفو</button>
+    <button class="tab" data-tab="alerts">🔔 هشدارها</button>
+    <button class="tab" data-tab="settings">⚙️ تنظیمات</button>
+    <button class="tab" data-tab="watch">👁 دیده‌بان</button>
+    <button class="tab" data-tab="forex">💱 فارکس</button>
+    <button class="tab" data-tab="excellent">✨ عالی v0.7</button>
+    <button class="tab" data-tab="guide">📖 راهنما</button>
+  </nav>
+
+  <section class="stats" id="statsBar">
+    <div class="stat thermo-stat" id="thermoStat" title="دماسنج بازار — ترکیب عرض بازار، ارزش، پول داغ، هشدارها و خالص حقیقی">
+      <span class="label">🌡 دماسنج بازار</span>
+      <strong id="thermoScore">—</strong>
+      <div class="thermo-bar" id="thermoBar"><i id="thermoFill"></i></div>
+    </div>
+    <div class="stat"><span class="label">نمادها</span><strong id="stSymbols">—</strong></div>
+    <div class="stat up"><span class="label">مثبت</span><strong id="stPos">—</strong></div>
+    <div class="stat down"><span class="label">منفی</span><strong id="stNeg">—</strong></div>
+    <div class="stat accent"><span class="label">هشدار ورود</span><strong id="stEntry">—</strong></div>
+    <div class="stat warn"><span class="label">هشدار خروج</span><strong id="stExit">—</strong></div>
+    <div class="stat"><span class="label">تحرکات بزرگان</span><strong id="stBig">—</strong></div>
+    <div class="stat"><span class="label">پول داغ</span><strong id="stHot">—</strong></div>
+    <div class="stat"><span class="label">پورتفو / اسنپ‌شات</span><strong id="stPort">—</strong></div>
+  </section>
+
+  <main>
+    <section class="panel active" id="tab-final">
+      <div class="panel-head">
+        <div>
+          <h2>🏁 جمع‌بندی نهایی — تابلو + بنیادی + جریان ۱۰دقیقه</h2>
+          <p class="muted">سهام ارزنده بنیادی وقتی ورود/خروج پول قوی در سکانس ۱۰دقیقه‌ای ببینند → هشدار خرید/فروش (تلگرام و بله)</p>
+        </div>
+        <div class="filters">
+          <div class="seg" id="finalAction">
+            <button class="active" data-act="all">همه</button>
+            <button data-act="buy">خرید</button>
+            <button data-act="sell">فروش</button>
+            <button data-act="watch">رصد</button>
+          </div>
+          <button class="btn primary" id="btnFinalReload">↻ بروزرسانی</button>
+          <button class="btn ghost" id="btnFinalNotify">📨 ارسال هشدارها</button>
+        </div>
+      </div>
+      <div class="cards" id="finalSummary"></div>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="finalTable">
+          <thead>
+            <tr>
+              <th>اقدام</th><th>امتیاز</th><th>نماد</th><th>صنعت</th><th>%</th><th>P/E</th>
+              <th>تابلو ورود</th><th>تابلو خروج</th><th>بنیادی</th>
+              <th>جریان ۱۰′</th><th>قدرت</th><th>حجم×</th><th>دلایل</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="muted" id="finalMsg" style="margin-top:.75rem"></p>
+    </section>
+
+    <section class="panel" id="tab-hunt">
+      <div class="panel-head">
+        <div>
+          <h2>سیگنال‌های ورود — پول هوشمند + حجم + شکار منفی</h2>
+          <p class="muted">اولویت: ورود پول هوشمند، حجم غیرعادی، قیمت منفی نزدیک صف خرید، بنیادی مناسب</p>
+        </div>
+        <div class="filters">
+          <label class="chip"><input type="checkbox" id="fNegOnly" /> فقط منفی</label>
+          <label class="chip"><input type="checkbox" id="fFundOnly" /> بنیادی خوب</label>
+          <label class="chip">حداقل امتیاز
+            <input type="range" id="fMinScore" min="0" max="90" value="65" />
+            <span id="fMinScoreVal">65</span>
+          </label>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="entryTable">
+          <thead>
+            <tr>
+              <th></th><th>امتیاز</th><th>نماد</th><th>صنعت</th><th>آخرین</th><th>%</th>
+              <th>قدرت</th><th>حجم×</th><th>P/E</th><th>پول خالص</th><th>پول داغ</th><th>تگ‌ها</th><th>دلایل</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-live">
+      <div class="panel-head">
+        <div>
+          <h2>فید زنده WebSocket</h2>
+          <p class="muted">اتصال به <code>/ws/live</code> — با هر رفرش سرور، overview و سیگنال‌ها پوش می‌شوند</p>
+        </div>
+        <div class="filters">
+          <button class="btn primary" id="btnWsReconnect">↻ اتصال مجدد</button>
+          <button class="btn ghost" id="btnWsRefresh">درخواست refresh</button>
+        </div>
+      </div>
+      <div class="cards" id="liveCards"></div>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="liveEntryTable">
+          <thead>
+            <tr><th>امتیاز</th><th>نماد</th><th>%</th><th>قدرت</th><th>حجم×</th><th>دلایل</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <pre class="code" id="liveLog" style="margin-top:1rem;max-height:220px;overflow:auto"></pre>
+    </section>
+
+    <section class="panel" id="tab-backtest">
+      <div class="panel-head">
+        <div>
+          <h2>بک‌تست سیگنال ورود/خروج</h2>
+          <p class="muted">روی تاریخچه اسنپ‌شات یا مسیر مصنوعی — کارمزد تقریبی لحاظ می‌شود</p>
+        </div>
+        <div class="filters">
+          <button class="btn primary" id="btnBtRun">▶ اجرای بک‌تست</button>
+        </div>
+      </div>
+      <div class="settings-grid" id="btParams">
+        <div class="setting-card"><label>آستانه ورود</label><input id="btEntry" type="number" value="65" /></div>
+        <div class="setting-card"><label>آستانه خروج</label><input id="btExit" type="number" value="60" /></div>
+        <div class="setting-card"><label>حد سود ٪</label><input id="btTp" type="number" value="4" step="0.1" /></div>
+        <div class="setting-card"><label>حد ضرر ٪</label><input id="btSl" type="number" value="-3" step="0.1" /></div>
+        <div class="setting-card"><label>حداکثر نگهداری (بار)</label><input id="btHold" type="number" value="24" /></div>
+        <div class="setting-card"><label>کارمزد ٪</label><input id="btFee" type="number" value="0.5" step="0.1" /></div>
+        <div class="setting-card"><label>تعداد بار مصنوعی</label><input id="btBars" type="number" value="80" /></div>
+      </div>
+      <div class="cards" id="btCards" style="margin-top:1rem"></div>
+      <div id="btEquity" class="hist-spark" style="margin-top:1rem;min-height:80px"></div>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="btTrades">
+          <thead>
+            <tr><th>نماد</th><th>ورود</th><th>خروج</th><th>بازده٪</th><th>نگهداری</th><th>دلیل خروج</th><th>امتیاز ورود</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="muted" id="btNotes" style="margin-top:.75rem"></p>
+    </section>
+
+    <section class="panel" id="tab-options">
+      <div class="panel-head">
+        <div>
+          <h2>اختیار معامله</h2>
+          <p class="muted">زنجیره مصنوعی Black-Scholes + پیشنهاد استراتژی بر اساس سیگنال تابلو</p>
+        </div>
+        <div class="filters">
+          <input class="text-input" id="optSymbol" placeholder="نماد مثلاً فملی" value="فملی" />
+          <button class="btn primary" id="btnOptLoad">بارگذاری زنجیره</button>
+        </div>
+      </div>
+      <div class="cards" id="optCards"></div>
+      <div class="panel-head" style="margin-top:1rem"><h3 style="margin:0">پیشنهاد استراتژی</h3></div>
+      <div id="optStrategies" class="cards"></div>
+      <div class="panel-head" style="margin-top:1rem"><h3 style="margin:0">ماشین‌حساب پرمیوم</h3></div>
+      <div class="settings-grid">
+        <div class="setting-card"><label>Spot</label><input id="opSpot" type="number" /></div>
+        <div class="setting-card"><label>Strike</label><input id="opStrike" type="number" /></div>
+        <div class="setting-card"><label>روز تا سررسید</label><input id="opDays" type="number" value="30" /></div>
+        <div class="setting-card"><label>نوسان (vol)</label><input id="opVol" type="number" value="0.35" step="0.01" /></div>
+        <div class="setting-card"><label>نرخ بهره</label><input id="opRate" type="number" value="0.25" step="0.01" /></div>
+        <div class="setting-card"><label>نوع</label>
+          <select id="opType" class="text-input"><option value="call">Call</option><option value="put">Put</option></select>
+        </div>
+      </div>
+      <div class="filters" style="margin-top:.5rem">
+        <button class="btn primary" id="btnOptPrice">محاسبه</button>
+      </div>
+      <div class="kv" id="optPriceOut" style="margin-top:.75rem"></div>
+      <div id="optPayoff" class="hist-spark" style="margin-top:1rem"></div>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="optChainTable">
+          <thead>
+            <tr>
+              <th>اعمال</th><th>Call قیمت</th><th>Call Δ</th><th>Put قیمت</th><th>Put Δ</th><th>Moneyness</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-notify">
+      <div class="panel-head">
+        <div>
+          <h2>اعلان تلگرام / بله</h2>
+          <p class="muted">بدون توکن به‌صورت dry-run در لاگ ذخیره می‌شود. توکن را اینجا یا با env بدهید.</p>
+        </div>
+        <div class="filters">
+          <button class="btn primary" id="btnNotifySave">💾 ذخیره</button>
+          <button class="btn ghost" id="btnNotifyTest">ارسال تست</button>
+        </div>
+      </div>
+      <div class="settings-grid" id="notifyGrid">
+        <div class="setting-card"><label>فعال</label>
+          <select id="nfEnabled" class="text-input"><option value="0">خیر</option><option value="1">بله</option></select>
+        </div>
+        <div class="setting-card"><label>Telegram Bot Token</label><input id="nfTgToken" type="password" placeholder="123:ABC..." /></div>
+        <div class="setting-card"><label>Telegram Chat ID</label><input id="nfTgChat" type="text" /></div>
+        <div class="setting-card"><label>Bale Bot Token</label><input id="nfBaleToken" type="password" /></div>
+        <div class="setting-card"><label>Bale Chat ID</label><input id="nfBaleChat" type="text" /></div>
+        <div class="setting-card"><label>حداقل امتیاز ورود (تابلو خام)</label><input id="nfMinEntry" type="number" value="80" /></div>
+        <div class="setting-card"><label>حداقل امتیاز خروج (تابلو خام)</label><input id="nfMinExit" type="number" value="70" /></div>
+        <div class="setting-card"><label>حداقل خرید ترکیبی</label><input id="nfMinComboBuy" type="number" value="70" /></div>
+        <div class="setting-card"><label>حداقل فروش ترکیبی</label><input id="nfMinComboSell" type="number" value="65" /></div>
+        <div class="setting-card"><label>Cooldownoldown (ثانیه)</label><input id="nfCool" type="number" value="900" /></div>
+        <div class="setting-card"><label>فقط پورتفو</label>
+          <select id="nfPfOnly" class="text-input"><option value="0">خیر</option><option value="1">بله</option></select>
+        </div>
+        <div class="setting-card"><label>هشدار جمع‌بندی نهایی</label>
+          <select id="nfCombo" class="text-input"><option value="1">فعال</option><option value="0">خاموش</option></select>
+        </div>
+        <div class="setting-card"><label>هشدار خام تابلو (قدیمی)</label>
+          <select id="nfLegacy" class="text-input"><option value="0">خاموش</option><option value="1">فعال</option></select>
+        </div>
+      </div>
+      <p class="muted" id="notifyMsg" style="margin-top:.75rem"></p>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="notifyLogTable">
+          <thead><tr><th>زمان</th><th>کانال</th><th>وضعیت</th><th>متن</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-map">
+      <div class="panel-head">
+        <div>
+          <h2>نقشه بازار (Treemap)</h2>
+          <p class="muted">اندازه و رنگ قابل تنظیم — کلیک روی هر نماد صفحه جزئیات را باز می‌کند</p>
+        </div>
+        <div class="filters">
+          <label class="chip">اندازه
+            <select id="mapSize" class="text-input" style="min-width:auto;padding:.25rem .4rem">
+              <option value="tval">ارزش معاملات</option>
+              <option value="tvol">حجم</option>
+              <option value="mv">ارزش بازار</option>
+              <option value="abs_net">|پول حقیقی|</option>
+              <option value="equal">یکسان</option>
+            </select>
+          </label>
+          <label class="chip">رنگ
+            <select id="mapColor" class="text-input" style="min-width:auto;padding:.25rem .4rem">
+              <option value="plp">درصد قیمت</option>
+              <option value="entry_score">امتیاز ورود</option>
+              <option value="exit_score">امتیاز خروج</option>
+              <option value="hot_net">پول داغ</option>
+              <option value="buy_power">قدرت خریدار</option>
+              <option value="individual_net">خالص حقیقی</option>
+            </select>
+          </label>
+          <button class="btn ghost" id="btnMapReload">↻ بروزرسانی نقشه</button>
+        </div>
+      </div>
+      <div id="marketMap" class="treemap"></div>
+      <p class="muted" id="mapMeta" style="margin-top:.5rem"></p>
+    </section>
+
+    <section class="panel" id="tab-filter">
+      <div class="panel-head">
+        <div>
+          <h2>فیلترنویسی سفارشی</h2>
+          <p class="muted">عبارت بولی شبیه tsetmc — مثال: buy_power &gt;= 2 and volume_ratio &gt;= 2 and plp &lt;= 0</p>
+        </div>
+        <div class="filters">
+          <button class="btn primary" id="btnFilterRun">▶ اجرا</button>
+          <button class="btn ghost" id="btnFilterSave">💾 ذخیره</button>
+        </div>
+      </div>
+      <div class="filters" style="margin-bottom:.5rem" id="filterPresets"></div>
+      <textarea id="filterExpr" class="filter-editor" spellcheck="false">plp &lt;= 0 and buy_power &gt;= 1.8 and volume_ratio &gt;= 2 and entry_score &gt;= 60</textarea>
+      <div class="field-chips" id="filterFields"></div>
+      <div class="filters" style="margin:.5rem 0">
+        <span class="muted" id="filterMsg">—</span>
+        <div id="savedFilters" class="filters"></div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="filterTable">
+          <thead>
+            <tr>
+              <th></th><th>ورود</th><th>نماد</th><th>صنعت</th><th>%</th><th>قدرت</th>
+              <th>حجم×</th><th>P/E</th><th>طلایی</th><th>بنیادی</th><th>تگ‌ها</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-fund">
+      <div class="panel-head">
+        <div>
+          <h2>تحلیل بنیادی ۵محوره</h2>
+          <p class="muted">روند · سودآوری · بدهی/نقدینگی · کیفیت سود · قوت/ریسک — کلیک روی نماد = گزارش کامل</p>
+        </div>
+        <div class="filters">
+          <input class="text-input" id="deepSym" placeholder="نماد برای گزارش عمیق" value="فملی" />
+          <button class="btn primary" id="btnDeepFund">📄 گزارش عمیق</button>
+          <label class="chip">حداقل امتیاز
+            <input type="range" id="fFundMin" min="0" max="90" value="0" />
+            <span id="fFundMinVal">0</span>
+          </label>
+        </div>
+      </div>
+      <div class="guide" style="margin-bottom:1rem">
+        <div class="guide-grid">
+          <article><h3>۱) روند کلی</h3><p class="muted">درآمد، سود ناخالص/عملیاتی/خالص، دارایی، بدهی، حقوق صاحبان سهام + ٪تغییر ۳ دوره</p></article>
+          <article><h3>۲) سودآوری</h3><p class="muted">حاشیه ناخالص/عملیاتی/خالص، ROA، ROE و نقش اقلام غیرعملیاتی</p></article>
+          <article><h3>۳) بدهی و نقدینگی</h3><p class="muted">جاری، آنی، بدهی، D/E، سرمایه در گردش، مطالبات و تسهیلات</p></article>
+          <article><h3>۴) کیفیت سود</h3><p class="muted">CFO در برابر سود خالص و سرمایه در گردش</p></article>
+          <article><h3>۵) قوت و ریسک</h3><p class="muted">۵ قوت، ۵ ریسک، ۵ سؤال + بند حسابرس و اشخاص وابسته</p></article>
+          <article class="warn-box"><h3>evidence</h3><p class="muted">definite = از جدول · analytical = برداشت · insufficient = بدون حدس عدد</p></article>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="fundTable">
+          <thead>
+            <tr>
+              <th>ارزندگی</th><th>درجه</th><th>نماد</th><th>صنعت</th><th>P/E</th>
+              <th>ROE</th><th>رشد سود</th><th>رشد فروش</th><th>بدهی</th><th>جاری</th><th>یادداشت</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-value">
+      <div class="panel-head">
+        <div>
+          <h2>💎 جدول سهام ارزنده / پرپتانسیل بنیادی</h2>
+          <p class="muted">رتبه‌بندی ترکیبی P/E + روند + سودآوری + نقدینگی + کیفیت سود + حسابرس</p>
+        </div>
+        <div class="filters">
+          <label class="chip">حداکثر P/E
+            <input type="number" id="valMaxPe" class="text-input" style="width:70px" value="18" />
+          </label>
+          <label class="chip">حداقل امتیاز
+            <input type="number" id="valMinScore" class="text-input" style="width:70px" value="55" />
+          </label>
+          <button class="btn primary" id="btnValueReload">↻ بروزرسانی</button>
+        </div>
+      </div>
+      <div class="cards" id="valueScoreLegend"></div>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="valueTable">
+          <thead>
+            <tr>
+              <th>رتبه</th><th>امتیاز</th><th>درجه</th><th>نماد</th><th>صنعت</th><th>P/E</th>
+              <th>PEG</th><th>ROE</th><th>حاشیه٪</th><th>CFO/سود</th><th>بدهی</th>
+              <th>رشد سود</th><th>رشد فروش</th><th>جزئیات امتیاز</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-exit">
+      <div class="panel-head">
+        <div>
+          <h2>هشدار خروج</h2>
+          <p class="muted">خروج پول حقیقی، ضعف قدرت خریدار، فروش درشت و تحرکات منفی</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="exitTable">
+          <thead>
+            <tr>
+              <th></th><th>ریسک</th><th>نماد</th><th>صنعت</th><th>آخرین</th><th>%</th>
+              <th>قدرت</th><th>حجم×</th><th>پول خالص</th><th>پول داغ</th><th>دلایل</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-big">
+      <div class="panel-head">
+        <div>
+          <h2>تحرکات بزرگان — پنجره زمانی</h2>
+          <p class="muted">مقایسه ورود/خروج پول داغ، سرانه، حجم و تأثیر قیمت نسبت به چند دقیقه قبل (پیش‌فرض ۱۰ دقیقه)</p>
+        </div>
+        <div class="filters">
+          <div class="seg" id="bigWindow">
+            <button data-w="300">۵ دقیقه</button>
+            <button class="active" data-w="600">۱۰ دقیقه</button>
+            <button data-w="900">۱۵ دقیقه</button>
+            <button data-w="1800">۳۰ دقیقه</button>
+          </div>
+          <div class="seg" id="bigSide">
+            <button class="active" data-side="all">همه</button>
+            <button data-side="inflow">ورود</button>
+            <button data-side="outflow">خروج</button>
+          </div>
+          <div class="seg" id="bigView">
+            <button class="active" data-view="table">📋 جدول</button>
+            <button data-view="matrix">🌡 ماتریس گرمایی</button>
+          </div>
+        </div>
+      </div>
+      <div class="cards" id="bigMatrix" style="display:none"></div>
+      <div class="table-wrap" id="bigTableWrap">
+        <table class="data-table" id="bigTable">
+          <thead>
+            <tr>
+              <th>امتیاز</th><th>نماد</th><th>سمت</th><th>صنعت</th><th>Δ پول خالص</th>
+              <th>Δ %</th><th>Δ قدرت</th><th>Δ پول داغ</th><th>قیمت</th><th>یادداشت</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-tablo">
+      <div class="panel-head">
+        <div>
+          <h2>تابلو کستیک — D⁺ · M⁺ · عدد طلایی · کیفیت</h2>
+          <p class="muted">شاخص‌های ترکیبی تابلو برای سنجش کیفیت ورود پول و وضعیت تقاضا</p>
+        </div>
+        <div class="filters">
+          <label class="chip">حداقل کیفیت
+            <input type="range" id="fTabloQ" min="0" max="90" value="0" />
+            <span id="fTabloQVal">0</span>
+          </label>
+          <div class="seg" id="tabloGrade">
+            <button class="active" data-g="all">همه</button>
+            <button data-g="A">A</button>
+            <button data-g="B">B</button>
+            <button data-g="C">C+</button>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="tabloTable">
+          <thead>
+            <tr>
+              <th>درجه</th><th>کیفیت</th><th>نماد</th><th>عدد طلایی</th><th>D⁺</th><th>M⁺</th>
+              <th>M/D</th><th>صف</th><th>%</th><th>ساعت</th><th>کراس</th><th>یادداشت</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-hot">
+      <div class="panel-head">
+        <div>
+          <h2>پول داغ و پول داغ پلاس</h2>
+          <p class="muted">سرانه حقیقی درشت — آستانه‌ها از تب تنظیمات قابل تغییر است</p>
+        </div>
+        <div class="filters">
+          <div class="seg" id="hotTier">
+            <button class="active" data-tier="hot">پول داغ</button>
+            <button data-tier="plus">پلاس</button>
+            <button data-tier="all">همه</button>
+          </div>
+          <div class="seg" id="hotView">
+            <button class="active" data-view="table">📋 جدول</button>
+            <button data-view="heat">🔥 هیتمپ</button>
+          </div>
+        </div>
+      </div>
+      <div class="cards" id="hotHeatmap" style="display:none"></div>
+      <div class="table-wrap" id="hotTableWrap">
+        <table class="data-table" id="hotTable">
+          <thead>
+            <tr>
+              <th>سطح</th><th>نماد</th><th>سمت</th><th>صنعت</th><th>سرانه</th>
+              <th>قدرت</th><th>%</th><th>حجم×</th><th>برآیند</th><th>جریان</th><th>امتیاز</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-game">
+      <div class="panel-head">
+        <div>
+          <h2>بازی بازار — بزرگان / متوسط / خرد</h2>
+          <p class="muted">رفتار لایه‌های سرمایه حقیقی + قهرمانان شکار (ورود پول در قیمت منفی)</p>
+        </div>
+      </div>
+      <div class="panel-head" style="margin-top:.5rem"><h3 style="margin:0">🎯 قهرمانان شکار — ورود پول هوشمند در قیمت منفی</h3></div>
+      <div class="cards" id="huntChampions"></div>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="gameTable">
+          <thead>
+            <tr>
+              <th>نماد</th><th>صنعت</th><th>بزرگان</th><th>متوسط</th><th>خرد</th>
+              <th>غالب</th><th>%</th><th>حجم×</th><th>قدرت</th><th>یادداشت</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-industry">
+      <div class="panel-head">
+        <div>
+          <h2>شکار صنعت</h2>
+          <p class="muted">جریان نقدینگی گروهی و کاندیداهای ورود</p>
+        </div>
+      </div>
+      <div class="cards" id="industryCards"></div>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="industryTable">
+          <thead>
+            <tr>
+              <th>امتیاز</th><th>صنعت</th><th>تعداد</th><th>میانگین %</th><th>ارزش</th>
+              <th>خالص حقیقی</th><th>قدرت</th><th>حجم×</th><th>کاندید</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-portfolio">
+      <div class="panel-head">
+        <div>
+          <h2>پورتفو مجازی</h2>
+          <p class="muted">نمادهای تحت‌نظر با امتیاز لحظه‌ای ورود/خروج و شاخص‌های تابلو کستیک</p>
+        </div>
+        <div class="filters">
+          <input class="text-input" id="pfSymbol" placeholder="نماد مثلاً فملی" />
+          <input class="text-input" id="pfNote" placeholder="یادداشت (اختیاری)" />
+          <button class="btn primary" id="btnPfAdd">＋ افزودن</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="pfTable">
+          <thead>
+            <tr>
+              <th>نماد</th><th>%</th><th>ورود</th><th>خروج</th><th>قدرت</th>
+              <th>طلایی</th><th>D⁺</th><th>M⁺</th><th>درجه</th><th>سمت</th><th>یادداشت</th><th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-alerts">
+      <div class="panel-head">
+        <div>
+          <h2>تاریخچه هشدارها</h2>
+          <p class="muted">هشدارهای ثبت‌شده هنگام رصد بازار (dedupe هر ۱۵ دقیقه)</p>
+        </div>
+        <div class="filters">
+          <div class="seg" id="alertSide">
+            <button class="active" data-side="all">همه</button>
+            <button data-side="entry">ورود</button>
+            <button data-side="exit">خروج</button>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="alertTable">
+          <thead>
+            <tr>
+              <th>زمان</th><th>سمت</th><th>نماد</th><th>امتیاز</th><th>%</th><th>تگ‌ها</th><th>دلایل</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-settings">
+      <div class="panel-head">
+        <div>
+          <h2>تنظیم آستانه‌ها</h2>
+          <p class="muted">تغییرات ذخیره می‌شود و از رفرش بعدی روی موتور سیگنال اعمال می‌گردد</p>
+        </div>
+        <div class="filters">
+          <button class="btn primary" id="btnSaveTh">💾 ذخیره</button>
+          <button class="btn ghost" id="btnResetTh">بازنشانی پیش‌فرض</button>
+        </div>
+      </div>
+      <div class="settings-grid" id="settingsGrid"></div>
+      <p class="muted" id="settingsMsg" style="margin-top:.75rem"></p>
+    </section>
+
+    <section class="panel" id="tab-watch">
+      <div class="panel-head">
+        <div>
+          <h2>دیده‌بان</h2>
+          <p class="muted">نمادهای در حال شکل‌گیری قبل از آستانه هشدار</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="watchTable">
+          <thead>
+            <tr>
+              <th></th><th>امتیاز</th><th>نماد</th><th>صنعت</th><th>%</th><th>قدرت</th><th>حجم×</th><th>تگ‌ها</th><th>دلایل</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    
+    
+    <section class="panel" id="tab-forex">
+      <div class="panel-head">
+        <div>
+          <h2>💱 فارکس و طلا و شاخص‌های جهانی — مثل faraz.io ولی بهتر</h2>
+          <p class="muted">طلا XAU/USD با بروکر BlackBull / Pepperstone / FXCM · GC1 (COMEX) · DXY (TVC) · S&P 500 · US100 · US30 · نفت برنت (Capital.com) — دیتای واقعی رایگان</p>
+        </div>
+        <div class="filters">
+          <div class="seg" id="forexSymbols"></div>
+          <div class="seg" id="forexBrokers"></div>
+          <div class="seg" id="forexTf">
+            <button class="active" data-tf="1m">1m</button>
+            <button data-tf="5m">5m</button>
+            <button data-tf="15m">15m</button>
+            <button data-tf="30m">30m</button>
+            <button data-tf="1h">1h</button>
+            <button data-tf="1D">1D</button>
+            <button data-tf="10R" title="رنج بار ۱۰ (قیمت‌محور مثل تریدینگ ویو)">10R</button>
+            <button data-tf="100R" title="رنج بار ۱۰۰">100R</button>
+            <button data-tf="1000R" title="رنج بار ۱۰۰۰">1000R</button>
+          </div>
+          <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+            <button class="btn tiny" id="vpToggle" title="نمایش ولیو پرفایل (POC/VAH/VAL)">📊 ولیو پرفایل</button>
+            <div class="seg" id="vpMode" style="display:none">
+              <button class="active" data-mode="visible" title="محاسبه روی محدوده نمایان — مثل تریدینگ ویو (با زوم/اسکرول به‌روز می‌شود)">محدوده نمایان</button>
+              <button data-mode="full" title="محاسبه روی همه کندل‌های لودشده">کل داده</button>
+            </div>
+            <button class="btn tiny" id="srToggle" title="حمایت/مقاومت خودکار (نقاط چرخش)">🛡 حمایت/مقاومت</button>
+            <button class="btn tiny" id="replayToggle" title="رپلای — پخش کندل به کندل مثل تریدینگ ویو">⏪ رپلای</button>
+            <span id="vpInfo" style="display:inline-flex;gap:.4rem;align-items:center;flex-wrap:wrap"></span>
+            <span class="muted" id="srInfo"></span>
+          </div>
+        </div>
+      </div>
+      <div class="filters" style="margin-top:.5rem">
+        <span class="muted">📈 اندیکاتور:</span>
+        <div class="seg" id="indOsc">
+          <button class="active" data-osc="RSI">RSI</button>
+          <button data-osc="MACD">MACD</button>
+          <button data-osc="Stoch">Stoch</button>
+          <button data-osc="CCI">CCI</button>
+          <button data-osc="OBV">OBV</button>
+          <button data-osc="Williams">Williams</button>
+          <button data-osc="ADX">ADX</button>
+        </div>
+        <div class="seg" id="indOverlay">
+          <button data-ov="boll">Bollinger</button>
+          <button data-ov="vwap">VWAP</button>
+        </div>
+      </div>
+      <div id="forexChart" class="chart-box" style="height:500px"></div>
+      <div id="forexOscChart" class="chart-box" style="height:150px;margin-top:.6rem"></div>
+      <div id="replayBar" class="replay-bar hidden" style="margin-top:.6rem">
+        <button class="btn tiny primary" id="rpPlay" title="پخش / توقف">⏸</button>
+        <div class="seg" id="rpSpeeds">
+          <button data-sp="1">1×</button>
+          <button class="active" data-sp="5">5×</button>
+          <button data-sp="10">10×</button>
+          <button data-sp="25">25×</button>
+        </div>
+        <input type="range" id="rpSlider" min="0" max="100" value="0" title="پرش به لحظه دلخواه" />
+        <span class="muted" id="rpStatus" style="white-space:nowrap">—</span>
+        <button class="btn tiny danger-outline" id="rpClose" title="بستن">✕</button>
+      </div>
+      <div class="cards" id="forexInfo" style="margin-top:1rem"></div>
+      <div class="panel-head" style="margin-top:1.5rem"><h3>🎨 اندیکاتور شخصی (قابلیتی که فراز نداره)</h3></div>
+      <div id="forexCustomIndicator"></div>
+    </section>
+
+    <section class="panel" id="tab-excellent">
+      <div class="panel-head">
+        <div>
+          <h2>✨ نسخه عالی v0.7 - امکانات خلاقانه</h2>
+          <p class="muted">AI توضیح سیگنال، مدیریت ریسک، کیفیت داده، تشخیص آنومالی، معماری رویداد-محور، متریکس پرومتئوس</p>
+        </div>
+        <div class="filters">
+          <button class="btn primary" onclick="location.reload()">↻ بروزرسانی عالی</button>
+        </div>
+      </div>
+      <div class="guide">
+        <div class="guide-grid">
+          <article><h3>🧠 AI توضیح سیگنال</h3><p class="muted">هر سیگنال خرید/فروش با زبان طبیعی فارسی توضیح داده می‌شود - چرا بخریم؟</p><div id="excellentAI" class="muted">برای دیدن توضیح، روی یک نماد در جدول جمع‌بندی کلیک کنید و سپس /api/v07/ai-explain/{نماد}</div></article>
+          <article><h3>⚠️ مدیریت ریسک</h3><p class="muted">محاسبه حجم موقعیت بر اساس Kelly و حد ضرر پیشنهادی</p><div id="excellentRisk" class="muted">در حال بارگذاری...</div></article>
+          <article><h3>📊 کیفیت داده</h3><p class="muted">امتیاز کیفیت داده هر نماد - تازگی، کامل بودن، دقت</p><div id="excellentQuality" class="muted">در حال بارگذاری...</div></article>
+          <article><h3>🚨 تشخیص آنومالی</h3><p class="muted">تشخیص جهش قیمت مشکوک، حجم غیرعادی، عدم تعادل دفتر سفارش</p><div id="excellentAnomalies" class="muted">در حال بارگذاری...</div></article>
+          <article><h3>📡 معماری رویداد-محور</h3><p class="muted">EventBus داخلی - system.startup, ws.connected, market.refresh</p><div id="excellentEvents" class="muted"><a href="/api/v07/events" target="_blank">/api/v07/events</a> - <a href="/api/v07/metrics" target="_blank">/metrics</a></div></article>
+          <article><h3>🔒 امنیت عالی</h3><p class="muted">Request ID، Audit Log، Rate Limit per-path، Encryption at rest، Security Headers</p><div class="muted">X-Request-ID, X-Frame-Options, CSP nonce-ready</div></article>
+        </div>
+      </div>
+      <div class="panel-head" style="margin-top:1.5rem"><h3>🎯 بهینه‌سازی پرتفو (MPT)</h3></div>
+      <div id="excellentPortfolio" class="muted">در حال بارگذاری پرتفو بهینه...</div>
+    </section>
+
+    <section class="panel" id="tab-guide">
+      <div class="guide">
+        <h2>راهنمای فاز ۲</h2>
+        <div class="guide-grid">
+          <article>
+            <h3>تحرکات بزرگان</h3>
+            <p>هر رفرش، اسنپ‌شات نمادها در SQLite ذخیره می‌شود. اختلاف پول خالص، سرانه، قدرت خریدار و قیمت نسبت به ۱۰ دقیقه قبل امتیازدهی می‌شود — مشابه «بازی بزرگان» تابلوخوانی.</p>
+          </article>
+          <article>
+            <h3>تابلو کستیک</h3>
+            <ul>
+              <li><b>D⁺</b> قدرت تقاضای لحظه‌ای</li>
+              <li><b>M⁺</b> مومنتوم پول حقیقی</li>
+              <li><b>عدد طلایی</b> ترکیب سرانه/قدرت/حجم/تقاضا</li>
+              <li><b>کراس / ساعت</b> رابطه آخرین و پایانی</li>
+            </ul>
+          </article>
+          <article>
+            <h3>پورتفو مجازی</h3>
+            <p>نماد اضافه کنید تا همیشه امتیاز ورود/خروج و شاخص‌های تابلو را یکجا ببینید. از جدول‌ها با دکمه ＋ هم می‌توانید اضافه کنید.</p>
+          </article>
+          <article>
+            <h3>تنظیمات</h3>
+            <p>آستانه پول داغ، حجم مشکوک، قدرت خریدار، امتیاز ورود/خروج و پنجره تحرکات را مطابق سبک معاملاتی خود تنظیم کنید.</p>
+          </article>
+          <article>
+            <h3>APIهای جدید</h3>
+            <pre class="code">GET  /api/big-moves?window_sec=600
+GET  /api/tablocastic
+GET  /api/alerts
+GET  /api/portfolio
+POST /api/portfolio  {"symbol":"فملی"}
+PUT  /api/config/thresholds
+GET  /api/history/فملی?hours=6</pre>
+          </article>
+          <article class="warn-box">
+            <h3>⚠ سلب مسئولیت</h3>
+            <p>ابزار کمک‌تحلیلی است؛ سیگنال تضمینی خرید/فروش نیست.</p>
+          </article>
+        </div>
+        <h3 style="margin-top:1.5rem">نقشه راه</h3>
+        <ol class="roadmap">
+          <li class="done"><b>فاز ۱:</b> هسته شکار، پول داغ، بازی بازار، صنایع</li>
+          <li class="done"><b>فاز ۲:</b> اسنپ‌شات، تحرکات بزرگان، تابلو کستیک، پورتفو، هشدارها</li>
+          <li class="done"><b>فاز ۳:</b> صفحه نماد + نمودار، نقشه بازار، فیلترنویسی، بنیادی</li>
+          <li class="done"><b>فاز ۴ (فعلی):</b> WebSocket، تلگرام/بله، بک‌تست، اختیار معامله</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal hidden" id="symbolModal">
+    <div class="modal-card wide">
+      <button class="modal-close" id="modalClose">×</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="deepFundModal">
+    <div class="modal-card wide" style="width:min(980px,100%);max-height:92vh">
+      <button class="modal-close" id="deepFundClose">×</button>
+      <div id="deepFundBody"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <span>شکار سهام v3.0 — معماری Meta · WebSocket · حالت خصوصی · فارکس/طلا</span>
+    <span id="lastUpdate">—</span>
+  </footer>
+
+  <script src="/static/vendor/lightweight-charts.standalone.production.js"></script>
+  <script type="module" src="/static/js/main.js"></script>
+  <script src="/static/js/legacy-loader.js"></script>
+  <script src="/static/js/sw-register.js"></script>
+</body>
+</html>
