@@ -447,12 +447,19 @@ async def symbol_full(l18: str) -> dict[str, Any]:
 class BacktestBody(BaseModel):
     entry_threshold: float = Field(65, ge=0, le=100)
     exit_threshold: float = Field(60, ge=0, le=100)
+    strategy_filter: Optional[str] = None
+    exit_filter: Optional[str] = None
     take_profit: float = Field(4.0, ge=0, le=1000)
     stop_loss: float = Field(-3.0, ge=-1000, le=0)
     max_hold_bars: int = Field(24, ge=1, le=10000)
     fee_pct: float = Field(0.5, ge=0, le=100)
+    slippage_pct: float = Field(0.0, ge=0, le=100)
+    capital: float = Field(100_000_000, gt=0)
+    position_size_pct: float = Field(10.0, gt=0, le=100)
     bars: int = Field(80, ge=10, le=5000)
     use_synthetic_if_needed: bool = True
+    walk_forward: bool = False
+    forward_test: bool = False
 
 
 class NotifyConfigBody(BaseModel):
@@ -488,12 +495,19 @@ async def backtest_run(body: BacktestBody = Body(default_factory=BacktestBody)) 
     result = market_service.run_backtest(
         entry_threshold=body.entry_threshold,
         exit_threshold=body.exit_threshold,
+        strategy_filter=body.strategy_filter,
+        exit_filter=body.exit_filter,
         take_profit=body.take_profit,
         stop_loss=body.stop_loss,
         max_hold_bars=body.max_hold_bars,
         fee_pct=body.fee_pct,
+        slippage_pct=body.slippage_pct,
+        capital=body.capital,
+        position_size_pct=body.position_size_pct,
         bars=body.bars,
         use_synthetic_if_needed=body.use_synthetic_if_needed,
+        walk_forward=body.walk_forward,
+        forward_test=body.forward_test,
     )
     return {"ok": True, "result": result}
 

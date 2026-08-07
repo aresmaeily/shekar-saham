@@ -8,3 +8,4 @@
 - `P3.24_CORE_PRODUCT_CONSOLIDATION_REPORT.md` — P3.24 core consolidation and validation report
 - `P3.25_IRAN_MARKET_DATA_DOMAIN_REPORT.md` — P3.25 Iran market data/domain stabilization report
 - `P3.26_FILTER_DSL_STRATEGY_FRAMEWORK_REPORT.md` — P3.26 Filter DSL and Strategy Framework report
+- `P3.27_BACKTEST_WALK_FORWARD_FORWARD_TEST_REPORT.md` — P3.27 Backtest, Walk-Forward and Forward Test report

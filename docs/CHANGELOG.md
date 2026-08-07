@@ -1,5 +1,17 @@
 # Changelog — Shekar Saham
 
+## 2026-08-07 — P3.27 Backtest, Walk-Forward Test & Forward Test
+
+- Added next-bar simulated execution for filter/strategy backtests to reduce look-ahead bias.
+- Added execution configuration for capital, position sizing, commission, slippage, take-profit, stop-loss and max-hold bars.
+- Added performance metrics: total return, net PnL, trade count, win rate, average win/loss, profit factor, drawdown, Sharpe status and equity curve.
+- Added walk-forward out-of-sample window evaluation and simulated forward-test boundary.
+- Integrated P3.26 `FilterStrategy` as a consumer of Filter DSL in the backtest engine.
+- Expanded existing `/api/backtest/run` additively without creating a new dashboard or rewriting frontend UI.
+- Added tests for next-bar execution, commission/slippage, no-trade scenario, multiple trades, walk-forward separation, forward boundary, and data trust preservation.
+- Added `docs/architecture/BACKTEST_WALK_FORWARD_FORWARD_TEST.md`.
+- No live trading, broker integration, paper trading account, AI, dashboard, UI redesign, or new market was added.
+
 ## 2026-08-07 — P3.26 Filter DSL & Strategy Framework
 
 - Stabilized the safe Filter DSL parser/validator/execution boundary.
