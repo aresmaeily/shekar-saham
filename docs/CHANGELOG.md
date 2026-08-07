@@ -1,5 +1,16 @@
 # Changelog — Shekar Saham
 
+## 2026-08-07 — P3.28 AI Assistant / Analyst / Optimizer & Alpha Transfer
+
+- Added controlled backend AI service with `AIContextBuilder`, deterministic fallback provider and structured AI result schema.
+- Added AI endpoints: `/api/ai/assistant`, `/api/ai/analyze`, `/api/ai/optimize`.
+- Added data-trust propagation, confidence, uncertainty, evidence, warnings and safety metadata to AI outputs.
+- Added tests for AI assistant, analyst, optimizer, invalid filter handling and API smoke.
+- Added `docs/architecture/AI_ASSISTANT_ANALYST_OPTIMIZER.md`.
+- Added `docs/ALPHA_SETUP_GUIDE.md` for restoring, validating and running the Alpha candidate on the main computer.
+- Prepared P3.28 transfer manifest and full project backup workflow.
+- No live LLM provider, AI Copilot rewrite, autonomous trading, broker integration, dashboard, UI redesign or new market was added.
+
 ## 2026-08-07 — P3.27 Backtest, Walk-Forward Test & Forward Test
 
 - Added next-bar simulated execution for filter/strategy backtests to reduce look-ahead bias.

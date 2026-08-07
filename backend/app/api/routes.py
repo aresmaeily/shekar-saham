@@ -444,6 +444,14 @@ async def symbol_full(l18: str) -> dict[str, Any]:
 
 # ---------- فاز ۴ ----------
 
+class AIRequestBody(BaseModel):
+    question: str = ""
+    symbol: Optional[str] = None
+    filter_expr: Optional[str] = None
+    backtest_result: Optional[dict[str, Any]] = None
+    language: str = "fa"
+
+
 class BacktestBody(BaseModel):
     entry_threshold: float = Field(65, ge=0, le=100)
     exit_threshold: float = Field(60, ge=0, le=100)
@@ -487,6 +495,27 @@ class OptionPriceBody(BaseModel):
     rate: float = 0.25
     option_type: str = "call"
     side: str = "buy"
+
+
+@router.post("/ai/assistant")
+async def ai_assistant(body: AIRequestBody = Body(default_factory=AIRequestBody)) -> dict[str, Any]:
+    from app.services.ai_service import AIRequest, ai_service
+
+    return await ai_service.assistant(AIRequest(**body.model_dump()), market_service)
+
+
+@router.post("/ai/analyze")
+async def ai_analyze(body: AIRequestBody = Body(default_factory=AIRequestBody)) -> dict[str, Any]:
+    from app.services.ai_service import AIRequest, ai_service
+
+    return await ai_service.analyst(AIRequest(**body.model_dump()), market_service)
+
+
+@router.post("/ai/optimize")
+async def ai_optimize(body: AIRequestBody = Body(default_factory=AIRequestBody)) -> dict[str, Any]:
+    from app.services.ai_service import AIRequest, ai_service
+
+    return await ai_service.optimizer(AIRequest(**body.model_dump()), market_service)
 
 
 @router.post("/backtest/run")

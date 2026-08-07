@@ -11,7 +11,8 @@ Last updated: 2026-08-07
 | P3.24 | Validated Locally — GitHub Closure Pending | Core product consolidation and Iran market architecture lock completed as documentation-only work; available validations passed; external runtime validations remain blocked/not executed as documented. |
 | P3.25 | Accepted Locally — GitHub Closure Pending | Iran market data/domain stabilization completed locally with verified backup; GitHub push remains credential-dependent. |
 | P3.26 | Accepted Locally — GitHub Closure Pending | Filter DSL and Strategy Framework completed locally with verified backup; GitHub push remains credential-dependent. |
-| P3.27 | In Progress | Backtest, Walk-Forward Test and Forward Test controlled local development with mandatory full-project backup. |
+| P3.27 | Accepted Locally — GitHub Closure Pending | Backtest, Walk-Forward and Forward Test completed locally with verified backup; GitHub push remains credential-dependent. |
+| P3.28 | In Progress | Controlled AI Assistant/Analyst/Optimizer plus Alpha readiness and full transfer package. |
 
 ## Baseline
 
