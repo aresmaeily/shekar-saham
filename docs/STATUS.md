@@ -9,7 +9,8 @@ Last updated: 2026-08-07
 | P3.23 | Completed | GitHub `main` contains `a00a0f4befb5582829b7fae2a8e248eaa7f4c4b8` and the closing P3.23-R1 commit. |
 | P3.23-R1 | Completed | GitHub `main` verified at `26a2d120b596aa298a40b2ebc6952310658f45b5`. |
 | P3.24 | Validated Locally — GitHub Closure Pending | Core product consolidation and Iran market architecture lock completed as documentation-only work; available validations passed; external runtime validations remain blocked/not executed as documented. |
-| P3.25 | In Progress | Controlled continuation allowed with local Git plus mandatory full-project backup while GitHub P3.24/P3.25 closure remains credential-dependent. |
+| P3.25 | Accepted Locally — GitHub Closure Pending | Iran market data/domain stabilization completed locally with verified backup; GitHub push remains credential-dependent. |
+| P3.26 | In Progress | Filter DSL and Strategy Framework controlled local development with mandatory full-project backup. |
 
 ## Baseline
 

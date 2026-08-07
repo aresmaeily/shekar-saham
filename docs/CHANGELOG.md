@@ -1,5 +1,17 @@
 # Changelog — Shekar Saham
 
+## 2026-08-07 — P3.26 Filter DSL & Strategy Framework
+
+- Stabilized the safe Filter DSL parser/validator/execution boundary.
+- Added explicit filter expression contracts: `FilterExpression`, `ExpressionNode`, `parse_filter`, `validate_filter`, and `expression_tree`.
+- Added bounded AST validation for expression length, node count and depth.
+- Added declarative indicator references: `sma(period)`, `avg_volume(period)`, `rsi(period)`, `high(period)`, and `low(period)`.
+- Preserved backward compatibility for existing saved filters and `compile_filter()` behavior.
+- Added initial strategy framework contracts in `backend/app/domain/strategy.py` without implementing backtest/forward-test/paper trading.
+- Added tests for parser metadata, valid/invalid expressions, injection protection, indicator references, market data aliases, and strategy contracts.
+- Added `docs/architecture/FILTER_DSL_STRATEGY_FRAMEWORK.md`.
+- No AI Copilot, LLM, dashboard, market, UI redesign, global expansion, broker integration, or backtest rewrite was added.
+
 ## 2026-08-07 — P3.25 Iran Market Data & Domain Stabilization
 
 - Added canonical data-trust classification for `live`, `mixed`, `mock`, and `synthetic` sources.

@@ -380,9 +380,9 @@ async def filter_run(body: FilterRunBody) -> dict[str, Any]:
 
 @router.get("/filter/presets")
 async def filter_presets() -> dict[str, Any]:
-    from app.engines.filter_dsl import PRESETS, fields_help
+    from app.engines.filter_dsl import PRESETS, fields_help, functions_help
 
-    return {"presets": PRESETS, "fields": fields_help()}
+    return {"presets": PRESETS, "fields": fields_help(), "functions": functions_help()}
 
 
 @router.get("/filter/saved")

@@ -19,7 +19,7 @@ from app.data.store import store
 from app.engines.backtest import backtest_from_market
 from app.engines.big_moves import compute_big_moves, ensure_flow_history, flow_coverage_sec
 from app.engines.confluence import build_confluence_board, pick_notify_alerts
-from app.engines.filter_dsl import FilterError, fields_help, run_filter
+from app.engines.filter_dsl import FilterError, fields_help, run_filter, validate_filter
 from app.engines.fundamental import (
     build_deep_fundamental,
 )
@@ -735,6 +735,7 @@ class MarketService:
             except Exception as exc:
                 logger.warning(f"row cache rebuild failed: {exc}")
         try:
+            validation = validate_filter(expr)
             matched = run_filter(expr, self._row_cache)
         except FilterError as exc:
             return {"ok": False, "error": str(exc), "count": 0, "rows": [], "fields": fields_help()}
@@ -771,6 +772,9 @@ class MarketService:
             "count": len(matched),
             "rows": slim,
             "expr": expr,
+            "normalized_expr": validation.get("normalized"),
+            "used_fields": validation.get("fields") or [],
+            "used_functions": validation.get("functions") or [],
             "fields": fields_help(),
             "trust_level": self._trust_level,
             "data_trust": self.data_trust_context(),
