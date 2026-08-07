@@ -79,6 +79,8 @@ async def refresh() -> dict[str, Any]:
     return {
         "ok": True,
         "source": analysis.overview.source,
+        "trust_level": market_service.trust_level(),
+        "data_trust": market_service.data_trust_context(),
         "symbol_count": analysis.overview.symbol_count,
         "entry_alerts": analysis.overview.entry_alerts,
         "exit_alerts": analysis.overview.exit_alerts,
@@ -92,6 +94,8 @@ async def overview(force: bool = False) -> dict[str, Any]:
     ov = analysis.overview.model_dump(mode="json")
     ov["big_moves"] = len(market_service._last_big_moves)
     ov["portfolio_count"] = len(store.portfolio_list())
+    ov["trust_level"] = market_service.trust_level()
+    ov["data_trust"] = market_service.data_trust_context()
     return ov
 
 
@@ -108,6 +112,7 @@ async def analyze(
     data["tablocastic_preview"] = market_service.get_tablocastic(limit=10)
     data["store"] = store.snapshot_stats()
     data["trust_level"] = market_service.trust_level()
+    data["data_trust"] = market_service.data_trust_context()
     data["flow_meta"] = market_service.status().get("flow_meta")
     data["confluence_summary"] = (market_service.get_confluence() or {}).get("summary")
     return data
@@ -563,6 +568,8 @@ async def live_status() -> dict[str, Any]:
         "ws": ws_hub.status(),
         "notifier": notifier.get_public_config(),
         "poll_seconds": market_service.status().get("poll_seconds"),
+        "trust_level": market_service.trust_level(),
+        "data_trust": market_service.data_trust_context(),
         "confluence": (market_service.get_confluence() or {}).get("summary"),
     }
 
@@ -589,6 +596,8 @@ async def confluence_board(
         "watchlist": (board.get("watchlist") or [])[:limit],
         "top_potentials": (board.get("top_potentials") or [])[:limit],
         "board": rows[:limit],
+        "trust_level": market_service.trust_level(),
+        "data_trust": market_service.data_trust_context(),
     }
 
 
@@ -614,6 +623,7 @@ async def confluence_notify_now() -> dict[str, Any]:
             "sent": 0,
             "preview_only": True,
             "trust_level": trust,
+            "data_trust": market_service.data_trust_context(),
             "message": "اعلان غیرفعال است — برای ارسال واقعی enabled را روشن کنید",
             "alerts": alerts[:20],
             "previews": texts,
@@ -624,6 +634,7 @@ async def confluence_notify_now() -> dict[str, Any]:
             "sent": 0,
             "blocked": True,
             "trust_level": trust,
+            "data_trust": market_service.data_trust_context(),
             "message": "داده synthetic است — برای ارسال، NOTIFY_ALLOW_SYNTHETIC=1 یا allow_synthetic در تنظیمات",
             "alerts": alerts[:20],
         }
@@ -639,6 +650,7 @@ async def confluence_notify_now() -> dict[str, Any]:
         "ok": True,
         "sent": sent,
         "trust_level": trust,
+        "data_trust": market_service.data_trust_context(),
         "alerts": alerts[:20],
         "summary": board.get("summary"),
     }

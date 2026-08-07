@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -13,6 +13,7 @@ DATA_DIR = ROOT / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 TrustLevel = Literal["synthetic", "mixed", "live"]
+DataTrustState = Literal["live", "mixed", "mock", "synthetic"]
 
 
 def _env_bool(name: str, default: str = "0") -> bool:
@@ -130,16 +131,78 @@ def get_settings() -> Settings:
     return Settings()
 
 
-def resolve_trust_level(source: str, settings: Settings | None = None) -> str:
-    """synthetic | mixed | live"""
+def classify_data_trust_state(source: str, settings: Settings | None = None) -> DataTrustState:
+    """LIVE / MIXED / MOCK / SYNTHETIC source classification for product UX.
+
+    This is intentionally more granular than the legacy `trust_level` contract.
+    Existing API clients still receive `trust_level` as live|mixed|synthetic,
+    while `data_trust.state` can distinguish mock from synthetic.
+    """
     s = settings or get_settings()
-    if s.trust_level_override in {"synthetic", "mixed", "live"}:
-        return s.trust_level_override
-    src = (source or "").lower()
-    if "mock" in src or "bootstrap" in src or "synthetic" in src:
+    override = (s.trust_level_override or "").strip().lower()
+    if override == "live":
+        return "live"
+    if override == "mixed":
+        return "mixed"
+    if override == "synthetic":
         return "synthetic"
+
+    src = (source or "").strip().lower()
     if src in {"tsetmc", "brsapi", "tsetmc_legacy"}:
         return "live"
-    if src in {"auto", "unknown", "none", ""}:
+    if "mock" in src:
+        return "mock"
+    if "synthetic" in src or "bootstrap" in src or "demo" in src:
+        return "synthetic"
+    if src in {"cache", "auto", "unknown", "none", ""}:
         return "mixed"
     return "mixed"
+
+
+def resolve_trust_level(source: str, settings: Settings | None = None) -> str:
+    """Backward-compatible trust level: synthetic | mixed | live."""
+    state = classify_data_trust_state(source, settings)
+    if state == "live":
+        return "live"
+    if state == "mixed":
+        return "mixed"
+    return "synthetic"
+
+
+def build_data_trust_context(
+    source: str,
+    *,
+    timestamp: float | None = None,
+    provider: str | None = None,
+    quality: dict[str, Any] | None = None,
+    settings: Settings | None = None,
+) -> dict[str, Any]:
+    """Canonical market-data trust context for API/service responses.
+
+    The context separates the current product state from provider claims:
+    mock/synthetic data can never be presented as live.
+    """
+    s = settings or get_settings()
+    state = classify_data_trust_state(source, s)
+    trust_level = resolve_trust_level(source, s)
+    is_live = state == "live"
+    is_generated = state in {"mock", "synthetic"}
+    warning = ""
+    if state == "mock":
+        warning = "MOCK data: development/demo fallback, not validated live market data."
+    elif state == "synthetic":
+        warning = "SYNTHETIC data: generated/simulated, not validated live market data."
+    elif state == "mixed":
+        warning = "MIXED data: provider trust is partial, cached, or not fully validated."
+    return {
+        "state": state,
+        "trust_level": trust_level,
+        "source": source or "unknown",
+        "provider": provider or source or "unknown",
+        "timestamp": timestamp,
+        "data_source_config": s.data_source,
+        "is_live": is_live,
+        "is_generated": is_generated,
+        "quality": quality or {},
+        "warning": warning,
+    }

@@ -1,5 +1,16 @@
 # Changelog — Shekar Saham
 
+## 2026-08-07 — P3.25 Iran Market Data & Domain Stabilization
+
+- Added canonical data-trust classification for `live`, `mixed`, `mock`, and `synthetic` sources.
+- Preserved backward-compatible `trust_level` values while exposing richer `data_trust` metadata for market-intelligence outputs.
+- Added Iran market domain contracts: `DataTrustState`, `MarketDataProvenance`, `IranInstrument`, `MarketSession`, and `OHLCVBar`.
+- Updated data-quality scoring so mock/synthetic source snapshots cannot be scored as live trust.
+- Added `data_trust` metadata to key service/API outputs without changing existing runtime behavior or removing current fields.
+- Added tests for data trust classification, Persian symbol/instrument encoding, OHLCV contract, and mock trust scoring.
+- Added `docs/architecture/IRAN_MARKET_DATA_DOMAIN.md`.
+- No new market, dashboard, AI feature, filter feature, strategy builder, forward test, UI redesign, or mobile/global expansion was added.
+
 ## 2026-08-07 — P3.24 Core Product Consolidation & Iran Market Architecture Lock
 
 - Verified GitHub `main` baseline at `26a2d120b596aa298a40b2ebc6952310658f45b5`.

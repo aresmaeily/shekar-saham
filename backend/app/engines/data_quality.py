@@ -5,13 +5,17 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 import time
+from app.core.config import classify_data_trust_state
 from app.models.schemas import SymbolSnapshot
 
 class DataQualityScorer:
     def score_symbol(self, snapshot: SymbolSnapshot, ticks_history: List[Dict] = None) -> Dict[str, Any]:
         score = 100
         issues = []
-        trust = "live"
+        trust_state = classify_data_trust_state(getattr(snapshot, "source", "unknown"))
+        trust = "live" if trust_state == "live" else ("mixed" if trust_state == "mixed" else "synthetic")
+        if trust_state in {"mock", "synthetic"}:
+            issues.append(f"{trust_state.upper()} source: not validated live market data")
         
         # Freshness: if updated_at > 5 min ago, degrade
         if snapshot.updated_at:
@@ -53,6 +57,7 @@ class DataQualityScorer:
             "symbol": snapshot.l18,
             "score": max(0, min(100, round(score, 1))),
             "trust": trust,
+            "trust_state": trust_state,
             "issues": issues,
             "age_sec": age_sec if 'age_sec' in locals() else None,
             "completeness": round((len(required)-len(missing))/len(required)*100, 1) if required else 100

@@ -12,7 +12,7 @@ import time
 import uuid
 from typing import Any, Optional
 
-from app.core.config import get_settings, resolve_trust_level
+from app.core.config import build_data_trust_context, get_settings, resolve_trust_level
 from app.core.runtime_settings import get_effective_settings
 from app.data.providers import MarketDataProvider
 from app.data.store import store
@@ -68,6 +68,14 @@ class MarketService:
 
     def trust_level(self) -> str:
         return self._trust_level
+
+    def data_trust_context(self) -> dict[str, Any]:
+        """Canonical Data Trust context for market-intelligence outputs."""
+        return build_data_trust_context(
+            self._source or self.provider.last_source or "unknown",
+            timestamp=self._last_fetch_ts or None,
+            provider=self.provider.last_source or self._source or "unknown",
+        )
 
     async def start_background(self) -> None:
         if self._bg_task and not self._bg_task.done():
@@ -596,6 +604,16 @@ class MarketService:
             "intraday": intraday,
             "trust_level": self._trust_level,
             "source": self._source,
+            "data_trust": self.data_trust_context(),
+            "instrument": {
+                "symbol": s.l18,
+                "name": s.l30,
+                "isin": s.isin,
+                "instrument_id": s.id,
+                "industry": s.cs,
+                "industry_id": s.cs_id,
+                "market": "TSE",
+            },
             "orderbook": {
                 "bids": [
                     {"price": s.pd1, "volume": s.qd1, "count": s.zd1},
@@ -707,6 +725,7 @@ class MarketService:
             return None
         d = self._get_fund_cached(s).to_dict()
         d["trust_level"] = self._trust_level
+        d["data_trust"] = self.data_trust_context()
         return d
 
     def run_user_filter(self, expr: str, limit: int = 100) -> dict[str, Any]:
@@ -754,6 +773,7 @@ class MarketService:
             "expr": expr,
             "fields": fields_help(),
             "trust_level": self._trust_level,
+            "data_trust": self.data_trust_context(),
         }
 
     async def get_trade_hot(self, l18: str) -> Optional[dict[str, Any]]:
@@ -762,6 +782,7 @@ class MarketService:
             return None
         data = await get_trade_hot_money(s, self.cfg())
         data["trust_level"] = self._trust_level
+        data["data_trust"] = self.data_trust_context()
         return data
 
     def search_symbols(self, q: str, limit: int = 20) -> list[dict[str, Any]]:
@@ -784,6 +805,7 @@ class MarketService:
             **params,
         )
         result["trust_level"] = self._trust_level
+        result["data_trust"] = self.data_trust_context()
         result["demo_disclaimer"] = "بک‌تست روی تاریخچه محدود/مصنوعی است و عملکرد آینده را تضمین نمی‌کند. این یک ابزار آموزشی است، نه تضمین سود."
         result["educational"] = True
         result["warning"] = "⚠️ توجه: این بک‌تست صف خرید/فروش و کارمزد واقعی بورس ایران را شبیه‌سازی نمی‌کند."
@@ -808,6 +830,7 @@ class MarketService:
         chain["entry_score"] = m.entry_score
         chain["exit_score"] = m.exit_score
         chain["trust_level"] = self._trust_level
+        chain["data_trust"] = self.data_trust_context()
         chain["educational"] = True
         chain["risk_warning"] = "⚠️ اختیار معامله ریسک بالایی دارد. این ماشین‌حساب آموزشی است و قیمت بازار واقعی اختیار بورس تهران را نشان نمی‌دهد."
         return chain
@@ -842,6 +865,7 @@ class MarketService:
         return {
             "source": self._source or self.provider.last_source,
             "trust_level": self._trust_level,
+            "data_trust": self.data_trust_context(),
             "last_error": self.provider.last_error,
             "symbol_count": len(self._last_symbols),
             "last_fetch_ts": self._last_fetch_ts,

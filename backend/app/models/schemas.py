@@ -21,6 +21,79 @@ class AlertLevel(str, Enum):
     CRITICAL = "critical"
 
 
+class DataTrustState(str, Enum):
+    """Canonical data-trust states for Iran market data contracts."""
+
+    LIVE = "live"
+    MIXED = "mixed"
+    MOCK = "mock"
+    SYNTHETIC = "synthetic"
+
+
+class MarketDataProvenance(BaseModel):
+    """Provider/source metadata carried by market-intelligence outputs."""
+
+    source: str = "unknown"
+    provider: str = "unknown"
+    trust_state: DataTrustState = DataTrustState.MIXED
+    trust_level: str = "mixed"  # backward-compatible: live | mixed | synthetic
+    timestamp: Optional[datetime] = None
+    data_source_config: str = "auto"
+    is_live: bool = False
+    is_generated: bool = False
+    warning: str = ""
+    quality: dict[str, Any] = Field(default_factory=dict)
+
+
+class IranInstrument(BaseModel):
+    """Stable symbol/instrument representation for the Iran market domain."""
+
+    symbol: str
+    name: str = ""
+    isin: str = ""
+    instrument_id: str = ""
+    industry: str = ""
+    industry_id: str = ""
+    market: str = "TSE"
+    source: str = "unknown"
+    updated_at: Optional[datetime] = None
+
+    @classmethod
+    def from_snapshot(cls, s: "SymbolSnapshot") -> "IranInstrument":
+        return cls(
+            symbol=s.l18,
+            name=s.l30,
+            isin=s.isin,
+            instrument_id=s.id,
+            industry=s.cs,
+            industry_id=s.cs_id,
+            source=s.source,
+            updated_at=s.updated_at,
+        )
+
+
+class MarketSession(BaseModel):
+    """Iran market session metadata. Current code does not infer open/closed state."""
+
+    timezone: str = "Asia/Tehran"
+    session_date: str = ""
+    is_open: Optional[bool] = None
+    status: str = "unknown"  # unknown | pre_open | open | closed | holiday
+
+
+class OHLCVBar(BaseModel):
+    """Normalized OHLCV candle contract used by chart/history boundaries."""
+
+    time: int | str
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: float = 0.0
+    source: str = "unknown"
+    trust_state: DataTrustState = DataTrustState.MIXED
+
+
 class OrderBookLevel(BaseModel):
     count: int = 0
     volume: int = 0
