@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # کد پروژه
 COPY backend/ ./backend/
 COPY frontend/ ./frontend/
-COPY data/ ./data/
+RUN mkdir -p ./data
 
 ENV PYTHONPATH=/app/backend
 
