@@ -71,11 +71,24 @@ class MarketService:
 
     def data_trust_context(self) -> dict[str, Any]:
         """Canonical Data Trust context for market-intelligence outputs."""
+        source = self._source or self.provider.last_source or "unknown"
+        fallback_source = "mock" if "mock" in (source or "").lower() else ""
         return build_data_trust_context(
-            self._source or self.provider.last_source or "unknown",
+            source,
             timestamp=self._last_fetch_ts or None,
             provider=self.provider.last_source or self._source or "unknown",
+            fallback_source=fallback_source,
+            error_code=self.provider.last_error or "",
+            stale_after_sec=getattr(get_settings(), "data_stale_after_sec", 300),
         )
+
+    @staticmethod
+    def _mark_synthetic_fundamental(payload: dict[str, Any]) -> dict[str, Any]:
+        """Current fundamental engine generates synthetic statements."""
+        payload.setdefault("fundamental_source", "synthetic")
+        payload.setdefault("is_synthetic", True)
+        payload.setdefault("warning", "Fundamental statements are synthetic/demo data, not verified Codal financial statements.")
+        return payload
 
     async def start_background(self) -> None:
         if self._bg_task and not self._bg_task.done():
@@ -594,11 +607,12 @@ class MarketService:
         hist = store.get_ticks_since(since, symbol=s.l18)
         ohlcv = build_ohlcv_from_ticks(hist, s)
         intraday = build_intraday_series(hist, s)
+        fundamental_payload = self._mark_synthetic_fundamental(fund.to_dict())
         return {
             "snapshot": s.model_dump(mode="json"),
             "metrics": m.model_dump(mode="json"),
             "tablocastic": tc.to_dict(),
-            "fundamental": fund.to_dict(),
+            "fundamental": fundamental_payload,
             "history": hist[-120:],
             "ohlcv": ohlcv,
             "intraday": intraday,
@@ -723,7 +737,7 @@ class MarketService:
         s = self.get_snapshot(l18)
         if not s:
             return None
-        d = self._get_fund_cached(s).to_dict()
+        d = self._mark_synthetic_fundamental(self._get_fund_cached(s).to_dict())
         d["trust_level"] = self._trust_level
         d["data_trust"] = self.data_trust_context()
         return d

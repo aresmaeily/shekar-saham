@@ -71,9 +71,30 @@ def _trust_warnings(data_trust: dict[str, Any]) -> list[str]:
     out = []
     if state in {"mock", "synthetic"}:
         out.append("داده مورد استفاده زنده نیست؛ نتیجه فقط برای تحلیل/آموزش معتبر است.")
+    elif state == "stale":
+        out.append("داده مورد استفاده قدیمی است؛ تحلیل نباید به‌عنوان وضعیت زنده بازار تفسیر شود.")
+    elif state == "unavailable":
+        out.append("داده قابل اتکا در دسترس نیست؛ نتیجه فقط وضعیت نبود داده را توضیح می‌دهد.")
     elif state == "mixed":
         out.append("اعتماد داده mixed است؛ بخشی از داده یا منبع کاملاً اعتبارسنجی نشده است.")
     return out
+
+
+def _trust_confidence(data_trust: dict[str, Any], *, has_context: bool = True) -> float:
+    if not has_context:
+        return 0.20
+    state = data_trust.get("state") or "mixed"
+    if state == "live":
+        return 0.60
+    if state == "mixed":
+        return 0.42
+    if state in {"mock", "synthetic"}:
+        return 0.35
+    if state == "stale":
+        return 0.28
+    if state == "unavailable":
+        return 0.15
+    return 0.25
 
 
 class AIContextBuilder:
@@ -161,7 +182,7 @@ class FallbackAIProvider:
             risk_flags=_trust_warnings(ctx.data_trust),
             uncertainty=["بدون داده live/validated یا LLM خارجی، نتیجه قطعی نیست."],
             evidence=evidence,
-            confidence=0.55 if ctx.data_trust.get("is_live") else 0.35,
+            confidence=_trust_confidence(ctx.data_trust),
             safety=self._safety(),
             warnings=warnings,
         )
@@ -209,7 +230,7 @@ class FallbackAIProvider:
             risk_flags=risks,
             uncertainty=["این تحلیل تضمین سود یا پیش‌بینی قطعی قیمت نیست."],
             evidence=evidence,
-            confidence=0.60 if ctx.symbol_context and ctx.data_trust.get("is_live") else (0.42 if ctx.symbol_context else 0.20),
+            confidence=_trust_confidence(ctx.data_trust, has_context=bool(ctx.symbol_context)),
             safety=self._safety(),
             warnings=ctx.warnings + ["تحلیل rule-based/fallback است."],
         )
@@ -251,7 +272,7 @@ class FallbackAIProvider:
             uncertainty=["پیشنهادها قطعی نیستند و باید با بک‌تست/Forward Test مستقل بررسی شوند."],
             evidence=evidence,
             suggestions=suggestions,
-            confidence=0.50 if evidence else 0.25,
+            confidence=min(0.50 if evidence else 0.25, _trust_confidence(ctx.data_trust)),
             safety=self._safety(),
             warnings=ctx.warnings + ["Optimizer هیچ تغییری را خودکار اعمال نمی‌کند."],
         )

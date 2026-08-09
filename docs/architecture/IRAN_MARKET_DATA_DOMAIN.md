@@ -42,10 +42,12 @@ Consumer
 
 | State | Definition | User-facing implication |
 |---|---|---|
-| `live` | Validated live provider data from TSETMC/BRSAPI-style sources. | Can be labelled live only after provider validation. |
+| `live` | Validated live provider data from TSETMC/BRSAPI-style sources and within freshness threshold. | Can be labelled live only after provider validation and freshness check. |
 | `mixed` | Cached, partial, unknown, or mixed provenance. | Must show caution. |
 | `mock` | Demo/mock fallback market generator. | Must not be treated as live. |
 | `synthetic` | Generated/simulated values, including bootstrap/demo computations. | Must not be treated as live. |
+| `stale` | Data with a source timestamp older than `DATA_STALE_AFTER_SEC`. | Must show old-data warning and must not be treated as live. |
+| `unavailable` | No usable provider data or fallback data is currently available. | Must show unavailable-data warning. |
 
 Backward compatibility:
 

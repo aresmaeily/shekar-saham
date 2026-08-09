@@ -28,6 +28,8 @@ class DataTrustState(str, Enum):
     MIXED = "mixed"
     MOCK = "mock"
     SYNTHETIC = "synthetic"
+    STALE = "stale"
+    UNAVAILABLE = "unavailable"
 
 
 class MarketDataProvenance(BaseModel):

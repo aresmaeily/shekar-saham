@@ -300,8 +300,13 @@ def run_filter_strategy_backtest(
 
     trades: list[TradeResult] = []
     warnings: list[str] = []
-    if data_trust.get("state") in {"mock", "synthetic"}:
+    trust_state = data_trust.get("state")
+    if trust_state in {"mock", "synthetic"}:
         warnings.append("Backtest uses generated/mock data; results are educational and not live-market proof.")
+    elif trust_state == "stale":
+        warnings.append("Backtest input data is stale; results must not be interpreted as current live-market performance.")
+    elif trust_state == "unavailable":
+        warnings.append("Backtest data is unavailable or incomplete; results are not suitable for performance claims.")
 
     for sym, raw_series in paths.items():
         series = sorted(raw_series, key=lambda x: x.get("ts") or 0)

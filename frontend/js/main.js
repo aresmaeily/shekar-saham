@@ -128,7 +128,7 @@ async function refreshApp(force = false) {
 
     renderAll();
     updateSource(data.overview?.source);
-    updateTrust(data.trust_level || data.overview?.source);
+    updateTrust(data.data_trust || data.trust_level || data.overview?.source);
 
     const t = data.overview?.as_of ? new Date(data.overview.as_of).toLocaleString("fa-IR") : new Date().toLocaleString("fa-IR");
     $("#lastUpdate").textContent = `آخرین بروزرسانی: ${t} · v3-meta`;
@@ -161,21 +161,27 @@ function updateSource(source) {
   }
 }
 
-function updateTrust(level) {
+function updateTrust(levelOrTrust) {
   const pill = $("#trustPill");
   const text = $("#trustText");
   if (!pill || !text) return;
   pill.classList.remove("live", "mock");
-  const lv = String(level || "mixed").toLowerCase();
-  if (lv === "live") {
+  const state = typeof levelOrTrust === "object" && levelOrTrust
+    ? String(levelOrTrust.state || levelOrTrust.trust_level || "mixed").toLowerCase()
+    : String(levelOrTrust || "mixed").toLowerCase();
+  if (state === "live") {
     pill.classList.add("live");
     text.textContent = "LIVE";
-  } else if (lv === "synthetic") {
-    pill.classList.add("mock");
-    text.textContent = "DEMO/SYNTHETIC";
   } else {
     pill.classList.add("mock");
-    text.textContent = "MIXED";
+    const labels = {
+      mock: "MOCK / آزمایشی",
+      synthetic: "SYNTHETIC / شبیه‌سازی",
+      stale: "STALE / قدیمی",
+      unavailable: "UNAVAILABLE / ناموجود",
+      mixed: "MIXED / ترکیبی",
+    };
+    text.textContent = labels[state] || "MIXED";
   }
 }
 

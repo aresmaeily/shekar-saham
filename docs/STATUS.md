@@ -13,7 +13,8 @@ Last updated: 2026-08-07
 | P3.26 | Accepted Locally — GitHub Closure Pending | Filter DSL and Strategy Framework completed locally with verified backup; GitHub push remains credential-dependent. |
 | P3.27 | Accepted Locally — GitHub Closure Pending | Backtest, Walk-Forward and Forward Test completed locally with verified backup; GitHub push remains credential-dependent. |
 | P3.28 | Accepted Locally — GitHub Closure Pending | Controlled AI Assistant/Analyst/Optimizer plus Alpha readiness and transfer package completed locally. |
-| P3.30 | In Progress | Alpha Completion Gate: repository health, security hardening, alpha environment contract, backend/API smoke, data trust validation, and Windows/Electron preservation. |
+| P3.30 | Accepted Locally — GitHub Closure Pending | Alpha Completion Gate completed locally; security hardening validated; GitHub push remains credential-dependent. |
+| P3.31 | In Progress | Live Data & Data Trust Hardening: stale/unavailable states, freshness metadata, safe fallback labels, AI/backtest trust propagation. |
 
 ## Baseline
 

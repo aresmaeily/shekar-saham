@@ -1,36 +1,65 @@
 /**
- * render/trust.js - Trust banner rendering - P0-1 fix
+ * render/trust.js - Trust banner rendering - P0-1/P3.31 data-trust hardening
  */
 import { escapeHtml } from "../security.js";
 
-export function renderTrustBanner(level, source) {
+function normalizeTrust(input, sourceFallback = "") {
+  if (input && typeof input === "object") {
+    const state = String(input.state || input.trust_state || input.trust_level || "mixed").toLowerCase();
+    return {
+      state,
+      level: String(input.trust_level || state || "mixed").toLowerCase(),
+      source: input.source || input.provider || sourceFallback || "unknown",
+      warning: input.warning || "",
+      ageSec: input.age_sec,
+    };
+  }
+  const level = String(input || "mixed").toLowerCase();
+  const state = level === "synthetic" ? "synthetic" : level;
+  return { state, level, source: sourceFallback || "unknown", warning: "", ageSec: null };
+}
+
+function trustPresentation(trust) {
+  switch (trust.state) {
+    case "live":
+      return { cls: "live", pill: "اعتماد: LIVE - داده زنده", icon: "✅", banner: "داده زنده", hide: true };
+    case "mock":
+      return { cls: "demo", pill: "اعتماد: MOCK - داده آزمایشی", icon: "🚨", banner: "🚨 هشدار: داده آزمایشی است و زنده نیست - مبنای خرید/فروش قرار ندهید" };
+    case "synthetic":
+      return { cls: "demo", pill: "اعتماد: SYNTHETIC - شبیه‌سازی‌شده", icon: "🚨", banner: "🚨 هشدار: داده شبیه‌سازی‌شده است - مبنای خرید/فروش قرار ندهید" };
+    case "stale":
+      return { cls: "mixed", pill: "اعتماد: STALE - داده قدیمی", icon: "⚠️", banner: "⚠️ هشدار: داده قدیمی است و وضعیت زنده بازار را نشان نمی‌دهد" };
+    case "unavailable":
+      return { cls: "demo", pill: "اعتماد: UNAVAILABLE - داده ناموجود", icon: "⛔", banner: "⛔ داده قابل اتکا در دسترس نیست" };
+    default:
+      return { cls: "mixed", pill: "اعتماد: MIXED - ترکیبی/نیازمند احتیاط", icon: "⚠️", banner: "⚠️ توجه: داده ترکیبی یا کاملاً اعتبارسنجی‌نشده است" };
+  }
+}
+
+export function renderTrustBanner(levelOrTrust, source) {
   const banner = document.getElementById("trustBanner");
   const pill = document.getElementById("trustPill");
   const textEl = document.getElementById("trustText");
   if (!banner || !pill || !textEl) return;
-  
-  const lv = String(level || "mixed").toLowerCase();
+
+  const trust = normalizeTrust(levelOrTrust, source);
+  const ui = trustPresentation(trust);
   const bannerText = document.getElementById("trustBannerText");
   const bannerIcon = document.getElementById("trustBannerIcon");
-  
+
   pill.classList.remove("live", "mock");
   banner.classList.remove("hidden", "demo", "mixed", "live");
-  
-  if (lv === "live") {
-    pill.classList.add("live");
-    textEl.textContent = "اعتماد: LIVE - داده زنده";
+
+  pill.classList.add(ui.cls === "live" ? "live" : "mock");
+  textEl.textContent = ui.pill;
+
+  if (ui.hide) {
     banner.classList.add("live", "hidden");
-  } else if (lv === "synthetic") {
-    pill.classList.add("mock");
-    textEl.textContent = "اعتماد: DEMO/SYNTHETIC - آزمایشی";
-    banner.className = "trust-banner demo";
-    if (bannerText) bannerText.textContent = "🚨 هشدار: داده DEMO/SYNTHETIC است - تمام اعداد بنیادی و ریزمعامله ساختگی هستند - مبنای خرید/فروش قرار ندهید - فقط برای تست UI [source=" + escapeHtml(source || "mock") + "]";
-    if (bannerIcon) bannerIcon.textContent = "🚨";
   } else {
-    pill.classList.add("mock");
-    textEl.textContent = "اعتماد: MIXED - ترکیبی";
-    banner.className = "trust-banner mixed";
-    if (bannerText) bannerText.textContent = "⚠️ توجه: داده MIXED است - بخشی synthetic - با احتیاط [source=" + escapeHtml(source || "mixed") + "]";
-    if (bannerIcon) bannerIcon.textContent = "⚠️";
+    banner.className = `trust-banner ${ui.cls}`;
+    const details = trust.warning || ui.banner;
+    const age = typeof trust.ageSec === "number" ? ` · سن داده: ${Math.round(trust.ageSec)} ثانیه` : "";
+    if (bannerText) bannerText.textContent = `${details}${age} [source=${escapeHtml(trust.source)}]`;
+    if (bannerIcon) bannerIcon.textContent = ui.icon;
   }
 }

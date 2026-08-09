@@ -13,7 +13,7 @@ DATA_DIR = ROOT / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 TrustLevel = Literal["synthetic", "mixed", "live"]
-DataTrustState = Literal["live", "mixed", "mock", "synthetic"]
+DataTrustState = Literal["live", "mixed", "mock", "synthetic", "stale", "unavailable"]
 
 
 def _env_bool(name: str, default: str = "0") -> bool:
@@ -40,6 +40,7 @@ class Settings(BaseSettings):
 
     poll_seconds: int = int(os.getenv("POLL_SECONDS", "30"))
     request_timeout: float = float(os.getenv("REQUEST_TIMEOUT", "12"))
+    data_stale_after_sec: float = float(os.getenv("DATA_STALE_AFTER_SEC", "300"))
 
     # --- Thresholds ---
     hot_money_threshold: float = 200_000_000
@@ -132,11 +133,12 @@ def get_settings() -> Settings:
 
 
 def classify_data_trust_state(source: str, settings: Settings | None = None) -> DataTrustState:
-    """LIVE / MIXED / MOCK / SYNTHETIC source classification for product UX.
+    """Canonical source-state classification for product UX.
 
-    This is intentionally more granular than the legacy `trust_level` contract.
-    Existing API clients still receive `trust_level` as live|mixed|synthetic,
-    while `data_trust.state` can distinguish mock from synthetic.
+    This function classifies the source/provenance label only. Freshness
+    overrides such as `stale` and missing-data overrides such as `unavailable`
+    are applied by `build_data_trust_context`, where timestamps and provider
+    errors are available.
     """
     s = settings or get_settings()
     override = (s.trust_level_override or "").strip().lower()
@@ -154,55 +156,118 @@ def classify_data_trust_state(source: str, settings: Settings | None = None) -> 
         return "mock"
     if "synthetic" in src or "bootstrap" in src or "demo" in src:
         return "synthetic"
+    if src in {"unavailable", "no_data", "none_no_data"}:
+        return "unavailable"
     if src in {"cache", "auto", "unknown", "none", ""}:
         return "mixed"
     return "mixed"
 
 
-def resolve_trust_level(source: str, settings: Settings | None = None) -> str:
-    """Backward-compatible trust level: synthetic | mixed | live."""
-    state = classify_data_trust_state(source, settings)
+def _legacy_trust_level_from_state(state: DataTrustState) -> str:
     if state == "live":
         return "live"
-    if state == "mixed":
+    if state in {"mixed", "stale", "unavailable"}:
         return "mixed"
     return "synthetic"
+
+
+def resolve_trust_level(source: str, settings: Settings | None = None) -> str:
+    """Backward-compatible trust level: synthetic | mixed | live."""
+    return _legacy_trust_level_from_state(classify_data_trust_state(source, settings))
+
+
+def _coerce_ts(value: float | int | str | None) -> float | None:
+    if value is None:
+        return None
+    try:
+        ts = float(value)
+        return ts if ts > 0 else None
+    except (TypeError, ValueError):
+        return None
 
 
 def build_data_trust_context(
     source: str,
     *,
-    timestamp: float | None = None,
+    timestamp: float | int | str | None = None,
     provider: str | None = None,
     quality: dict[str, Any] | None = None,
     settings: Settings | None = None,
+    checked_at: float | int | str | None = None,
+    stale_after_sec: float | int | None = None,
+    fallback_source: str | None = None,
+    error_code: str | None = None,
+    warning: str | None = None,
 ) -> dict[str, Any]:
     """Canonical market-data trust context for API/service responses.
 
-    The context separates the current product state from provider claims:
-    mock/synthetic data can never be presented as live.
+    `timestamp` is the best available source/fetch timestamp. It is never
+    fabricated. `checked_at` is the local time at which the trust check runs.
+    `trust_level` remains backward-compatible while `state` carries the richer
+    P3.31 taxonomy.
     """
+    import time
+
     s = settings or get_settings()
-    state = classify_data_trust_state(source, s)
-    trust_level = resolve_trust_level(source, s)
+    checked = _coerce_ts(checked_at) or time.time()
+    ts = _coerce_ts(timestamp)
+    stale_after = float(stale_after_sec if stale_after_sec is not None else getattr(s, "data_stale_after_sec", 300))
+    base_state = classify_data_trust_state(source, s)
+    src = (source or "").strip() or "unknown"
+    provider_name = provider or source or "unknown"
+    age_sec = round(checked - ts, 3) if ts is not None else None
+    stale = bool(age_sec is not None and age_sec > stale_after)
+
+    state: DataTrustState = base_state
+    # Missing data with no usable timestamp is unavailable unless it is an
+    # explicit mock/synthetic fallback source. A live-labelled source without
+    # a usable timestamp is downgraded to mixed because freshness cannot be
+    # proven.
+    if base_state == "mixed" and src.lower() in {"none", "unknown", "", "unavailable", "no_data"} and ts is None:
+        state = "unavailable"
+    elif base_state == "live" and ts is None:
+        state = "mixed"
+    elif base_state in {"live", "mixed"} and stale:
+        state = "stale"
+
+    trust_level = _legacy_trust_level_from_state(state)
     is_live = state == "live"
     is_generated = state in {"mock", "synthetic"}
-    warning = ""
-    if state == "mock":
-        warning = "MOCK data: development/demo fallback, not validated live market data."
-    elif state == "synthetic":
-        warning = "SYNTHETIC data: generated/simulated, not validated live market data."
-    elif state == "mixed":
-        warning = "MIXED data: provider trust is partial, cached, or not fully validated."
+
+    msg = warning or ""
+    if not msg:
+        if state == "live":
+            msg = "LIVE data: provider data is currently within freshness threshold."
+        elif state == "mock":
+            msg = "MOCK data: development/demo fallback, not validated live market data."
+        elif state == "synthetic":
+            msg = "SYNTHETIC data: generated/simulated, not validated live market data."
+        elif state == "stale":
+            msg = f"STALE data: last trusted timestamp is older than {int(stale_after)} seconds."
+        elif state == "unavailable":
+            msg = "UNAVAILABLE data: no usable provider data is currently available."
+        else:
+            msg = "MIXED data: provider trust is partial, cached, or not fully validated."
+    if fallback_source and state in {"mock", "synthetic", "mixed", "unavailable"}:
+        msg = f"{msg} Fallback source: {fallback_source}."
+    if error_code and state != "live":
+        msg = f"{msg} Provider status: {error_code}."
+
     return {
         "state": state,
         "trust_level": trust_level,
-        "source": source or "unknown",
-        "provider": provider or source or "unknown",
-        "timestamp": timestamp,
+        "source": src,
+        "provider": provider_name,
+        "timestamp": ts,
+        "checked_at": checked,
+        "age_sec": age_sec,
+        "stale_after_sec": stale_after,
+        "stale": stale,
+        "fallback_source": fallback_source or "",
+        "error_code": error_code or "",
         "data_source_config": s.data_source,
         "is_live": is_live,
         "is_generated": is_generated,
         "quality": quality or {},
-        "warning": warning,
+        "warning": msg,
     }

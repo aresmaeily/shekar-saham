@@ -1,5 +1,15 @@
 # Changelog — Shekar Saham
 
+## 2026-08-09 — P3.31 Live Data & Data Trust Hardening
+
+- Extended canonical data trust states with `stale` and `unavailable` while preserving legacy `trust_level` compatibility.
+- Added freshness metadata to `data_trust`: `checked_at`, `age_sec`, `stale_after_sec`, and `stale`.
+- Propagated safe provider failure/fallback metadata through `MarketService.data_trust_context()`.
+- Added explicit synthetic labels for current fundamental output: `fundamental_source=synthetic`, `is_synthetic=true`.
+- Extended AI and backtest warnings for stale/unavailable data without adding a new LLM or changing trading math.
+- Extended the existing frontend trust renderer to represent live/mixed/mock/synthetic/stale/unavailable.
+- Added focused regression tests for data trust hardening and no-false-live behavior.
+
 ## 2026-08-09 — P3.30 Alpha Completion Gate
 
 - Cleaned repository health by removing the temporary `security.py.backup` verification artifact.
