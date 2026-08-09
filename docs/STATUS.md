@@ -27,6 +27,7 @@ Last updated: 2026-08-07
 | P3.41 | Complete Locally — GitHub Closure Pending | Filter Intelligence & Self-Optimization Engine completed locally: registry, immutable versions, performance records, backtest/walk-forward/forward-test integration, decay detection, AI analysis, proposals and human review contract. |
 | P3.42 | Complete Locally — GitHub Push Blocked | Repository completion/release readiness audit plus AI ↔ Filter Intelligence integration hardening completed locally; GitHub push remains blocked by missing authentication. |
 | P3.43 | Complete Locally — GitHub Push Blocked | Repository hardening and RADAR BOURSE terminology cleanup completed locally; installation remains deferred and GitHub push remains blocked by missing authentication. |
+| P3.44 | Complete Locally — GitHub Push Blocked | Pre-installation repository hardening and second-pass RADAR BOURSE terminology integrity completed locally; P3.43/P3.44 backups verified and installation remains deferred. |
 
 ## Baseline
 

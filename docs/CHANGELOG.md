@@ -1,6 +1,13 @@
 # Changelog — RADAR BOURSE
 
-## 2026-08-09 — P3.43 Repository Completion and RADAR BOURSE Hardening
+## 2026-08-09 — P3.44 Pre-Installation Repository Hardening
+
+- Re-audited repository baseline after P3.43 and verified P3.39 through P3.43 integration surfaces before any installation.
+- Verified and re-attached the P3.43 backup artifact for delivery visibility.
+- Performed a second RADAR BOURSE terminology audit and removed remaining current-product legacy slug/label usages from Docker, CI, WebSocket message, Electron URL configuration, Android scaffold metadata, and active setup path examples.
+- Preserved the documented GitHub remote slug where it is the real repository URL; no remote repository rename was attempted.
+- Installation remains deferred and was not started.
+- GitHub push remains blocked by missing authentication; no force push or destructive git operation was performed.
 
 - Audited the repository baseline after P3.42 and verified local history, remote read access, and P3.39/P3.40/P3.41/P3.42 integration surfaces.
 - Performed RADAR BOURSE terminology cleanup across current user-facing/backend/frontend/Electron/docs surfaces while preserving old terminology only in archived historical phase reports.

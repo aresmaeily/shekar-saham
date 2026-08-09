@@ -21,7 +21,7 @@ function createWindow() {
 
   // For personal use - load local server
   // Change to https://your-server.com for production
-  const startUrl = process.env.SHEKAR_URL || 'http://127.0.0.1:8000';
+  const startUrl = process.env.RADAR_BOURSE_URL || process.env.SHEKAR_URL || 'http://127.0.0.1:8000';
   
   mainWindow.loadURL(startUrl);
 

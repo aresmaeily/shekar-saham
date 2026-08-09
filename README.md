@@ -25,7 +25,7 @@
 ## ساختار پروژه
 
 ```
-shekar-saham/
+radar-bourse/
 ├── backend/          # FastAPI + موتورهای تحلیلی
 │   └── app/
 │       ├── api/      # REST endpoints

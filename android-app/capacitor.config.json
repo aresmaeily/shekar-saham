@@ -1,5 +1,5 @@
 {
-  "appId": "com.shekarsaham.app",
+  "appId": "com.radarbourse.app",
   "appName": "رادار بورس",
   "webDir": "../frontend",
   "server": {

@@ -5,7 +5,7 @@
 ## روش ۱ — نصب خودکار (ساده‌ترین)
 
 ```bash
-cd shekar-saham
+cd radar-bourse
 ./install.sh            # نصب بومی + اجرا
 # یا
 ./install.sh --docker   # با Docker Compose
@@ -16,7 +16,7 @@ cd shekar-saham
 ## روش ۲ — دستی (بومی)
 
 ```bash
-cd shekar-saham/backend
+cd radar-bourse/backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -26,7 +26,7 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --no-proxy-headers
 ## روش ۳ — Docker (تکرارپذیر)
 
 ```bash
-cd shekar-saham
+cd radar-bourse
 cp .env.example .env   # رمزها را تغییر دهید
 docker compose up --build -d
 ```

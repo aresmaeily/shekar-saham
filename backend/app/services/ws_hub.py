@@ -34,7 +34,7 @@ class ConnectionManager:
             {
                 "type": "hello",
                 "ts": time.time(),
-                "message": "connected to shekar-saham live feed",
+                "message": "connected to RADAR BOURSE live feed",
                 "clients": self.count,
             },
         )

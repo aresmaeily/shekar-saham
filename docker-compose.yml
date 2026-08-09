@@ -1,7 +1,7 @@
 services:
-  shekar:
+  radar-bourse:
     build: .
-    container_name: shekar-saham
+    container_name: radar-bourse
     restart: unless-stopped
     ports:
       - "8000:8000"

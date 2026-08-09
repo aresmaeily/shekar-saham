@@ -2,7 +2,7 @@
 
 تاریخ بازرسی: 2026-07-31  
 نقش: بازرس فنی / Senior Staff Engineer  
-محدوده: کل ریپوی `shekar-saham` (بک‌اند FastAPI + فرانت RTL + موتورها)
+محدوده: کل ریپوی `radar-bourse` (بک‌اند FastAPI + فرانت RTL + موتورها)
 
 ---
 
@@ -279,7 +279,7 @@ confluence.sell_alerts: 0
 ## ۱۰) پیوست — دستور بازتولید بازرسی
 
 ```bash
-cd shekar-saham/backend
+cd radar-bourse/backend
 export PYTHONPATH=$PWD DATA_SOURCE=mock
 python3 -m py_compile app/main.py
 python3 -m uvicorn app.main:app --host 127.0.0.1 --port 8010

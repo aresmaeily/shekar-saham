@@ -23,7 +23,7 @@ SQLite، تحرکات بزرگان، تابلو کستیک، پورتفو، هش
 
 ## اجرا
 ```bash
-cd shekar-saham
+cd radar-bourse
 export DATA_SOURCE=auto
 export NOTIFY_ENABLED=1
 export TELEGRAM_BOT_TOKEN=...

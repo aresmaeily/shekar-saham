@@ -25,6 +25,7 @@
 - `P3.41_FILTER_INTELLIGENCE_FINAL_REPORT.md` — P3.41 Filter Intelligence and Self-Optimization final report
 - `P3.42_REPOSITORY_COMPLETION_RELEASE_READINESS_REPORT.md` — P3.42 repository completion, synchronization, and release-readiness report
 - `P3.43_RADAR_BOURSE_HARDENING_FINAL_REPORT.md` — P3.43 repository hardening and RADAR BOURSE terminology final report
+- `P3.44_PRE_INSTALLATION_HARDENING_FINAL_REPORT.md` — P3.44 pre-installation repository hardening and backup attachment final report
 - `../ALPHA_SETUP_GUIDE.md` — alpha restore/run/test guide for the main computer
 - `../ALPHA_DEPLOYMENT_READINESS.md` — completed-now/deferred target-system validation matrix
 - `../ALPHA_ENV_CONTRACT.md` — safe Alpha environment variable contract

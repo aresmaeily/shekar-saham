@@ -17,7 +17,7 @@ This guide is for restoring and running the current local Alpha candidate on the
 Extract the full project backup ZIP into a working folder, then enter the project directory:
 
 ```bash
-cd shekar-saham
+cd radar-bourse
 ```
 
 If the backup contains `.git`, verify history:

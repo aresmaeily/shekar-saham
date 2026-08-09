@@ -3,7 +3,7 @@
 ## اجرای برنامه
 
 ```bash
-cd shekar-saham/backend
+cd radar-bourse/backend
 pip install -r requirements.txt
 export DATA_SOURCE=auto          # در سرور ایران: داده زنده
 # export DATA_SOURCE=mock        # فقط دمو
