@@ -1,6 +1,12 @@
-# Changelog — Shekar Saham
+# Changelog — RADAR BOURSE
 
-## 2026-08-09 — P3.42 Repository Completion and Release Readiness
+## 2026-08-09 — P3.43 Repository Completion and RADAR BOURSE Hardening
+
+- Audited the repository baseline after P3.42 and verified local history, remote read access, and P3.39/P3.40/P3.41/P3.42 integration surfaces.
+- Performed RADAR BOURSE terminology cleanup across current user-facing/backend/frontend/Electron/docs surfaces while preserving old terminology only in archived historical phase reports.
+- Updated backend default product names, FastAPI description, notifier text, Electron metadata, frontend titles/manifest labels, scripts, and active architecture/status/user documents to use `RADAR BOURSE` / `رادار بورس`.
+- Installation remains deferred and was not started.
+- GitHub push remains blocked by missing authentication; no force push or destructive git operation was performed.
 
 - Completed repository audit after P3.41 and verified local history through P3.39, P3.40 and P3.41.
 - Recovered `origin` to the documented GitHub repository URL and verified read access; push remains blocked by missing authentication.

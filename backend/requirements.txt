@@ -1,4 +1,4 @@
-# شکار سهام — وابستگی‌های پین‌شده (reproducible + بدون CVE شناخته‌شده)
+# رادار بورس — وابستگی‌های پین‌شده (reproducible + بدون CVE شناخته‌شده)
 # تأیید: pip-audit -r requirements.txt → No known vulnerabilities
 
 fastapi==0.141.1

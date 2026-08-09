@@ -1,4 +1,4 @@
-# Alpha Setup Guide — RADAR BOURSE / Shekar Saham
+# Alpha Setup Guide — RADAR BOURSE / رادار بورس
 
 Last updated: 2026-08-07
 

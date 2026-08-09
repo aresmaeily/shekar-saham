@@ -37,7 +37,7 @@
     // برای نمادهای جهانی (XAUUSD, GC1, ...) داده بورس تهران وجود ندارد —
     // مستقیم به حالت جهانی برو (بدون درخواست 404 به API بورس تهران)
     if (TV_MAP[symbol.toUpperCase()]) {
-      document.title = symbol.toUpperCase() + " | شکار سهام";
+      document.title = symbol.toUpperCase() + " | رادار بورس";
       renderGlobalOnly();
       $("#lastUpdate").textContent = new Date().toLocaleString("fa-IR");
       return;
@@ -45,7 +45,7 @@
     try {
       const data = await api("/api/symbol/" + encodeURIComponent(symbol) + "/full");
       state.data = data;
-      document.title = `${data.snapshot.l18} | شکار سهام`;
+      document.title = `${data.snapshot.l18} | رادار بورس`;
       renderAll();
     } catch (e) {
       // در حالت خصوصی، شاید auth.js هنوز لود نشده — چند بار تلاش مجدد

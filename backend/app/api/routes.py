@@ -491,7 +491,7 @@ class FilterProposalReviewBody(BaseModel):
 
 
 class NotifyTestBody(BaseModel):
-    text: str = "تست هشدار شکار سهام ✅"
+    text: str = "تست هشدار رادار بورس ✅"
     channels: Optional[list[str]] = None
 
 

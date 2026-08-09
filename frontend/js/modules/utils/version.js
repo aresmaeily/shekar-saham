@@ -13,7 +13,7 @@ export async function updateVersionFromApi() {
       }
     }
     if (footerVer) {
-      footerVer.textContent = `شکار سهام v${ver} — فاز ۶.۲: امن، ماژولار، Production Hardened`;
+      footerVer.textContent = `رادار بورس v${ver} — فاز ۶.۲: امن، ماژولار، Production Hardened`;
     }
     // Update title ver badge
     const verBadge = document.querySelector(".ver");

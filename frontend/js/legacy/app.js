@@ -1,4 +1,4 @@
-/* شکار سهام v0.4 — داشبورد فاز ۴ */
+/* رادار بورس v0.4 — داشبورد فاز ۴ */
 (() => {
   const state = {
     analysis: null,
@@ -1946,7 +1946,7 @@
         const res = await api("/api/notify/test", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: "تست هشدار شکار سهام ✅ " + new Date().toLocaleString("fa-IR") }),
+          body: JSON.stringify({ text: "تست هشدار رادار بورس ✅ " + new Date().toLocaleString("fa-IR") }),
         });
         state.notifyCfg = res.config;
         fillNotifyForm();

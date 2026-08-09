@@ -1,4 +1,4 @@
-# Project Status — Shekar Saham
+# Project Status — RADAR BOURSE
 
 Last updated: 2026-08-07
 
@@ -26,6 +26,7 @@ Last updated: 2026-08-07
 | P3.40 | Complete Locally — GitHub Closure Pending | Market Intelligence & Continuous Monitoring layer completed locally: market snapshot, regime, industry intelligence, opportunity ranking and events. |
 | P3.41 | Complete Locally — GitHub Closure Pending | Filter Intelligence & Self-Optimization Engine completed locally: registry, immutable versions, performance records, backtest/walk-forward/forward-test integration, decay detection, AI analysis, proposals and human review contract. |
 | P3.42 | Complete Locally — GitHub Push Blocked | Repository completion/release readiness audit plus AI ↔ Filter Intelligence integration hardening completed locally; GitHub push remains blocked by missing authentication. |
+| P3.43 | Complete Locally — GitHub Push Blocked | Repository hardening and RADAR BOURSE terminology cleanup completed locally; installation remains deferred and GitHub push remains blocked by missing authentication. |
 
 ## Baseline
 

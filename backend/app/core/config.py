@@ -23,8 +23,8 @@ def _env_bool(name: str, default: str = "0") -> bool:
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    app_name: str = "شکار سهام"
-    app_name_en: str = "Shekar Saham"
+    app_name: str = "رادار بورس"
+    app_name_en: str = "RADAR BOURSE"
     version: str = "3.0.0"
     host: str = os.getenv("HOST", "0.0.0.0")
     port: int = int(os.getenv("PORT", "8000"))

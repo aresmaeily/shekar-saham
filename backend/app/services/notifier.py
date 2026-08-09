@@ -291,7 +291,7 @@ class Notifier:
             lines.append("دلایل:")
             for r in reasons[:5]:
                 lines.append(f"• {r}")
-        lines.append("— شکار سهام | جمع‌بندی تابلو+بنیادی+جریان")
+        lines.append("— رادار بورس | جمع‌بندی تابلو+بنیادی+جریان")
         if trust != "live":
             lines.append("⚠️ هشدار: این پیام مبتنی بر داده آزمایشی است، مبنای معامله قرار ندهید.")
         return "\n".join(lines)

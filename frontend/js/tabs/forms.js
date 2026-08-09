@@ -213,7 +213,7 @@ export function bindNotify() {
     try {
       const res = await api("/api/notify/test", {
         method: "POST",
-        body: JSON.stringify({ text: "تست هشدار شکار سهام ✅ " + new Date().toLocaleString("fa-IR") }),
+        body: JSON.stringify({ text: "تست هشدار رادار بورس ✅ " + new Date().toLocaleString("fa-IR") }),
       });
       store.set({ notifyCfg: res.config });
       fillNotifyForm();

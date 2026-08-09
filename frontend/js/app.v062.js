@@ -15,7 +15,7 @@ import "./modules/auth.js";
 import "./modules/render/watchlist_excellent.js";
 import { renderDataQuality, renderAnomalies, renderRisk } from "./modules/render/excellent.js";
 
-console.log("%cShekar Saham v0.6.2 Professional Edition - Modular", "color:#34d399;font-weight:bold");
+console.log("%cRADAR BOURSE v0.6.2 Professional Edition - Modular", "color:#34d399;font-weight:bold");
 
 async function init() {
   try {

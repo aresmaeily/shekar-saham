@@ -2,7 +2,7 @@
 
 Last updated: 2026-08-07
 
-This document locks the current product architecture boundaries for RADAR BOURSE / Shekar Saham. It does not introduce a new feature, engine, market, dashboard, AI capability, or UI redesign.
+This document locks the current product architecture boundaries for RADAR BOURSE / رادار بورس. It does not introduce a new feature, engine, market, dashboard, AI capability, or UI redesign.
 
 ## 1. Product Direction
 

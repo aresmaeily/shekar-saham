@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# اجرای پلتفرم شکار سهام
+# اجرای پلتفرم رادار بورس
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT/backend"
@@ -20,5 +20,5 @@ if ! python3 -c "import fastapi,uvicorn,httpx,pydantic_settings" 2>/dev/null; th
   pip install -r requirements.txt
 fi
 
-echo "Starting Shekar Saham on http://${HOST}:${PORT}  (DATA_SOURCE=${DATA_SOURCE} ${PROXY_FLAG})"
+echo "Starting RADAR BOURSE on http://${HOST}:${PORT}  (DATA_SOURCE=${DATA_SOURCE} ${PROXY_FLAG})"
 exec python3 -m uvicorn app.main:app --host "$HOST" --port "$PORT" $PROXY_FLAG

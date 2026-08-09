@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ===== نصب و اجرای آسان شکار سهام v4 =====
+# ===== نصب و اجرای آسان رادار بورس v4 =====
 # روش‌ها:
 #   ./install.sh              → نصب بومی (Python venv) + اجرا
 #   ./install.sh --docker     → ساخت و اجرا با Docker Compose
@@ -9,7 +9,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT"
 
-echo "🎯 شکار سهام v4 — نصب آسان"
+echo "🎯 رادار بورس v4 — نصب آسان"
 echo "────────────────────────────────"
 
 check_python() {

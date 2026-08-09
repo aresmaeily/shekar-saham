@@ -16,7 +16,7 @@ function createWindow() {
       contextIsolation: true,
       enableRemoteModule: false
     },
-    title: "شکار سهام v0.9 Ultimate - بهتر از فراز و نوآوران"
+    title: "رادار بورس v0.9 Ultimate - بهتر از فراز و نوآوران"
   });
 
   // For personal use - load local server
@@ -53,7 +53,7 @@ function createWindow() {
     {
       label: 'راهنما',
       submenu: [
-        { label: 'درباره شکار سهام', click: () => shell.openExternal('https://github.com/shekar-saham') }
+        { label: 'درباره رادار بورس', click: () => shell.openExternal('https://github.com/aresmaeily/shekar-saham') }
       ]
     }
   ];

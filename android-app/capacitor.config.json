@@ -1,6 +1,6 @@
 {
   "appId": "com.shekarsaham.app",
-  "appName": "شکار سهام",
+  "appName": "رادار بورس",
   "webDir": "../frontend",
   "server": {
     "url": "http://127.0.0.1:8000",

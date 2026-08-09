@@ -120,7 +120,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.app_name,
         version=settings.version,
-        description="پلتفرم تابلوخوانی و شکار سهام بورس ایران — Excellent Edition v0.7.0 - با AI، مدیریت ریسک، کیفیت داده، تشخیص آنومالی، معماری رویداد-محور، متریکس پرومتئوس",
+        description="پلتفرم تابلوخوانی و تحلیل هوشمند بورس ایران — Excellent Edition v0.7.0 - با AI، مدیریت ریسک، کیفیت داده، تشخیص آنومالی، معماری رویداد-محور، متریکس پرومتئوس",
         lifespan=lifespan,
     )
     # خطای 500 یکپارچه: JSON با request_id (بدون نشت stack trace)
