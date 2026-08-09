@@ -124,6 +124,12 @@ class AIContextBuilder:
                 validation = validate_filter(request.filter_expr)
                 sample = market_service.run_user_filter(request.filter_expr, limit=10)
                 filter_context = {"validation": validation, "sample": sample}
+                try:
+                    from app.services.filter_intelligence_service import filter_intelligence_service
+
+                    filter_context["filter_intelligence"] = filter_intelligence_service.build_ai_filter_context(request.filter_expr)
+                except Exception as exc:
+                    warnings.append(f"Filter Intelligence context unavailable: {type(exc).__name__}")
             except FilterError as exc:
                 filter_context = {"ok": False, "error": str(exc), "expr": request.filter_expr}
                 warnings.append(f"Filter validation failed: {exc}")
@@ -168,6 +174,10 @@ class FallbackAIProvider:
                 sample = ctx.filter_context.get("sample") or {}
                 observations.append(f"فیلتر معتبر است و در نمونه فعلی {sample.get('count', 0)} ردیف منطبق پیدا کرده است.")
                 evidence.append({"type": "filter", "fields": (ctx.filter_context.get("validation") or {}).get("fields"), "count": sample.get("count")})
+                fi = ctx.filter_context.get("filter_intelligence") or {}
+                if fi:
+                    observations.append(f"Filter Intelligence classification: {fi.get('classification', 'INSUFFICIENT_DATA')}؛ تغییر production نیازمند تأیید انسانی است.")
+                    evidence.append({"type": "filter_intelligence", "classification": fi.get("classification"), "filter_id": fi.get("filter_id"), "version": fi.get("version"), "reason_codes": fi.get("reason_codes")})
         if not observations:
             observations.append("Insufficient Data: برای پاسخ دقیق، نماد، فیلتر یا نتیجه بک‌تست بیشتری لازم است.")
         warnings = ctx.warnings + ["این پاسخ fallback/rule-based است و LLM زنده استفاده نشده است."]

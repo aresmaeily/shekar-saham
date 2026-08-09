@@ -122,6 +122,12 @@ Implemented after Market Intelligence:
 
 `AIIntelligenceCore` now accepts `filter_context.filter_intelligence` as controlled context and adds `filter_intelligence` evidence when supplied. Weak/degrading filter intelligence is treated as risk evidence and requires human review. It still does not mutate filters, strategies or production state.
 
+## P3.42 Repository Completion / Integration Hardening
+
+P3.42 closed the service-level integration gap by wiring `AIContextBuilder` / `AIService.intelligence` to the read-only `FilterIntelligenceService.build_ai_filter_context(...)` path when a filter expression is analyzed. This means symbol intelligence can now carry P3.41 Filter Intelligence evidence into P3.39 `AIIntelligenceCore` without creating proposals, activating versions, or mutating production filters.
+
+If no registry/performance history exists for an ad-hoc expression, the AI receives an explicit `INSUFFICIENT_DATA` filter-intelligence classification rather than invented performance metrics.
+
 ## Future Architecture Gate
 
 Future AI work must add contracts and tests before new behavior:

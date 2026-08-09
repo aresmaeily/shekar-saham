@@ -81,6 +81,16 @@ def test_ai_api_smoke_assistant():
     assert "data_trust" in data
 
 
+@pytest.mark.asyncio
+async def test_ai_intelligence_consumes_filter_intelligence_context():
+    res = await ai_service.intelligence(AIRequest(symbol="فملی", filter_expr="buy_power > 1.5"), DummyMarketService())
+    assert any(e["category"] == "filter_intelligence" for e in res["evidence"])
+    fi = next(e for e in res["evidence"] if e["category"] == "filter_intelligence")
+    assert fi["value"]["classification"] == "INSUFFICIENT_DATA"
+    assert "FILTER_INTELLIGENCE_INSUFFICIENT" in res["reason_codes"]
+    assert res["safety"]["requires_human_approval"] is True
+
+
 def test_ai_api_invalid_filter_is_controlled():
     c = TestClient(app)
     r = c.post("/api/ai/optimize", json={"filter_expr": "__import__('os')"})

@@ -1,6 +1,12 @@
 # Changelog — Shekar Saham
 
-## 2026-08-09 — P3.41 Filter Intelligence & Self-Optimization Engine
+## 2026-08-09 — P3.42 Repository Completion and Release Readiness
+
+- Completed repository audit after P3.41 and verified local history through P3.39, P3.40 and P3.41.
+- Recovered `origin` to the documented GitHub repository URL and verified read access; push remains blocked by missing authentication.
+- Closed the real integration gap between P3.41 Filter Intelligence and P3.39 AI Intelligence Core by adding read-only Filter Intelligence context into `AIContextBuilder` / `AIService.intelligence`.
+- Added regression coverage proving AI Intelligence emits `filter_intelligence` evidence when a filter expression is analyzed.
+- Preserved all safety gates: no production filter mutation, no autonomous trading, no Windows installation, no live-data claim and no GitHub sync claim without remote SHA verification.
 
 - Added Filter Intelligence domain contracts for registry items, immutable filter versions, performance records, decay signals, AI analysis results, optimization proposals, proposal reviews and version comparison.
 - Added `FilterIntelligenceService` using the existing Filter DSL, Strategy/Backtest stack, Walk-Forward, Forward-Test, Market Intelligence regime context and Store `settings_kv` persistence.

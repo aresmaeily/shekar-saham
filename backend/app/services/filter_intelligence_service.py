@@ -465,6 +465,68 @@ class FilterIntelligenceService:
         return review
 
     # ---------- comparison ----------
+    def build_ai_filter_context(self, filter_expr: str | None = None, *, filter_id: str | None = None, version: str | None = None) -> dict[str, Any]:
+        """Build controlled P3.41 filter-intelligence context for AIIntelligenceCore.
+
+        This method is intentionally read-only. It does not run optimization,
+        create proposals, activate versions, or mutate production filters. If no
+        historical performance exists, it returns an explicit
+        INSUFFICIENT_DATA classification instead of inventing metrics.
+        """
+        matched_version: FilterVersion | None = None
+        match_source = "none"
+        if filter_id:
+            matched_version = self.get_version(filter_id, version)
+            match_source = "registry_filter_id"
+        elif filter_expr:
+            validation = validate_filter(filter_expr)
+            normalized_expr = " ".join(filter_expr.strip().split())
+            for item in self.list_filters():
+                for candidate in item.versions:
+                    if " ".join(candidate.conditions.strip().split()) == normalized_expr:
+                        matched_version = candidate
+                        match_source = "registry_conditions"
+                        break
+                if matched_version:
+                    break
+            if not matched_version:
+                return {
+                    "classification": "INSUFFICIENT_DATA",
+                    "source": "ad_hoc_filter_expr",
+                    "validation": validation,
+                    "reason_codes": ["AD_HOC_FILTER_NOT_IN_REGISTRY", "NO_PERFORMANCE_HISTORY"],
+                    "safety": {"ai_can_modify_production": False, "requires_human_approval": True},
+                }
+        if not matched_version:
+            return {
+                "classification": "INSUFFICIENT_DATA",
+                "source": match_source,
+                "reason_codes": ["NO_FILTER_CONTEXT"],
+                "safety": {"ai_can_modify_production": False, "requires_human_approval": True},
+            }
+        records = self.list_performance(matched_version.filter_id, matched_version.version, limit=50)
+        if records:
+            analysis = self.analyze_records(matched_version.filter_id, matched_version.version, records)
+            return {
+                "classification": analysis.classification,
+                "source": match_source,
+                "filter_id": matched_version.filter_id,
+                "version": matched_version.version,
+                "analysis": analysis.model_dump(mode="json"),
+                "records_count": len(records),
+                "reason_codes": analysis.reason_codes,
+                "safety": analysis.safety,
+            }
+        return {
+            "classification": "INSUFFICIENT_DATA",
+            "source": match_source,
+            "filter_id": matched_version.filter_id,
+            "version": matched_version.version,
+            "records_count": 0,
+            "reason_codes": ["NO_PERFORMANCE_HISTORY"],
+            "safety": {"ai_can_modify_production": False, "requires_human_approval": True},
+        }
+
     def compare_versions(self, filter_id: str, left_version: str, right_version: str) -> FilterComparison:
         left = self.list_performance(filter_id, left_version, limit=20)
         right = self.list_performance(filter_id, right_version, limit=20)
