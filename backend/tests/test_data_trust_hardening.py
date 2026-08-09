@@ -139,3 +139,42 @@ def test_backtest_stale_and_unavailable_warnings():
     assert r2["data_trust"]["state"] == "unavailable"
     assert r1["warnings"]
     assert r2["warnings"]
+
+
+def test_future_timestamp_is_not_live():
+    ctx = build_data_trust_context("tsetmc", timestamp=2000, checked_at=1000, stale_after_sec=300)
+    assert ctx["state"] == "mixed"
+    assert ctx["trust_level"] == "mixed"
+    assert ctx["is_live"] is False
+    assert ctx["future_timestamp"] is True
+    assert "future" in ctx["warning"].lower()
+
+
+def test_brsapi_missing_key_fallback_metadata_does_not_expose_secret(monkeypatch):
+    import asyncio
+    from app.core.config import get_settings
+    from app.data.providers import MarketDataProvider
+
+    monkeypatch.delenv("BRSAPI_KEY", raising=False)
+    monkeypatch.setenv("DATA_SOURCE", "brsapi")
+    get_settings.cache_clear()
+
+    async def run():
+        provider = MarketDataProvider()
+        rows = await provider.fetch()
+        return provider, rows
+
+    provider, rows = asyncio.run(run())
+    ctx = build_data_trust_context(
+        provider.last_source,
+        timestamp=rows[0].updated_at.timestamp() if rows and rows[0].updated_at else None,
+        provider=provider.last_source,
+        fallback_source="mock" if "mock" in provider.last_source else "",
+        error_code=provider.last_error,
+    )
+    assert provider.last_error == "brsapi: no API key configured"
+    assert ctx["state"] == "mock"
+    assert ctx["trust_level"] == "synthetic"
+    assert ctx["is_live"] is False
+    assert "no API key configured" in ctx["warning"]
+    assert "BRSAPI_KEY" not in ctx["warning"]

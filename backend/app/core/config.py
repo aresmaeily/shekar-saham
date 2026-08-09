@@ -41,6 +41,7 @@ class Settings(BaseSettings):
     poll_seconds: int = int(os.getenv("POLL_SECONDS", "30"))
     request_timeout: float = float(os.getenv("REQUEST_TIMEOUT", "12"))
     data_stale_after_sec: float = float(os.getenv("DATA_STALE_AFTER_SEC", "300"))
+    data_clock_skew_tolerance_sec: float = float(os.getenv("DATA_CLOCK_SKEW_TOLERANCE_SEC", "0"))
 
     # --- Thresholds ---
     hot_money_threshold: float = 200_000_000
@@ -217,6 +218,7 @@ def build_data_trust_context(
     provider_name = provider or source or "unknown"
     age_sec = round(checked - ts, 3) if ts is not None else None
     stale = bool(age_sec is not None and age_sec > stale_after)
+    future_timestamp = bool(age_sec is not None and age_sec < -float(getattr(s, "data_clock_skew_tolerance_sec", 0)))
 
     state: DataTrustState = base_state
     # Missing data with no usable timestamp is unavailable unless it is an
@@ -226,6 +228,8 @@ def build_data_trust_context(
     if base_state == "mixed" and src.lower() in {"none", "unknown", "", "unavailable", "no_data"} and ts is None:
         state = "unavailable"
     elif base_state == "live" and ts is None:
+        state = "mixed"
+    elif base_state in {"live", "mixed"} and future_timestamp:
         state = "mixed"
     elif base_state in {"live", "mixed"} and stale:
         state = "stale"
@@ -248,6 +252,8 @@ def build_data_trust_context(
             msg = "UNAVAILABLE data: no usable provider data is currently available."
         else:
             msg = "MIXED data: provider trust is partial, cached, or not fully validated."
+    if future_timestamp:
+        msg = f"{msg} Timestamp is in the future and cannot be treated as verified live data."
     if fallback_source and state in {"mock", "synthetic", "mixed", "unavailable"}:
         msg = f"{msg} Fallback source: {fallback_source}."
     if error_code and state != "live":
@@ -263,6 +269,7 @@ def build_data_trust_context(
         "age_sec": age_sec,
         "stale_after_sec": stale_after,
         "stale": stale,
+        "future_timestamp": future_timestamp,
         "fallback_source": fallback_source or "",
         "error_code": error_code or "",
         "data_source_config": s.data_source,
