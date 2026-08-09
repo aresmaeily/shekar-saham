@@ -1,5 +1,15 @@
 # Changelog — Shekar Saham
 
+## 2026-08-09 — P3.41 Filter Intelligence & Self-Optimization Engine
+
+- Added Filter Intelligence domain contracts for registry items, immutable filter versions, performance records, decay signals, AI analysis results, optimization proposals, proposal reviews and version comparison.
+- Added `FilterIntelligenceService` using the existing Filter DSL, Strategy/Backtest stack, Walk-Forward, Forward-Test, Market Intelligence regime context and Store `settings_kv` persistence.
+- Added AI endpoints for filters, versions, performance, comparison, filter intelligence summary, proposals and human review.
+- Integrated P3.41 filter-intelligence context into `AIIntelligenceCore` as controlled evidence.
+- Added regression tests for registry, versioning, performance records, data-trust blocking, backtest/walk-forward/forward-test integration, decay detection, AI analysis, proposals, approval/rejection/retest contract, comparison and API smoke.
+- Preserved safety gates: no autonomous trading, no broker integration, no automatic production filter mutation, no live-performance claim on non-live data.
+- UI approval workflow, 24/7 scheduler, real live-provider performance validation and automatic composite deployment remain deferred.
+
 ## 2026-08-09 — P3.40 Market Intelligence & Continuous Monitoring
 
 - Added market-level intelligence contracts: `MarketIntelligenceSnapshot`, `IndustryIntelligence`, `OpportunityRank`, `IntelligenceEvent`, and `MarketMonitoringResult`.

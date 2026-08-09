@@ -22,6 +22,7 @@
 - `P3.38_PRODUCT_AI_ARCHITECTURE_LOCK_REPORT.md` — P3.38 product direction, AI Brain and architecture lock report
 - `P3.39_AI_INTELLIGENCE_CORE_REPORT.md` — P3.39 AI Intelligence Core implementation report
 - `P3.40_MARKET_INTELLIGENCE_CONTINUOUS_MONITORING_FINAL_REPORT.md` — P3.40 Market Intelligence and Continuous Monitoring report
+- `P3.41_FILTER_INTELLIGENCE_FINAL_REPORT.md` — P3.41 Filter Intelligence and Self-Optimization final report
 - `../ALPHA_SETUP_GUIDE.md` — alpha restore/run/test guide for the main computer
 - `../ALPHA_DEPLOYMENT_READINESS.md` — completed-now/deferred target-system validation matrix
 - `../ALPHA_ENV_CONTRACT.md` — safe Alpha environment variable contract

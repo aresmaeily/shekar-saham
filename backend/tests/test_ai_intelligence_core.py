@@ -70,6 +70,18 @@ def test_unavailable_data_returns_insufficient_data():
     assert result.confidence <= 0.15
 
 
+def test_filter_intelligence_context_is_consumed_by_ai_brain():
+    core = AIIntelligenceCore()
+    result = core.evaluate(
+        symbol_context=_symbol_context(),
+        filter_context={"filter_intelligence": {"classification": "DEGRADING", "decay": {"status": "PERFORMANCE_DECAY"}}},
+        data_trust=build_data_trust_context("tsetmc", timestamp=1000, checked_at=1010),
+    )
+    assert any(e.category == "filter_intelligence" for e in result.evidence)
+    assert "FILTER_INTELLIGENCE_RISK" in result.reason_codes
+    assert result.safety["requires_human_approval"] is True
+
+
 class DummyMarketService:
     async def get_analysis(self, force=False):
         return None

@@ -108,6 +108,20 @@ Implemented after the first AI Core:
 
 The monitoring cycle is callable and testable, but no uncontrolled scheduler is enabled.
 
+## P3.41 Filter Intelligence Layer
+
+Implemented after Market Intelligence:
+
+- `FilterRegistryItem` and immutable `FilterVersion`
+- `PerformanceRecord` for Backtest, Walk-Forward, Forward-Test and monitoring records
+- deterministic filter classification and decay detection
+- AI filter analysis result
+- optimization proposal contract
+- human review contract
+- API endpoints for filter listing, version listing, performance, comparison, proposals and review
+
+`AIIntelligenceCore` now accepts `filter_context.filter_intelligence` as controlled context and adds `filter_intelligence` evidence when supplied. Weak/degrading filter intelligence is treated as risk evidence and requires human review. It still does not mutate filters, strategies or production state.
+
 ## Future Architecture Gate
 
 Future AI work must add contracts and tests before new behavior:

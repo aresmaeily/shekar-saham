@@ -484,6 +484,12 @@ class NotifyConfigBody(BaseModel):
     portfolio_only: Optional[bool] = None
 
 
+class FilterProposalReviewBody(BaseModel):
+    reviewer: str = "human-reviewer"
+    decision: str = Field(..., pattern="^(APPROVE|REJECT|REQUEST_RETEST)$")
+    reason: str = ""
+
+
 class NotifyTestBody(BaseModel):
     text: str = "تست هشدار شکار سهام ✅"
     channels: Optional[list[str]] = None
@@ -527,6 +533,86 @@ async def ai_intelligence(symbol: str, body: AIRequestBody = Body(default_factor
     payload = body.model_dump()
     payload["symbol"] = symbol
     return await ai_service.intelligence(AIRequest(**payload), market_service)
+
+
+@router.get("/ai/filters")
+async def ai_filters() -> dict[str, Any]:
+    from app.services.filter_intelligence_service import filter_intelligence_service
+
+    return {"ok": True, "filters": [x.model_dump(mode="json") for x in filter_intelligence_service.list_filters()]}
+
+
+@router.get("/ai/filters/compare")
+async def ai_filters_compare(filter_id: str, left_version: str, right_version: str) -> dict[str, Any]:
+    from app.services.filter_intelligence_service import filter_intelligence_service
+
+    result = filter_intelligence_service.compare_versions(filter_id, left_version, right_version)
+    return {"ok": True, "comparison": result.model_dump(mode="json")}
+
+
+@router.get("/ai/filters/{filter_id}")
+async def ai_filter_detail(filter_id: str) -> dict[str, Any]:
+    from app.services.filter_intelligence_service import filter_intelligence_service
+
+    item = filter_intelligence_service.get_filter(filter_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="filter not found")
+    return {"ok": True, "filter": item.model_dump(mode="json")}
+
+
+@router.get("/ai/filters/{filter_id}/versions")
+async def ai_filter_versions(filter_id: str) -> dict[str, Any]:
+    from app.services.filter_intelligence_service import filter_intelligence_service
+
+    item = filter_intelligence_service.get_filter(filter_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="filter not found")
+    return {"ok": True, "filter_id": filter_id, "versions": [x.model_dump(mode="json") for x in item.versions]}
+
+
+@router.get("/ai/filters/{filter_id}/performance")
+async def ai_filter_performance(filter_id: str, version: Optional[str] = None, evaluate: bool = False, persist: bool = True) -> dict[str, Any]:
+    from app.services.filter_intelligence_service import filter_intelligence_service
+
+    if evaluate:
+        try:
+            return {"ok": True, **await filter_intelligence_service.evaluate_filter(market_service, filter_id, version, persist=persist)}
+        except KeyError:
+            raise HTTPException(status_code=404, detail="filter not found")
+    return {"ok": True, "records": [x.model_dump(mode="json") for x in filter_intelligence_service.list_performance(filter_id, version)]}
+
+
+@router.get("/ai/filter-intelligence")
+async def ai_filter_intelligence(limit: int = Query(5, ge=1, le=20), persist: bool = False) -> dict[str, Any]:
+    from app.services.filter_intelligence_service import filter_intelligence_service
+
+    return await filter_intelligence_service.filter_intelligence_summary(market_service, persist=persist, limit=limit)
+
+
+@router.get("/ai/filter-proposals")
+async def ai_filter_proposals(filter_id: Optional[str] = None) -> dict[str, Any]:
+    from app.services.filter_intelligence_service import filter_intelligence_service
+
+    proposals = filter_intelligence_service.list_proposals(filter_id)
+    if not proposals and filter_id:
+        try:
+            proposals = [filter_intelligence_service.create_proposal(filter_id)]
+        except KeyError:
+            raise HTTPException(status_code=404, detail="filter not found")
+    return {"ok": True, "proposals": [x.model_dump(mode="json") for x in proposals]}
+
+
+@router.post("/ai/filter-proposals/{proposal_id}/review")
+async def ai_filter_proposal_review(proposal_id: str, body: FilterProposalReviewBody = Body(...)) -> dict[str, Any]:
+    from app.services.filter_intelligence_service import filter_intelligence_service
+
+    try:
+        review = filter_intelligence_service.review_proposal(proposal_id, body.reviewer, body.decision, body.reason)
+    except KeyError:
+        raise HTTPException(status_code=404, detail="proposal not found")
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return {"ok": True, "review": review.model_dump(mode="json")}
 
 
 @router.get("/ai/market-intelligence")

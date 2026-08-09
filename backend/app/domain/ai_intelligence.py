@@ -138,7 +138,21 @@ class AIIntelligenceCore:
         money_flow_score = _clamp((min(buy_power, 4.0) / 4.0 * 45) + (min(volume_ratio, 4.0) / 4.0 * 30) + (25 if net_value > 0 else 0))
         filter_sample = filter_context.get("sample") if isinstance(filter_context, dict) else None
         filter_count = _num((filter_sample or {}).get("count"))
+        filter_intelligence = filter_context.get("filter_intelligence") if isinstance(filter_context, dict) else None
         filter_score = _clamp(70 if filter_count > 0 else 0)
+        if isinstance(filter_intelligence, dict):
+            classification = str(filter_intelligence.get("classification") or "")
+            if classification == "EXCELLENT":
+                filter_score = max(filter_score, 85)
+            elif classification == "GOOD":
+                filter_score = max(filter_score, 72)
+            elif classification == "STABLE":
+                filter_score = max(filter_score, 60)
+            elif classification in {"DEGRADING", "WEAK"}:
+                filter_score = min(filter_score or 45, 45)
+                reason_codes.append("FILTER_INTELLIGENCE_RISK")
+            elif classification in {"INVALID", "INSUFFICIENT_DATA"}:
+                reason_codes.append("FILTER_INTELLIGENCE_INSUFFICIENT")
         bt_metrics = (backtest_context.get("metrics") or backtest_context) if isinstance(backtest_context, dict) else {}
         pf = _num(bt_metrics.get("profit_factor"))
         dd = _num(bt_metrics.get("maximum_drawdown", bt_metrics.get("max_drawdown")))
@@ -149,7 +163,8 @@ class AIIntelligenceCore:
             IntelligenceEvidence(category="technical", name="entry_score", value=metrics.get("entry_score"), score=technical_score, weight=self.weights.technical, direction="positive" if technical_score >= 60 else "neutral"),
             IntelligenceEvidence(category="fundamental", name="value_score", value=fundamental.get("value_score", fundamental.get("fund_score")), score=value_score, weight=self.weights.fundamental, direction="positive" if value_score >= 60 else "neutral", note="Synthetic if fundamental_source=synthetic"),
             IntelligenceEvidence(category="money_flow", name="buy_power_volume_net", value={"buy_power": buy_power, "volume_ratio": volume_ratio, "individual_net_value": net_value}, score=money_flow_score, weight=self.weights.money_flow, direction="positive" if money_flow_score >= 60 else "negative" if money_flow_score < 35 else "neutral"),
-            IntelligenceEvidence(category="filter", name="filter_sample", value=filter_count, score=filter_score, weight=self.weights.filter_signal, direction="positive" if filter_score else "neutral"),
+            IntelligenceEvidence(category="filter", name="filter_sample", value=filter_count, score=filter_score, weight=self.weights.filter_signal, direction="positive" if filter_score >= 60 else "negative" if filter_score and filter_score < 50 else "neutral"),
+            IntelligenceEvidence(category="filter_intelligence", name="filter_version_evaluation", value=filter_intelligence or {}, score=filter_score, weight=self.weights.filter_signal, direction="positive" if filter_score >= 60 else "negative" if filter_intelligence else "neutral", note="P3.41 filter performance/decay context when supplied."),
             IntelligenceEvidence(category="strategy", name="backtest_metrics", value=bt_metrics or {}, score=strategy_score, weight=self.weights.strategy, direction="positive" if strategy_score >= 60 else "neutral"),
             IntelligenceEvidence(category="risk", name="risk_score", value=risk_score, score=risk_score, direction="negative" if risk_score >= 65 else "neutral"),
         ])
