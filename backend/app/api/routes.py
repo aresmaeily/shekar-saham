@@ -520,6 +520,15 @@ async def ai_optimize(body: AIRequestBody = Body(default_factory=AIRequestBody))
     return await ai_service.optimizer(AIRequest(**body.model_dump()), market_service)
 
 
+@router.post("/ai/intelligence/{symbol}")
+async def ai_intelligence(symbol: str, body: AIRequestBody = Body(default_factory=AIRequestBody)) -> dict[str, Any]:
+    from app.services.ai_service import AIRequest, ai_service
+
+    payload = body.model_dump()
+    payload["symbol"] = symbol
+    return await ai_service.intelligence(AIRequest(**payload), market_service)
+
+
 @router.post("/backtest/run", dependencies=SENSITIVE_DEPENDENCIES)
 async def backtest_run(body: BacktestBody = Body(default_factory=BacktestBody)) -> dict[str, Any]:
     await market_service.get_analysis(force=False)

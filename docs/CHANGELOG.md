@@ -1,5 +1,14 @@
 # Changelog — Shekar Saham
 
+## 2026-08-09 — P3.39 AI Intelligence Core
+
+- Added deterministic `AIIntelligenceCore` for structured evidence aggregation, confidence scoring, conflict detection and recommendation mapping.
+- Added structured result contracts: `IntelligenceEvidence` and `IntelligenceResult`.
+- Added endpoint `POST /api/ai/intelligence/{symbol}` using controlled existing market context.
+- Added tests for live aligned evidence, non-live data trust blocking, conflicting evidence, unavailable data, service integration and API smoke.
+- Updated AI Brain architecture documentation to reflect the implemented core.
+- No LLM, autonomous trading, broker integration, UI redesign, global market expansion or Forex expansion was added.
+
 ## 2026-08-09 — P3.38 Product Direction & AI Intelligence Architecture Lock
 
 - Added AI Brain architecture as the future analytical core, distinct from a chatbot interface.

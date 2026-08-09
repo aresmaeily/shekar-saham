@@ -80,8 +80,11 @@ Implemented now:
 
 - rule-based AI explainability
 - fallback AI Assistant / Analyst / Optimizer
+- `AIIntelligenceCore` deterministic evidence aggregator
+- structured intelligence endpoint: `POST /api/ai/intelligence/{symbol}`
 - data trust propagation
 - evidence/warning/confidence fields
+- recommendation gate that blocks actionable live recommendations on non-live data
 
 Not implemented now:
 

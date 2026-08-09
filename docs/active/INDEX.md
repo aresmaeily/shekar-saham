@@ -20,6 +20,7 @@
 - `P3.37_ALPHA_GATE_CLOSURE_REPORT.md` — P3.37 alpha gate closure validation and final handoff report
 - `PRODUCT_ROADMAP_LOCK.md` — locked product roadmap from P3.38 onward
 - `P3.38_PRODUCT_AI_ARCHITECTURE_LOCK_REPORT.md` — P3.38 product direction, AI Brain and architecture lock report
+- `P3.39_AI_INTELLIGENCE_CORE_REPORT.md` — P3.39 AI Intelligence Core implementation report
 - `../ALPHA_SETUP_GUIDE.md` — alpha restore/run/test guide for the main computer
 - `../ALPHA_DEPLOYMENT_READINESS.md` — completed-now/deferred target-system validation matrix
 - `../ALPHA_ENV_CONTRACT.md` — safe Alpha environment variable contract

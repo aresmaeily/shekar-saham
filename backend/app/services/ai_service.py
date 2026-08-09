@@ -12,6 +12,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from app.domain.ai_intelligence import AIIntelligenceCore
 from app.engines.filter_dsl import FilterError, validate_filter
 
 AIProviderMode = Literal["fallback", "external_not_configured"]
@@ -293,6 +294,20 @@ class AIService:
     def __init__(self) -> None:
         self.context_builder = AIContextBuilder()
         self.provider = FallbackAIProvider()
+        self.intelligence_core = AIIntelligenceCore()
+
+    async def intelligence(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
+        ctx = await self.context_builder.build(request, "analyst", market_service)
+        result = self.intelligence_core.evaluate(
+            symbol_context=ctx.symbol_context,
+            market_context=ctx.market,
+            filter_context=ctx.filter_context,
+            backtest_context=ctx.backtest_context,
+            data_trust=ctx.data_trust,
+        ).model_dump(mode="json")
+        result["provider"] = self.provider.mode
+        result["warnings"] = list(dict.fromkeys((result.get("warnings") or []) + ctx.warnings))
+        return result
 
     async def assistant(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
         ctx = await self.context_builder.build(request, "assistant", market_service)
