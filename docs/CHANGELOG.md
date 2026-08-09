@@ -1,5 +1,13 @@
 # Changelog — Shekar Saham
 
+## 2026-08-09 — P3.38 Product Direction & AI Intelligence Architecture Lock
+
+- Added AI Brain architecture as the future analytical core, distinct from a chatbot interface.
+- Added Filter Intelligence architecture for future filter performance monitoring, self-optimization suggestions and human approval gates.
+- Added Market Abstraction architecture preserving Iran Market as primary, Forex as secondary scaffold and global markets as deferred extension.
+- Added Product Roadmap Lock from P3.38 onward.
+- No runtime feature, provider rewrite, UI redesign, live trading, global market expansion or AI provider implementation was added.
+
 ## 2026-08-09 — P3.37 Alpha Gate Closure Validation
 
 - Re-ran all locally executable Alpha validations, including full backend tests, pyflakes, frontend JS syntax, alpha environment, alpha runtime, provider mock/TSETMC/BRSAPI checks, and frontend static validation.

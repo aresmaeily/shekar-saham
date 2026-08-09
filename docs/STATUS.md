@@ -20,7 +20,8 @@ Last updated: 2026-08-07
 | P3.34 | Accepted Locally — GitHub Closure Pending | Alpha Target Validation Preparation completed locally with handoff checklist, runbook, tests, and full archive. |
 | P3.35 | Accepted Locally — Target Launch Deferred | Alpha target validation report and full archive completed locally; actual target-system launch remains deferred. |
 | P3.36 | Accepted Locally — Target Launch Deferred | Target-System Final Validation & Controlled Alpha Launch Gate completed locally; actual target Windows launch remains deferred.
-| P3.37 | In Progress | Alpha Gate Closure validation and final handoff evidence; local validation complete, target launch deferred.
+| P3.37 | Accepted Locally — Target Launch Deferred | Alpha Gate Closure validation and final handoff evidence completed locally; target launch deferred.
+| P3.38 | In Progress | Product Direction Lock, AI Intelligence Architecture, Filter Intelligence and Market Abstraction architecture lock.
 
 ## Baseline
 

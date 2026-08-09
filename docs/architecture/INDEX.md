@@ -9,3 +9,6 @@
 - `FILTER_DSL_STRATEGY_FRAMEWORK.md` — P3.26 safe Filter DSL, parser/AST, security, API and Strategy Framework boundaries
 - `BACKTEST_WALK_FORWARD_FORWARD_TEST.md` — P3.27 backtest, walk-forward, forward-test, quant safety and metrics boundaries
 - `AI_ASSISTANT_ANALYST_OPTIMIZER.md` — P3.28 controlled AI Assistant, Analyst, Optimizer, provider fallback and safety boundaries
+- `AI_BRAIN_ARCHITECTURE.md` — P3.38 AI Intelligence Brain, decision-support and safety gate architecture
+- `FILTER_INTELLIGENCE_ARCHITECTURE.md` — P3.38 filter performance, self-optimization and approval-gate architecture
+- `MARKET_ABSTRACTION_ARCHITECTURE.md` — P3.38 Iran-first, Forex-preserved, global-ready market abstraction
