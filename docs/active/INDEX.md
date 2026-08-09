@@ -13,6 +13,7 @@
 - `P3.30_ALPHA_COMPLETION_GATE_REPORT.md` — P3.30 Alpha Completion Gate report
 - `P3.31_LIVE_DATA_TRUST_HARDENING_REPORT.md` — P3.31 live data and data trust hardening report
 - `P3.32_ALPHA_DEPLOYMENT_READINESS_REPORT.md` — P3.32 alpha deployment readiness and deferred live validation report
+- `P3.33_ALPHA_GATE_AUDIT.md` — P3.33 alpha gate audit and target-system handoff preparation report
 - `../ALPHA_SETUP_GUIDE.md` — alpha restore/run/test guide for the main computer
 - `../ALPHA_DEPLOYMENT_READINESS.md` — completed-now/deferred target-system validation matrix
 - `../ALPHA_ENV_CONTRACT.md` — safe Alpha environment variable contract
