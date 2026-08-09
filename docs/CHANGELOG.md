@@ -1,5 +1,13 @@
 # Changelog — Shekar Saham
 
+## 2026-08-09 — P3.35 Alpha Target Validation and Controlled Launch Gate
+
+- Re-ran offline/local alpha validation suite and confirmed `110 passed, 1 warning`.
+- Verified alpha environment, runtime, provider mock fallback, BRSAPI missing-key handling, and frontend static checks through prepared validation scripts.
+- Added `docs/active/P3.35_ALPHA_TARGET_VALIDATION_REPORT.md` documenting local pass, deferred target-system requirements, GitHub blocker, and alpha launch decision.
+- Produced a full project archive for target-system handoff.
+- No feature development, Cloudflare deployment, live provider claim, live AI, broker integration, UI redesign, or trading logic change was performed.
+
 ## 2026-08-09 — P3.34 Alpha Target Validation Preparation
 
 - Added `docs/active/P3.34_ALPHA_TARGET_VALIDATION_AND_LAUNCH_CHECKLIST.md` as the target-system runbook and alpha launch checklist.

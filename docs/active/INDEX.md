@@ -15,6 +15,7 @@
 - `P3.32_ALPHA_DEPLOYMENT_READINESS_REPORT.md` — P3.32 alpha deployment readiness and deferred live validation report
 - `P3.33_ALPHA_GATE_AUDIT.md` — P3.33 alpha gate audit and target-system handoff preparation report
 - `P3.34_ALPHA_TARGET_VALIDATION_AND_LAUNCH_CHECKLIST.md` — P3.34 alpha target validation, runbook, launch checklist, and handoff matrix
+- `P3.35_ALPHA_TARGET_VALIDATION_REPORT.md` — P3.35 alpha target validation and controlled launch gate report
 - `../ALPHA_SETUP_GUIDE.md` — alpha restore/run/test guide for the main computer
 - `../ALPHA_DEPLOYMENT_READINESS.md` — completed-now/deferred target-system validation matrix
 - `../ALPHA_ENV_CONTRACT.md` — safe Alpha environment variable contract
