@@ -28,6 +28,9 @@ Last updated: 2026-08-07
 | P3.42 | Complete Locally — GitHub Push Blocked | Repository completion/release readiness audit plus AI ↔ Filter Intelligence integration hardening completed locally; GitHub push remains blocked by missing authentication. |
 | P3.43 | Complete Locally — GitHub Push Blocked | Repository hardening and RADAR BOURSE terminology cleanup completed locally; installation remains deferred and GitHub push remains blocked by missing authentication. |
 | P3.44 | Complete Locally — GitHub Push Blocked | Pre-installation repository hardening and second-pass RADAR BOURSE terminology integrity completed locally; P3.43/P3.44 backups verified and installation remains deferred. |
+| P3.45 | Repository-Side Inspection Complete — Target Blocked | Target validation and installation readiness inspection completed repository-side; Windows target inaccessible, installation not started. |
+| P3.46 | Handoff Delivered — GitHub Push Blocked | Final handoff documentation and developer handoff archive created; no code/config/db/install changes. |
+| P3.47 | Final Pre-Install Repository Closure — Ready With Target Blockers | Handoff docs, Alpha Windows preparation scripts, installation checklists/runbook/gap analysis, tests, and artifact completed locally; target installation remains not started. |
 
 ## Baseline
 

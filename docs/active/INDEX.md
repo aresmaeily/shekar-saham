@@ -30,3 +30,19 @@
 - `../ALPHA_DEPLOYMENT_READINESS.md` — completed-now/deferred target-system validation matrix
 - `../ALPHA_ENV_CONTRACT.md` — safe Alpha environment variable contract
 - `../P3.28_TRANSFER_MANIFEST.md` — final transfer manifest for local backup and Git recovery
+
+
+## P3.45/P3.46/P3.47 Delivery and Pre-Install Closure
+
+- `P3.45_RADAR_BOURSE_TARGET_VALIDATION_AND_INSTALLATION_READINESS_FINAL_REPORT.md` — P3.45 target validation and installation readiness final report
+- `PROJECT_CONTINUITY_HANDOFF.md` — project continuity and operational handoff dossier
+- `PROJECT_CHAT_CONTINUITY_RECORD.md` — structured chat/project decision continuity record
+- `PROJECT_ARTIFACT_MANIFEST.md` — verified project artifact inventory
+- `PROJECT_LINK_MANIFEST.md` — external/project link manifest
+- `HANDOFF_README.md` — quick handoff guide for new developers
+- `ALPHA_INSTALLATION_CHECKLIST.md` — controlled Alpha installation checklist
+- `ALPHA_TARGET_VALIDATION_CHECKLIST.md` — Windows target validation checklist
+- `ALPHA_INSTALLATION_RUNBOOK.md` — copy/paste Alpha installation runbook
+- `ALPHA_INSTALLATION_GAP_ANALYSIS.md` — Alpha installation gap analysis
+- `ALPHA_INSTALLATION_PREPARATION_FINAL_REPORT.md` — Alpha installation preparation final report
+- `P3.47_FINAL_PRE_INSTALL_REPOSITORY_CLOSURE_REPORT.md` — P3.47 final pre-install repository closure report

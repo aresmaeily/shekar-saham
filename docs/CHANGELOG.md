@@ -1,6 +1,13 @@
 # Changelog — RADAR BOURSE
 
-## 2026-08-09 — P3.44 Pre-Installation Repository Hardening
+## 2026-08-09 — P3.47 Final Pre-Installation Repository Closure
+
+- Closed previously untracked handoff and Alpha installation readiness documentation as repository-controlled project assets.
+- Added Windows-target Alpha preparation scripts under `scripts/windows/` for prerequisite validation, native install preparation, backend startup, and runtime health validation.
+- Added Alpha installation checklist, target validation checklist, runbook, gap analysis, and preparation final report.
+- Preserved installation lock: no Windows installation, target execution, service start, database migration, dependency installation, or production deployment was performed.
+- Re-ran local regression and validation checks: backend tests, pyflakes, node syntax checks, shell syntax checks, alpha validation scripts, provider fallback checks, and frontend static validation.
+- Built a verified Alpha installation readiness artifact for Windows transfer.
 
 - Re-audited repository baseline after P3.43 and verified P3.39 through P3.43 integration surfaces before any installation.
 - Verified and re-attached the P3.43 backup artifact for delivery visibility.
