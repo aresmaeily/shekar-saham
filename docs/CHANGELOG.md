@@ -1,5 +1,13 @@
 # Changelog — Shekar Saham
 
+## 2026-08-09 — P3.32 Alpha Deployment Readiness & Deferred Live Validation
+
+- Added offline/target-system validation scripts for Alpha environment, local API smoke, and provider validation.
+- Added `docs/ALPHA_DEPLOYMENT_READINESS.md` with completed-now versus deferred target-system validation matrix.
+- Added tests for validation scripts, safe BRSAPI missing-key handling, provider mock fallback, and alpha runtime smoke.
+- Updated `.env.example` with `DATA_STALE_AFTER_SEC=300` to align with P3.31 freshness gates.
+- No live data claim, Cloudflare deployment, broker integration, live trading, UI redesign, global expansion, or new feature expansion was performed.
+
 ## 2026-08-09 — P3.31 Live Data & Data Trust Hardening
 
 - Extended canonical data trust states with `stale` and `unavailable` while preserving legacy `trust_level` compatibility.

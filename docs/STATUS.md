@@ -14,7 +14,8 @@ Last updated: 2026-08-07
 | P3.27 | Accepted Locally — GitHub Closure Pending | Backtest, Walk-Forward and Forward Test completed locally with verified backup; GitHub push remains credential-dependent. |
 | P3.28 | Accepted Locally — GitHub Closure Pending | Controlled AI Assistant/Analyst/Optimizer plus Alpha readiness and transfer package completed locally. |
 | P3.30 | Accepted Locally — GitHub Closure Pending | Alpha Completion Gate completed locally; security hardening validated; GitHub push remains credential-dependent. |
-| P3.31 | In Progress | Live Data & Data Trust Hardening: stale/unavailable states, freshness metadata, safe fallback labels, AI/backtest trust propagation. |
+| P3.31 | Accepted Locally — GitHub Closure Pending | Live Data & Data Trust Hardening completed locally; stale/unavailable states and no-false-LIVE tests passed. |
+| P3.32 | In Progress | Alpha Deployment Readiness & Deferred Live Validation: offline validation scripts, target-system checklists, provider validation harness, and transfer readiness. |
 
 ## Baseline
 
