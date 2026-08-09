@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from fastapi import APIRouter, Body, HTTPException, Query, Request
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from app.core.config import get_settings
+from app.core.security import require_api_key
 from app.core.runtime_settings import (
     get_thresholds_public,
     reset_thresholds,
@@ -15,6 +16,7 @@ from app.data.store import store
 from app.services.market_service import market_service
 
 router = APIRouter(prefix="/api")
+SENSITIVE_DEPENDENCIES = [Depends(require_api_key)]
 
 
 class ThresholdUpdate(BaseModel):
@@ -231,12 +233,12 @@ async def alerts(
     return store.list_alerts(side=side, symbol=symbol, limit=limit)
 
 
-@router.get("/portfolio")
+@router.get("/portfolio", dependencies=SENSITIVE_DEPENDENCIES)
 async def portfolio_list() -> list[dict[str, Any]]:
     return market_service.portfolio_enriched()
 
 
-@router.post("/portfolio")
+@router.post("/portfolio", dependencies=SENSITIVE_DEPENDENCIES)
 async def portfolio_add(body: PortfolioAdd) -> dict[str, Any]:
     if not body.symbol.strip():
         raise HTTPException(400, "نماد خالی است")
@@ -244,7 +246,7 @@ async def portfolio_add(body: PortfolioAdd) -> dict[str, Any]:
     return {"ok": True, "item": item, "portfolio": market_service.portfolio_enriched()}
 
 
-@router.delete("/portfolio/{symbol}")
+@router.delete("/portfolio/{symbol}", dependencies=SENSITIVE_DEPENDENCIES)
 async def portfolio_delete(symbol: str) -> dict[str, Any]:
     ok = store.portfolio_remove(symbol)
     if not ok:
@@ -252,18 +254,18 @@ async def portfolio_delete(symbol: str) -> dict[str, Any]:
     return {"ok": True, "portfolio": market_service.portfolio_enriched()}
 
 
-@router.patch("/portfolio/{symbol}/alerts")
+@router.patch("/portfolio/{symbol}/alerts", dependencies=SENSITIVE_DEPENDENCIES)
 async def portfolio_alerts(symbol: str, body: PortfolioAlertFlags) -> dict[str, Any]:
     store.portfolio_set_alerts(symbol, body.alert_entry, body.alert_exit)
     return {"ok": True, "portfolio": market_service.portfolio_enriched()}
 
 
-@router.get("/config/thresholds")
+@router.get("/config/thresholds", dependencies=SENSITIVE_DEPENDENCIES)
 async def thresholds_get() -> dict[str, Any]:
     return get_thresholds_public()
 
 
-@router.put("/config/thresholds")
+@router.put("/config/thresholds", dependencies=SENSITIVE_DEPENDENCIES)
 async def thresholds_put(body: dict[str, Any] = Body(...)) -> dict[str, Any]:
     payload = body.get("values") if isinstance(body.get("values"), dict) else body
     if not isinstance(payload, dict):
@@ -271,7 +273,7 @@ async def thresholds_put(body: dict[str, Any] = Body(...)) -> dict[str, Any]:
     return update_thresholds(payload)
 
 
-@router.post("/config/thresholds/reset")
+@router.post("/config/thresholds/reset", dependencies=SENSITIVE_DEPENDENCIES)
 async def thresholds_reset() -> dict[str, Any]:
     return reset_thresholds()
 
@@ -385,12 +387,12 @@ async def filter_presets() -> dict[str, Any]:
     return {"presets": PRESETS, "fields": fields_help(), "functions": functions_help()}
 
 
-@router.get("/filter/saved")
+@router.get("/filter/saved", dependencies=SENSITIVE_DEPENDENCIES)
 async def filter_saved_list() -> list[dict[str, Any]]:
     return store.filters_list()
 
 
-@router.post("/filter/saved")
+@router.post("/filter/saved", dependencies=SENSITIVE_DEPENDENCIES)
 async def filter_saved_save(body: FilterSaveBody) -> dict[str, Any]:
     if not body.name.strip() or not body.expr.strip():
         raise HTTPException(400, "نام و عبارت الزامی است")
@@ -402,7 +404,7 @@ async def filter_saved_save(body: FilterSaveBody) -> dict[str, Any]:
     return {"ok": True, "item": item, "filters": store.filters_list()}
 
 
-@router.delete("/filter/saved/{filter_id}")
+@router.delete("/filter/saved/{filter_id}", dependencies=SENSITIVE_DEPENDENCIES)
 async def filter_saved_delete(filter_id: int) -> dict[str, Any]:
     ok = store.filter_delete(filter_id)
     if not ok:
@@ -518,7 +520,7 @@ async def ai_optimize(body: AIRequestBody = Body(default_factory=AIRequestBody))
     return await ai_service.optimizer(AIRequest(**body.model_dump()), market_service)
 
 
-@router.post("/backtest/run")
+@router.post("/backtest/run", dependencies=SENSITIVE_DEPENDENCIES)
 async def backtest_run(body: BacktestBody = Body(default_factory=BacktestBody)) -> dict[str, Any]:
     await market_service.get_analysis(force=False)
     result = market_service.run_backtest(
@@ -541,7 +543,7 @@ async def backtest_run(body: BacktestBody = Body(default_factory=BacktestBody)) 
     return {"ok": True, "result": result}
 
 
-@router.get("/backtest/history")
+@router.get("/backtest/history", dependencies=SENSITIVE_DEPENDENCIES)
 async def backtest_history(limit: int = Query(20, ge=1, le=100)) -> list[dict[str, Any]]:
     return store.list_backtest_runs(limit=limit)
 
@@ -574,14 +576,14 @@ async def options_price(body: OptionPriceBody) -> dict[str, Any]:
     )
 
 
-@router.get("/notify/config")
+@router.get("/notify/config", dependencies=SENSITIVE_DEPENDENCIES)
 async def notify_config_get() -> dict[str, Any]:
     from app.services.notifier import notifier
 
     return notifier.get_public_config()
 
 
-@router.put("/notify/config")
+@router.put("/notify/config", dependencies=SENSITIVE_DEPENDENCIES)
 async def notify_config_put(body: NotifyConfigBody) -> dict[str, Any]:
     from app.services.notifier import notifier
 
@@ -589,7 +591,7 @@ async def notify_config_put(body: NotifyConfigBody) -> dict[str, Any]:
     return notifier.update_config(payload)
 
 
-@router.post("/notify/test")
+@router.post("/notify/test", dependencies=SENSITIVE_DEPENDENCIES)
 async def notify_test(body: NotifyTestBody) -> dict[str, Any]:
     from app.services.notifier import notifier
 
@@ -597,7 +599,7 @@ async def notify_test(body: NotifyTestBody) -> dict[str, Any]:
     return {"ok": True, "result": result, "config": notifier.get_public_config()}
 
 
-@router.get("/notify/log")
+@router.get("/notify/log", dependencies=SENSITIVE_DEPENDENCIES)
 async def notify_log(limit: int = Query(50, ge=1, le=200)) -> list[dict[str, Any]]:
     return store.list_notify_log(limit=limit)
 
@@ -644,7 +646,7 @@ async def confluence_board(
     }
 
 
-@router.post("/confluence/notify-now")
+@router.post("/confluence/notify-now", dependencies=SENSITIVE_DEPENDENCIES)
 async def confluence_notify_now() -> dict[str, Any]:
     """ارسال فوری هشدارهای خرید/فروش ترکیبی به تلگرام/بله (با dedupe)."""
     from app.engines.confluence import pick_notify_alerts

@@ -25,6 +25,7 @@ from app.core.security import (
     authorize_cookie,
     authorize_ws,
     SecurityHeadersMiddleware,
+    validate_security_configuration,
 )
 from app.core.rate_limiter import RateLimitMiddleware
 from app.core.request_id import RequestIdMiddleware
@@ -60,6 +61,7 @@ FRONTEND_DIR = ROOT / "frontend"
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
+    validate_security_configuration(settings)
     logger.info(
         "Starting %s v%s | data_source=%s | auth=%s | phase=7-excellent | tz=%s | excellent_features=AI,Risk,Quality,Anomaly,Events,Metrics,Audit",
         settings.app_name,
@@ -255,7 +257,7 @@ def create_app() -> FastAPI:
     @app.websocket("/ws/live")
     async def ws_live(ws: WebSocket):
         s = get_settings()
-        if s.auth_required and s.api_key:
+        if s.auth_required or s.private_mode:
             key = ws.headers.get("x-api-key") or ws.query_params.get("api_key")
             bearer = ws.query_params.get("token") or None
             if ws.query_params.get("api_key") or ws.query_params.get("token"):

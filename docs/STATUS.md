@@ -12,7 +12,8 @@ Last updated: 2026-08-07
 | P3.25 | Accepted Locally — GitHub Closure Pending | Iran market data/domain stabilization completed locally with verified backup; GitHub push remains credential-dependent. |
 | P3.26 | Accepted Locally — GitHub Closure Pending | Filter DSL and Strategy Framework completed locally with verified backup; GitHub push remains credential-dependent. |
 | P3.27 | Accepted Locally — GitHub Closure Pending | Backtest, Walk-Forward and Forward Test completed locally with verified backup; GitHub push remains credential-dependent. |
-| P3.28 | In Progress | Controlled AI Assistant/Analyst/Optimizer plus Alpha readiness and full transfer package. |
+| P3.28 | Accepted Locally — GitHub Closure Pending | Controlled AI Assistant/Analyst/Optimizer plus Alpha readiness and transfer package completed locally. |
+| P3.30 | In Progress | Alpha Completion Gate: repository health, security hardening, alpha environment contract, backend/API smoke, data trust validation, and Windows/Electron preservation. |
 
 ## Baseline
 

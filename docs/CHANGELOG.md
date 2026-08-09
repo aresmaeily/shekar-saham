@@ -1,5 +1,14 @@
 # Changelog — Shekar Saham
 
+## 2026-08-09 — P3.30 Alpha Completion Gate
+
+- Cleaned repository health by removing the temporary `security.py.backup` verification artifact.
+- Finalized minimal security hardening already identified by audit: fail-closed private-mode API key behavior, production security configuration validation, route-level protection for sensitive endpoints, and WebSocket private-mode auth enforcement.
+- Added security hardening regression tests for private mode, wrong/valid API key, health public access, and production config validation.
+- Added `docs/ALPHA_ENV_CONTRACT.md` to document safe Alpha environment variables without secrets.
+- Preserved Iran-market core, Filter DSL, Strategy, Backtest, AI, Chart, Windows/Electron, and Forex scaffold without adding large new features.
+- No Cloudflare deployment, live data claim, live LLM provider, UI redesign, or global market expansion was performed.
+
 ## 2026-08-07 — P3.28 AI Assistant / Analyst / Optimizer & Alpha Transfer
 
 - Added controlled backend AI service with `AIContextBuilder`, deterministic fallback provider and structured AI result schema.

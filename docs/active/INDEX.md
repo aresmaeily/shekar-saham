@@ -10,5 +10,7 @@
 - `P3.26_FILTER_DSL_STRATEGY_FRAMEWORK_REPORT.md` — P3.26 Filter DSL and Strategy Framework report
 - `P3.27_BACKTEST_WALK_FORWARD_FORWARD_TEST_REPORT.md` — P3.27 Backtest, Walk-Forward and Forward Test report
 - `P3.28_AI_ALPHA_TRANSFER_REPORT.md` — P3.28 AI Assistant/Analyst/Optimizer, Alpha readiness and transfer report
+- `P3.30_ALPHA_COMPLETION_GATE_REPORT.md` — P3.30 Alpha Completion Gate report
 - `../ALPHA_SETUP_GUIDE.md` — alpha restore/run/test guide for the main computer
+- `../ALPHA_ENV_CONTRACT.md` — safe Alpha environment variable contract
 - `../P3.28_TRANSFER_MANIFEST.md` — final transfer manifest for local backup and Git recovery

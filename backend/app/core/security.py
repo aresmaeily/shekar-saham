@@ -7,6 +7,7 @@ import hashlib
 import hmac
 import json
 import logging
+import os
 import secrets
 import time
 from typing import Callable, Optional
@@ -71,7 +72,7 @@ def verify_api_key(provided: Optional[str], settings=None) -> bool:
     settings = settings or get_settings()
     expected = (settings.api_key or "").strip()
     if not expected:
-        return not settings.auth_required
+        return not settings.auth_required and not getattr(settings, "private_mode", False)
     if not provided:
         return False
     # Prevent timing attack
@@ -179,20 +180,52 @@ async def require_api_key(
     request: Request,
     x_api_key: Optional[str] = Header(default=None, alias="X-API-Key"),
 ) -> None:
-    """Dependency برای استفاده مستقیم در route های حساس"""
+    """Route-level guard for sensitive API operations.
+
+    Mirrors the global middleware and supports API key, Bearer session tokens,
+    and HttpOnly cookie sessions so UI owner sessions are not broken.
+    """
     settings = get_settings()
-    if not settings.auth_required and not settings.api_key:
-        return
     path = request.url.path
-    if settings.auth_required:
-        if is_public_path(path):
-            return
-        if path.startswith("/api") and not verify_api_key(x_api_key):
-            logger.warning(f"Unauthorized access attempt to {path} from {request.client.host if request.client else 'unknown'}")
-            raise HTTPException(status_code=401, detail="API key نامعتبر یا موجود نیست (هدر X-API-Key)")
+    need = False
+    if settings.auth_required and path.startswith("/api") and not is_public_path(path):
+        need = True
+    elif settings.api_key and is_sensitive_path(path):
+        need = True
+    elif settings.private_mode and path.startswith("/api"):
+        need = True
+
+    if not need:
         return
-    if is_sensitive_path(path) and not verify_api_key(x_api_key):
-        raise HTTPException(status_code=401, detail="برای این عملیات X-API-Key لازم است")
+
+    authz = request.headers.get("Authorization") or ""
+    bearer = authz[7:] if authz.lower().startswith("bearer ") else None
+    if authorize_request(x_api_key, bearer, settings) or authorize_cookie(request, settings):
+        return
+
+    logger.warning(
+        "Unauthorized sensitive route access attempt to %s from %s",
+        path,
+        request.client.host if request.client else "unknown",
+    )
+    raise HTTPException(status_code=401, detail="برای این عملیات احراز هویت لازم است")
+
+
+def validate_security_configuration(settings=None) -> None:
+    """Fail closed for unsafe production/security configurations."""
+    settings = settings or get_settings()
+    env = (os.getenv("ENV") or os.getenv("APP_ENV") or os.getenv("SHEKAR_ENV") or "").strip().lower()
+    is_production = env in {"prod", "production"}
+
+    has_owner_secret = bool((getattr(settings, "private_password", "") or getattr(settings, "api_key", "")).strip())
+    if getattr(settings, "private_mode", False) and not has_owner_secret:
+        raise RuntimeError("PRIVATE_MODE requires PRIVATE_PASSWORD or API_KEY")
+
+    if is_production:
+        if not (getattr(settings, "auth_required", False) or getattr(settings, "private_mode", False) or getattr(settings, "api_key", "")):
+            raise RuntimeError("Production requires AUTH_REQUIRED, PRIVATE_MODE, or API_KEY")
+        if not (getattr(settings, "fernet_key", "") or getattr(settings, "api_key", "")):
+            raise RuntimeError("Production requires stable FERNET_KEY or API_KEY for token encryption")
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
