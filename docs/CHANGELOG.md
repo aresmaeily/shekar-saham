@@ -1,5 +1,13 @@
 # Changelog — Shekar Saham
 
+## 2026-08-09 — P3.40 Market Intelligence & Continuous Monitoring
+
+- Added market-level intelligence contracts: `MarketIntelligenceSnapshot`, `IndustryIntelligence`, `OpportunityRank`, `IntelligenceEvent`, and `MarketMonitoringResult`.
+- Added `MarketIntelligenceService` with a callable monitoring cycle for market snapshot, industry intelligence, opportunity ranking, change detection and lightweight history.
+- Added AI endpoints: `/api/ai/market-intelligence`, `/api/ai/market-regime`, `/api/ai/opportunities`, `/api/ai/industries`, `/api/ai/events`.
+- Added tests for market snapshot creation, industry ranking, non-live trust behavior, events, and API smoke.
+- No scheduler, live trading, broker integration, global market expansion, Forex production feature, UI redesign or LLM provider was added.
+
 ## 2026-08-09 — P3.39 AI Intelligence Core
 
 - Added deterministic `AIIntelligenceCore` for structured evidence aggregation, confidence scoring, conflict detection and recommendation mapping.

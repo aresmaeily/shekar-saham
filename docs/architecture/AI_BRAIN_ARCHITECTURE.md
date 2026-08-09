@@ -95,6 +95,19 @@ Not implemented now:
 - autonomous strategy changes
 - live trading
 
+## P3.40 Market Intelligence Layer
+
+Implemented after the first AI Core:
+
+- `MarketIntelligenceSnapshot`
+- `IndustryIntelligence`
+- `OpportunityRank`
+- `IntelligenceEvent`
+- `MarketMonitoringResult`
+- `MarketIntelligenceService.run_market_monitoring_cycle(...)`
+
+The monitoring cycle is callable and testable, but no uncontrolled scheduler is enabled.
+
 ## Future Architecture Gate
 
 Future AI work must add contracts and tests before new behavior:

@@ -529,6 +529,45 @@ async def ai_intelligence(symbol: str, body: AIRequestBody = Body(default_factor
     return await ai_service.intelligence(AIRequest(**payload), market_service)
 
 
+@router.get("/ai/market-intelligence")
+async def ai_market_intelligence(limit: int = Query(20, ge=1, le=100), persist: bool = True) -> dict[str, Any]:
+    from app.services.market_intelligence_service import market_intelligence_service
+
+    result = await market_intelligence_service.run_market_monitoring_cycle(market_service, limit=limit, persist=persist)
+    return result.model_dump(mode="json")
+
+
+@router.get("/ai/market-regime")
+async def ai_market_regime() -> dict[str, Any]:
+    from app.services.market_intelligence_service import market_intelligence_service
+
+    result = await market_intelligence_service.run_market_monitoring_cycle(market_service, limit=10, persist=False)
+    return {"ok": True, "snapshot": result.snapshot.model_dump(mode="json")}
+
+
+@router.get("/ai/opportunities")
+async def ai_opportunities(limit: int = Query(20, ge=1, le=100)) -> dict[str, Any]:
+    from app.services.market_intelligence_service import market_intelligence_service
+
+    result = await market_intelligence_service.run_market_monitoring_cycle(market_service, limit=limit, persist=False)
+    return {"ok": True, "rows": [x.model_dump(mode="json") for x in result.opportunities], "data_trust": result.snapshot.data_trust}
+
+
+@router.get("/ai/industries")
+async def ai_industries(limit: int = Query(20, ge=1, le=100)) -> dict[str, Any]:
+    from app.services.market_intelligence_service import market_intelligence_service
+
+    result = await market_intelligence_service.run_market_monitoring_cycle(market_service, limit=limit, persist=False)
+    return {"ok": True, "rows": [x.model_dump(mode="json") for x in result.industries], "data_trust": result.snapshot.data_trust}
+
+
+@router.get("/ai/events")
+async def ai_events(limit: int = Query(50, ge=1, le=200)) -> dict[str, Any]:
+    from app.services.market_intelligence_service import market_intelligence_service
+
+    return {"ok": True, "events": market_intelligence_service.list_events(limit=limit)}
+
+
 @router.post("/backtest/run", dependencies=SENSITIVE_DEPENDENCIES)
 async def backtest_run(body: BacktestBody = Body(default_factory=BacktestBody)) -> dict[str, Any]:
     await market_service.get_analysis(force=False)
