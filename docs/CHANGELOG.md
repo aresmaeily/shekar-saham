@@ -1,5 +1,12 @@
 # Changelog — Shekar Saham
 
+## 2026-08-09 — P3.36 Target-System Final Validation & Controlled Alpha Launch Gate
+
+- Re-ran all locally executable alpha validation checks: backend tests, pyflakes, JS syntax, alpha environment, alpha runtime, provider mock/BRSAPI fallback, and frontend static validation.
+- Added `docs/active/P3.36_TARGET_VALIDATION_REPORT.md` documenting local validation, deferred target-system gates, GitHub blocker, and alpha launch decision.
+- No feature development, runtime architecture change, provider rewrite, live trading, Cloudflare deployment, or production launch was performed.
+- Alpha remains not launched because the target Windows system, browser E2E, Electron runtime, live provider validation, and GitHub sync are still deferred/blocked.
+
 ## 2026-08-09 — P3.35 Alpha Target Validation and Controlled Launch Gate
 
 - Re-ran offline/local alpha validation suite and confirmed `110 passed, 1 warning`.
