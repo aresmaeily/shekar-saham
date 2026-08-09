@@ -19,7 +19,8 @@ Last updated: 2026-08-07
 | P3.33 | Accepted Locally — GitHub Closure Pending | Alpha Gate Audit & Target-System Handoff Preparation completed locally; target-system validations remain deferred. |
 | P3.34 | Accepted Locally — GitHub Closure Pending | Alpha Target Validation Preparation completed locally with handoff checklist, runbook, tests, and full archive. |
 | P3.35 | Accepted Locally — Target Launch Deferred | Alpha target validation report and full archive completed locally; actual target-system launch remains deferred. |
-| P3.36 | In Progress | Target-System Final Validation & Controlled Alpha Launch Gate; local executable validations complete, target-system launch deferred.
+| P3.36 | Accepted Locally — Target Launch Deferred | Target-System Final Validation & Controlled Alpha Launch Gate completed locally; actual target Windows launch remains deferred.
+| P3.37 | In Progress | Alpha Gate Closure validation and final handoff evidence; local validation complete, target launch deferred.
 
 ## Baseline
 

@@ -1,5 +1,12 @@
 # Changelog — Shekar Saham
 
+## 2026-08-09 — P3.37 Alpha Gate Closure Validation
+
+- Re-ran all locally executable Alpha validations, including full backend tests, pyflakes, frontend JS syntax, alpha environment, alpha runtime, provider mock/TSETMC/BRSAPI checks, and frontend static validation.
+- Added `docs/active/P3.37_ALPHA_GATE_CLOSURE_REPORT.md` documenting actual local evidence and target-system deferred gates.
+- Confirmed TSETMC and BRSAPI are not live-verified in this environment; both remain non-live/fallback or blocked.
+- No feature development, provider rewrite, trading logic change, UI redesign, Electron runtime claim, browser E2E claim, GitHub sync claim, or Alpha launch claim was made.
+
 ## 2026-08-09 — P3.36 Target-System Final Validation & Controlled Alpha Launch Gate
 
 - Re-ran all locally executable alpha validation checks: backend tests, pyflakes, JS syntax, alpha environment, alpha runtime, provider mock/BRSAPI fallback, and frontend static validation.
