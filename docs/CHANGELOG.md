@@ -1,5 +1,12 @@
 # Changelog — Shekar Saham
 
+## 2026-08-09 — P3.34 Alpha Target Validation Preparation
+
+- Added `docs/active/P3.34_ALPHA_TARGET_VALIDATION_AND_LAUNCH_CHECKLIST.md` as the target-system runbook and alpha launch checklist.
+- Consolidated offline-ready checks, deferred target-system validations, GitHub sync requirements, browser E2E checklist, Electron validation, provider validation, data-trust acceptance criteria, rollback and recovery instructions.
+- Re-ran available regression suite and validation scripts; no runtime feature code was changed.
+- No Alpha launch, Cloudflare deployment, live provider claim, browser E2E pass, Electron runtime pass, or GitHub sync was claimed.
+
 ## 2026-08-09 — P3.33 Alpha Gate Audit & Target-System Handoff Preparation
 
 - Audited the local phase chain through P3.32 and clarified the dual P3.31 commits: `10bb770` initial implementation and `6046347` corrective hardening.
