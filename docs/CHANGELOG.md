@@ -1,5 +1,14 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-14 — P3.58 Filter Intelligence UI Approval Workflow
+
+- Added dashboard tab `هوش فیلتر` (`filter-intel`) for registry, proposals, and human review.
+- Wired APPROVE / REJECT / REQUEST_RETEST to the existing P3.41 review API.
+- Approval still does not activate production filter versions.
+- Non-live data trust is never displayed as LIVE unless `live_verified=true`.
+- 24/7 scheduler and automatic composite deployment remain deferred.
+- GitHub synchronization remains deferred.
+
 ## 2026-08-14 — P3.57 GitHub Authentication Push or Windows Pre-Install Gate
 
 - Re-verified local HEAD `ad7e813` against GitHub `26a2d12`. GitHub is not up to date (30 ahead / 0 behind).

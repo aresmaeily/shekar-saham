@@ -17,7 +17,7 @@ import "./modules/render/watchlist_excellent.js";
 
 /* لایه تب‌ها */
 import * as T from "./tabs/data.js";
-import { bindSettings, bindBacktest, bindOptions, bindNotify, bindFilter, bindMap, bindFinal, setRefreshFn, renderFormOutputs } from "./tabs/forms.js";
+import { bindSettings, bindBacktest, bindOptions, bindNotify, bindFilter, bindFilterIntel, bindMap, bindFinal, setRefreshFn, renderFormOutputs } from "./tabs/forms.js";
 import { addPortfolio, removePortfolio, openSymbol, openDeepFundamental } from "./tabs/actions.js";
 
 const $ = (s, el = document) => el.querySelector(s);
@@ -304,6 +304,7 @@ async function boot() {
   bindOptions();
   bindNotify();
   bindFilter();
+  bindFilterIntel();
   bindMap();
   bindFinal();
   setRefreshFn(refreshApp);

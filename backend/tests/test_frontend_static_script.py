@@ -17,8 +17,8 @@ def test_frontend_static_validator_contract():
     assert result.returncode == 0, result.stderr
     data = json.loads(result.stdout)
     assert data["ok"] is True
-    assert data["tabs"]["tabs_count"] == 23
-    assert data["tabs"]["panels_count"] == 23
+    assert data["tabs"]["tabs_count"] == 24
+    assert data["tabs"]["panels_count"] == 24
     assert data["tabs"]["missing_panels"] == []
     assert data["tabs"]["orphan_panels"] == []
     assert data["duplicate_ids"]["index"] == []

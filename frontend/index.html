@@ -76,6 +76,7 @@
     <button class="tab" data-tab="notify">📨 اعلان‌ها</button>
     <button class="tab" data-tab="map">🗺 نقشه بازار</button>
     <button class="tab" data-tab="filter">🧪 فیلترنویسی</button>
+    <button class="tab" data-tab="filter-intel">🧠 هوش فیلتر</button>
     <button class="tab" data-tab="fund">📊 بنیادی</button>
     <button class="tab" data-tab="value">💎 سهام ارزنده</button>
     <button class="tab" data-tab="big">⚡ تحرکات بزرگان</button>
@@ -372,6 +373,49 @@
           <tbody></tbody>
         </table>
       </div>
+    </section>
+
+    <section class="panel" id="tab-filter-intel">
+      <div class="panel-head">
+        <div>
+          <h2>هوش فیلتر — رجیستری، پیشنهاد و بازبینی انسانی</h2>
+          <p class="muted">قرارداد P3.41: Analyze → Propose → Validate → Human Review. تأیید پیشنهاد نسخهٔ ACTIVE را فعال نمی‌کند و معامله خودکار نیست.</p>
+        </div>
+        <div class="filters">
+          <button class="btn primary" id="btnFiReload">↻ بارگذاری رجیستری</button>
+          <button class="btn ghost" id="btnFiPropose">＋ پیشنهاد برای فیلتر انتخاب‌شده</button>
+        </div>
+      </div>
+      <div class="cards" id="fiTrustCards"></div>
+      <p class="muted" id="fiMsg" style="margin-top:.5rem">ابتدا رجیستری را بارگذاری کنید. عملکرد غیرزنده هرگز به‌عنوان LIVE نشان داده نمی‌شود.</p>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="fiFilterTable">
+          <thead>
+            <tr>
+              <th>انتخاب</th><th>شناسه</th><th>نام</th><th>وضعیت</th><th>نسخه فعال</th><th>آخرین نسخه</th><th>بازار</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="panel-head" style="margin-top:1rem">
+        <h3 style="margin:0">پیشنهادهای بهینه‌سازی</h3>
+      </div>
+      <div class="filters" style="margin:.5rem 0">
+        <input class="text-input" id="fiReviewer" placeholder="نام بازبین" value="human-reviewer" />
+        <input class="text-input" id="fiReason" placeholder="دلیل بازبینی (اختیاری)" />
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="fiProposalTable">
+          <thead>
+            <tr>
+              <th>شناسه</th><th>فیلتر</th><th>از → به</th><th>وضعیت</th><th>اعتماد داده</th><th>فعال‌سازی خودکار</th><th>بازبینی</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="muted" id="fiSafety" style="margin-top:.75rem">ایمنی: APPROVE فقط وضعیت پیشنهاد را عوض می‌کند. ساخت نسخهٔ immutable و فعال‌سازی جداگانه است. 24/7 scheduler و استقرار خودکار هنوز DEFERRED است.</p>
     </section>
 
     <section class="panel" id="tab-fund">

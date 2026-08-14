@@ -364,6 +364,145 @@ export function bindFilter() {
   });
 }
 
+/* ----------------------------- هوش فیلتر / بازبینی انسانی ----------------------------- */
+export function bindFilterIntel() {
+  $("#btnFiReload")?.addEventListener("click", () => loadFilterIntel({ create: false }));
+  $("#btnFiPropose")?.addEventListener("click", () => loadFilterIntel({ create: true }));
+
+  document.addEventListener("click", async (e) => {
+    const pick = e.target.closest("[data-fi-pick]");
+    if (pick) {
+      store.set({ fiSelectedId: pick.dataset.fiPick });
+      renderFilterIntel();
+      return;
+    }
+    const review = e.target.closest("[data-fi-review]");
+    if (!review) return;
+    const proposalId = review.dataset.fiReview;
+    const decision = review.dataset.fiDecision;
+    if (!proposalId || !decision) return;
+    const reviewer = ($("#fiReviewer")?.value || "human-reviewer").trim() || "human-reviewer";
+    const reason = ($("#fiReason")?.value || "").trim();
+    try {
+      const res = await api(`/api/ai/filter-proposals/${encodeURIComponent(proposalId)}/review`, {
+        method: "POST",
+        body: JSON.stringify({ reviewer, decision, reason }),
+      });
+      const safety = res.review?.safety || {};
+      if (safety.approval_does_not_auto_activate === false) {
+        toast("پاسخ غیرمنتظره: بازبینی نباید فعال‌سازی خودکار داشته باشد", "error");
+      }
+      toast(`بازبینی ${decision} ثبت شد — فعال‌سازی خودکار انجام نشد`, "info");
+      await loadFilterIntel({ create: false });
+    } catch (err) { /* toast from api */ }
+  });
+}
+
+function trustState(dt) {
+  const obj = dt && typeof dt === "object" ? dt : {};
+  const state = String(obj.state || obj.trust_level || "unavailable").toLowerCase();
+  const live = state === "live" && obj.is_live === true && obj.live_verified === true;
+  if (live) return { key: "live", label: "LIVE" };
+  const labels = {
+    mock: "MOCK / آزمایشی",
+    synthetic: "SYNTHETIC / شبیه‌سازی",
+    stale: "STALE / قدیمی",
+    unavailable: "UNAVAILABLE / ناموجود",
+    mixed: "MIXED / ترکیبی",
+    fallback: "FALLBACK / جایگزین",
+  };
+  return { key: state === "live" ? "mixed" : state, label: labels[state] || "NOT LIVE" };
+}
+
+function renderFilterIntel() {
+  const s = store.get();
+  const filters = s.fiFilters || [];
+  const proposals = s.fiProposals || [];
+  const selected = s.fiSelectedId || filters[0]?.filter_id || "";
+  const trust = trustState(s.fiTrust);
+  const cards = $("#fiTrustCards");
+  if (cards) {
+    cards.innerHTML = [
+      ["اعتماد داده", trust.label],
+      ["فیلترهای رجیستری", filters.length],
+      ["پیشنهادها", proposals.length],
+      ["فعال‌سازی خودکار", "خیر"],
+    ]
+      .map(([l, v]) => `<div class="icard"><h4>${esc(l)}</h4><div class="big" style="font-size:1.05rem">${esc(v)}</div></div>`)
+      .join("");
+  }
+  const tb = $("#fiFilterTable tbody");
+  if (tb) {
+    tb.innerHTML = filters
+      .map((f) => `<tr data-fi-pick="${esc(f.filter_id)}" class="${f.filter_id === selected ? "active" : ""}">
+        <td><button class="btn tiny" data-fi-pick="${esc(f.filter_id)}">${f.filter_id === selected ? "✓" : "انتخاب"}</button></td>
+        <td>${esc(f.filter_id)}</td>
+        <td>${esc(f.name || "")}</td>
+        <td>${esc(f.status || "")}</td>
+        <td>${esc(f.active_version || "—")}</td>
+        <td>${esc(f.latest_version || "—")}</td>
+        <td>${esc(f.market || "iran")}</td>
+      </tr>`)
+      .join("") || `<tr><td colspan="7" class="empty">رجیستری خالی است — بارگذاری کنید.</td></tr>`;
+  }
+  const pb = $("#fiProposalTable tbody");
+  if (pb) {
+    pb.innerHTML = proposals
+      .map((p) => {
+        const t = trustState(p.data_trust || s.fiTrust);
+        const open = p.status === "PROPOSED" || p.status === "BACKTESTED" || p.status === "VALIDATED";
+        const actions = open
+          ? `<button class="btn tiny" data-fi-review="${esc(p.proposal_id)}" data-fi-decision="APPROVE">APPROVE</button>
+             <button class="btn tiny" data-fi-review="${esc(p.proposal_id)}" data-fi-decision="REJECT">REJECT</button>
+             <button class="btn tiny" data-fi-review="${esc(p.proposal_id)}" data-fi-decision="REQUEST_RETEST">RETEST</button>`
+          : esc(p.status || "—");
+        return `<tr>
+          <td>${esc(p.proposal_id || "")}</td>
+          <td>${esc(p.filter_id || "")}</td>
+          <td>${esc(p.current_version || "—")} → ${esc(p.proposed_version || "—")}</td>
+          <td>${esc(p.status || "")}</td>
+          <td>${esc(t.label)}</td>
+          <td>${p.production_mutation ? "بله" : "خیر"}</td>
+          <td>${actions}</td>
+        </tr>`;
+      })
+      .join("") || `<tr><td colspan="7" class="empty">پیشنهادی نیست. یک فیلتر انتخاب و «پیشنهاد جدید» را بزنید.</td></tr>`;
+  }
+}
+
+async function loadFilterIntel({ create = false } = {}) {
+  const msg = $("#fiMsg");
+  if (msg) msg.textContent = "در حال بارگذاری هوش فیلتر…";
+  try {
+    const filtersRes = await api("/api/ai/filters");
+    const filters = filtersRes.filters || [];
+    let selected = store.get().fiSelectedId || filters[0]?.filter_id || "";
+    if (selected && !filters.some((f) => f.filter_id === selected)) selected = filters[0]?.filter_id || "";
+    let proposalsRes;
+    if (create) {
+      if (!selected) {
+        toast("ابتدا یک فیلتر انتخاب کنید", "warn");
+        return;
+      }
+      proposalsRes = await api(`/api/ai/filter-proposals?filter_id=${encodeURIComponent(selected)}`);
+    } else {
+      proposalsRes = await api("/api/ai/filter-proposals");
+    }
+    store.set({
+      fiFilters: filters,
+      fiProposals: proposalsRes.proposals || [],
+      fiSelectedId: selected,
+      fiTrust: store.get().analysis?.data_trust || { state: "unavailable", is_live: false, live_verified: false },
+    });
+    renderFilterIntel();
+    if (msg) {
+      msg.textContent = create
+        ? "پیشنهاد ایجاد شد (در صورت نبود پیشنهاد قبلی). تأیید هنوز نسخهٔ ACTIVE را عوض نمی‌کند."
+        : `${filters.length} فیلتر · ${ (proposalsRes.proposals || []).length } پیشنهاد — داده غیرزنده LIVE نیست.`;
+    }
+  } catch (e) { /* toast from api */ }
+}
+
 /* ----------------------------- نقشه بازار + جمع‌بندی ----------------------------- */
 export function bindMap() {
   $("#btnMapReload")?.addEventListener("click", loadMap);

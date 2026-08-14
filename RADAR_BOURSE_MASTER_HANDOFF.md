@@ -554,3 +554,22 @@ Installation remains locked. Windows target remains NOT VERIFIED.
 Do not clone GitHub as the product source until LOCAL HEAD == REMOTE HEAD.
 
 Next safe action: provide GitHub authentication for a normal push, or transfer the latest verified package to Windows and run only validate_install.ps1. Do not install unless the owner says INSTALL.
+
+---
+
+## P3.58 Update — Filter Intelligence UI Approval Workflow
+
+P3.58 is a development phase. GitHub synchronization remains deferred.
+
+Implemented the P3.41-deferred operator UI for Filter Intelligence review:
+
+```text
+Tab: filter-intel / هوش فیلتر
+Frontend: frontend/index.html, frontend/js/tabs/forms.js, frontend/js/main.js
+Uses existing APIs: /api/ai/filters, /api/ai/filter-proposals, POST .../review
+Approval does NOT activate ACTIVE versions
+Non-live data is never labelled LIVE unless live_verified=true
+24/7 scheduler and automatic deployment remain DEFERRED
+```
+
+Installation remains locked. Windows target remains NOT VERIFIED. Live data remains NOT VERIFIED. GitHub remains DEFERRED / NOT UP TO DATE.
