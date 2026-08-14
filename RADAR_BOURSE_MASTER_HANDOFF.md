@@ -573,3 +573,18 @@ Non-live data is never labelled LIVE unless live_verified=true
 ```
 
 Installation remains locked. Windows target remains NOT VERIFIED. Live data remains NOT VERIFIED. GitHub remains DEFERRED / NOT UP TO DATE.
+
+---
+
+## P3.59 Update — Filter Intelligence Performance Compare View
+
+P3.59 extends the هوش فیلتر tab with a read-only compare/performance panel.
+
+```text
+Uses existing GET /api/ai/filters/compare
+Uses existing GET /api/ai/filters/{id}/performance?evaluate=false
+Does not activate ACTIVE versions
+Does not deploy proposals
+Does not add a scheduler
+Non-live metrics are not labelled LIVE
+```

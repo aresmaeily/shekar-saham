@@ -160,6 +160,7 @@ Approval does not automatically activate or mutate a production filter.
 
 - 24/7 scheduler: DEFERRED.
 - UI approval workflow: implemented in P3.58 as a dashboard tab (`filter-intel`) over the existing review API. Approval still does not activate production versions.
+- Read-only performance/compare view: implemented in P3.59 on the same tab using `GET /api/ai/filters/compare` and stored performance records (`evaluate=false`).
 - Real live profitability validation: NOT EXECUTED.
 - Automatic composite-filter deployment: DEFERRED; proposal concept only.
 - Broker/live trading integration: out of scope and not implemented.

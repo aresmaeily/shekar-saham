@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-14 — P3.59 Filter Intelligence Performance Compare View
+
+- Added a read-only compare/performance panel on the existing هوش فیلتر tab.
+- Uses `GET /api/ai/filters/compare` and stored performance records with `evaluate=false`.
+- Missing metrics display as UNAVAILABLE. Non-live data is never labelled LIVE.
+- Comparison does not activate ACTIVE versions or deploy proposals.
+
 ## 2026-08-14 — P3.58 Filter Intelligence UI Approval Workflow
 
 - Added dashboard tab `هوش فیلتر` (`filter-intel`) for registry, proposals, and human review.

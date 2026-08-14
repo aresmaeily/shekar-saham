@@ -416,6 +416,41 @@
         </table>
       </div>
       <p class="muted" id="fiSafety" style="margin-top:.75rem">ایمنی: APPROVE فقط وضعیت پیشنهاد را عوض می‌کند. ساخت نسخهٔ immutable و فعال‌سازی جداگانه است. 24/7 scheduler و استقرار خودکار هنوز DEFERRED است.</p>
+      <div class="panel-head" style="margin-top:1.25rem">
+        <h3 style="margin:0">مقایسه عملکرد — فقط‌خواندنی</h3>
+      </div>
+      <p class="muted">مقایسه نسخهٔ موجود را نشان می‌دهد. بهترین عدد ACTIVE نمی‌شود. ارزیابی زنده اجرا نمی‌شود.</p>
+      <div class="filters" style="margin:.5rem 0">
+        <label class="chip">نسخه چپ
+          <select id="fiLeftVersion" class="text-input" style="min-width:auto;padding:.25rem .4rem"></select>
+        </label>
+        <label class="chip">نسخه راست
+          <select id="fiRightVersion" class="text-input" style="min-width:auto;padding:.25rem .4rem"></select>
+        </label>
+        <button class="btn primary" id="btnFiCompare">⚖ مقایسه فقط‌خواندنی</button>
+        <button class="btn ghost" id="btnFiPerf">نمایش سوابق موجود</button>
+      </div>
+      <p class="muted" id="fiCompareMsg">یک فیلتر انتخاب کنید، دو نسخه بگذارید، سپس مقایسه کنید. این کار فعال‌سازی نیست.</p>
+      <div class="table-wrap">
+        <table class="data-table" id="fiCompareTable">
+          <thead>
+            <tr>
+              <th>معیار</th><th>چپ</th><th>راست</th><th>وضعیت</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="table-wrap" style="margin-top:1rem">
+        <table class="data-table" id="fiPerfTable">
+          <thead>
+            <tr>
+              <th>نسخه</th><th>حالت</th><th>طبقه‌بندی</th><th>سیگنال</th><th>برد٪</th><th>بازده</th><th>PF</th><th>اعتماد داده</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </section>
 
     <section class="panel" id="tab-fund">

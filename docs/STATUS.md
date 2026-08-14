@@ -114,3 +114,4 @@ Details: `docs/architecture/IRAN_MARKET_ARCHITECTURE_LOCK.md`.
 | P3.56 | Complete Locally — GitHub Not Updated | GitHub SHA compared and confirmed stale; push blocked by missing authentication; Windows pre-install transfer prepared; installation remains not started. |
 | P3.57 | Complete Locally — GitHub Still Not Updated | Re-verified LOCAL HEAD != REMOTE HEAD; push blocked again by missing authentication; repository-side validation re-passed; installation remains not started. |
 | P3.58 | Complete Locally — GitHub Deferred | Filter Intelligence UI approval workflow implemented on existing review APIs; installation remains not started; GitHub sync remains deferred. |
+| P3.59 | Complete Locally — GitHub Deferred | Read-only Filter Intelligence compare/performance view added; no activation; GitHub sync remains deferred. |

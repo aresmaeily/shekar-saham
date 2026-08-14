@@ -368,6 +368,8 @@ export function bindFilter() {
 export function bindFilterIntel() {
   $("#btnFiReload")?.addEventListener("click", () => loadFilterIntel({ create: false }));
   $("#btnFiPropose")?.addEventListener("click", () => loadFilterIntel({ create: true }));
+  $("#btnFiCompare")?.addEventListener("click", loadFilterCompare);
+  $("#btnFiPerf")?.addEventListener("click", loadFilterPerformance);
 
   document.addEventListener("click", async (e) => {
     const pick = e.target.closest("[data-fi-pick]");
@@ -468,6 +470,108 @@ function renderFilterIntel() {
       })
       .join("") || `<tr><td colspan="7" class="empty">پیشنهادی نیست. یک فیلتر انتخاب و «پیشنهاد جدید» را بزنید.</td></tr>`;
   }
+  fillVersionSelects(filters.find((f) => f.filter_id === selected));
+  renderFilterCompare();
+  renderFilterPerformance();
+}
+
+function metricCell(value) {
+  if (value == null || value === "" || value === "NOT_AVAILABLE") return "UNAVAILABLE";
+  if (typeof value === "number") return fmtNum(value, 3);
+  return String(value);
+}
+
+function fillVersionSelects(item) {
+  const versions = (item?.versions || []).map((v) => v.version || v).filter(Boolean);
+  const unique = [...new Set(versions.length ? versions : [item?.active_version, item?.latest_version].filter(Boolean))];
+  const left = $("#fiLeftVersion");
+  const right = $("#fiRightVersion");
+  if (!left || !right) return;
+  const opts = unique.map((v) => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+  left.innerHTML = opts || `<option value="">UNAVAILABLE</option>`;
+  right.innerHTML = opts || `<option value="">UNAVAILABLE</option>`;
+  if (unique[0]) left.value = unique[0];
+  if (unique[unique.length - 1]) right.value = unique[unique.length - 1];
+}
+
+function renderFilterCompare() {
+  const cmp = store.get().fiCompare;
+  const tb = $("#fiCompareTable tbody");
+  if (!tb) return;
+  if (!cmp) {
+    tb.innerHTML = `<tr><td colspan="4" class="empty">مقایسه‌ای بارگذاری نشده — فقط‌خواندنی است و ACTIVE را عوض نمی‌کند.</td></tr>`;
+    return;
+  }
+  const trust = trustState(cmp.data_trust);
+  const metrics = cmp.metrics || {};
+  const rows = Object.keys(metrics).map((key) => {
+    const row = metrics[key] || {};
+    return `<tr>
+      <td>${esc(key)}</td>
+      <td>${esc(metricCell(row.left))}</td>
+      <td>${esc(metricCell(row.right))}</td>
+      <td>${esc(metricCell(row.left) === "UNAVAILABLE" && metricCell(row.right) === "UNAVAILABLE" ? "UNAVAILABLE" : "AVAILABLE")}</td>
+    </tr>`;
+  });
+  rows.push(`<tr><td>نتیجه</td><td colspan="2">${esc(cmp.conclusion || "INSUFFICIENT_DATA")}</td><td>${esc(trust.label)}</td></tr>`);
+  rows.push(`<tr><td>فعال‌سازی</td><td colspan="3">خیر — مقایسه فقط‌خواندنی است</td></tr>`);
+  tb.innerHTML = rows.join("");
+}
+
+function renderFilterPerformance() {
+  const rows = store.get().fiPerf || [];
+  const tb = $("#fiPerfTable tbody");
+  if (!tb) return;
+  tb.innerHTML = rows
+    .map((r) => {
+      const t = trustState(r.data_trust);
+      return `<tr>
+        <td>${esc(r.version || "—")}</td>
+        <td>${esc(r.evaluation_mode || "—")}</td>
+        <td>${esc(r.classification || "INSUFFICIENT_DATA")}</td>
+        <td>${esc(metricCell(r.signal_count))}</td>
+        <td>${esc(metricCell(r.win_rate))}</td>
+        <td>${esc(metricCell(r.average_return))}</td>
+        <td>${esc(metricCell(r.profit_factor))}</td>
+        <td>${esc(t.label)}</td>
+      </tr>`;
+    })
+    .join("") || `<tr><td colspan="8" class="empty">سابقه عملکرد موجود نیست — UNAVAILABLE. ارزیابی زنده اجرا نشد.</td></tr>`;
+}
+
+async function loadFilterCompare() {
+  const selected = store.get().fiSelectedId;
+  const left = $("#fiLeftVersion")?.value;
+  const right = $("#fiRightVersion")?.value;
+  const msg = $("#fiCompareMsg");
+  if (!selected || !left || !right) {
+    toast("فیلتر و دو نسخه برای مقایسه لازم است", "warn");
+    return;
+  }
+  if (msg) msg.textContent = "در حال مقایسه فقط‌خواندنی…";
+  try {
+    const qs = new URLSearchParams({ filter_id: selected, left_version: left, right_version: right });
+    const res = await api(`/api/ai/filters/compare?${qs.toString()}`);
+    store.set({ fiCompare: res.comparison || null });
+    renderFilterCompare();
+    if (msg) msg.textContent = `مقایسه ${left} و ${right} — فقط‌خواندنی. ACTIVE عوض نشد.`;
+  } catch (e) { /* toast */ }
+}
+
+async function loadFilterPerformance() {
+  const selected = store.get().fiSelectedId;
+  const msg = $("#fiCompareMsg");
+  if (!selected) {
+    toast("ابتدا یک فیلتر انتخاب کنید", "warn");
+    return;
+  }
+  if (msg) msg.textContent = "در حال خواندن سوابق موجود (evaluate=false)…";
+  try {
+    const res = await api(`/api/ai/filters/${encodeURIComponent(selected)}/performance?evaluate=false`);
+    store.set({ fiPerf: res.records || [] });
+    renderFilterPerformance();
+    if (msg) msg.textContent = `${(res.records || []).length} سابقه موجود — ارزیابی زنده اجرا نشد و ACTIVE عوض نشد.`;
+  } catch (e) { /* toast */ }
 }
 
 async function loadFilterIntel({ create = false } = {}) {

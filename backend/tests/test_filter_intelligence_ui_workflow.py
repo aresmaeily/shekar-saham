@@ -28,6 +28,48 @@ def test_filter_intel_ui_uses_existing_review_contract():
     assert "live_verified === true" in js
 
 
+def test_filter_intel_compare_view_is_read_only():
+    html = (ROOT / "frontend/index.html").read_text(encoding="utf-8")
+    js = (ROOT / "frontend/js/tabs/forms.js").read_text(encoding="utf-8")
+    assert 'id="fiCompareTable"' in html
+    assert 'id="fiPerfTable"' in html
+    assert "مقایسه فقط‌خواندنی" in html
+    assert "/api/ai/filters/compare" in js
+    assert "evaluate=false" in js
+    assert "loadFilterCompare" in js
+    assert "production_mutation" in js
+    assert "live_verified === true" in js
+    assert "activate" not in js.lower() or "does not auto activate" in js.lower() or "فعال‌سازی خودکار انجام نشد" in js
+
+
+def test_compare_api_is_read_only_and_not_live():
+    client = TestClient(app)
+    filters = client.get("/api/ai/filters").json()["filters"]
+    assert filters
+    item = filters[0]
+    versions = [v["version"] for v in item.get("versions") or []]
+    if len(versions) < 1:
+        versions = [item.get("active_version") or "v1"]
+    left = versions[0]
+    right = versions[-1]
+    active_before = filter_intelligence_service.get_filter(item["filter_id"]).active_version
+    res = client.get(
+        f"/api/ai/filters/compare?filter_id={item['filter_id']}&left_version={left}&right_version={right}"
+    )
+    assert res.status_code == 200
+    body = res.json()
+    assert body["ok"] is True
+    comparison = body["comparison"]
+    trust = comparison.get("data_trust") or {}
+    live = trust.get("state") == "live" and trust.get("is_live") is True and trust.get("live_verified") is True
+    assert live is False
+    after = filter_intelligence_service.get_filter(item["filter_id"])
+    assert after.active_version == active_before
+    perf = client.get(f"/api/ai/filters/{item['filter_id']}/performance?evaluate=false")
+    assert perf.status_code == 200
+    assert after.active_version == filter_intelligence_service.get_filter(item["filter_id"]).active_version
+
+
 def test_review_does_not_activate_active_version():
     client = TestClient(app)
     filters = client.get("/api/ai/filters").json()["filters"]
