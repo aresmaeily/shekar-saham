@@ -54,3 +54,4 @@
 - `P3.55_WORKSPACE_RECOVERY_AND_CONTINUATION_REPORT.md` — P3.55 workspace recovery from P3.54 TempFile artifact and continuation report
 - `P3.56_GITHUB_SYNC_AND_PREINSTALL_HANDOFF_REPORT.md` — P3.56 GitHub update check, sync attempt, and Windows pre-install transfer report
 - `P3.56_WINDOWS_PRE_INSTALL_TRANSFER.md` — P3.56 Windows transfer and pre-install-only instructions
+- `P3.57_GITHUB_AUTH_PUSH_OR_PREINSTALL_GATE_REPORT.md` — P3.57 GitHub SHA comparison, blocked push, and pre-install gate report

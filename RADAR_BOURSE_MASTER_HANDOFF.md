@@ -513,3 +513,44 @@ WINDOWS TARGET = NOT VERIFIED
 Do not clone GitHub as the product source until LOCAL HEAD == REMOTE HEAD. Use the latest verified TempFile package.
 
 Next safe action: provide GitHub authentication for a normal push, or transfer the P3.56 package to Windows and run only the PRE-INSTALL checklist. Do not install unless the owner says INSTALL.
+
+---
+
+## P3.57 Update — GitHub Authentication Push or Windows Pre-Install Gate
+
+P3.57 re-verified the first question with live Git commands.
+
+```text
+QUESTION: Is GitHub fully up to date with the local HEAD?
+ANSWER: NO
+LOCAL HEAD at P3.57 start: ad7e81346a47fef49d593dcc2333773058346e07
+REMOTE HEAD: 26a2d120b596aa298a40b2ebc6952310658f45b5
+LOCAL VS REMOTE: 30 ahead / 0 behind
+GITHUB UPDATE CHECK: NOT UPDATED
+GITHUB FULLY UP TO DATE: NO
+GITHUB SYNC: BLOCKED
+PUSH: BLOCKED
+REASON: AUTHENTICATION UNAVAILABLE
+ERROR: fatal: could not read Username for 'https://github.com': terminal prompts disabled
+```
+
+Authentication is still unset: GITHUB_TOKEN / GH_TOKEN / GIT_ASKPASS / SSH_AUTH_SOCK / gh / credential.helper / SSH keys.
+
+Repository-side validation was re-executed:
+
+```text
+compileall PASS
+pytest 132 passed, 1 warning
+pyflakes PASS
+node syntax PASS
+shell syntax PASS
+alpha environment / runtime / frontend static PASS
+TSETMC mock_fallback / live_verified=false
+BRSAPI missing key / mock_fallback / live_verified=false
+```
+
+Installation remains locked. Windows target remains NOT VERIFIED.
+
+Do not clone GitHub as the product source until LOCAL HEAD == REMOTE HEAD.
+
+Next safe action: provide GitHub authentication for a normal push, or transfer the latest verified package to Windows and run only validate_install.ps1. Do not install unless the owner says INSTALL.

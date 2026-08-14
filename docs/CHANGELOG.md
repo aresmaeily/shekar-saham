@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-14 — P3.57 GitHub Authentication Push or Windows Pre-Install Gate
+
+- Re-verified local HEAD `ad7e813` against GitHub `26a2d12`. GitHub is not up to date (30 ahead / 0 behind).
+- Confirmed authentication still unavailable. One normal push failed: could not read Username for https://github.com.
+- Re-ran full repository-side validation; results match the P3.56 baseline.
+- Installation remains locked. No Windows execution, production deployment, database migration, force push, or live-data claim.
+
 ## 2026-08-14 — P3.56 GitHub Sync Verification and Windows Pre-Install Transfer
 
 - Re-verified local HEAD `b14feea` against GitHub `26a2d12`. GitHub is not up to date (29 ahead / 0 behind).

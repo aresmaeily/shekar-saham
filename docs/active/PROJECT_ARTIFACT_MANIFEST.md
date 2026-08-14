@@ -55,3 +55,5 @@ Generated for final handoff. No secrets are intentionally included. File hashes 
 | P3.55 final project package | `/home/user/deliverables/RADAR_BOURSE_P3.55_FINAL_PROJECT_PACKAGE_<SHORT_SHA>.zip` | ZIP | generated after final P3.55 commit | reported in final response | reported in final response | Recovered project package after sandbox loss | verified after archive creation | delivery artifact |
 
 | P3.56 final project package | `/home/user/deliverables/RADAR_BOURSE_P3.56_FINAL_PROJECT_PACKAGE_<SHORT_SHA>.zip` | ZIP | generated after final P3.56 commit | reported in final response | reported in final response | GitHub verification and Windows pre-install transfer package | verified after archive creation | delivery artifact |
+
+| P3.57 final project package | `/home/user/deliverables/RADAR_BOURSE_P3.57_FINAL_PROJECT_PACKAGE_<SHORT_SHA>.zip` | ZIP | generated after final P3.57 commit | reported in final response | reported in final response | GitHub auth-push gate package | verified after archive creation | delivery artifact |
