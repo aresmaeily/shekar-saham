@@ -18,11 +18,27 @@ $envExample = Join-Path $ProjectRoot ".env.example"
 $envFile = Join-Path $ProjectRoot ".env"
 $dataDir = Join-Path $ProjectRoot "data"
 
+function Find-PythonCommand {
+    $python = Get-Command python -ErrorAction SilentlyContinue
+    if ($python) { return $python.Source }
+    $py = Get-Command py -ErrorAction SilentlyContinue
+    if ($py) { return $py.Source }
+    return $null
+}
+
+function Test-PythonVersion($PythonCommand) {
+    $script = 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)'
+    & $PythonCommand -c $script
+    return ($LASTEXITCODE -eq 0)
+}
+
 Write-Host "RADAR BOURSE Alpha installation preparation"
 Write-Host "Project Root: $ProjectRoot"
 
 if (-not (Test-Path $backend)) { throw "Backend path not found: $backend" }
-if (-not (Get-Command python -ErrorAction SilentlyContinue)) { throw "Python is required and was not found in PATH." }
+$pythonCmd = Find-PythonCommand
+if (-not $pythonCmd) { throw "Python 3.10+ is required and was not found in PATH." }
+if (-not (Test-PythonVersion $pythonCmd)) { throw "Python 3.10+ is required. Detected Python is too old." }
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw "Git is required and was not found in PATH." }
 
 if (-not (Test-Path $dataDir)) { New-Item -ItemType Directory -Path $dataDir | Out-Null }
@@ -33,7 +49,7 @@ if (-not $NoEnvCopy -and -not (Test-Path $envFile) -and (Test-Path $envExample))
 }
 
 if (-not (Test-Path $venvPython)) {
-    python -m venv $venv
+    & $pythonCmd -m venv $venv
 }
 
 if (-not $SkipDependencyInstall) {

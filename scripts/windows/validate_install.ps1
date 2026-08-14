@@ -37,6 +37,13 @@ function Get-EnvStatus($Name, [bool]$Secret = $false) {
 
 $pythonCmd = Test-CommandExists "python"
 if (-not $pythonCmd) { $pythonCmd = Test-CommandExists "py" }
+$pythonVersionOk = $false
+if ($pythonCmd) {
+    try {
+        & $pythonCmd -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)" 2>$null
+        $pythonVersionOk = ($LASTEXITCODE -eq 0)
+    } catch { $pythonVersionOk = $false }
+}
 $gitCmd = Test-CommandExists "git"
 $nodeCmd = Test-CommandExists "node"
 $npmCmd = Test-CommandExists "npm"
@@ -71,6 +78,7 @@ $result = [ordered]@{
     tools = [ordered]@{
         powershell = $PSVersionTable.PSVersion.ToString()
         python = if ($pythonCmd) { Get-VersionOutput $pythonCmd @("--version") } else { "MISSING" }
+        python_version_ok = $pythonVersionOk
         pip = if ($pythonCmd) { Get-VersionOutput $pythonCmd @("-m", "pip", "--version") } else { "MISSING" }
         git = if ($gitCmd) { Get-VersionOutput "git" @("--version") } else { "MISSING" }
         node = if ($nodeCmd) { Get-VersionOutput "node" @("--version") } else { "MISSING" }
@@ -114,7 +122,7 @@ $result = [ordered]@{
 foreach ($k in @('project_root','backend','frontend','env_example','requirements')) {
     if (-not $result.paths[$k]) { $result.ok = $false }
 }
-if (-not $pythonCmd -or -not $gitCmd) { $result.ok = $false }
+if (-not $pythonCmd -or -not $pythonVersionOk -or -not $gitCmd) { $result.ok = $false }
 
 if ($Json) {
     $result | ConvertTo-Json -Depth 6
