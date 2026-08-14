@@ -588,3 +588,19 @@ Does not deploy proposals
 Does not add a scheduler
 Non-live metrics are not labelled LIVE
 ```
+
+---
+
+## P3.60 Update — Roadmap Gate, No Unauthorized Feature
+
+P3.60 re-read the Master Handoff remaining-work list, Product Roadmap Lock, and Filter Intelligence deferred section.
+
+```text
+P3.60 OBJECTIVE: Do not invent a feature. Record that the next authorized product step is blocked.
+Next authorized product step: P3.43 Controlled Alpha Launch
+Blocked by: Windows target, Browser E2E, Electron runtime, live provider, GitHub auth
+Explicitly NOT started: scheduler, automatic deployment, live trading, LLM
+Application code: unchanged
+```
+
+Exact next safe action remains: owner provides GitHub authentication **or** says `INSTALL` after transferring the latest package to a Windows target and running only the PRE-INSTALL checklist.

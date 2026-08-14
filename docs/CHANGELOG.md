@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-14 — P3.60 Roadmap Gate, No Unauthorized Feature
+
+- Inspected Master Handoff remaining work, Product Roadmap Lock, and architecture deferred lists.
+- Did not implement scheduler, automatic deployment, live trading, LLM, or Windows installation.
+- Application code was not changed. Next authorized product step remains blocked by target/live/GitHub gates.
+
 ## 2026-08-14 — P3.59 Filter Intelligence Performance Compare View
 
 - Added a read-only compare/performance panel on the existing هوش فیلتر tab.
