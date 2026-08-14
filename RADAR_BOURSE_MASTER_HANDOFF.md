@@ -1,0 +1,290 @@
+# RADAR BOURSE MASTER HANDOFF
+
+Date: 2026-08-09  
+Project: RADAR BOURSE / رادار بورس  
+Purpose: master operational handoff for continuation in a new chat, new developer session, or Windows target pre-install process.
+
+## 1. Project Identity
+
+| Item | Current Value |
+|---|---|
+| Product Name | RADAR BOURSE |
+| Persian Name | رادار بورس |
+| Historical/technical repository slug | `shekar-saham` |
+| Primary market | Iranian Stock Market |
+| Product class | AI-powered market intelligence / decision-support platform |
+| Main platforms | Web Application + Windows/Electron Application |
+
+The official product identity is RADAR BOURSE / رادار بورس. Historical old names may remain only in archived historical documents.
+
+## 2. Product Objective
+
+RADAR BOURSE is intended to combine market/symbol/filter/strategy/risk/data-trust evidence into structured intelligence for the Iranian stock market. AI is the system brain and must not fabricate live data, profitability, market state, backtest result, or confidence.
+
+## 3. Current Roadmap
+
+Completed local chain:
+
+```text
+P3.39 AI Intelligence Core
+P3.40 Market Intelligence
+P3.41 Filter Intelligence
+P3.42 AI ↔ Filter Intelligence Integration / Repository Completion
+P3.43 RADAR BOURSE Terminology Hardening
+P3.44 Pre-Installation Repository Hardening
+P3.45 Target Validation / Installation Readiness docs
+P3.46 Handoff / Alpha Installation Preparation docs
+P3.47 Final Pre-Installation Repository Closure
+P3.49 Repository Readiness and Windows Pre-Install Hardening
+P3.52 Final Project Package and Master Handoff
+```
+
+P3.48/P3.50/P3.51 were audit/inspection/validation phases, not feature implementation phases.
+
+## 4. Completed Stages
+
+| Stage | Status | Evidence |
+|---|---|---|
+| P3.39 | Complete locally | `backend/app/domain/ai_intelligence.py`, commit `3b7d6ca` |
+| P3.40 | Complete locally | `market_intelligence.py`, `market_intelligence_service.py`, commit `5aa8b7e` |
+| P3.41 | Complete locally | `filter_intelligence.py`, `filter_intelligence_service.py`, commit `0bfcee5` |
+| P3.42 | Complete locally | AI context to filter intelligence integration, commit `fe3d161` |
+| P3.43 | Complete locally | RADAR BOURSE terminology cleanup, commit `795db69` |
+| P3.44 | Complete locally | Pre-install hardening, commit `4e6cf72` |
+| P3.45 | Repository-side inspection/docs complete | active P3.45 report exists |
+| P3.46 | Handoff/prep docs complete | handoff docs exist |
+| P3.47 | Complete locally with target blockers | commits `b83819c`, `4c4af55`, `a39af16` |
+| P3.49 | Complete locally with blockers | commit `7ddcd76` |
+| P3.52 | Complete locally with blockers | final package and this handoff |
+
+## 5. Current Stage
+
+Current stage is P3.52 final repository package and handoff. It does not authorize installation.
+
+## 6. Architecture
+
+Primary architecture chain:
+
+```text
+Market Intelligence
++
+Filter Intelligence
++
+Strategy Evidence
++
+Backtest
++
+Walk-Forward
++
+Forward Test
++
+Risk
++
+Data Trust
+    ↓
+AIContextBuilder / AIService
+    ↓
+AIIntelligenceCore
+    ↓
+Structured Intelligence
+```
+
+Do not create parallel engines or rewrite architecture without owner approval.
+
+## 7. Backend
+
+Key backend files:
+
+```text
+backend/app/main.py
+backend/app/core/config.py
+backend/app/core/security.py
+backend/app/data/providers.py
+backend/app/data/store.py
+backend/app/domain/ai_intelligence.py
+backend/app/domain/filter_intelligence.py
+backend/app/domain/market_intelligence.py
+backend/app/services/ai_service.py
+backend/app/services/filter_intelligence_service.py
+backend/app/services/market_intelligence_service.py
+backend/app/engines/backtest.py
+backend/app/engines/filter_dsl.py
+```
+
+Important API routes include `/api/health`, `/api/status`, `/api/live/status`, `/api/ai/intelligence/{symbol}`, `/api/ai/market-intelligence`, `/api/ai/filter-intelligence`, `/api/ai/filters`, `/api/ai/filter-proposals`, `/api/backtest/run`, and `/api/filter/run`.
+
+## 8. Frontend
+
+Frontend is static HTML/JS under `frontend/` and is served by FastAPI. It uses relative `/api` calls and same-host WebSocket `/ws/live`. Browser E2E is not verified on target.
+
+## 9. Electron
+
+Electron files:
+
+```text
+electron/main.js
+electron/package.json
+```
+
+Backend URL selection:
+
+```text
+RADAR_BOURSE_URL || SHEKAR_URL || http://127.0.0.1:8000
+```
+
+Electron runtime and packaging are not verified on Windows target.
+
+## 10. Windows Installation State
+
+```text
+INSTALLATION = NOT STARTED
+WINDOWS INSTALLATION = NOT STARTED
+TARGET INSTALLATION = NOT STARTED
+PRODUCTION DEPLOYMENT = NOT STARTED
+```
+
+Windows target validation is still required. PowerShell scripts are repository-side prepared but not Windows-runtime verified.
+
+## 11. Dependency State
+
+Current environment audit found no `.venv`. System Python has only partial dependencies:
+
+```text
+pydantic = available
+httpx = available
+pytest = available
+fastapi = missing
+pydantic_settings = missing
+uvicorn = missing
+cryptography = missing
+pyflakes = missing
+```
+
+Dependency installation requires explicit owner approval.
+
+## 12. Data Trust
+
+Non-negotiable rules:
+
+```text
+mock != live
+fallback != live
+synthetic != live
+stale != live
+unavailable != live
+```
+
+Current live state:
+
+```text
+LIVE DATA = NOT VERIFIED
+TSETMC = last known mock_fallback / live_verified=false
+BRSAPI = missing key / last known mock_fallback / live_verified=false
+```
+
+## 13. Security
+
+Security model includes `PRIVATE_MODE`, `AUTH_REQUIRED`, `API_KEY`, `PRIVATE_PASSWORD`, `FERNET_KEY`, HttpOnly session cookie, WebSocket authentication, production guard, security headers, rate limiting, and CSRF Origin check. Never commit `.env`, credentials, tokens, keys, private keys, or secrets.
+
+## 14. Database
+
+SQLite via `backend/app/data/store.py`.
+
+```text
+DB path: data/shekar.db
+Backup path: data/backups/shekar-*.db
+Migration mechanism: PRAGMA user_version internal mechanism
+```
+
+No target DB migration has been executed.
+
+## 15. Git State
+
+At P3.52 audit start:
+
+```text
+Branch: main
+HEAD before P3.52 commit: 7ddcd766413784e8ada2d06e17f624f04f1e9edf
+Remote HEAD: 26a2d120b596aa298a40b2ebc6952310658f45b5
+Local vs remote: 25 ahead / 0 behind
+GitHub sync: BLOCKED by missing remote config/authentication
+```
+
+After P3.52, use actual `git rev-parse HEAD` from repository as authoritative.
+
+## 16. GitHub State
+
+Direct remote URL is reachable for read checks. Push/sync has not been completed because authentication is unavailable. Do not claim GitHub sync until remote SHA equals local SHA after a normal push.
+
+## 17. Artifacts
+
+Latest before P3.52:
+
+```text
+/home/user/deliverables/P3.49_RADAR_BOURSE_REPOSITORY_READY_7ddcd76.zip
+SHA-256: 8456a4263ea164c78a07795ee9c09e54d263338edacca1f9a77af91490f429de
+```
+
+P3.52 produces the final project package from the latest repository state.
+
+## 18. Known Blockers
+
+- GitHub authentication unavailable / remote config not persisted.
+- Windows target not verified.
+- Dependency environment missing locally (`.venv` absent).
+- BRSAPI key missing.
+- TSETMC live validation not verified.
+- Browser E2E and Electron runtime not verified on target.
+
+## 19. Remaining Work
+
+Repository-side:
+
+- Restore or approve dependency environment if full runtime validation is required locally.
+- Configure GitHub authentication and push normally.
+
+Target-side:
+
+- Transfer final package to Windows target.
+- Run pre-install checklist only.
+- Configure `.env` securely.
+- Validate PowerShell, Python, Node/npm, port, firewall, browser, backend, frontend, Electron as applicable.
+
+## 20. Installation Gate
+
+```text
+CAN INSTALL = NO
+```
+
+Reason: owner has not issued explicit `INSTALL` instruction. Target validation is incomplete.
+
+## 21. Exact Next Safe Action
+
+Transfer the P3.52 final project package to the Windows target and run only the PRE-INSTALL CHECKLIST without installation.
+
+## 22. Important Historical Decisions
+
+- Product name is RADAR BOURSE / رادار بورس.
+- Iran market remains priority.
+- AI is decision-support intelligence brain, not autonomous trader.
+- Human approval required for sensitive filter/strategy production changes.
+- Mock/fallback/synthetic data must never be treated as live.
+- Git history rewrite and force push are forbidden.
+
+## 23. Contradictions Between Reports
+
+Earlier reports sometimes listed old HEAD values or claimed GitHub sync readiness. Current repository state always wins. Current GitHub remote remains behind local. Current dependency environment is incomplete.
+
+## 24. Actual vs Reported State
+
+Reported state must be re-verified before every phase. Current authoritative state is the repository state and the final P3.52 package contents.
+
+## 25. Instructions for the Next Supervisor / Prompt Writer Chat
+
+1. Verify `git status --short --branch`.
+2. Verify `git rev-parse HEAD`.
+3. Verify GitHub remote state using direct URL if `origin` is missing.
+4. Do not install until owner says `INSTALL`.
+5. Do not treat mock/fallback data as live.
+6. If dependencies are missing, request approval before installing.
+7. Start next phase with target pre-install validation only.

@@ -46,3 +46,6 @@
 - `ALPHA_INSTALLATION_GAP_ANALYSIS.md` — Alpha installation gap analysis
 - `ALPHA_INSTALLATION_PREPARATION_FINAL_REPORT.md` — Alpha installation preparation final report
 - `P3.47_FINAL_PRE_INSTALL_REPOSITORY_CLOSURE_REPORT.md` — P3.47 final pre-install repository closure report
+
+- `P3.52_FINAL_PROJECT_PACKAGE_AND_HANDOFF_REPORT.md` — P3.52 final project package and master handoff report
+- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — master project handoff for future supervisors and developers
