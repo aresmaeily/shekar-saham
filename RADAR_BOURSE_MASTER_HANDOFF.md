@@ -604,3 +604,19 @@ Application code: unchanged
 ```
 
 Exact next safe action remains: owner provides GitHub authentication **or** says `INSTALL` after transferring the latest package to a Windows target and running only the PRE-INSTALL checklist.
+
+---
+
+## P3.61 Update — Controlled Alpha Gate Evaluation
+
+P3.61 re-ran repository-side Alpha checks and scored the P3.43 launch gates.
+
+```text
+ALPHA LAUNCH = NOT EXECUTED
+Repository/backend/frontend/tests local = PASS
+Windows / PowerShell / Browser E2E / Electron = NOT VERIFIED
+TSETMC live_verified=false (mock_fallback)
+BRSAPI missing key / mock_fallback
+GitHub 34+ commits ahead, authentication BLOCKED
+Application code unchanged except this documentation
+```

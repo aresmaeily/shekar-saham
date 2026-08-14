@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-14 — P3.61 Controlled Alpha Gate Evaluation
+
+- Re-evaluated Product Roadmap Lock P3.43 Controlled Alpha Launch gates.
+- Repository-side compile/pytest/frontend/alpha scripts passed locally.
+- Windows, PowerShell, Browser E2E, Electron, live TSETMC/BRSAPI, and GitHub remain blocked or not verified.
+- Application code was not changed. Installation was not started.
+
 ## 2026-08-14 — P3.60 Roadmap Gate, No Unauthorized Feature
 
 - Inspected Master Handoff remaining work, Product Roadmap Lock, and architecture deferred lists.

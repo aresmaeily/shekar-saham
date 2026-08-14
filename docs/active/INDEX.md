@@ -58,3 +58,4 @@
 - `P3.58_FILTER_INTELLIGENCE_UI_APPROVAL_REPORT.md` — P3.58 Filter Intelligence UI approval workflow
 - `P3.59_FILTER_INTELLIGENCE_COMPARE_VIEW_REPORT.md` — P3.59 read-only performance/compare view
 - `P3.60_ROADMAP_GATE_NO_UNAUTHORIZED_FEATURE_REPORT.md` — P3.60 roadmap gate; no unauthorized feature
+- `P3.61_CONTROLLED_ALPHA_GATE_REPORT.md` — P3.61 P3.43 Alpha launch gate evaluation
