@@ -51,3 +51,5 @@ Generated for final handoff. No secrets are intentionally included. File hashes 
 | P3.53 final project package | `/home/user/deliverables/RADAR_BOURSE_P3.53_FINAL_PROJECT_PACKAGE_<SHORT_SHA>.zip` | ZIP | generated after final P3.53 commit | reported in final response | reported in final response | Final package with master handoff | verified after archive creation | delivery artifact |
 
 | P3.54 final project package | `/home/user/deliverables/RADAR_BOURSE_P3.54_FINAL_PROJECT_PACKAGE_<SHORT_SHA>.zip` | ZIP | generated after final P3.54 commit | reported in final response | reported in final response | Final project package and external delivery | verified after archive creation | delivery artifact |
+
+| P3.55 final project package | `/home/user/deliverables/RADAR_BOURSE_P3.55_FINAL_PROJECT_PACKAGE_<SHORT_SHA>.zip` | ZIP | generated after final P3.55 commit | reported in final response | reported in final response | Recovered project package after sandbox loss | verified after archive creation | delivery artifact |

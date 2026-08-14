@@ -12,18 +12,19 @@ dist/
 coverage/
 
 # داده و رازها
-data/*.db
-data/*.db-wal
-data/*.db-shm
 .env
 *.env.local
 
 # سیستم
 .DS_Store
 Thumbs.db
-# Runtime data
-data/*.db
-data/*.json
+
+# Runtime data (repo-root only — do NOT ignore backend/app/data/)
+/data/
+/data/*.db
+/data/*.db-wal
+/data/*.db-shm
+/data/*.json
 
 # Environment
 .env
@@ -32,4 +33,3 @@ data/*.json
 .venv/
 __pycache__/
 *.pyc
-data/

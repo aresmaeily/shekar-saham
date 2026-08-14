@@ -1,5 +1,15 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-14 — P3.55 Workspace Recovery and Continuation
+
+- Recovered the empty sandbox from the verified P3.54 TempFile package (`SHA-256 5ba6e1271a12e26d7ad9d3aceebac185322edd5dbbbfe98c5aef35a21b8decd0`, 757 files, ZIP PASS).
+- Restored Git history at `2d13cf3` and reconstructed a credential-free `.git/config` with the public origin URL only.
+- Restored tracked `backend/app/data/` source files from Git objects after the P3.54 zip omitted them because `.gitignore` contained a broad `data/` rule.
+- Narrowed `.gitignore` to `/data/` so only the repo-root runtime directory is ignored.
+- Recreated the local validation `.venv` from `backend/requirements.txt` and re-ran full repository-side validation.
+- Updated `RADAR_BOURSE_MASTER_HANDOFF.md` and added the P3.55 recovery report.
+- Preserved installation lock: no Windows install, target execution, production deployment, database migration, or GitHub push was performed.
+
 ## 2026-08-14 — P3.54 Final Artifact External Delivery and GitHub Sync Attempt
 
 - Re-verified actual repository state after P3.53.
