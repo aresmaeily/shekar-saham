@@ -1,5 +1,13 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-14 — P3.56 GitHub Sync Verification and Windows Pre-Install Transfer
+
+- Re-verified local HEAD `b14feea` against GitHub `26a2d12`. GitHub is not up to date (29 ahead / 0 behind).
+- Confirmed authentication unavailable. A normal push failed: could not read Username for https://github.com.
+- Re-ran full repository-side validation; results match the P3.55 baseline.
+- Added Windows pre-install transfer instructions. Installation remains locked.
+- No Windows execution, production deployment, database migration, force push, or live-data claim.
+
 ## 2026-08-14 — P3.55 Workspace Recovery and Continuation
 
 - Recovered the empty sandbox from the verified P3.54 TempFile package (`SHA-256 5ba6e1271a12e26d7ad9d3aceebac185322edd5dbbbfe98c5aef35a21b8decd0`, 757 files, ZIP PASS).
