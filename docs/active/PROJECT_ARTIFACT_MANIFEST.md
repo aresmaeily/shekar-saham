@@ -47,3 +47,5 @@ Generated for final handoff. No secrets are intentionally included. File hashes 
 | RADAR_BOURSE_ALPHA_INSTALLATION_READY_P3.46.zip | /home/user/deliverables/RADAR_BOURSE_ALPHA_INSTALLATION_READY_P3.46.zip | ZIP | see filesystem | 76f5d77803b22022912f8e4773a9e0cb4bfe6af7a63a33d077db72f958c0bc3a | 229 | Alpha installation readiness transfer package | ZIP OK | AVAILABLE_IN_DELIVERABLES |
 
 | P3.52 final project package | `/home/user/deliverables/RADAR_BOURSE_P3.52_FINAL_PROJECT_PACKAGE_<SHORT_SHA>.zip` | ZIP | generated after final P3.52 commit | reported in final response | reported in final response | Final project package and master handoff | verified after archive creation | delivery artifact |
+
+| P3.53 final project package | `/home/user/deliverables/RADAR_BOURSE_P3.53_FINAL_PROJECT_PACKAGE_<SHORT_SHA>.zip` | ZIP | generated after final P3.53 commit | reported in final response | reported in final response | Final package with master handoff | verified after archive creation | delivery artifact |

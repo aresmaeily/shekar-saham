@@ -49,3 +49,4 @@
 
 - `P3.52_FINAL_PROJECT_PACKAGE_AND_HANDOFF_REPORT.md` — P3.52 final project package and master handoff report
 - `../../RADAR_BOURSE_MASTER_HANDOFF.md` — master project handoff for future supervisors and developers
+- `P3.53_FINAL_PROJECT_PACKAGE_AND_HANDOFF_REPORT.md` — P3.53 final project package, dependency recovery and master handoff report
