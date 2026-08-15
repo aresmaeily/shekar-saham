@@ -70,4 +70,5 @@
 - `P3.81_AI_PROVIDER_ADAPTER_AND_INTELLIGENCE_CONTRACTS.md` — P3.81 provider adapter and Research/Strategy/Risk contracts
 - `P3.82_AI_PATH_TRUST_AND_ROADMAP_AUDIT.md` — P3.82 artifact/GitHub verify and remaining AI-path trust
 - `P3.83_AI_RUNTIME_READINESS_AND_PROVIDER_EXECUTION_GATE.md` — fail-closed provider invoke seam
-- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.83
+- `P3.84_REAL_AI_PROVIDER_TRANSPORT_GATE.md` — no real transport; future activation gate
+- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.84

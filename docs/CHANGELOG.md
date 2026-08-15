@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.84 Real AI Provider Transport gate
+
+- Audited P3.83 seam: no production HTTP/TLS LLM transport exists.
+- Chose OPTION B: remain BLOCKED. Did not add a fake provider or fabricated LLM call.
+- Documented the exact future activation gate.
+
 ## 2026-08-15 — P3.83 AI runtime readiness and provider execution gate
 
 - Added fail-closed `invoke_ai_provider` (timeout/retry config, credential/invalid/unavailable/malformed states).

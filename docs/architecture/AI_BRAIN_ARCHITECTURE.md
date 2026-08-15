@@ -95,6 +95,8 @@ P3.81 added locally (contracts only; no live LLM invocation):
 
 P3.83 added `invoke_ai_provider()` as a fail-closed execution seam (timeout/retry config, structured error states). Production still does not invoke a network LLM.
 
+P3.84 confirmed: no production HTTP transport. Future activation gate is documented in `docs/active/P3.84_REAL_AI_PROVIDER_TRANSPORT_GATE.md`. Do not treat the seam as a live provider.
+
 Still not implemented / not verified:
 
 - live LLM provider invocation

@@ -783,3 +783,9 @@ P3.81 TempFile re-downloaded this phase; SHA-256 MATCH. Remote HEAD re-verified 
 ## P3.83 Update — Provider execution gate
 
 Fail-closed `invoke_ai_provider` added. Production does not call an LLM. A present env key still yields `adapter_not_invoked`. TEST ONLY transports are labelled. GitHub write remains BLOCKED.
+
+---
+
+## P3.84 Update — Real transport gate (OPTION B)
+
+Audit confirmed there is no production HTTP LLM transport. No fake runtime was added. LLM remains BLOCKED / NOT EXECUTED / UNVERIFIED until a reviewed HTTPS adapter and a real server-side credential exist.
