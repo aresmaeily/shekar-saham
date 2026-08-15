@@ -24,10 +24,12 @@ def test_fresh_live_context_not_stale():
     now = time.time()
     ctx = build_data_trust_context("tsetmc", timestamp=now - 10, checked_at=now, stale_after_sec=300)
     assert ctx["state"] == "live"
-    assert ctx["trust_level"] == "live"
     assert ctx["stale"] is False
-    assert ctx["is_live"] is True
     assert ctx["age_sec"] >= 10
+    # Source label + freshness is not independent verification.
+    assert ctx["live_verified"] is False
+    assert ctx["is_live"] is False
+    assert ctx["trust_level"] == "mixed"
 
 
 def test_stale_live_context_maps_to_mixed_legacy():
@@ -83,7 +85,8 @@ def test_api_propagates_data_trust_and_no_false_live():
     assert "state" in ctx
     assert "checked_at" in ctx
     assert "stale_after_sec" in ctx
-    assert ctx["state"] != "live" or ctx["trust_level"] == "live"
+    assert ctx.get("live_verified") is not True
+    assert ctx["is_live"] is False
     if ctx["state"] in {"mock", "synthetic", "stale", "unavailable"}:
         assert ctx["is_live"] is False
 

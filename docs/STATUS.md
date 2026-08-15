@@ -119,3 +119,4 @@ Details: `docs/architecture/IRAN_MARKET_ARCHITECTURE_LOCK.md`.
 | P3.61 | Complete Locally — Alpha Launch Blocked | P3.43 Alpha gates re-evaluated; local repo/tests PASS; Windows/live/GitHub remain blocked; installation not started. |
 | P3.63 | Complete Locally — GitHub Deferred | Iran TSE weekday-hours MarketSession inference added; session-open is not live data; GitHub remains blocked. |
 | P3.64 | Complete Locally — GitHub Deferred | Market Intelligence snapshot.market_status now uses P3.63 session inference; session-open is not live data; GitHub remains blocked. |
+| P3.75 | Complete Locally — GitHub Deferred | Canonical `live_verified` added; source label + freshness cannot claim verified LIVE; fabricated avg_vol_30d removed; GitHub remains blocked. |

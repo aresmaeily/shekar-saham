@@ -42,6 +42,7 @@ class MarketDataProvenance(BaseModel):
     timestamp: Optional[datetime] = None
     data_source_config: str = "auto"
     is_live: bool = False
+    live_verified: bool = False
     is_generated: bool = False
     warning: str = ""
     quality: dict[str, Any] = Field(default_factory=dict)

@@ -649,3 +649,16 @@ Session-open != live data
 Holidays: not applied
 GitHub: BLOCKED — owner authorized machine unavailable
 ```
+
+---
+
+## P3.75 Update — Data Trust Hardening
+
+P3.75 adds an independent `live_verified` flag to the canonical trust context. Source label + freshness cannot produce verified LIVE. `TRUST_LEVEL=live` cannot fabricate live evidence. Provider mappings no longer invent `avg_vol_30d`.
+
+```text
+LIVE = state=live AND is_live=true AND live_verified=true
+live_verified is never inferred
+This environment: live_verified=false
+GitHub: BLOCKED
+```

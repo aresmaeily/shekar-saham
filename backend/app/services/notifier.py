@@ -10,7 +10,7 @@ from typing import Any, Optional
 
 import httpx
 
-from app.core.config import get_settings
+from app.core.config import get_settings, is_verified_live
 from app.core.crypto import decrypt_token, encrypt_token, is_encrypted
 from app.data.store import store
 
@@ -333,6 +333,7 @@ class Notifier:
         portfolio_symbols: Optional[set[str]] = None,
         confluence_alerts: Optional[list[dict[str, Any]]] = None,
         trust_level: str = "mixed",
+        data_trust: dict[str, Any] | None = None,
     ) -> int:
         c = self._cfg()
         if not c["enabled"]:
@@ -344,16 +345,18 @@ class Notifier:
         )
         settings = get_settings()
         allow_synth = bool(c.get("allow_synthetic") or getattr(settings, "notify_allow_synthetic", False))
+        verified_live = is_verified_live(data_trust) if data_trust is not None else False
         
-        # P0-1: Block synthetic unless explicitly allowed
-        if trust_level == "synthetic" and not allow_synth:
-            logger.info("notify skipped: trust_level=synthetic and NOTIFY_ALLOW_SYNTHETIC=0")
+        # Unverified or non-live data cannot produce a valid live alert.
+        if not verified_live and not allow_synth:
+            logger.info("notify skipped: data is not independently live-verified")
             store.save_notify_log(
                 {
                     "channel": "blocked",
-                    "text": "blocked synthetic alerts",
+                    "text": "blocked unverified/non-live alerts",
                     "ok": False,
                     "trust_level": trust_level,
+                    "live_verified": False,
                 }
             )
             return 0

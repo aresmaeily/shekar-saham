@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 from statistics import mean, pstdev
 from typing import Any
 
-from app.core.config import build_data_trust_context, get_settings
+from app.core.config import build_data_trust_context, get_settings, is_verified_live
 from app.data.store import Store, store
 from app.domain.filter_intelligence import (
     FilterAnalysisResult,
@@ -55,7 +55,7 @@ def _as_float(value: Any) -> float | None:
 
 
 def _trust_live(data_trust: dict[str, Any]) -> bool:
-    return data_trust.get("state") == "live" and data_trust.get("is_live") is True
+    return is_verified_live(data_trust)
 
 
 class FilterIntelligenceService:

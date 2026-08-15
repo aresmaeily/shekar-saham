@@ -118,8 +118,7 @@ def brsapi_row_to_snapshot(row: dict[str, Any]) -> SymbolSnapshot:
         zo5=_safe_int(row.get("zo5")),
         qo5=_safe_float(row.get("qo5")),
         po5=_safe_float(row.get("po5")),
-        avg_vol_30d=_safe_float(row.get("avg_vol_30d"))
-        or max(_safe_float(row.get("bvol")) * 3.0, _safe_float(row.get("tvol")) * 0.5),
+        avg_vol_30d=_safe_float(row.get("avg_vol_30d")),
         avg_val_30d=_safe_float(row.get("avg_val_30d")),
         source="brsapi",
         updated_at=datetime.now(timezone.utc),
@@ -189,10 +188,7 @@ def tsetmc_mw_to_snapshot(item: dict[str, Any]) -> Optional[SymbolSnapshot]:
             zo1=_safe_int(item.get("zo1") or item.get("bestSellDelivery")),
             qo1=_safe_float(item.get("qo1") or item.get("qTitMeOf")),
             po1=_safe_float(item.get("po1") or item.get("pMeOf")),
-            avg_vol_30d=max(
-                _safe_float(item.get("bvol") or item.get("baseVol")) * 3.0,
-                tvol * 0.45 if tvol else 1.0,
-            ),
+            avg_vol_30d=_safe_float(item.get("avg_vol_30d") or item.get("avgVol") or 0.0),
             source="tsetmc",
             updated_at=datetime.now(timezone.utc),
         )
@@ -491,7 +487,7 @@ class MarketDataProvider:
                         py=py,
                         plp=plp,
                         tvol=tvol,
-                        avg_vol_30d=max(tvol * 0.5, 1),
+                        avg_vol_30d=0.0,
                         source="tsetmc_legacy",
                         updated_at=datetime.now(timezone.utc),
                     )

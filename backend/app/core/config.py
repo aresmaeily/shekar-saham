@@ -133,6 +133,20 @@ def get_settings() -> Settings:
     return Settings()
 
 
+def is_verified_live(data_trust: dict[str, Any] | None) -> bool:
+    """Independent LIVE gate. All three flags must be explicitly true.
+
+    `live_verified` is never inferred from source label or freshness.
+    """
+    if not isinstance(data_trust, dict):
+        return False
+    return (
+        str(data_trust.get("state") or "").lower() == "live"
+        and data_trust.get("is_live") is True
+        and data_trust.get("live_verified") is True
+    )
+
+
 def classify_data_trust_state(source: str, settings: Settings | None = None) -> DataTrustState:
     """Canonical source-state classification for product UX.
 
@@ -140,11 +154,15 @@ def classify_data_trust_state(source: str, settings: Settings | None = None) -> 
     overrides such as `stale` and missing-data overrides such as `unavailable`
     are applied by `build_data_trust_context`, where timestamps and provider
     errors are available.
+
+    Configuration is not market evidence: TRUST_LEVEL=live cannot force a
+    live classification. Downgrade overrides (mixed/synthetic) remain allowed.
     """
     s = settings or get_settings()
     override = (s.trust_level_override or "").strip().lower()
     if override == "live":
-        return "live"
+        # Configuration ≠ market evidence. Ignore live override.
+        override = ""
     if override == "mixed":
         return "mixed"
     if override == "synthetic":
@@ -199,6 +217,7 @@ def build_data_trust_context(
     fallback_source: str | None = None,
     error_code: str | None = None,
     warning: str | None = None,
+    live_verified: bool = False,
 ) -> dict[str, Any]:
     """Canonical market-data trust context for API/service responses.
 
@@ -234,14 +253,22 @@ def build_data_trust_context(
     elif base_state in {"live", "mixed"} and stale:
         state = "stale"
 
+    # Independent verification is never inferred from source label, freshness,
+    # or TRUST_LEVEL. Callers may pass live_verified=True only after a real
+    # provider verification step. This environment must not fabricate it.
+    verified = bool(live_verified) and state == "live"
     trust_level = _legacy_trust_level_from_state(state)
-    is_live = state == "live"
+    if state == "live" and not verified:
+        trust_level = "mixed"
+    is_live = verified
     is_generated = state in {"mock", "synthetic"}
 
     msg = warning or ""
     if not msg:
-        if state == "live":
-            msg = "LIVE data: provider data is currently within freshness threshold."
+        if verified:
+            msg = "LIVE data: provider data is independently verified and within freshness threshold."
+        elif state == "live":
+            msg = "LIVE-CLASS source is not independently verified; not validated live market data."
         elif state == "mock":
             msg = "MOCK data: development/demo fallback, not validated live market data."
         elif state == "synthetic":
@@ -274,6 +301,7 @@ def build_data_trust_context(
         "error_code": error_code or "",
         "data_source_config": s.data_source,
         "is_live": is_live,
+        "live_verified": verified,
         "is_generated": is_generated,
         "quality": quality or {},
         "warning": msg,

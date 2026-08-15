@@ -495,6 +495,7 @@ class MarketService:
                 portfolio_symbols=pf,
                 confluence_alerts=combo,
                 trust_level=trust_ref,
+                data_trust=self.data_trust_context(),
             )
             if n:
                 logger.info(f"notifier sent {n} alerts (combo={len(combo)} trust={trust_ref})")

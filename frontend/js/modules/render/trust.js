@@ -12,16 +12,35 @@ function normalizeTrust(input, sourceFallback = "") {
       source: input.source || input.provider || sourceFallback || "unknown",
       warning: input.warning || "",
       ageSec: input.age_sec,
+      isLive: input.is_live === true,
+      liveVerified: input.live_verified === true,
     };
   }
   const level = String(input || "mixed").toLowerCase();
   const state = level === "synthetic" ? "synthetic" : level;
-  return { state, level, source: sourceFallback || "unknown", warning: "", ageSec: null };
+  return { state, level, source: sourceFallback || "unknown", warning: "", ageSec: null, isLive: false, liveVerified: false };
 }
 
 function trustPresentation(trust) {
+  const verifiedLive = trust.state === "live" && trust.isLive === true && trust.liveVerified === true;
+  if (trust.state === "live" && !verifiedLive) {
+    return {
+      cls: "mixed",
+      pill: "اعتماد: UNVERIFIED LIVE-CLASS - تأیید نشده",
+      icon: "⚠️",
+      banner: "⚠️ منبع زنده‌نما تأیید مستقل نشده است و مبنای خرید/فروش نیست",
+    };
+  }
   switch (trust.state) {
     case "live":
+      if (!verifiedLive) {
+        return {
+          cls: "mixed",
+          pill: "اعتماد: UNVERIFIED LIVE-CLASS - تأیید نشده",
+          icon: "⚠️",
+          banner: "⚠️ منبع زنده‌نما تأیید مستقل نشده است و مبنای خرید/فروش نیست",
+        };
+      }
       return { cls: "live", pill: "اعتماد: LIVE - داده زنده", icon: "✅", banner: "داده زنده", hide: true };
     case "mock":
       return { cls: "demo", pill: "اعتماد: MOCK - داده آزمایشی", icon: "🚨", banner: "🚨 هشدار: داده آزمایشی است و زنده نیست - مبنای خرید/فروش قرار ندهید" };

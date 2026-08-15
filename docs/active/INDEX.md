@@ -61,3 +61,4 @@
 - `P3.61_CONTROLLED_ALPHA_GATE_REPORT.md` — P3.61 P3.43 Alpha launch gate evaluation
 - `P3.63_IRAN_MARKET_SESSION_INFERENCE_REPORT.md` — P3.63 TSE weekday-hours session inference
 - `P3.64_MARKET_INTELLIGENCE_SESSION_STATUS_REPORT.md` — P3.64 Market Intelligence market_status from session inference
+- `P3.75_DATA_TRUST_HARDENING_REPORT.md` — P3.75 independent live_verified contract and avg_vol provenance

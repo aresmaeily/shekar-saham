@@ -58,7 +58,7 @@ async def _run(source: str) -> dict:
         "first_symbol": rows[0].l18 if rows else None,
         "first_updated_at": rows[0].updated_at.isoformat() if rows and rows[0].updated_at else None,
         "data_trust": ctx,
-        "live_verified": ctx.get("state") == "live" and ctx.get("is_live") is True,
+        "live_verified": bool(ctx.get("live_verified") is True),
     }
 
 

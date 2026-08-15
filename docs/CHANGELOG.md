@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.75 Data Trust Hardening
+
+- Added canonical `live_verified` to `build_data_trust_context()`. It is never inferred from source label or freshness.
+- `is_live` is true only when independently verified. `TRUST_LEVEL=live` cannot fabricate live evidence.
+- Backend AI, Filter Intelligence, notifier, and frontend trust banner use the triple LIVE gate.
+- Provider mappings no longer fabricate `avg_vol_30d` from `bvol`/`tvol`. Missing 30-day history stays unknown (`0`) and does not create volume-spike evidence.
+
 ## 2026-08-15 — P3.64 Market Intelligence Session Status
 
 - Wired existing P3.63 `infer_iran_market_session()` into P3.40 `MarketIntelligenceSnapshot.market_status`.

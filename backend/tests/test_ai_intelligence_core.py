@@ -29,13 +29,29 @@ def test_live_aligned_evidence_can_be_buy_candidate():
         market_context={"confluence": {"buy_alerts": 5, "sell_alerts": 0}},
         filter_context={"sample": {"count": 3}},
         backtest_context={"metrics": {"profit_factor": 1.4, "maximum_drawdown": 8}},
-        data_trust=build_data_trust_context("tsetmc", timestamp=1000, checked_at=1010),
+        data_trust=build_data_trust_context("tsetmc", timestamp=1000, checked_at=1010, live_verified=True),
     )
     assert result.recommendation == "BUY_CANDIDATE"
     assert result.confidence > 0.55
     assert result.data_trust["state"] == "live"
+    assert result.data_trust["live_verified"] is True
     assert result.evidence
     assert result.safety["no_autonomous_trading"] is True
+
+
+def test_unverified_tsetmc_label_blocks_actionable_recommendation():
+    core = AIIntelligenceCore()
+    result = core.evaluate(
+        symbol_context=_symbol_context(),
+        market_context={"confluence": {"buy_alerts": 5, "sell_alerts": 0}},
+        filter_context={"sample": {"count": 3}},
+        backtest_context={"metrics": {"profit_factor": 1.4, "maximum_drawdown": 8}},
+        data_trust=build_data_trust_context("tsetmc", timestamp=1000, checked_at=1010),
+    )
+    assert result.data_trust["state"] == "live"
+    assert result.data_trust["live_verified"] is False
+    assert result.data_trust["is_live"] is False
+    assert result.recommendation == "INSUFFICIENT_DATA"
 
 
 def test_mock_data_blocks_actionable_live_recommendation():
@@ -55,7 +71,7 @@ def test_conflicting_evidence_reduces_to_watch_or_no_action():
         symbol_context=_symbol_context(entry=85, exit_score=5, buy_power=0.4, volume_ratio=0.6, value_score=20),
         filter_context={"sample": {"count": 2}},
         backtest_context={"metrics": {"profit_factor": 0.7, "maximum_drawdown": 25}},
-        data_trust=build_data_trust_context("tsetmc", timestamp=1000, checked_at=1010),
+        data_trust=build_data_trust_context("tsetmc", timestamp=1000, checked_at=1010, live_verified=True),
     )
     assert result.recommendation in {"WATCH", "NO_ACTION"}
     assert result.conflicts
@@ -75,7 +91,7 @@ def test_filter_intelligence_context_is_consumed_by_ai_brain():
     result = core.evaluate(
         symbol_context=_symbol_context(),
         filter_context={"filter_intelligence": {"classification": "DEGRADING", "decay": {"status": "PERFORMANCE_DECAY"}}},
-        data_trust=build_data_trust_context("tsetmc", timestamp=1000, checked_at=1010),
+        data_trust=build_data_trust_context("tsetmc", timestamp=1000, checked_at=1010, live_verified=True),
     )
     assert any(e.category == "filter_intelligence" for e in result.evidence)
     assert "FILTER_INTELLIGENCE_RISK" in result.reason_codes

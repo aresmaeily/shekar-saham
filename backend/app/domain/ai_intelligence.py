@@ -12,6 +12,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from app.core.config import is_verified_live
+
 Recommendation = Literal["BUY_CANDIDATE", "HOLD", "SELL_CANDIDATE", "WATCH", "NO_ACTION", "INSUFFICIENT_DATA"]
 RiskLevel = Literal["LOW", "MEDIUM", "HIGH"]
 
@@ -78,8 +80,12 @@ def _trust_confidence_cap(data_trust: dict[str, Any]) -> tuple[float, list[str],
     state = (data_trust.get("state") or "mixed").lower()
     warnings: list[str] = []
     invalidations: list[str] = []
-    if state == "live":
+    if is_verified_live(data_trust):
         return 1.0, warnings, invalidations
+    if state == "live":
+        warnings.append("Live-class source is not independently verified; output cannot be treated as a real-market signal.")
+        invalidations.append("Unverified live-class data blocks actionable live recommendation.")
+        return 0.35, warnings, invalidations
     if state == "mixed":
         warnings.append("Data trust is mixed; confidence is capped.")
         return 0.60, warnings, invalidations

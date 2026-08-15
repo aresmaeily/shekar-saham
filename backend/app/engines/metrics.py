@@ -33,9 +33,10 @@ def compute_metrics(s: SymbolSnapshot, cfg: Settings | None = None) -> DerivedMe
     # جابجایی تقریبی حقوقی->حقیقی
     m.legal_to_individual = (s.Sell_N_Volume - s.Buy_N_Volume) * s.pl
 
-    avg_vol = s.avg_vol_30d or max(s.bvol * 3, 1)
-    m.volume_ratio = _div(s.tvol, avg_vol)
-    avg_val = s.avg_val_30d or avg_vol * max(s.py, s.pl, 1)
+    # Missing 30-day history is unknown, not a fabricated average.
+    avg_vol = float(s.avg_vol_30d or 0.0)
+    m.volume_ratio = _div(s.tvol, avg_vol) if avg_vol > 0 else 0.0
+    avg_val = float(s.avg_val_30d or 0.0)
     m.value_ratio = _div(s.tval, avg_val)
     m.is_volume_spike = m.volume_ratio >= cfg.volume_spike_ratio
     m.is_strong_volume_spike = m.volume_ratio >= cfg.volume_spike_strong
