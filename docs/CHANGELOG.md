@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.77 evidence follow-up
+
+- `DataQualityScorer` no longer emits `trust=live` from a tsetmc/brsapi source label.
+- `/api/v07/data-quality` and `/api/v08/chart` now carry canonical `data_trust`.
+- Behavioral API tests prove analyze/data-quality/notify-now are not verified LIVE.
+
 ## 2026-08-15 — P3.77 Local hardening and defect closure
 
 - Closed remaining local false-LIVE paths: notifier format, notify-now, confluence rebuild, WS refresh, Forex source-label, and legacy UI.

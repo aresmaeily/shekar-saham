@@ -202,6 +202,65 @@ def test_forex_api_source_label_cannot_mint_live():
     assert "data_trust" in src
 
 
+def test_data_quality_tsetmc_source_is_not_live_trust():
+    from app.engines.data_quality import quality_scorer
+    from app.models.schemas import SymbolSnapshot
+
+    snap = SymbolSnapshot(
+        l18="فملی",
+        pl=1000,
+        pc=990,
+        py=980,
+        tvol=1e6,
+        Buy_I_Volume=5e5,
+        Sell_I_Volume=3e5,
+        Buy_CountI=10,
+        Sell_CountI=5,
+        source="tsetmc",
+    )
+    result = quality_scorer.score_symbol(snap)
+    assert result["trust"] != "live"
+    assert result.get("is_live") is not True
+    assert result.get("live_verified") is not True
+    assert "not independently verified" in " ".join(result.get("issues") or [])
+
+
+def test_analyze_and_data_quality_apis_are_not_verified_live():
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    client = TestClient(app)
+    analyze = client.get("/api/analyze")
+    assert analyze.status_code == 200
+    ctx = analyze.json()["data_trust"]
+    assert ctx["live_verified"] is False
+    assert ctx["is_live"] is False
+    assert is_verified_live(ctx) is False
+    quality = client.get("/api/v07/data-quality")
+    assert quality.status_code == 200
+    body = quality.json()
+    dist = body.get("trust_distribution") or {}
+    assert dist.get("live", 0) == 0
+    for row in body.get("scores") or []:
+        assert row.get("trust") != "live"
+        assert row.get("live_verified") is not True
+    assert is_verified_live(body.get("data_trust") or {}) is False
+
+
+def test_notify_now_response_is_not_verified_live():
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    client = TestClient(app)
+    res = client.post("/api/confluence/notify-now")
+    assert res.status_code == 200
+    body = res.json()
+    assert is_verified_live(body.get("data_trust") or {}) is False
+    assert body.get("data_trust", {}).get("live_verified") is not True
+
+
 def test_backtest_metrics_name_sharpe_as_per_trade():
     from app.engines.backtest import run_filter_strategy_backtest
 

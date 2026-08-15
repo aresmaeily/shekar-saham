@@ -13,7 +13,14 @@ class DataQualityScorer:
         score = 100
         issues = []
         trust_state = classify_data_trust_state(getattr(snapshot, "source", "unknown"))
-        trust = "live" if trust_state == "live" else ("mixed" if trust_state == "mixed" else "synthetic")
+        # Source classification is not verified LIVE. tsetmc/brsapi stay mixed here.
+        if trust_state == "live":
+            trust = "mixed"
+            issues.append("LIVE-CLASS source is not independently verified")
+        elif trust_state == "mixed":
+            trust = "mixed"
+        else:
+            trust = "synthetic"
         if trust_state in {"mock", "synthetic"}:
             issues.append(f"{trust_state.upper()} source: not validated live market data")
         
@@ -58,6 +65,8 @@ class DataQualityScorer:
             "score": max(0, min(100, round(score, 1))),
             "trust": trust,
             "trust_state": trust_state,
+            "is_live": False,
+            "live_verified": False,
             "issues": issues,
             "age_sec": age_sec if 'age_sec' in locals() else None,
             "completeness": round((len(required)-len(missing))/len(required)*100, 1) if required else 100

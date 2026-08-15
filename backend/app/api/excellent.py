@@ -19,7 +19,12 @@ async def data_quality() -> Dict[str, Any]:
     """P0-1 Enhanced: Data quality per symbol"""
     await market_service.get_analysis(force=False)
     scores = quality_scorer.score_batch(market_service._last_symbols)
-    return {"ok": True, **scores, "trust_level": market_service.trust_level()}
+    return {
+        "ok": True,
+        **scores,
+        "trust_level": market_service.trust_level(),
+        "data_trust": market_service.data_trust_context(),
+    }
 
 @router.get("/anomalies")
 async def anomalies(limit: int = Query(20, ge=1, le=100)) -> List[Dict[str, Any]]:

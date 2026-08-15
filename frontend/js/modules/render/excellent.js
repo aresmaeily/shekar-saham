@@ -17,7 +17,7 @@ export async function renderDataQuality() {
         <div class="icard"><h4>توزیع اعتماد</h4><div class="meta">${JSON.stringify(data.trust_distribution || {})}</div></div>
       </div>
       <div class="table-wrap" style="margin-top:1rem"><table class="data-table"><thead><tr><th>نماد</th><th>امتیاز</th><th>اعتماد</th><th>مشکلات</th></tr></thead>
-      <tbody>${(data.low_quality||[]).slice(0,10).map(s=>`<tr><td>${escapeHtml(s.symbol)}</td><td>${s.score}</td><td>${s.trust}</td><td>${escapeHtml((s.issues||[]).join(", "))}</td></tr>`).join("")}</tbody></table></div>
+      <tbody>${(data.low_quality||[]).slice(0,10).map(s=>`<tr><td>${escapeHtml(s.symbol)}</td><td>${s.score}</td><td>${escapeHtml((s.state === "live" && s.is_live === true && s.live_verified === true) ? "LIVE" : (s.trust === "live" ? "NOT LIVE" : (s.trust || "NOT LIVE")))}</td><td>${escapeHtml((s.issues||[]).join(", "))}</td></tr>`).join("")}</tbody></table></div>
     `;
   } catch(e) {
     container.innerHTML = `<p class="muted">خطا در کیفیت داده: ${e.message}</p>`;

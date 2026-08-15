@@ -48,6 +48,7 @@ def main() -> int:
                     "state": ctx.get("state"),
                     "trust_level": ctx.get("trust_level"),
                     "is_live": ctx.get("is_live"),
+                    "live_verified": ctx.get("live_verified"),
                     "stale": ctx.get("stale"),
                 }
         if response.status_code >= 400:

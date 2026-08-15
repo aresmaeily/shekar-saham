@@ -105,6 +105,7 @@ async def chart_data(
         "symbol": symbol,
         "timeframe": timeframe,
         "trust_level": market_service.trust_level(),
+        "data_trust": market_service.data_trust_context(),
         "source": snap.get("source") if isinstance(snap, dict) else getattr(snap, "source", "mock"),
         "quality": quality,
         "ohlcv": ohlcv[-300:],  # Last 300 candles max for performance
