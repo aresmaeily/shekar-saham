@@ -380,7 +380,7 @@ export function finalTab() {
     ["رصد", sm.watch, ""],
     ["کل ردیف‌ها", sm.total, ""],
     ["پنجره جریان", ((conf.window_sec || 600) / 60) + " دقیقه", ""],
-    ["سطح اعتماد", conf.trust_level || "—", conf.trust_level === "live" ? "pct-up" : ""],
+    ["سطح اعتماد", (conf.data_trust && conf.data_trust.live_verified === true && conf.data_trust.is_live === true && conf.data_trust.state === "live") ? "LIVE" : (conf.trust_level && conf.trust_level !== "live" ? conf.trust_level : "NOT LIVE"), ""],
   ]
     .map(([l, v, c]) => `<div class="icard"><h4>${esc(l)}</h4><div class="big ${c}">${esc(v)}</div></div>`)
     .join("");

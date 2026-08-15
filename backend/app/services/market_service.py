@@ -378,6 +378,8 @@ class MarketService:
                 else:
                     raise
         source = self.provider.last_source
+        # Legacy source classification only. Display/WS/notify must use
+        # data_trust_context() which never mints verified LIVE from a label.
         trust_level = resolve_trust_level(source, get_settings())
 
         # Phase 2: Heavy CPU OUTSIDE lock
@@ -473,7 +475,13 @@ class MarketService:
 
             analysis_ref = analysis
             conf_ref = dict(board or {})
-            trust_ref = trust_level
+            trust_ctx = self.data_trust_context()
+            trust_ref = trust_ctx.get("trust_level") or "mixed"
+            if board:
+                board["trust_level"] = trust_ref
+                board["data_trust"] = trust_ctx
+                self._last_confluence = board
+                conf_ref = dict(board)
 
         # Phase 4: Broadcast + Notifier OUTSIDE lock
         try:
@@ -559,6 +567,7 @@ class MarketService:
             "type": "market_update",
             "source": analysis.overview.source,
             "trust_level": trust or self._trust_level,
+            "data_trust": self.data_trust_context(),
             "overview": {
                 "symbol_count": analysis.overview.symbol_count,
                 "positive_count": analysis.overview.positive_count,

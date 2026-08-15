@@ -225,6 +225,11 @@ def build_data_trust_context(
     fabricated. `checked_at` is the local time at which the trust check runs.
     `trust_level` remains backward-compatible while `state` carries the richer
     P3.31 taxonomy.
+
+    `live_verified` is accepted only as an unused compatibility argument.
+    No caller — including tests — can mint verified LIVE through this function.
+    Independent live verification requires a future provider-verification
+    boundary that does not exist in this environment.
     """
     import time
 
@@ -254,9 +259,9 @@ def build_data_trust_context(
         state = "stale"
 
     # Independent verification is never inferred from source label, freshness,
-    # or TRUST_LEVEL. Callers may pass live_verified=True only after a real
-    # provider verification step. This environment must not fabricate it.
-    verified = bool(live_verified) and state == "live"
+    # TRUST_LEVEL, fetch success, or an arbitrary live_verified=True argument.
+    # This environment has no live-verification boundary.
+    verified = False
     trust_level = _legacy_trust_level_from_state(state)
     if state == "live" and not verified:
         trust_level = "mixed"

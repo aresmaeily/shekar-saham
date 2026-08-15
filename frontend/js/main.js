@@ -8,6 +8,7 @@ import { api, toast } from "./core/api.js";
 import { esc, fmtNum } from "./core/format.js";
 import { events } from "./core/events.js";
 import { renderThermometer } from "./components/thermometer.js";
+import { renderTrustBanner } from "./modules/render/trust.js";
 
 /* ماژول‌های تخصصی (اثر جانبی: بایند خودکار) */
 import "./modules/theme.js";
@@ -127,7 +128,7 @@ async function refreshApp(force = false) {
     });
 
     renderAll();
-    updateSource(data.overview?.source);
+    updateSource(data.overview?.source, data.data_trust);
     updateTrust(data.data_trust || data.trust_level || data.overview?.source);
 
     const t = data.overview?.as_of ? new Date(data.overview.as_of).toLocaleString("fa-IR") : new Date().toLocaleString("fa-IR");
@@ -146,18 +147,28 @@ async function refreshApp(force = false) {
 }
 
 /* ----------------------------- منبع / اعتماد ----------------------------- */
-function updateSource(source) {
+function isVerifiedLive(dt) {
+  return !!(dt && typeof dt === "object"
+    && String(dt.state || "").toLowerCase() === "live"
+    && dt.is_live === true
+    && dt.live_verified === true);
+}
+
+function updateSource(source, dataTrust) {
   const pill = $("#sourcePill");
   const text = $("#sourceText");
   if (!pill || !text) return;
   pill.classList.remove("live", "mock");
   const s = source || "—";
-  if (String(s).includes("mock")) {
+  if (isVerifiedLive(dataTrust)) {
+    pill.classList.add("live");
+    text.textContent = "منبع تأییدشده · " + s;
+  } else if (String(s).includes("mock")) {
     pill.classList.add("mock");
     text.textContent = "داده دمو";
   } else {
-    pill.classList.add("live");
-    text.textContent = "زنده · " + s;
+    pill.classList.add("mock");
+    text.textContent = "منبع تأییدنشده · " + s;
   }
 }
 
@@ -166,23 +177,28 @@ function updateTrust(levelOrTrust) {
   const text = $("#trustText");
   if (!pill || !text) return;
   pill.classList.remove("live", "mock");
-  const state = typeof levelOrTrust === "object" && levelOrTrust
-    ? String(levelOrTrust.state || levelOrTrust.trust_level || "mixed").toLowerCase()
+  const obj = typeof levelOrTrust === "object" && levelOrTrust ? levelOrTrust : {};
+  const state = obj.state
+    ? String(obj.state || obj.trust_level || "mixed").toLowerCase()
     : String(levelOrTrust || "mixed").toLowerCase();
-  if (state === "live") {
+  if (isVerifiedLive(obj)) {
     pill.classList.add("live");
     text.textContent = "LIVE";
   } else {
     pill.classList.add("mock");
     const labels = {
+      live: "UNVERIFIED LIVE-CLASS",
       mock: "MOCK / آزمایشی",
       synthetic: "SYNTHETIC / شبیه‌سازی",
       stale: "STALE / قدیمی",
       unavailable: "UNAVAILABLE / ناموجود",
       mixed: "MIXED / ترکیبی",
     };
-    text.textContent = labels[state] || "MIXED";
+    text.textContent = labels[state] || "NOT LIVE";
   }
+  try {
+    renderTrustBanner(levelOrTrust);
+  } catch (e) { /* banner optional */ }
 }
 
 /* ----------------------------- WebSocket + تب لایو ----------------------------- */

@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.76 Post-P3.75 adversarial hardening
+
+- `build_data_trust_context` can no longer mint `live_verified=true` from a caller argument.
+- Primary UI `frontend/js/main.js` now uses the triple LIVE gate; source pill no longer says زنده from a non-mock label.
+- Confluence/WS trust display uses canonical context, not `resolve_trust_level(source)`.
+
 ## 2026-08-15 — P3.75 Data Trust Hardening
 
 - Added canonical `live_verified` to `build_data_trust_context()`. It is never inferred from source label or freshness.

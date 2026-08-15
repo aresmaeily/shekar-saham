@@ -50,12 +50,20 @@ def test_state_live_is_live_true_without_live_verified_is_not_valid_live():
 
 
 def test_only_triple_gate_is_verified_live():
-    ctx = build_data_trust_context("tsetmc", timestamp=1000, checked_at=1010, live_verified=True)
-    assert ctx["state"] == "live"
-    assert ctx["is_live"] is True
-    assert ctx["live_verified"] is True
+    # Triple-gate is a consumer contract. build_data_trust_context cannot mint it.
+    ctx = {
+        "state": "live",
+        "is_live": True,
+        "live_verified": True,
+        "source": "tsetmc",
+        "trust_level": "live",
+    }
     assert is_verified_live(ctx) is True
     assert _trust_live(ctx) is True
+    produced = build_data_trust_context("tsetmc", timestamp=1000, checked_at=1010, live_verified=True)
+    assert produced["live_verified"] is False
+    assert produced["is_live"] is False
+    assert is_verified_live(produced) is False
 
 
 def test_trust_level_live_override_cannot_fabricate_verification(monkeypatch):

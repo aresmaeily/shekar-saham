@@ -662,3 +662,9 @@ live_verified is never inferred
 This environment: live_verified=false
 GitHub: BLOCKED
 ```
+
+---
+
+## P3.76 Update — Post-P3.75 adversarial hardening
+
+Closed remaining local holes: caller cannot mint `live_verified=true`; primary `main.js` pill uses the triple gate; WS/confluence trust_level follows canonical context.
