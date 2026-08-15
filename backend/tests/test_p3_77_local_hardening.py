@@ -248,6 +248,48 @@ def test_analyze_and_data_quality_apis_are_not_verified_live():
     assert is_verified_live(body.get("data_trust") or {}) is False
 
 
+def test_fallback_ai_does_not_treat_unverified_live_class_as_verified():
+    import asyncio
+
+    from app.services.ai_service import AIRequest, ai_service
+
+    class LiveClassMarket:
+        def __init__(self):
+            self._data_trust = {
+                "state": "live",
+                "trust_level": "mixed",
+                "source": "tsetmc",
+                "is_live": False,
+                "live_verified": False,
+            }
+
+        async def get_analysis(self, force=False):
+            return None
+
+        def status(self):
+            return {"source": "tsetmc", "trust_level": "mixed", "symbol_count": 1, "flow_meta": {}, "confluence": {}}
+
+        def data_trust_context(self):
+            return self._data_trust
+
+        def get_symbol(self, symbol):
+            return {
+                "snapshot": {"l18": "فملی", "pl": 1000, "plp": -1.5},
+                "metrics": {"entry_score": 80, "exit_score": 10, "buy_power": 2.2},
+                "tablocastic": {"grade": "A"},
+                "data_trust": self._data_trust,
+            }
+
+        def run_user_filter(self, expr, limit=10):
+            return {"ok": True, "count": 1, "rows": [], "data_trust": self._data_trust}
+
+    res = asyncio.run(ai_service.analyst(AIRequest(symbol="فملی"), LiveClassMarket()))
+    assert is_verified_live(res["data_trust"]) is False
+    assert res["confidence"] <= 0.35
+    joined = " ".join(res.get("risk_flags") or []) + " ".join(res.get("warnings") or [])
+    assert "تأیید" in joined or "تایید" in joined or "زنده" in joined
+
+
 def test_notify_now_response_is_not_verified_live():
     from fastapi.testclient import TestClient
 

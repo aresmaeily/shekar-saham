@@ -12,6 +12,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from app.core.config import is_verified_live
 from app.domain.ai_intelligence import AIIntelligenceCore
 from app.engines.filter_dsl import FilterError, validate_filter
 
@@ -68,15 +69,19 @@ def _fmt_num(v: Any, digits: int = 2) -> str:
 
 
 def _trust_warnings(data_trust: dict[str, Any]) -> list[str]:
-    state = data_trust.get("state") or "mixed"
+    if is_verified_live(data_trust):
+        return []
+    state = (data_trust.get("state") or "mixed")
     out = []
-    if state in {"mock", "synthetic"}:
+    if state == "live":
+        out.append("منبع زنده‌نما تأیید مستقل نشده است؛ نتیجه مبنای معامله نیست.")
+    elif state in {"mock", "synthetic"}:
         out.append("داده مورد استفاده زنده نیست؛ نتیجه فقط برای تحلیل/آموزش معتبر است.")
     elif state == "stale":
         out.append("داده مورد استفاده قدیمی است؛ تحلیل نباید به‌عنوان وضعیت زنده بازار تفسیر شود.")
     elif state == "unavailable":
         out.append("داده قابل اتکا در دسترس نیست؛ نتیجه فقط وضعیت نبود داده را توضیح می‌دهد.")
-    elif state == "mixed":
+    else:
         out.append("اعتماد داده mixed است؛ بخشی از داده یا منبع کاملاً اعتبارسنجی نشده است.")
     return out
 
@@ -84,9 +89,11 @@ def _trust_warnings(data_trust: dict[str, Any]) -> list[str]:
 def _trust_confidence(data_trust: dict[str, Any], *, has_context: bool = True) -> float:
     if not has_context:
         return 0.20
+    if is_verified_live(data_trust):
+        return 0.60
     state = data_trust.get("state") or "mixed"
     if state == "live":
-        return 0.60
+        return 0.35
     if state == "mixed":
         return 0.42
     if state in {"mock", "synthetic"}:
@@ -223,7 +230,7 @@ class FallbackAIProvider:
                 conclusion = "ریسک خروج/ضعف تقاضا قابل توجه است."
             else:
                 conclusion = "سیگنال قطعی دیده نمی‌شود؛ وضعیت بیشتر در محدوده رصد است."
-            if ctx.data_trust.get("state") != "live":
+            if not is_verified_live(ctx.data_trust):
                 risks.append("تحلیل بر اساس داده live تأییدشده نیست.")
             if snap.get("plp") is not None and abs(float(snap.get("plp") or 0)) > 4:
                 risks.append("نوسان قیمت بالا است؛ ریسک هیجانی وجود دارد.")
