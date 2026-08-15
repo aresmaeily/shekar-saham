@@ -634,3 +634,18 @@ Holidays: not applied
 Session-open != live data
 GitHub: BLOCKED — owner authorized machine unavailable
 ```
+
+---
+
+## P3.64 Update — Market Intelligence Session Status
+
+P3.64 closes the remaining P3.40 snapshot field that stayed at `open_unknown` after P3.63 session inference existed.
+
+```text
+Source: docs/architecture/IRAN_MARKET_DATA_DOMAIN.md
+        backend/app/domain/market_intelligence.py::MarketIntelligenceSnapshot.market_status
+Change: MarketIntelligenceService.run_market_monitoring_cycle sets market_status from infer_iran_market_session().status
+Session-open != live data
+Holidays: not applied
+GitHub: BLOCKED — owner authorized machine unavailable
+```

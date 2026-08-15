@@ -97,3 +97,70 @@ def test_market_intelligence_related_api_endpoints():
         r = c.get(path)
         assert r.status_code == 200, path
         assert r.json().get("ok") is True
+
+
+@pytest.mark.asyncio
+async def test_market_intelligence_uses_iran_session_status(monkeypatch):
+    from app.models.schemas import MarketSession
+
+    monkeypatch.setattr(
+        "app.services.market_intelligence_service.infer_iran_market_session",
+        lambda now=None: MarketSession(
+            timezone="Asia/Tehran",
+            session_date="2026-08-15",
+            is_open=True,
+            status="open",
+        ),
+    )
+    service = MarketIntelligenceService()
+    result = await service.run_market_monitoring_cycle(DummyMarketService(), persist=False)
+    assert result.snapshot.market_status == "open"
+    assert result.snapshot.market_status != "open_unknown"
+    assert any(e.get("name") == "market_session" for e in result.snapshot.evidence)
+
+
+@pytest.mark.asyncio
+async def test_market_intelligence_session_closed_is_not_unknown(monkeypatch):
+    from app.models.schemas import MarketSession
+
+    monkeypatch.setattr(
+        "app.services.market_intelligence_service.infer_iran_market_session",
+        lambda now=None: MarketSession(
+            timezone="Asia/Tehran",
+            session_date="2026-08-14",
+            is_open=False,
+            status="closed",
+        ),
+    )
+    service = MarketIntelligenceService()
+    result = await service.run_market_monitoring_cycle(DummyMarketService(), persist=False)
+    assert result.snapshot.market_status == "closed"
+    assert result.snapshot.market_status != "open_unknown"
+
+
+@pytest.mark.asyncio
+async def test_session_open_does_not_mark_market_intelligence_live(monkeypatch):
+    from app.models.schemas import MarketSession
+
+    monkeypatch.setattr(
+        "app.services.market_intelligence_service.infer_iran_market_session",
+        lambda now=None: MarketSession(
+            timezone="Asia/Tehran",
+            session_date="2026-08-15",
+            is_open=True,
+            status="open",
+        ),
+    )
+
+    class MockSvc(DummyMarketService):
+        def data_trust_context(self):
+            return build_data_trust_context("mock")
+
+    service = MarketIntelligenceService()
+    result = await service.run_market_monitoring_cycle(MockSvc(), persist=False)
+    assert result.snapshot.market_status == "open"
+    assert result.snapshot.data_trust["state"] == "mock"
+    assert result.snapshot.data_trust["is_live"] is False
+    assert any("Session-open" in w for w in result.snapshot.warnings)
+    assert all(o.data_trust["is_live"] is False for o in result.opportunities)
+    assert all(o.recommendation == "INSUFFICIENT_DATA" for o in result.opportunities)

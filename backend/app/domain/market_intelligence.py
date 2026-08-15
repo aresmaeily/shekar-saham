@@ -38,7 +38,7 @@ Severity = Literal["low", "medium", "high"]
 class MarketIntelligenceSnapshot(BaseModel):
     timestamp: float
     market: str = "iran"
-    market_status: str = "open_unknown"
+    market_status: str = "open_unknown"  # filled from MarketSession.status; open_unknown only if unset
     total_symbols: int = 0
     positive_symbols: int = 0
     negative_symbols: int = 0

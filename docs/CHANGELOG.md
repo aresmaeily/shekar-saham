@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.64 Market Intelligence Session Status
+
+- Wired existing P3.63 `infer_iran_market_session()` into P3.40 `MarketIntelligenceSnapshot.market_status`.
+- Snapshot no longer stays at the placeholder `open_unknown` when session inference is available.
+- Session-open still does not mark `data_trust` live. Official holidays are still not applied.
+
 ## 2026-08-15 — P3.63 Iran Market Session Inference
 
 - Implemented weekday + Asia/Tehran clock inference for the existing `MarketSession` contract.

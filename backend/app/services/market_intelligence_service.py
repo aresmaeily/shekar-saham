@@ -13,6 +13,7 @@ from typing import Any
 
 from app.data.store import store
 from app.domain.ai_intelligence import AIIntelligenceCore, IntelligenceResult
+from app.domain.market_session import infer_iran_market_session
 from app.domain.market_intelligence import (
     IndustryIntelligence,
     IntelligenceEvent,
@@ -247,8 +248,13 @@ class MarketIntelligenceService:
         opportunities, symbol_intel = self._opportunities(cards, market_context, data_trust, limit)
         industries = self._industry_intelligence(industries_raw, data_trust)
         top_risks = [o.model_dump(mode="json") for o in sorted(opportunities, key=lambda x: x.risk_score, reverse=True)[:5]]
+        session = infer_iran_market_session()
+        session_warnings: list[str] = []
+        if session.is_open and data_trust.get("is_live") is not True:
+            session_warnings.append("Session-open is calendar/hours only and does not mean live market data.")
         snapshot = MarketIntelligenceSnapshot(
             timestamp=time.time(),
+            market_status=session.status,
             total_symbols=total,
             positive_symbols=positive,
             negative_symbols=negative,
@@ -265,8 +271,15 @@ class MarketIntelligenceService:
             top_opportunities=[o.model_dump(mode="json") for o in opportunities[:10]],
             top_risks=top_risks,
             data_trust=data_trust,
-            evidence=regime_evidence,
-            warnings=regime_warnings,
+            evidence=regime_evidence + [
+                {
+                    "name": "market_session",
+                    "value": session.status,
+                    "source": "iran_market_session",
+                    "is_open": bool(session.is_open),
+                }
+            ],
+            warnings=regime_warnings + session_warnings,
         )
         previous = self._load_history()[-1] if self._load_history() else None
         events = self._detect_events(previous, snapshot, opportunities)
