@@ -134,7 +134,10 @@ async def chart_ai_overlay(symbol: str) -> Dict[str, Any]:
     tc = compute_tablocastic(snap, cfg)
     
     entry_exp = explainer.explain_entry(snap, m, tc, snap_data.get("fundamental"))
-    
+    trust = market_service.data_trust_context()
+    from app.core.config import is_verified_live
+    from app.services.ai_service import _trust_confidence, _trust_warnings
+
     # Generate chart annotations
     return {
         "symbol": symbol,
@@ -147,5 +150,12 @@ async def chart_ai_overlay(symbol: str) -> Dict[str, Any]:
                 "color": "#34d399" if m.buy_power >= 1.5 else "#fbbf24"
             }
         ],
-        "educational": True
+        "educational": True,
+        "provider": "fallback",
+        "source": "rule-based-explainer",
+        "data_trust": trust,
+        "confidence": _trust_confidence(trust),
+        "warnings": _trust_warnings(trust),
+        "live_llm": False,
+        "verified_live": is_verified_live(trust),
     }

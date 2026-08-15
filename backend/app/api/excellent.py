@@ -102,7 +102,14 @@ async def stop_loss_suggest(symbol: str):
     # Mock ATR as 2% of price, support as tmin
     atr = pl * 0.02
     support = snap.get("tmin") or pl * 0.95
-    return {"symbol": symbol, "entry": pl, "suggestions": risk_manager.suggest_stop_loss(pl, atr, support)}
+    return {
+        "symbol": symbol,
+        "entry": pl,
+        "suggestions": risk_manager.suggest_stop_loss(pl, atr, support),
+        "data_trust": market_service.data_trust_context(),
+        "educational": True,
+        "source": "risk_manager",
+    }
 
 @router.get("/metrics")
 async def prometheus_metrics():
@@ -140,5 +147,8 @@ async def portfolio_optimization():
         "optimized_portfolio": optimized,
         "diversification": {k: len(v) for k,v in industries.items()},
         "principle": "متنوع‌سازی بر اساس صنعت - حداکثر 2 سهم از هر صنعت برای کاهش ریسک",
-        "risk_note": "این پیشنهاد بر اساس تئوری پرتفوی مدرن ساده شده است - برای تصمیم نهایی ریسک شخصی را در نظر بگیرید"
+        "risk_note": "این پیشنهاد بر اساس تئوری پرتفوی مدرن ساده شده است - برای تصمیم نهایی ریسک شخصی را در نظر بگیرید",
+        "data_trust": market_service.data_trust_context(),
+        "educational": True,
+        "live_llm": False,
     }

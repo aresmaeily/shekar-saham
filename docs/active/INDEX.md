@@ -68,4 +68,5 @@
 - `P3.79_FINAL_REPOSITORY_HARDENING_REPORT.md` — P3.79 public-probe redaction, cookie auth, Electron origin lock
 - `P3.80_LOCAL_ENVIRONMENT_REMAINING_WORK_CLOSURE.md` — SW API cache removal, production docs off, chart_builder except
 - `P3.81_AI_PROVIDER_ADAPTER_AND_INTELLIGENCE_CONTRACTS.md` — P3.81 provider adapter and Research/Strategy/Risk contracts
-- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.81
+- `P3.82_AI_PATH_TRUST_AND_ROADMAP_AUDIT.md` — P3.82 artifact/GitHub verify and remaining AI-path trust
+- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.82

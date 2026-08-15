@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.82 AI path trust and roadmap audit
+
+- Re-downloaded and verified the P3.81 TempFile SHA-256.
+- Confirmed GitHub remote HEAD via `ls-remote` and `fetch`.
+- Added `data_trust` to chart AI overlay, stop-loss, and portfolio-optimization responses.
+- No external LLM invocation. No GitHub push.
+
 ## 2026-08-15 — P3.81 AI provider adapter and remaining intelligence contracts
 
 - Added environment-only AI provider adapter. Client secrets are rejected. No external LLM is invoked.
