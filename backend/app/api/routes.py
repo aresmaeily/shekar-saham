@@ -619,6 +619,9 @@ async def ai_provider_status() -> dict[str, Any]:
         "external_runtime": info.get("external_runtime"),
         "live_llm": False,
         "accepts_client_secrets": False,
+        "timeout_sec": info.get("timeout_sec"),
+        "retry_max": info.get("retry_max"),
+        "invocation_ready": False,
         "warning": info.get("warning"),
     }
 

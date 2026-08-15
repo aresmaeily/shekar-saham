@@ -93,6 +93,8 @@ P3.81 added locally (contracts only; no live LLM invocation):
 - `/api/ai/research`, `/api/ai/strategy`, `/api/ai/risk`, `/api/ai/provider-status`
 - `/api/v07/ai-explain` now carries `data_trust`
 
+P3.83 added `invoke_ai_provider()` as a fail-closed execution seam (timeout/retry config, structured error states). Production still does not invoke a network LLM.
+
 Still not implemented / not verified:
 
 - live LLM provider invocation

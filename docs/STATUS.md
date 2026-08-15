@@ -128,3 +128,4 @@ Details: `docs/architecture/IRAN_MARKET_ARCHITECTURE_LOCK.md`.
 | P3.80 | Complete locally — GitHub deferred | SW no longer caches `/api/*`; production OpenAPI/docs disabled; chart_builder bare except removed. |
 | P3.81 | Complete locally — AI contracts only | Provider adapter + Research/Strategy/Risk contracts; no live LLM invocation; GitHub still blocked. |
 | P3.82 | Complete locally — AI path trust audit | Re-verified P3.81 artifact/GitHub; closed remaining AI-adjacent routes without data_trust; no LLM call. |
+| P3.83 | Complete locally — execution gate only | Fail-closed provider invoke seam; no production LLM call; GitHub still blocked. |

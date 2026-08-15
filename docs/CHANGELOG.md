@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.83 AI runtime readiness and provider execution gate
+
+- Added fail-closed `invoke_ai_provider` (timeout/retry config, credential/invalid/unavailable/malformed states).
+- Production never invents LLM text. TEST ONLY transport is labelled and not used by HTTP handlers.
+- No GitHub push. No live LLM execution.
+
 ## 2026-08-15 — P3.82 AI path trust and roadmap audit
 
 - Re-downloaded and verified the P3.81 TempFile SHA-256.

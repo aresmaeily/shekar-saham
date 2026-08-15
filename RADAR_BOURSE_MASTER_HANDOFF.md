@@ -777,3 +777,9 @@ INSTALLATION: NOT STARTED
 ## P3.82 Update — AI path trust and roadmap audit
 
 P3.81 TempFile re-downloaded this phase; SHA-256 MATCH. Remote HEAD re-verified `26a2d12`. Remaining AI-adjacent routes now carry `data_trust`. LLM runtime still NOT_EXECUTED. No push.
+
+---
+
+## P3.83 Update — Provider execution gate
+
+Fail-closed `invoke_ai_provider` added. Production does not call an LLM. A present env key still yields `adapter_not_invoked`. TEST ONLY transports are labelled. GitHub write remains BLOCKED.

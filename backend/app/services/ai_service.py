@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 
 from app.core.config import is_verified_live
 from app.domain.ai_intelligence import AIIntelligenceCore
-from app.domain.ai_provider import resolve_ai_provider
+from app.domain.ai_provider import invoke_ai_provider, resolve_ai_provider
 from app.engines.filter_dsl import FilterError, validate_filter
 
 AIProviderMode = Literal["fallback", "external_not_configured"]
@@ -439,14 +439,29 @@ class AIService:
     @staticmethod
     def _with_provider(payload: dict[str, Any]) -> dict[str, Any]:
         info = resolve_ai_provider()
+        execution = invoke_ai_provider(
+            {"task": payload.get("task"), "data_trust": payload.get("data_trust") or {}}
+        )
         payload["provider"] = info["mode"]
         payload["provider_label"] = info.get("provider_label") or payload.get("provider_label")
         payload["source"] = payload.get("source") or "controlled_context"
         payload["external_runtime"] = info.get("external_runtime")
         payload["live_llm"] = False
+        payload["provider_execution"] = {
+            "status": execution.get("status"),
+            "error_code": execution.get("error_code"),
+            "live_llm": False,
+            "test_only": bool(execution.get("test_only")),
+            "timeout_sec": execution.get("timeout_sec"),
+            "retry_max": execution.get("retry_max"),
+            "attempts": execution.get("attempts"),
+            "warning": execution.get("warning"),
+        }
         warnings = list(payload.get("warnings") or [])
         if info.get("warning"):
             warnings.append(str(info["warning"]))
+        if execution.get("warning"):
+            warnings.append(str(execution["warning"]))
         payload["warnings"] = list(dict.fromkeys(warnings))
         return payload
 
