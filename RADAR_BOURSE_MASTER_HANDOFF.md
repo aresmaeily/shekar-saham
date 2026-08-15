@@ -795,3 +795,18 @@ Audit confirmed there is no production HTTP LLM transport. No fake runtime was a
 ## P3.85 Update — HTTPS transport implemented, runtime blocked
 
 `https_transport` uses httpx with TLS verify. It does not run unless `AI_EXECUTE=1` and a server-side key are set. This environment has no credential. Real LLM execution: NOT EXECUTED. Not market LIVE.
+
+---
+
+## P3.86 Update — Controlled provider integration, runtime blocked
+
+Validated P3.85 text may replace Assistant / Analyst / Research / Strategy / Risk answers. Fallback is preserved. Optimizer is not a search optimizer. Provider cannot rewrite `data_trust` or mint LIVE.
+
+```text
+Started from: e437f36065ab639a80df127776bead912c3094de
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED
+LIVE DATA: NOT VERIFIED
+LLM EXECUTION: NOT EXECUTED
+INSTALLATION: NOT STARTED
+```

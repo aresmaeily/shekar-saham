@@ -1,9 +1,9 @@
 """Controlled AI service layer for RADAR BOURSE.
 
-P3.28 implements a safe, deterministic fallback AI layer. It does not call an
-external LLM unless a future provider is explicitly wired through environment
-configuration. No credentials are accepted from clients and no trading action is
-ever performed here.
+P3.28 implements a safe, deterministic fallback AI layer. P3.86 attaches
+validated P3.85 transport text to existing capabilities only. Fallback is
+never removed. Provider text cannot rewrite data_trust or mint LIVE.
+No credentials are accepted from clients and no trading action is performed.
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ from app.engines.filter_dsl import FilterError, validate_filter
 
 AIProviderMode = Literal["fallback", "external_not_configured"]
 AITaskType = Literal["assistant", "analyst", "optimizer", "research", "strategy", "risk"]
+PROVIDER_TEXT_TASKS = frozenset({"assistant", "analyst", "research", "strategy", "risk"})
 
 
 class AIRequest(BaseModel):
@@ -105,6 +106,109 @@ def _trust_confidence(data_trust: dict[str, Any], *, has_context: bool = True) -
     if state == "unavailable":
         return 0.15
     return 0.25
+
+
+def build_controlled_provider_prompt(payload: dict[str, Any], *, question: str = "") -> str:
+    """Build a bounded prompt from fallback context. Never includes secrets."""
+    task = str(payload.get("task") or "assistant")
+    trust = payload.get("data_trust") if isinstance(payload.get("data_trust"), dict) else {}
+    state = str(trust.get("state") or "unknown")
+    lines = [
+        f"Task: {task}",
+        f"Data trust state: {state}",
+        "live_verified: false",
+        "Rules: Do not claim live market data. Do not place trades. Do not emit secrets.",
+    ]
+    q = (question or "").strip()
+    if q:
+        lines.append(f"User question: {q[:500]}")
+    summary = str(payload.get("summary") or "").strip()
+    if summary:
+        lines.append(f"Fallback summary: {summary[:800]}")
+    observations = payload.get("key_observations") or []
+    if isinstance(observations, list):
+        kept = [str(item).strip() for item in observations[:8] if str(item).strip()]
+        if kept:
+            lines.append("Key observations:")
+            lines.extend(f"- {item[:240]}" for item in kept)
+    return "\n".join(lines)[:2000]
+
+
+def validated_provider_text(execution: dict[str, Any] | None) -> str | None:
+    """Accept only a fail-closed, non-LIVE provider payload."""
+    if not isinstance(execution, dict):
+        return None
+    if execution.get("ok") is not True:
+        return None
+    if execution.get("status") not in {"executed", "executed_test_only"}:
+        return None
+    if execution.get("live_llm") is True:
+        return None
+    text = execution.get("text")
+    if not isinstance(text, str) or not text.strip():
+        return None
+    return text.strip()[:4000]
+
+
+def apply_provider_capability_result(
+    payload: dict[str, Any],
+    execution: dict[str, Any],
+    *,
+    info: dict[str, Any],
+) -> dict[str, Any]:
+    """Attach provider metadata; merge validated text only for allowed tasks."""
+    original_trust = payload.get("data_trust")
+    original_answer = payload.get("answer")
+    original_summary = payload.get("summary")
+    original_suggestions = payload.get("suggestions")
+    original_confidence = payload.get("confidence")
+    original_safety = payload.get("safety") if isinstance(payload.get("safety"), dict) else {}
+
+    payload["provider"] = info.get("mode") or payload.get("provider")
+    payload["provider_label"] = info.get("provider_label") or payload.get("provider_label")
+    payload["source"] = payload.get("source") or "controlled_context"
+    payload["external_runtime"] = info.get("external_runtime")
+    payload["live_llm"] = False
+    payload["provider_status"] = execution.get("status")
+    payload["provider_text_used"] = False
+    payload["fallback_answer"] = original_answer
+    payload["provider_execution"] = {
+        "status": execution.get("status"),
+        "error_code": execution.get("error_code"),
+        "live_llm": False,
+        "test_only": bool(execution.get("test_only")),
+        "timeout_sec": execution.get("timeout_sec"),
+        "retry_max": execution.get("retry_max"),
+        "attempts": execution.get("attempts"),
+        "warning": execution.get("warning"),
+        "text_used": False,
+    }
+    warnings = list(payload.get("warnings") or [])
+    if info.get("warning"):
+        warnings.append(str(info["warning"]))
+    if execution.get("warning"):
+        warnings.append(str(execution["warning"]))
+
+    task = str(payload.get("task") or "")
+    text = validated_provider_text(execution)
+    if task in PROVIDER_TEXT_TASKS and text:
+        payload["answer"] = text
+        payload["provider_text_used"] = True
+        payload["provider_execution"]["text_used"] = True
+        payload["source"] = "provider_validated"
+        warnings.append("Validated provider text is attached. This is not market LIVE data.")
+    else:
+        payload["answer"] = original_answer
+        payload["summary"] = original_summary
+
+    payload["data_trust"] = original_trust
+    payload["confidence"] = original_confidence
+    payload["suggestions"] = original_suggestions
+    payload["live_llm"] = False
+    if original_safety:
+        payload["safety"] = {**original_safety, "no_live_llm_claim": True}
+    payload["warnings"] = list(dict.fromkeys(warnings))
+    return payload
 
 
 class AIContextBuilder:
@@ -437,33 +541,17 @@ class AIService:
         self.intelligence_core = AIIntelligenceCore()
 
     @staticmethod
-    def _with_provider(payload: dict[str, Any]) -> dict[str, Any]:
+    def _with_provider(payload: dict[str, Any], *, question: str = "") -> dict[str, Any]:
         info = resolve_ai_provider()
+        trust = payload.get("data_trust") if isinstance(payload.get("data_trust"), dict) else None
         execution = invoke_ai_provider(
-            {"task": payload.get("task"), "data_trust": payload.get("data_trust") or {}}
+            {
+                "task": payload.get("task"),
+                "data_trust": trust,
+                "prompt": build_controlled_provider_prompt(payload, question=question),
+            }
         )
-        payload["provider"] = info["mode"]
-        payload["provider_label"] = info.get("provider_label") or payload.get("provider_label")
-        payload["source"] = payload.get("source") or "controlled_context"
-        payload["external_runtime"] = info.get("external_runtime")
-        payload["live_llm"] = False
-        payload["provider_execution"] = {
-            "status": execution.get("status"),
-            "error_code": execution.get("error_code"),
-            "live_llm": False,
-            "test_only": bool(execution.get("test_only")),
-            "timeout_sec": execution.get("timeout_sec"),
-            "retry_max": execution.get("retry_max"),
-            "attempts": execution.get("attempts"),
-            "warning": execution.get("warning"),
-        }
-        warnings = list(payload.get("warnings") or [])
-        if info.get("warning"):
-            warnings.append(str(info["warning"]))
-        if execution.get("warning"):
-            warnings.append(str(execution["warning"]))
-        payload["warnings"] = list(dict.fromkeys(warnings))
-        return payload
+        return apply_provider_capability_result(payload, execution, info=info)
 
     async def intelligence(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
         ctx = await self.context_builder.build(request, "analyst", market_service)
@@ -476,31 +564,31 @@ class AIService:
         ).model_dump(mode="json")
         result["source"] = "controlled_context"
         result["warnings"] = list(dict.fromkeys((result.get("warnings") or []) + ctx.warnings))
-        return self._with_provider(result)
+        return self._with_provider(result, question=request.question)
 
     async def assistant(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
         ctx = await self.context_builder.build(request, "assistant", market_service)
-        return self._with_provider(self.provider.assistant(ctx).model_dump(mode="json"))
+        return self._with_provider(self.provider.assistant(ctx).model_dump(mode="json"), question=ctx.question)
 
     async def analyst(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
         ctx = await self.context_builder.build(request, "analyst", market_service)
-        return self._with_provider(self.provider.analyst(ctx).model_dump(mode="json"))
+        return self._with_provider(self.provider.analyst(ctx).model_dump(mode="json"), question=ctx.question)
 
     async def optimizer(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
         ctx = await self.context_builder.build(request, "optimizer", market_service)
-        return self._with_provider(self.provider.optimizer(ctx).model_dump(mode="json"))
+        return self._with_provider(self.provider.optimizer(ctx).model_dump(mode="json"), question=ctx.question)
 
     async def research(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
-        ctx = await self.context_builder.build(request, "assistant", market_service)
-        return self._with_provider(self.provider.research(ctx).model_dump(mode="json"))
+        ctx = await self.context_builder.build(request, "research", market_service)
+        return self._with_provider(self.provider.research(ctx).model_dump(mode="json"), question=ctx.question)
 
     async def strategy(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
-        ctx = await self.context_builder.build(request, "optimizer", market_service)
-        return self._with_provider(self.provider.strategy(ctx).model_dump(mode="json"))
+        ctx = await self.context_builder.build(request, "strategy", market_service)
+        return self._with_provider(self.provider.strategy(ctx).model_dump(mode="json"), question=ctx.question)
 
     async def risk(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
-        ctx = await self.context_builder.build(request, "analyst", market_service)
-        return self._with_provider(self.provider.risk(ctx).model_dump(mode="json"))
+        ctx = await self.context_builder.build(request, "risk", market_service)
+        return self._with_provider(self.provider.risk(ctx).model_dump(mode="json"), question=ctx.question)
 
 
 ai_service = AIService()

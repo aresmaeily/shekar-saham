@@ -272,7 +272,7 @@ def invoke_ai_provider(
             warning="Client-supplied credentials are rejected; provider was not invoked.",
         )
     trust = req.get("data_trust")
-    if not isinstance(trust, dict):
+    if not isinstance(trust, dict) or not str(trust.get("state") or "").strip():
         return _empty_execution(
             status="not_executed",
             error_code="data_trust_required",

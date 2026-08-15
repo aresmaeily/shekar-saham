@@ -72,4 +72,5 @@
 - `P3.83_AI_RUNTIME_READINESS_AND_PROVIDER_EXECUTION_GATE.md` — fail-closed provider invoke seam
 - `P3.84_REAL_AI_PROVIDER_TRANSPORT_GATE.md` — no real transport; future activation gate
 - `P3.85_REAL_AI_PROVIDER_TRANSPORT.md` — HTTPS httpx transport; runtime still NOT EXECUTED
-- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.85
+- `P3.86_CONTROLLED_AI_PROVIDER_INTEGRATION.md` — validated provider text on existing capabilities
+- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.86

@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.86 Controlled AI provider integration
+
+- Validated P3.85 provider text may replace Assistant / Analyst / Research / Strategy / Risk answers.
+- Fallback answers are preserved. Fail-closed statuses still return the deterministic result.
+- Optimizer suggestions are not replaced. Provider text cannot rewrite `data_trust` or mint LIVE.
+- This environment has no LLM credential. Runtime remains NOT EXECUTED.
+
 ## 2026-08-15 — P3.85 Real HTTPS AI provider transport
 
 - Added `https_transport` using httpx with TLS verify and a real timeout.
