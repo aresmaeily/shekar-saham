@@ -261,13 +261,20 @@ class Notifier:
         reasons = alert.get("reasons") or []
         tags = alert.get("tags") or []
         trust = alert.get("trust_level") or ""
+        data_trust = alert.get("data_trust") if isinstance(alert.get("data_trust"), dict) else None
+        verified = is_verified_live(data_trust) if data_trust is not None else False
+        # Legacy trust_level="live" is classification, not verified LIVE.
+        if not verified and str(trust).lower() == "live":
+            trust = "mixed"
 
-        # P0-1: Add trust level prominently
+        # P0-1: Add trust level prominently. Never present unverified as live.
         trust_prefix = ""
-        if trust == "synthetic":
+        if verified:
+            trust_prefix = ""
+        elif trust == "synthetic" or (data_trust and data_trust.get("state") in {"mock", "synthetic"}):
             trust_prefix = "⚠️ [DEMO/SYNTHETIC] - داده آزمایشی\n"
-        elif trust == "mixed":
-            trust_prefix = "⚠️ [MIXED] - بخشی از داده آزمایشی است\n"
+        else:
+            trust_prefix = "⚠️ [UNVERIFIED] - داده تأییدنشده است\n"
 
         lines = [
             f"{trust_prefix}{emoji} <b>{title}</b>",
@@ -292,8 +299,8 @@ class Notifier:
             for r in reasons[:5]:
                 lines.append(f"• {r}")
         lines.append("— رادار بورس | جمع‌بندی تابلو+بنیادی+جریان")
-        if trust != "live":
-            lines.append("⚠️ هشدار: این پیام مبتنی بر داده آزمایشی است، مبنای معامله قرار ندهید.")
+        if not verified:
+            lines.append("⚠️ هشدار: این پیام مبتنی بر داده آزمایشی/تأییدنشده است، مبنای معامله قرار ندهید.")
         return "\n".join(lines)
 
     async def send_text(self, text: str, channels: Optional[list[str]] = None) -> dict[str, Any]:
@@ -346,6 +353,10 @@ class Notifier:
         settings = get_settings()
         allow_synth = bool(c.get("allow_synthetic") or getattr(settings, "notify_allow_synthetic", False))
         verified_live = is_verified_live(data_trust) if data_trust is not None else False
+        # Classification "live" is not verified LIVE. Demo allowance cannot mint live labels.
+        safe_trust = "live" if verified_live else (
+            "synthetic" if str(trust_level).lower() in {"synthetic", "mock"} else "mixed"
+        )
         
         # Unverified or non-live data cannot produce a valid live alert.
         if not verified_live and not allow_synth:
@@ -369,7 +380,7 @@ class Notifier:
 
         portfolio_symbols = portfolio_symbols or set()
         sent = 0
-        demo_prefix_needed = trust_level != "live"
+        demo_prefix_needed = not verified_live
 
         if c.get("confluence_enabled", True) and confluence_alerts:
             for alert in confluence_alerts:
@@ -386,8 +397,12 @@ class Notifier:
                 if not self._allow(key, c["cooldown_sec"]):
                     continue
                 
-                # Add trust level to alert for formatting
-                alert_with_trust = {**alert, "trust_level": trust_level}
+                # Add trust level to alert for formatting. Never label unverified as live.
+                alert_with_trust = {
+                    **alert,
+                    "trust_level": safe_trust,
+                    "data_trust": data_trust,
+                }
                 text = self.format_alert({**alert_with_trust, "side": side, "action": side})
                 await self.send_text(text)
                 try:
@@ -400,7 +415,7 @@ class Notifier:
                                 "plp": alert.get("plp"),
                                 "reasons": alert.get("reasons") or [],
                                 "tags": (alert.get("tags") or []) + (["DEMO"] if demo_prefix_needed else []),
-                                "payload": {**alert, "trust_level": trust_level},
+                                "payload": {**alert, "trust_level": safe_trust, "data_trust": data_trust},
                             }
                         ]
                     )

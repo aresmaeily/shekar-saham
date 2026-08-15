@@ -105,13 +105,13 @@ async def forex_chart(
     last_close = ohlcv[-1]["close"] if ohlcv else 0
     risk_levels = risk_manager.suggest_stop_loss(entry=last_close, atr=last_close * 0.01, support=last_close * 0.97)
 
+    from app.core.config import build_data_trust_context
+
     source = str(ohlcv[0].get("source", "")) if ohlcv else "unknown"
-    if "synthetic" in source:
-        trust_level = "synthetic"
-    elif any(x in source for x in ("binance", "okx", "kucoin", "yahoo")):
-        trust_level = "live"
-    else:
-        trust_level = "mixed"
+    # Provider name is not independent Iran-market LIVE verification.
+    # yahoo/binance/okx labels must not mint trust_level=live.
+    data_trust = build_data_trust_context(source)
+    trust_level = data_trust.get("trust_level") or "mixed"
 
     broker_name = None
     if eff_broker:
@@ -133,6 +133,7 @@ async def forex_chart(
         "range_size": range_size,
         "source": source,
         "trust_level": trust_level,
+        "data_trust": data_trust,
         "ohlcv": ohlcv,
         "indicators": indicators,
         "risk_levels": risk_levels,

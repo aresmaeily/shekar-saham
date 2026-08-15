@@ -193,8 +193,8 @@
       }
       renderFilterHelpers();
       renderAll();
-      updateSource(data.overview?.source);
-      updateTrust(data.trust_level || data.overview?.source);
+      updateSource(data.overview?.source, data.data_trust);
+      updateTrust(data.data_trust || data.trust_level || data.overview?.source);
       const t = data.overview?.as_of
         ? new Date(data.overview.as_of).toLocaleString("fa-IR")
         : new Date().toLocaleString("fa-IR");
@@ -483,21 +483,31 @@
     } catch (_) {}
   }
 
-  function updateSource(source) {
+  function isVerifiedLive(dt) {
+    return !!(dt && typeof dt === "object"
+      && String(dt.state || "").toLowerCase() === "live"
+      && dt.is_live === true
+      && dt.live_verified === true);
+  }
+
+  function updateSource(source, dataTrust) {
     const pill = $("#sourcePill");
     const text = $("#sourceText");
     pill.classList.remove("live", "mock");
     const s = source || "—";
-    if (String(s).includes("mock")) {
+    if (isVerifiedLive(dataTrust)) {
+      pill.classList.add("live");
+      text.textContent = "منبع تأییدشده · " + s;
+    } else if (String(s).includes("mock")) {
       pill.classList.add("mock");
       text.textContent = "داده دمو (TSETMC در دسترس نیست)";
     } else {
-      pill.classList.add("live");
-      text.textContent = "زنده · " + s;
+      pill.classList.add("mock");
+      text.textContent = "منبع تأییدنشده · " + s;
     }
   }
 
-  function updateTrust(level) {
+  function updateTrust(levelOrTrust) {
     const pill = $("#trustPill");
     const text = $("#trustText");
     const banner = $("#trustBanner");
@@ -505,12 +515,15 @@
     const bannerText = $("#trustBannerText");
     if (pill && text) {
       pill.classList.remove("live", "mock");
-      const lv = String(level || "mixed").toLowerCase();
-      if (lv === "live") {
+      const obj = typeof levelOrTrust === "object" && levelOrTrust ? levelOrTrust : {};
+      const lv = obj.state
+        ? String(obj.state || obj.trust_level || "mixed").toLowerCase()
+        : String(levelOrTrust || "mixed").toLowerCase();
+      if (isVerifiedLive(obj)) {
         pill.classList.add("live");
         text.textContent = "اعتماد: LIVE - داده زنده";
         if(banner){ banner.className = "trust-banner live"; banner.classList.add("hidden"); }
-      } else if (lv === "synthetic") {
+      } else if (lv === "synthetic" || lv === "mock") {
         pill.classList.add("mock");
         text.textContent = "اعتماد: DEMO/SYNTHETIC";
         if(banner){
@@ -521,11 +534,17 @@
         }
       } else {
         pill.classList.add("mock");
-        text.textContent = "اعتماد: MIXED - بخشی از داده آزمایشی";
+        const labels = {
+          live: "UNVERIFIED LIVE-CLASS",
+          stale: "STALE / قدیمی",
+          unavailable: "UNAVAILABLE / ناموجود",
+          mixed: "MIXED - بخشی از داده آزمایشی",
+        };
+        text.textContent = "اعتماد: " + (labels[lv] || "NOT LIVE");
         if(banner){
           banner.className = "trust-banner mixed";
           banner.classList.remove("hidden");
-          if(bannerText) bannerText.textContent = "⚠️ توجه: داده MIXED است - بخشی از داده synthetic و بخشی live - با احتیاط استفاده کنید";
+          if(bannerText) bannerText.textContent = "⚠️ توجه: داده تأییدشده زنده نیست - مبنای خرید/فروش قرار ندهید";
           if(bannerIcon) bannerIcon.textContent = "⚠️";
         }
       }
@@ -1107,7 +1126,9 @@
     }
     const s = conf.summary || {};
     const fm = conf.flow_meta || {};
-    const trust = conf.trust_level || "—";
+    const trustObj = conf.data_trust || {};
+    const live = trustObj.state === "live" && trustObj.is_live === true && trustObj.live_verified === true;
+    const trust = live ? "LIVE" : (conf.trust_level && conf.trust_level !== "live" ? conf.trust_level : "NOT LIVE");
     sumEl.innerHTML = [
       ["هشدار خرید", s.buy_alerts, "pct-up"],
       ["هشدار فروش", s.sell_alerts, "pct-down"],
@@ -1115,7 +1136,7 @@
       ["کل ردیف‌ها", s.total, ""],
       ["پنجره جریان", (conf.window_sec || 600) / 60 + " دقیقه", ""],
       ["پوشش جریان", fm.coverage_sec != null ? Math.round(fm.coverage_sec) + "s" : "—", fm.sufficient ? "pct-up" : "pct-down"],
-      ["سطح اعتماد", trust, trust === "live" ? "pct-up" : ""],
+      ["سطح اعتماد", trust, live ? "pct-up" : ""],
     ]
       .map(
         ([l, v, c]) =>
@@ -1660,7 +1681,7 @@
       state.auto = !state.auto;
       $("#btnAuto").dataset.on = state.auto ? "1" : "0";
       $("#btnAuto").innerHTML = state.auto
-        ? '<span class="icon">●</span> زنده'
+        ? '<span class="icon">●</span> خودکار'
         : '<span class="icon">○</span> متوقف';
       setupTimer();
     });

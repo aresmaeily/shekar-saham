@@ -299,7 +299,7 @@ function bindTopbar() {
     const on = !store.get().auto;
     store.set({ auto: on });
     $("#btnAuto").dataset.on = on ? "1" : "0";
-    $("#btnAuto").innerHTML = on ? '<span class="icon">●</span> زنده' : '<span class="icon">○</span> متوقف';
+    $("#btnAuto").innerHTML = on ? '<span class="icon">●</span> خودکار' : '<span class="icon">○</span> متوقف';
     setupTimer();
   });
   $("#btnWsReconnect")?.addEventListener("click", connectWs);

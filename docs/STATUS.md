@@ -121,3 +121,4 @@ Details: `docs/architecture/IRAN_MARKET_ARCHITECTURE_LOCK.md`.
 | P3.64 | Complete Locally — GitHub Deferred | Market Intelligence snapshot.market_status now uses P3.63 session inference; session-open is not live data; GitHub remains blocked. |
 | P3.75 | Complete Locally — GitHub Deferred | Canonical `live_verified` added; source label + freshness cannot claim verified LIVE; fabricated avg_vol_30d removed; GitHub remains blocked. |
 | P3.76 | Complete Locally — GitHub Deferred | Adversarial follow-up: closed mintable live_verified argument; primary main.js LIVE pill triple-gated; GitHub remains blocked. |
+| P3.77 | Complete Locally — GitHub Deferred | Local hardening: remaining false-LIVE paths, notifier/WS/Forex/legacy, production cookie/CORS guards; GitHub remains blocked. |

@@ -668,3 +668,20 @@ GitHub: BLOCKED
 ## P3.76 Update — Post-P3.75 adversarial hardening
 
 Closed remaining local holes: caller cannot mint `live_verified=true`; primary `main.js` pill uses the triple gate; WS/confluence trust_level follows canonical context.
+
+---
+
+## P3.77 Update — Local Hardening and Defect Closure
+
+P3.77 independently re-audited the P3.76 tree and closed remaining locally repairable defects. No Alpha, install, live provider, or GitHub push.
+
+```text
+HEAD after P3.77: see git rev-parse HEAD
+LIVE DATA = NOT VERIFIED
+live_verified remains false in this environment
+GitHub: BLOCKED — 40+ ahead / 0 behind
+INSTALLATION = NOT STARTED
+Windows / Electron / Browser E2E = NOT VERIFIED
+```
+
+Repairs: notifier/notify-now cannot present unverified as LIVE; MarketService display trust_level follows canonical context; Forex/legacy UI triple-gated; production COOKIE_SECURE required; wildcard CORS rejected in production; auto-refresh wording is polling not LIVE.

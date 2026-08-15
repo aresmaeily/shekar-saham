@@ -21,8 +21,8 @@ async function init() {
   try {
     const health = await Api.health();
     console.log("Health:", health, "Trust:", health.trust_level, "Coverage:", health.flow_meta);
-    renderTrustBanner(health.trust_level, health.source);
-    store.set({ trustLevel: health.trust_level });
+    renderTrustBanner(health.data_trust || health.trust_level, health.source);
+    store.set({ trustLevel: (health.data_trust && health.data_trust.trust_level) || health.trust_level });
     await updateVersionFromApi();
 
     // رندر بخش‌های تب «عالی» (کیفیت داده / آنومالی / ریسک)

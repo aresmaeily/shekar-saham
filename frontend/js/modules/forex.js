@@ -395,8 +395,13 @@ export async function initForexChart() {
       // Info
       const infoEl = document.getElementById("forexInfo");
       if (infoEl) {
-        const trustFa =
-          res.trust_level === "live" ? "زنده ✅" : res.trust_level === "synthetic" ? "سنتتیک ⚠️" : "ترکیبی";
+        const dt = res.data_trust || {};
+        const verifiedLive = dt.state === "live" && dt.is_live === true && dt.live_verified === true;
+        const trustFa = verifiedLive
+          ? "تأییدشده"
+          : (res.trust_level === "synthetic" || dt.state === "synthetic" || dt.state === "mock")
+            ? "سنتتیک ⚠️"
+            : "تأییدنشده";
         infoEl.innerHTML = `
           <div class="icard"><h4>نماد</h4><div class="big">${res.display_symbol || res.symbol}</div>
             <div class="meta">${res.name_fa || ""} — ${res.name_en || ""}</div></div>

@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.77 Local hardening and defect closure
+
+- Closed remaining local false-LIVE paths: notifier format, notify-now, confluence rebuild, WS refresh, Forex source-label, and legacy UI.
+- Production now requires `COOKIE_SECURE=1`. Wildcard CORS is rejected in production even if `DEBUG=1`.
+- Auto-refresh control is labelled `خودکار` (polling), not LIVE data.
+- Backtest Sharpe is documented as per-trade / not annualized. Same-bar TP/SL remains deferred.
+
 ## 2026-08-15 — P3.76 Post-P3.75 adversarial hardening
 
 - `build_data_trust_context` can no longer mint `live_verified=true` from a caller argument.

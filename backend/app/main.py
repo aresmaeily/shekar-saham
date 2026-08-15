@@ -93,7 +93,8 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         logger.warning(f"startup backup skipped: {exc}")
     origins = settings.cors_origin_list()
-    if "*" in origins and not settings.debug:
+    env = (os.getenv("ENV") or os.getenv("APP_ENV") or os.getenv("SHEKAR_ENV") or "").strip().lower()
+    if "*" in origins and (env in {"prod", "production"} or not settings.debug):
         logger.critical("🚨 CORS wildcard * in production! Forcing localhost only")
     
     # Publish startup event
@@ -156,7 +157,9 @@ def create_app() -> FastAPI:
         app.add_middleware(RateLimitMiddleware)
     
     origins = settings.cors_origin_list()
-    if "*" in origins and not settings.debug:
+    env = (os.getenv("ENV") or os.getenv("APP_ENV") or os.getenv("SHEKAR_ENV") or "").strip().lower()
+    is_production = env in {"prod", "production"}
+    if "*" in origins and (is_production or not settings.debug):
         logger.warning("Forcing CORS to localhost only due to wildcard in prod")
         origins = ["http://localhost:8000", "http://127.0.0.1:8000", "http://localhost:3000"]
     allow_cred = (origins != ["*"] and "*" not in origins)
@@ -282,13 +285,15 @@ def create_app() -> FastAPI:
                     metrics.inc("shekar_ws_ping_total")
                 elif low in {"refresh", '"refresh"'}:
                     analysis = await market_service.refresh(force=True)
+                    trust_ctx = market_service.data_trust_context()
                     await ws_hub.send_one(
                         ws,
                         {
                             "type": "refreshed",
                             "entry_alerts": analysis.overview.entry_alerts,
                             "exit_alerts": analysis.overview.exit_alerts,
-                            "trust_level": market_service.trust_level(),
+                            "trust_level": trust_ctx.get("trust_level") or "mixed",
+                            "data_trust": trust_ctx,
                         },
                     )
                     metrics.inc("shekar_ws_refresh_total")

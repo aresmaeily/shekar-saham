@@ -789,7 +789,8 @@ async def confluence_notify_now() -> dict[str, Any]:
     await market_service.get_analysis(force=False)
     board = market_service.get_confluence(force_rebuild=True)
     ncfg = notifier.get_public_config()
-    trust = market_service.trust_level()
+    trust_ctx = market_service.data_trust_context()
+    trust = trust_ctx.get("trust_level") or "mixed"
     alerts = pick_notify_alerts(
         board,
         min_combo_buy=float(ncfg.get("min_combo_buy") or 70),
@@ -807,14 +808,16 @@ async def confluence_notify_now() -> dict[str, Any]:
             "alerts": alerts[:20],
             "previews": texts,
         }
-    if trust == "synthetic" and not ncfg.get("allow_synthetic"):
+    from app.core.config import is_verified_live
+
+    if (not is_verified_live(trust_ctx)) and not ncfg.get("allow_synthetic"):
         return {
             "ok": True,
             "sent": 0,
             "blocked": True,
             "trust_level": trust,
-            "data_trust": market_service.data_trust_context(),
-            "message": "داده synthetic است — برای ارسال، NOTIFY_ALLOW_SYNTHETIC=1 یا allow_synthetic در تنظیمات",
+            "data_trust": trust_ctx,
+            "message": "داده تأییدشده زنده نیست — برای ارسال آزمایشی، NOTIFY_ALLOW_SYNTHETIC=1 یا allow_synthetic در تنظیمات",
             "alerts": alerts[:20],
         }
     pf = {p["symbol"] for p in store.portfolio_list()}
@@ -824,12 +827,13 @@ async def confluence_notify_now() -> dict[str, Any]:
         portfolio_symbols=pf,
         confluence_alerts=alerts,
         trust_level=trust,
+        data_trust=trust_ctx,
     )
     return {
         "ok": True,
         "sent": sent,
         "trust_level": trust,
-        "data_trust": market_service.data_trust_context(),
+        "data_trust": trust_ctx,
         "alerts": alerts[:20],
         "summary": board.get("summary"),
     }

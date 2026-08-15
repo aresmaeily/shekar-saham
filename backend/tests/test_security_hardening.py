@@ -58,6 +58,22 @@ def test_production_requires_auth_and_stable_crypto(monkeypatch):
     with pytest.raises(RuntimeError, match="Production requires AUTH_REQUIRED"):
         validate_security_configuration(settings)
 
-    settings = SimpleNamespace(private_mode=True, private_password="owner-secret", api_key="", auth_required=True, fernet_key="")
+    settings = SimpleNamespace(private_mode=True, private_password="owner-secret", api_key="", auth_required=True, fernet_key="", cookie_secure=False)
     with pytest.raises(RuntimeError, match="stable FERNET_KEY"):
         validate_security_configuration(settings)
+
+
+def test_production_requires_cookie_secure(monkeypatch):
+    monkeypatch.setenv("ENV", "production")
+    settings = SimpleNamespace(
+        private_mode=True,
+        private_password="owner-secret",
+        api_key="stable-key",
+        auth_required=True,
+        fernet_key="stable-fernet",
+        cookie_secure=False,
+    )
+    with pytest.raises(RuntimeError, match="COOKIE_SECURE"):
+        validate_security_configuration(settings)
+    settings.cookie_secure = True
+    validate_security_configuration(settings)

@@ -226,6 +226,8 @@ def validate_security_configuration(settings=None) -> None:
             raise RuntimeError("Production requires AUTH_REQUIRED, PRIVATE_MODE, or API_KEY")
         if not (getattr(settings, "fernet_key", "") or getattr(settings, "api_key", "")):
             raise RuntimeError("Production requires stable FERNET_KEY or API_KEY for token encryption")
+        if not bool(getattr(settings, "cookie_secure", False)):
+            raise RuntimeError("Production requires COOKIE_SECURE=1")
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):

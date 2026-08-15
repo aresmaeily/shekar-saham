@@ -477,6 +477,8 @@ class MarketService:
             conf_ref = dict(board or {})
             trust_ctx = self.data_trust_context()
             trust_ref = trust_ctx.get("trust_level") or "mixed"
+            # Persist the canonical (never-verified-from-label) level for API/WS consumers.
+            self._trust_level = trust_ref
             if board:
                 board["trust_level"] = trust_ref
                 board["data_trust"] = trust_ctx
@@ -530,7 +532,9 @@ class MarketService:
             flow_window_sec=window,
             limit=80,
         )
-        board["trust_level"] = self._trust_level
+        trust_ctx = self.data_trust_context()
+        board["trust_level"] = trust_ctx.get("trust_level") or "mixed"
+        board["data_trust"] = trust_ctx
         board["source"] = self._source
         board["flow_meta"] = {
             **(self._flow_meta or {}),
@@ -885,6 +889,7 @@ class MarketService:
                     "error": str(exc),
                     "error_id": err_id,
                     "trust_level": self._trust_level,
+                    "data_trust": self.data_trust_context(),
                 }
         return self._last_confluence
 

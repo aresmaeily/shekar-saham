@@ -252,6 +252,7 @@ def _metrics_from_trades(trades: list[TradeResult], initial_capital: float) -> d
         "profit_factor": round(pf, 3),
         "sharpe_ratio": round(sharpe, 3),
         "sharpe_status": sharpe_note,
+        "sharpe_basis": "per_trade_return_not_annualized",
     }
 
 
@@ -417,6 +418,9 @@ def run_filter_strategy_backtest(
             "no_future_bar_for_entry": True,
             "walk_forward_oos_required": True,
             "live_trading": False,
+            "same_bar_tp_sl": "close_of_decision_bar; intra_bar_high_low_model_deferred",
+            "sharpe_basis": "per_trade_return_not_annualized",
+            "walk_forward_mode": "rolling_oos_of_fixed_filter_not_parameter_optimization",
         },
     )
     return report.to_dict()
