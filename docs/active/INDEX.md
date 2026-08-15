@@ -71,4 +71,5 @@
 - `P3.82_AI_PATH_TRUST_AND_ROADMAP_AUDIT.md` — P3.82 artifact/GitHub verify and remaining AI-path trust
 - `P3.83_AI_RUNTIME_READINESS_AND_PROVIDER_EXECUTION_GATE.md` — fail-closed provider invoke seam
 - `P3.84_REAL_AI_PROVIDER_TRANSPORT_GATE.md` — no real transport; future activation gate
-- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.84
+- `P3.85_REAL_AI_PROVIDER_TRANSPORT.md` — HTTPS httpx transport; runtime still NOT EXECUTED
+- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.85

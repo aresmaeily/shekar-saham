@@ -63,9 +63,10 @@ def test_credential_missing(monkeypatch):
 def test_production_path_never_executes_even_with_key(monkeypatch):
     monkeypatch.setenv("AI_PROVIDER", "openai")
     monkeypatch.setenv("AI_API_KEY", "must-not-be-used")
+    monkeypatch.delenv("AI_EXECUTE", raising=False)
     out = invoke_ai_provider(_req())
     assert out["status"] == "not_executed"
-    assert out["error_code"] == "adapter_not_invoked"
+    assert out["error_code"] == "execution_not_enabled"
     assert out["live_llm"] is False
     assert "must-not-be-used" not in str(out)
 

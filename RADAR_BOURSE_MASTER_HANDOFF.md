@@ -789,3 +789,9 @@ Fail-closed `invoke_ai_provider` added. Production does not call an LLM. A prese
 ## P3.84 Update — Real transport gate (OPTION B)
 
 Audit confirmed there is no production HTTP LLM transport. No fake runtime was added. LLM remains BLOCKED / NOT EXECUTED / UNVERIFIED until a reviewed HTTPS adapter and a real server-side credential exist.
+
+---
+
+## P3.85 Update — HTTPS transport implemented, runtime blocked
+
+`https_transport` uses httpx with TLS verify. It does not run unless `AI_EXECUTE=1` and a server-side key are set. This environment has no credential. Real LLM execution: NOT EXECUTED. Not market LIVE.

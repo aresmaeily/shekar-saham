@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.85 Real HTTPS AI provider transport
+
+- Added `https_transport` using httpx with TLS verify and a real timeout.
+- Network calls require `AI_EXECUTE=1` plus a server-side key. No key → no request.
+- HTTP 4xx (except 429) is not retried. Malformed JSON is fail-closed.
+- This environment has no LLM credential. Runtime remains NOT EXECUTED. Not market LIVE.
+
 ## 2026-08-15 — P3.84 Real AI Provider Transport gate
 
 - Audited P3.83 seam: no production HTTP/TLS LLM transport exists.

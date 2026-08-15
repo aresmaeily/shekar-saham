@@ -97,6 +97,8 @@ P3.83 added `invoke_ai_provider()` as a fail-closed execution seam (timeout/retr
 
 P3.84 confirmed: no production HTTP transport. Future activation gate is documented in `docs/active/P3.84_REAL_AI_PROVIDER_TRANSPORT_GATE.md`. Do not treat the seam as a live provider.
 
+P3.85 added `https_transport` (httpx, TLS verify, real timeout). Activation still requires `AI_EXECUTE=1` and a server-side key. Without those, runtime is NOT_EXECUTED.
+
 Still not implemented / not verified:
 
 - live LLM provider invocation

@@ -130,3 +130,4 @@ Details: `docs/architecture/IRAN_MARKET_ARCHITECTURE_LOCK.md`.
 | P3.82 | Complete locally — AI path trust audit | Re-verified P3.81 artifact/GitHub; closed remaining AI-adjacent routes without data_trust; no LLM call. |
 | P3.83 | Complete locally — execution gate only | Fail-closed provider invoke seam; no production LLM call; GitHub still blocked. |
 | P3.84 | Audit only — transport BLOCKED | No production HTTP LLM transport; documented future gate; no fake runtime. |
+| P3.85 | Transport implemented — runtime BLOCKED | Real HTTPS httpx transport behind AI_EXECUTE=1; no credential here; LLM NOT EXECUTED. |
