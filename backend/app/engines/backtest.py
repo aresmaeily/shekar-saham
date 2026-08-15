@@ -113,6 +113,62 @@ def _bar_price(bar: dict[str, Any], fallback: float = 0.0) -> float:
     return max(0.0, _safe_float(bar.get("pl") or bar.get("close") or bar.get("pc"), fallback))
 
 
+def _bar_levels(bar: dict[str, Any], fallback: float = 0.0) -> tuple[float, float, float, bool]:
+    """Return (high, low, close, has_intrabar_range).
+
+    Close-only bars (no high/low) keep historical close-only TP/SL behavior.
+    """
+    close = _bar_price(bar, fallback)
+    has_hl = (("high" in bar) or ("pmax" in bar)) and (("low" in bar) or ("pmin" in bar))
+    if not has_hl:
+        return close, close, close, False
+    high = _safe_float(bar.get("high") if bar.get("high") is not None else bar.get("pmax"), close)
+    low = _safe_float(bar.get("low") if bar.get("low") is not None else bar.get("pmin"), close)
+    if high < close:
+        high = close
+    if close > 0 and (low <= 0 or low > close):
+        low = close
+    return high, low, close, True
+
+
+def resolve_same_bar_tp_sl(
+    entry_price: float,
+    high: float,
+    low: float,
+    close: float,
+    take_profit_pct: float,
+    stop_loss_pct: float,
+    *,
+    has_intrabar_range: bool,
+) -> tuple[str | None, float | None]:
+    """Deterministic TP/SL on one bar. Conservative when both levels are reachable.
+
+    Returns (reason, raw_exit_price) or (None, None) if neither level is hit.
+    Close-only bars use close vs thresholds (TP and SL cannot both trigger).
+    OHLC bars that touch both TP and SL take the stop (do not assume the win).
+    """
+    if entry_price <= 0:
+        return None, None
+    tp_level = entry_price * (1.0 + float(take_profit_pct) / 100.0)
+    sl_level = entry_price * (1.0 + float(stop_loss_pct) / 100.0)
+    if not has_intrabar_range:
+        close_ret = (close / entry_price - 1.0) * 100.0
+        if close_ret >= take_profit_pct:
+            return "take_profit", close
+        if close_ret <= stop_loss_pct:
+            return "stop_loss", close
+        return None, None
+    hit_tp = high >= tp_level
+    hit_sl = low <= sl_level
+    if hit_tp and hit_sl:
+        return "stop_loss_same_bar_ambiguous", sl_level
+    if hit_sl:
+        return "stop_loss", sl_level
+    if hit_tp:
+        return "take_profit", tp_level
+    return None, None
+
+
 def synthesize_price_path(
     symbols: list[SymbolSnapshot],
     bars: int = 80,
@@ -336,17 +392,24 @@ def run_filter_strategy_backtest(
             j = entry_bar_idx + 1
             while j <= max_j:
                 decision_bar = series[j]
-                decision_px = _bar_price(decision_bar, raw_entry)
-                gross_ret_pct = (decision_px / entry_price - 1) * 100 if entry_price else 0.0
-                if gross_ret_pct >= execution.take_profit_pct:
+                high, low, decision_px, has_hl = _bar_levels(decision_bar, raw_entry)
+                reason, fill = resolve_same_bar_tp_sl(
+                    entry_price,
+                    high,
+                    low,
+                    decision_px,
+                    execution.take_profit_pct,
+                    execution.stop_loss_pct,
+                    has_intrabar_range=has_hl,
+                )
+                if reason:
                     exit_idx = j
-                    exit_reason = "take_profit"
-                    raw_exit = decision_px
-                    break
-                if gross_ret_pct <= execution.stop_loss_pct:
-                    exit_idx = j
-                    exit_reason = "stop_loss"
-                    raw_exit = decision_px
+                    exit_reason = reason
+                    raw_exit = fill if fill is not None else decision_px
+                    if reason == "stop_loss_same_bar_ambiguous":
+                        warnings.append(
+                            "Same-bar TP and SL both reachable; conservative stop applied (intrabar order unknown)."
+                        )
                     break
                 if exit_strategy and j < len(series) - 1:
                     exit_ctx = StrategyContext(rows=[{**decision_bar, "symbol": decision_bar.get("symbol") or sym}], data_trust=data_trust)
@@ -418,9 +481,11 @@ def run_filter_strategy_backtest(
             "no_future_bar_for_entry": True,
             "walk_forward_oos_required": True,
             "live_trading": False,
-            "same_bar_tp_sl": "close_of_decision_bar; intra_bar_high_low_model_deferred",
+            "same_bar_tp_sl": "close_only_uses_close; ohlc_both_touch_uses_conservative_stop",
+            "same_bar_policy": "conservative_stop_when_tp_and_sl_both_reachable",
             "sharpe_basis": "per_trade_return_not_annualized",
             "walk_forward_mode": "rolling_oos_of_fixed_filter_not_parameter_optimization",
+            "walk_forward_is_optimizer": False,
         },
     )
     return report.to_dict()
@@ -507,6 +572,8 @@ def run_walk_forward(
         "windows": windows,
         "summary": {"windows": len(windows), "total_oos_trades": total_trades, "avg_window_total_return": round(avg_return, 3)},
         "leakage_policy": "train indexes are excluded from each test slice; strategy parameters are not optimized in P3.27",
+        "walk_forward_is_optimizer": False,
+        "methodology": "rolling_out_of_sample_validation_of_fixed_filter",
         "data_trust": data_trust or build_data_trust_context("unknown"),
     }
 

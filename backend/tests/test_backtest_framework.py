@@ -108,3 +108,125 @@ def test_data_trust_is_preserved_in_backtest_report():
     assert report["data_trust"]["state"] == "synthetic"
     assert report["data_trust"]["is_live"] is False
     assert report["warnings"]
+
+
+def test_close_only_tp_uses_close_not_intrabar_guess():
+    from app.engines.backtest import ExecutionConfig
+
+    paths = {
+        "فملی": [
+            {"ts": 1, "symbol": "فملی", "pl": 100, "entry_score": 80},
+            {"ts": 2, "symbol": "فملی", "pl": 100, "entry_score": 0},
+            {"ts": 3, "symbol": "فملی", "pl": 105, "entry_score": 0},
+        ]
+    }
+    report = run_filter_strategy_backtest(
+        paths,
+        "entry_score >= 70",
+        execution=ExecutionConfig(commission_pct=0, slippage_pct=0, take_profit_pct=4, stop_loss_pct=-3, max_hold_bars=3),
+        data_trust=build_data_trust_context("mock"),
+    )
+    assert report["trades"] == 1
+    trade = report["trades_sample"][0]
+    assert trade["exit_reason"] == "take_profit"
+    assert trade["entry_price"] == 100
+    assert trade["exit_price"] == 105
+
+
+def test_close_only_sl_uses_close():
+    from app.engines.backtest import ExecutionConfig
+
+    paths = {
+        "فملی": [
+            {"ts": 1, "symbol": "فملی", "pl": 100, "entry_score": 80},
+            {"ts": 2, "symbol": "فملی", "pl": 100, "entry_score": 0},
+            {"ts": 3, "symbol": "فملی", "pl": 96, "entry_score": 0},
+        ]
+    }
+    report = run_filter_strategy_backtest(
+        paths,
+        "entry_score >= 70",
+        execution=ExecutionConfig(commission_pct=0, slippage_pct=0, take_profit_pct=4, stop_loss_pct=-3, max_hold_bars=3),
+        data_trust=build_data_trust_context("mock"),
+    )
+    trade = report["trades_sample"][0]
+    assert trade["exit_reason"] == "stop_loss"
+    assert trade["exit_price"] == 96
+
+
+def test_ohlc_same_bar_tp_and_sl_is_conservative_stop():
+    from app.engines.backtest import ExecutionConfig
+
+    paths = {
+        "فملی": [
+            {"ts": 1, "symbol": "فملی", "pl": 100, "entry_score": 80},
+            {"ts": 2, "symbol": "فملی", "pl": 100, "high": 100, "low": 100, "entry_score": 0},
+            {"ts": 3, "symbol": "فملی", "pl": 101, "high": 106, "low": 96, "entry_score": 0},
+        ]
+    }
+    report = run_filter_strategy_backtest(
+        paths,
+        "entry_score >= 70",
+        execution=ExecutionConfig(commission_pct=0, slippage_pct=0, take_profit_pct=4, stop_loss_pct=-3, max_hold_bars=3),
+        data_trust=build_data_trust_context("mock"),
+    )
+    trade = report["trades_sample"][0]
+    assert trade["exit_reason"] == "stop_loss_same_bar_ambiguous"
+    assert trade["exit_price"] == 97  # 100 * (1 - 0.03)
+    assert any("conservative stop" in w.lower() or "Same-bar" in w for w in report["warnings"])
+    assert report["quant_safety"]["same_bar_policy"] == "conservative_stop_when_tp_and_sl_both_reachable"
+
+
+def test_ohlc_tp_only_fills_at_tp_level():
+    from app.engines.backtest import ExecutionConfig
+
+    paths = {
+        "فملی": [
+            {"ts": 1, "symbol": "فملی", "pl": 100, "entry_score": 80},
+            {"ts": 2, "symbol": "فملی", "pl": 100, "high": 100, "low": 100, "entry_score": 0},
+            {"ts": 3, "symbol": "فملی", "pl": 101, "high": 106, "low": 99, "entry_score": 0},
+        ]
+    }
+    report = run_filter_strategy_backtest(
+        paths,
+        "entry_score >= 70",
+        execution=ExecutionConfig(commission_pct=0, slippage_pct=0, take_profit_pct=4, stop_loss_pct=-3, max_hold_bars=3),
+        data_trust=build_data_trust_context("mock"),
+    )
+    trade = report["trades_sample"][0]
+    assert trade["exit_reason"] == "take_profit"
+    assert trade["exit_price"] == 104
+
+
+def test_ohlc_sl_only_fills_at_sl_level():
+    from app.engines.backtest import ExecutionConfig
+
+    paths = {
+        "فملی": [
+            {"ts": 1, "symbol": "فملی", "pl": 100, "entry_score": 80},
+            {"ts": 2, "symbol": "فملی", "pl": 100, "high": 100, "low": 100, "entry_score": 0},
+            {"ts": 3, "symbol": "فملی", "pl": 99, "high": 101, "low": 96, "entry_score": 0},
+        ]
+    }
+    report = run_filter_strategy_backtest(
+        paths,
+        "entry_score >= 70",
+        execution=ExecutionConfig(commission_pct=0, slippage_pct=0, take_profit_pct=4, stop_loss_pct=-3, max_hold_bars=3),
+        data_trust=build_data_trust_context("mock"),
+    )
+    trade = report["trades_sample"][0]
+    assert trade["exit_reason"] == "stop_loss"
+    assert trade["exit_price"] == 97
+
+
+def test_walk_forward_is_not_an_optimizer():
+    paths = {"فملی": [{"ts": i, "symbol": "فملی", "pl": 100 + i, "entry_score": 80 if i % 3 == 0 else 0} for i in range(40)]}
+    res = run_walk_forward(
+        paths,
+        "entry_score >= 70",
+        config=WalkForwardConfig(train_bars=10, test_bars=5, step_bars=5),
+        data_trust=build_data_trust_context("mock"),
+    )
+    assert res["walk_forward_is_optimizer"] is False
+    assert res["methodology"] == "rolling_out_of_sample_validation_of_fixed_filter"
+    assert "not optimized" in res["leakage_policy"]

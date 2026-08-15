@@ -123,3 +123,4 @@ Details: `docs/architecture/IRAN_MARKET_ARCHITECTURE_LOCK.md`.
 | P3.76 | Complete Locally — GitHub Deferred | Adversarial follow-up: closed mintable live_verified argument; primary main.js LIVE pill triple-gated; GitHub remains blocked. |
 | P3.77 | Complete Locally — GitHub Deferred | Local hardening: remaining false-LIVE paths, notifier/WS/Forex/legacy, production cookie/CORS guards; GitHub remains blocked. |
 | Post-P3.54 closure | Repository-side closed — external gates blocked | Independent reconstruction through HEAD `d6e56b2`; no remaining authorized local P0/P1; GitHub/Windows/live still blocked. |
+| P3.78 | Complete locally — GitHub deferred | Conservative same-bar TP/SL on OHLC; walk-forward labeled non-optimizer; GitHub still blocked. |

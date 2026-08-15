@@ -706,3 +706,9 @@ CAN INSTALL:        NO
 ```
 
 No further authorized local P0/P1 repairs remain. Remaining work is external: GitHub auth, Windows pre-install, live provider credentials. Do not install until the owner says INSTALL.
+
+---
+
+## P3.78 Update — Conservative same-bar TP/SL
+
+OHLC bars that touch both TP and SL now take a conservative stop. Walk-forward is explicitly not an optimizer. GitHub remains BLOCKED. Use the Git bundle of the new HEAD after this commit for later push.

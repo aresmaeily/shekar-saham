@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.78 Conservative same-bar TP/SL
+
+- Close-only bars still use close vs TP then SL (cannot both trigger).
+- OHLC bars that touch both TP and SL take a conservative stop; they do not assume the win.
+- Walk-forward is explicitly labeled as rolling OOS of a fixed filter, not an optimizer.
+- Starlette/httpx2 warning remains test-only; dependencies not upgraded.
+
 ## 2026-08-15 — Post-P3.54 closure audit
 
 - Reproduced P3.54–P3.77 repository state at `d6e56b2`.

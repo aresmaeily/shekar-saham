@@ -315,6 +315,6 @@ def test_backtest_metrics_name_sharpe_as_per_trade():
     }
     report = run_filter_strategy_backtest(paths, "entry_score > 1", data_trust=build_data_trust_context("synthetic"))
     assert report["metrics"]["sharpe_basis"] == "per_trade_return_not_annualized"
-    assert report["quant_safety"]["same_bar_tp_sl"].startswith("close_of_decision_bar")
+    assert "conservative_stop" in report["quant_safety"]["same_bar_tp_sl"]
     assert report["data_trust"]["is_live"] is False
     assert report["data_trust"]["live_verified"] is False
