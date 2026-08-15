@@ -1,5 +1,10 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.90.1 Windows validation project-root resolution
+
+- `validate_install.ps1`, `install.ps1`, and `start.ps1` no longer resolve `$PSScriptRoot` in `param()` defaults.
+- Project root is resolved in the script body via `$PSScriptRoot` / `$PSCommandPath`. CWD is not used. Paths are not hard-coded.
+
 ## 2026-08-15 — P3.89 Gemini header auth
 
 - Gemini transport now uses `x-goog-api-key` instead of a query-string key.
