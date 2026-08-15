@@ -620,3 +620,17 @@ BRSAPI missing key / mock_fallback
 GitHub 34+ commits ahead, authentication BLOCKED
 Application code unchanged except this documentation
 ```
+
+---
+
+## P3.63 Update — Iran Market Session Inference
+
+P3.63 implements the documented P3.25 remaining gap: infer TSE regular hours for `MarketSession`.
+
+```text
+Module: backend/app/domain/market_session.py
+Exposed on: market_service.status() → market_session
+Holidays: not applied
+Session-open != live data
+GitHub: BLOCKED — owner authorized machine unavailable
+```

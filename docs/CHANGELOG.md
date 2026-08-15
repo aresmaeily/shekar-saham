@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.63 Iran Market Session Inference
+
+- Implemented weekday + Asia/Tehran clock inference for the existing `MarketSession` contract.
+- Exposed `market_session` on `/api/status` / health status payload.
+- Session-open does not mark `data_trust` live. Official holidays are not applied.
+
 ## 2026-08-14 — P3.61 Controlled Alpha Gate Evaluation
 
 - Re-evaluated Product Roadmap Lock P3.43 Controlled Alpha Launch gates.

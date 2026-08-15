@@ -117,3 +117,4 @@ Details: `docs/architecture/IRAN_MARKET_ARCHITECTURE_LOCK.md`.
 | P3.59 | Complete Locally — GitHub Deferred | Read-only Filter Intelligence compare/performance view added; no activation; GitHub sync remains deferred. |
 | P3.60 | Complete Locally — Roadmap Gate | No non-deferred repository-side feature remained; application code unchanged; GitHub and Windows remain blocked. |
 | P3.61 | Complete Locally — Alpha Launch Blocked | P3.43 Alpha gates re-evaluated; local repo/tests PASS; Windows/live/GitHub remain blocked; installation not started. |
+| P3.63 | Complete Locally — GitHub Deferred | Iran TSE weekday-hours MarketSession inference added; session-open is not live data; GitHub remains blocked. |

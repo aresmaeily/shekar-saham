@@ -75,7 +75,10 @@ class IranInstrument(BaseModel):
 
 
 class MarketSession(BaseModel):
-    """Iran market session metadata. Current code does not infer open/closed state."""
+    """Iran market session metadata (weekday + Tehran clock). Holidays unknown.
+
+    is_open is calendar/hours only. It is NOT live market-data verification.
+    """
 
     timezone: str = "Asia/Tehran"
     session_date: str = ""

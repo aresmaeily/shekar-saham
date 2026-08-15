@@ -33,6 +33,7 @@ from app.engines.trade_detail import (
     build_ohlcv_from_ticks,
     get_trade_hot_money,
 )
+from app.domain.market_session import infer_iran_market_session
 from app.models.schemas import AnalyzeResponse, SignalSide, SymbolSnapshot
 from app.services.notifier import notifier
 from app.services.ws_hub import ws_hub
@@ -903,6 +904,7 @@ class MarketService:
             "ws": ws_hub.status(),
             "notifier": notifier.get_public_config(),
             "auth_required": get_settings().auth_required,
+            "market_session": infer_iran_market_session().model_dump(mode="json"),
             "phase": 9,
             "security": {
                 "rate_limit": get_settings().rate_limit_enabled,

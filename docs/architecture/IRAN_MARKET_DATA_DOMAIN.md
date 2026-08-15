@@ -33,7 +33,7 @@ Consumer
 | Normalized snapshot | `backend/app/models/schemas.py::SymbolSnapshot` | Current internal market-watch snapshot model. |
 | Instrument domain | `backend/app/models/schemas.py::IranInstrument` | Stable symbol/instrument representation derived from `SymbolSnapshot`. |
 | OHLCV domain | `backend/app/models/schemas.py::OHLCVBar` | Normalized candle contract for chart/history boundaries. |
-| Session metadata | `backend/app/models/schemas.py::MarketSession` | Explicit placeholder for Iran market session metadata. Current code does not infer live open/closed state. |
+| Session metadata | `backend/app/models/schemas.py::MarketSession`, `backend/app/domain/market_session.py` | Weekday + Asia/Tehran clock inference. Holidays not applied. Session-open is not live data. |
 | Data trust | `backend/app/core/config.py`, `backend/app/models/schemas.py::DataTrustState`, `MarketDataProvenance` | LIVE/MIXED/MOCK/SYNTHETIC separation. |
 | Data quality | `backend/app/engines/data_quality.py` | Scores completeness/freshness and now respects the snapshot source. |
 | Service/API propagation | `backend/app/services/market_service.py`, `backend/app/api/routes.py` | Adds `data_trust` metadata to key market-intelligence outputs without breaking existing `trust_level`. |
@@ -129,5 +129,5 @@ P3.25 does not implement:
 
 - Live TSETMC/BRSAPI validation still needs a suitable environment.
 - Full historical data contract remains partial and SQLite-backed.
-- Market session open/closed inference is explicitly not implemented yet.
+- Official TSE holiday calendar is not applied; session inference is weekday-hours only.
 - Frontend can consume new `data_trust` metadata later; P3.25 keeps UI behavior unchanged.
