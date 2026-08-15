@@ -1,5 +1,13 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.80 Local remaining-work closure
+
+- Service Worker no longer caches `/api/*` (stale market data and post-logout replay).
+- `/static/sw.js` is served with `Cache-Control: no-store`.
+- Production disables `/docs`, `/redoc`, and `/openapi.json`.
+- `chart_builder.py` no longer uses bare `except:`.
+- No installation, live verification, or GitHub push.
+
 ## 2026-08-15 — P3.79 Final repository hardening
 
 - Public `/api/status` and `/api/live/status` now redact market/confluence/notifier details when auth is required and the caller is not authorized.

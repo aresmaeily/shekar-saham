@@ -24,7 +24,7 @@ def build_ohlcv_from_ticks(ticks: List[Dict[str, Any]], timeframe_sec: int = 60)
         if isinstance(ts, str):
             try:
                 ts = float(ts)
-            except:
+            except (TypeError, ValueError):
                 continue
         bucket_key = int(ts // timeframe_sec * timeframe_sec)
         buckets[bucket_key].append(t)
@@ -164,7 +164,7 @@ def generate_markers_from_signals(signals: List[Dict], ohlcv: List[Dict]) -> Lis
             score_val = sig.get('score', '')
             try:
                 score_str = f"{float(score_val):.0f}" if score_val != '' and score_val is not None else ""
-            except:
+            except (TypeError, ValueError):
                 score_str = str(score_val)[:8]
             markers.append({
                 "time": closest_time,
@@ -178,7 +178,7 @@ def generate_markers_from_signals(signals: List[Dict], ohlcv: List[Dict]) -> Lis
             score_val = sig.get('score', '')
             try:
                 score_str = f"{float(score_val):.0f}" if score_val != '' and score_val is not None else ""
-            except:
+            except (TypeError, ValueError):
                 score_str = str(score_val)[:8]
             markers.append({
                 "time": closest_time,

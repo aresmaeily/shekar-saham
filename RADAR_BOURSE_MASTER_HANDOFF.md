@@ -737,3 +737,23 @@ Local repairs:
 - Electron navigation is origin-locked. `SHEKAR_URL` remains a documented fallback.
 
 Next safe action: transfer the P3.79 Git bundle to an owner-authenticated machine and run a normal `git push origin main` after SHA/HEAD checkpoints, or say `INSTALL` only after PRE-INSTALL `validate_install.ps1`.
+
+---
+
+## P3.80 Update — Local remaining-work closure
+
+P3.80 re-audited the P3.79 tree and closed remaining locally fixable items. No Alpha, install, live provider, or GitHub push.
+
+```text
+Started from: ac466cca0479fcc26fdfd2c7deba20d1e9d0768e
+Remote HEAD:  26a2d120b596aa298a40b2ebc6952310658f45b5
+GitHub: BLOCKED
+LIVE DATA: NOT VERIFIED
+INSTALLATION: NOT STARTED
+WINDOWS: NOT VERIFIED
+CAN INSTALL: NO
+```
+
+Repairs: Service Worker is network-only for `/api/*`; production OpenAPI/docs disabled; chart_builder bare except removed.
+
+Next safe action: transfer the new Git bundle (after this commit) to an owner-authenticated machine and `git push origin main` after SHA/HEAD checkpoints.

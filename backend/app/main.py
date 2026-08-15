@@ -118,11 +118,16 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     settings = get_settings()
+    env = (os.getenv("ENV") or os.getenv("APP_ENV") or os.getenv("SHEKAR_ENV") or "").strip().lower()
+    is_production = env in {"prod", "production"}
     app = FastAPI(
         title=settings.app_name,
         version=settings.version,
         description="پلتفرم تابلوخوانی و تحلیل هوشمند بورس ایران — Excellent Edition v0.7.0 - با AI، مدیریت ریسک، کیفیت داده، تشخیص آنومالی، معماری رویداد-محور، متریکس پرومتئوس",
         lifespan=lifespan,
+        docs_url=None if is_production else "/docs",
+        redoc_url=None if is_production else "/redoc",
+        openapi_url=None if is_production else "/openapi.json",
     )
     # خطای 500 یکپارچه: JSON با request_id (بدون نشت stack trace)
     @app.exception_handler(Exception)
@@ -315,7 +320,9 @@ def create_app() -> FastAPI:
         async def cache_control_middleware(request: Request, call_next):
             resp = await call_next(request)
             p = request.url.path
-            if p.startswith("/static/"):
+            if p.endswith("/sw.js") or p.endswith("/sw-register.js"):
+                resp.headers["Cache-Control"] = "no-store"
+            elif p.startswith("/static/"):
                 # استاتیک: کش ۱ ساعت (SW هم stale-while-revalidate دارد)
                 if resp.headers.get("Cache-Control") is None:
                     resp.headers["Cache-Control"] = "public, max-age=3600"

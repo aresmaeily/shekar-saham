@@ -125,3 +125,4 @@ Details: `docs/architecture/IRAN_MARKET_ARCHITECTURE_LOCK.md`.
 | Post-P3.54 closure | Repository-side closed — external gates blocked | Independent reconstruction through HEAD `d6e56b2`; no remaining authorized local P0/P1; GitHub/Windows/live still blocked. |
 | P3.78 | Complete locally — GitHub deferred | Conservative same-bar TP/SL on OHLC; walk-forward labeled non-optimizer; GitHub still blocked. |
 | P3.79 | Complete locally — GitHub deferred | Public probe redaction + cookie auth + Electron origin lock; pytest 194; GitHub still blocked. |
+| P3.80 | Complete locally — GitHub deferred | SW no longer caches `/api/*`; production OpenAPI/docs disabled; chart_builder bare except removed. |

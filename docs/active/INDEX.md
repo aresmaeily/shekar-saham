@@ -66,4 +66,5 @@
 - `P3.77_LOCAL_HARDENING_REPORT.md` — P3.77 local hardening and defect closure
 - `P3.78_BACKTEST_SAME_BAR_POLICY.md` — conservative same-bar TP/SL and WF terminology
 - `P3.79_FINAL_REPOSITORY_HARDENING_REPORT.md` — P3.79 public-probe redaction, cookie auth, Electron origin lock
-- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.79
+- `P3.80_LOCAL_ENVIRONMENT_REMAINING_WORK_CLOSURE.md` — SW API cache removal, production docs off, chart_builder except
+- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.80
