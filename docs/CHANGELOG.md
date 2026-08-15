@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.87 AI integration audit
+
+- Re-downloaded the P3.86 TempFile and re-verified SHA, ZIP, GitHub remote, and HEAD.
+- Re-executed fail-closed and injection cases on the real P3.86 chain. No product-behavior fix required.
+- Added audit tests for 401/403/429/5xx, prompt-not-ping, and structured-field injection.
+- Runtime remains NOT EXECUTED. Not market LIVE.
+
 ## 2026-08-15 — P3.86 Controlled AI provider integration
 
 - Validated P3.85 provider text may replace Assistant / Analyst / Research / Strategy / Risk answers.

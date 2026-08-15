@@ -132,3 +132,4 @@ Details: `docs/architecture/IRAN_MARKET_ARCHITECTURE_LOCK.md`.
 | P3.84 | Audit only — transport BLOCKED | No production HTTP LLM transport; documented future gate; no fake runtime. |
 | P3.85 | Transport implemented — runtime BLOCKED | Real HTTPS httpx transport behind AI_EXECUTE=1; no credential here; LLM NOT EXECUTED. |
 | P3.86 | Integration implemented — runtime BLOCKED | Validated provider text attached to existing AI capabilities; fallback kept; no credential; LLM NOT EXECUTED. |
+| P3.87 | Audit only — runtime BLOCKED | P3.86 chain re-verified; fail-closed PASS; no product-behavior change; LLM NOT EXECUTED. |

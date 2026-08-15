@@ -810,3 +810,18 @@ LIVE DATA: NOT VERIFIED
 LLM EXECUTION: NOT EXECUTED
 INSTALLATION: NOT STARTED
 ```
+
+---
+
+## P3.87 Update — Integration audit (OPTION B)
+
+P3.86 TempFile re-downloaded this phase; SHA MATCH. Fail-closed / injection / capability isolation re-executed. No product-behavior change. `external_runtime` remains resolver-scoped. Execution truth is `provider_status`. LLM still NOT EXECUTED.
+
+```text
+Started from: e88547fe02e6a6f804ed7742f20c8a8979ef2ecf
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED
+LIVE DATA: NOT VERIFIED
+LLM EXECUTION: NOT EXECUTED
+INSTALLATION: NOT STARTED
+```

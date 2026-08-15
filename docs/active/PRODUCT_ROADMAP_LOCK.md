@@ -64,3 +64,5 @@ Repository numbering after P3.42 was used for recovery, GitHub, Filter UI, data-
 P3.81 is the first locally implementable remainder of the P3.38 AI architecture gate (Provider Adapter + Research/Strategy/Risk contracts). It does **not** replace or launch P3.43.
 
 P3.86 attaches the P3.85 HTTPS transport to those existing capabilities only. It does **not** replace or launch P3.43.
+
+P3.87 is an audit of that attachment. It does **not** replace or launch P3.43.
