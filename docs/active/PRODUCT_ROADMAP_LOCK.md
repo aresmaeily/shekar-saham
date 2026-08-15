@@ -68,3 +68,5 @@ P3.86 attaches the P3.85 HTTPS transport to those existing capabilities only. It
 P3.87 is an audit of that attachment. It does **not** replace or launch P3.43.
 
 P3.88 classifies remaining residuals only. It does **not** replace or launch P3.43.
+
+P3.89 is a minimal Gemini header-auth hardening. It does **not** replace or launch P3.43.

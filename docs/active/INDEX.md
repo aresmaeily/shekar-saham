@@ -75,4 +75,5 @@
 - `P3.86_CONTROLLED_AI_PROVIDER_INTEGRATION.md` — validated provider text on existing capabilities
 - `P3.87_AI_INTEGRATION_AUDIT.md` — independent audit of P3.86; OPTION B
 - `P3.88_RESIDUAL_CLASSIFICATION.md` — four residuals classified; OPTION B
-- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.88
+- `P3.89_SECURITY_HARDENING_AI_TRANSPORT.md` — Gemini header auth; OPTION A
+- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.89

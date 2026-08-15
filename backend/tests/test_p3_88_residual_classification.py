@@ -40,7 +40,9 @@ def test_gemini_url_key_is_not_returned_by_invoke(monkeypatch):
     monkeypatch.setenv("AI_MODEL", "gemini-1.5-flash")
     built = _build_provider_http("gemini", "secret-gemini-key", "hi")
     assert built is not None
-    assert "secret-gemini-key" in built[0]
+    assert "secret-gemini-key" not in built[0]
+    assert "key=" not in built[0]
+    assert built[1].get("x-goog-api-key") == "secret-gemini-key"
 
     class _Client:
         def __init__(self, verify=True, timeout=None):

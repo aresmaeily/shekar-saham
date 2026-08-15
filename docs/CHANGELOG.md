@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.89 Gemini header auth
+
+- Gemini transport now uses `x-goog-api-key` instead of a query-string key.
+- Official Gemini/Google contract prefers the header. URL/proxy/exception-cause leak closed.
+- Residuals A/B/D remain classification-only. No real LLM call in this environment.
+
 ## 2026-08-15 — P3.88 Residual classification
 
 - Re-downloaded the P3.87 TempFile and re-verified SHA, ZIP, GitHub remote, and HEAD.

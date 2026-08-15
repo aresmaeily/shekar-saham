@@ -134,3 +134,4 @@ Details: `docs/architecture/IRAN_MARKET_ARCHITECTURE_LOCK.md`.
 | P3.86 | Integration implemented — runtime BLOCKED | Validated provider text attached to existing AI capabilities; fallback kept; no credential; LLM NOT EXECUTED. |
 | P3.87 | Audit only — runtime BLOCKED | P3.86 chain re-verified; fail-closed PASS; no product-behavior change; LLM NOT EXECUTED. |
 | P3.88 | Residual classification — runtime BLOCKED | Four P3.87 residuals classified; no product-behavior change; LLM NOT EXECUTED. |
+| P3.89 | Gemini header hardening — runtime BLOCKED | Query-string Gemini key removed; `x-goog-api-key` used; LLM NOT EXECUTED. |

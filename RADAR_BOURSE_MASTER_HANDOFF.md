@@ -840,3 +840,18 @@ LIVE DATA: NOT VERIFIED
 LLM EXECUTION: NOT EXECUTED
 INSTALLATION: NOT STARTED
 ```
+
+---
+
+## P3.89 Update — Gemini header auth (OPTION A)
+
+P3.88 TempFile re-downloaded this phase; SHA MATCH. Residual C treated as a real transport security defect: Gemini now uses `x-goog-api-key`, not `?key=`. A/B/D unchanged. LLM still NOT EXECUTED.
+
+```text
+Started from: a13b778926389235610a774be2b4369559c5416f
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED
+LIVE DATA: NOT VERIFIED
+LLM EXECUTION: NOT EXECUTED
+INSTALLATION: NOT STARTED
+```

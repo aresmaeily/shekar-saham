@@ -138,10 +138,11 @@ def _build_provider_http(name: str, key: str, prompt: str) -> tuple[str, dict[st
             },
         )
     if name == "gemini":
-        sep = "&" if "?" in url else "?"
+        # Official Gemini REST auth is x-goog-api-key. Query-string keys
+        # leave process memory in URLs, proxy logs, and httpx exception causes.
         return (
-            f"{url}{sep}key={key}",
-            {"Content-Type": "application/json"},
+            url,
+            {"Content-Type": "application/json", "x-goog-api-key": key},
             {"contents": [{"parts": [{"text": text}]}]},
         )
     return None
