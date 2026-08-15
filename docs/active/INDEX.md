@@ -74,4 +74,5 @@
 - `P3.85_REAL_AI_PROVIDER_TRANSPORT.md` — HTTPS httpx transport; runtime still NOT EXECUTED
 - `P3.86_CONTROLLED_AI_PROVIDER_INTEGRATION.md` — validated provider text on existing capabilities
 - `P3.87_AI_INTEGRATION_AUDIT.md` — independent audit of P3.86; OPTION B
-- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.87
+- `P3.88_RESIDUAL_CLASSIFICATION.md` — four residuals classified; OPTION B
+- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.88

@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.88 Residual classification
+
+- Re-downloaded the P3.87 TempFile and re-verified SHA, ZIP, GitHub remote, and HEAD.
+- Classified the four P3.87 residuals: terminology / latent transport notes, not current runtime defects.
+- No product-behavior change. Gemini query-string key left unchanged (path NOT EXECUTED here).
+- Added residual-classification tests. Runtime remains NOT EXECUTED.
+
 ## 2026-08-15 — P3.87 AI integration audit
 
 - Re-downloaded the P3.86 TempFile and re-verified SHA, ZIP, GitHub remote, and HEAD.

@@ -825,3 +825,18 @@ LIVE DATA: NOT VERIFIED
 LLM EXECUTION: NOT EXECUTED
 INSTALLATION: NOT STARTED
 ```
+
+---
+
+## P3.88 Update — Residual classification (OPTION B)
+
+P3.87 TempFile re-downloaded this phase; SHA MATCH. Residuals A–D classified as terminology or latent/not-executed transport notes. No product-behavior change. Gemini query-string key not rewritten. LLM still NOT EXECUTED.
+
+```text
+Started from: d85bab6312880aede99ae3fd9ddff3c286df2467
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED
+LIVE DATA: NOT VERIFIED
+LLM EXECUTION: NOT EXECUTED
+INSTALLATION: NOT STARTED
+```
