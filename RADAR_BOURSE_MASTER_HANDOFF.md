@@ -757,3 +757,17 @@ CAN INSTALL: NO
 Repairs: Service Worker is network-only for `/api/*`; production OpenAPI/docs disabled; chart_builder bare except removed.
 
 Next safe action: transfer the new Git bundle (after this commit) to an owner-authenticated machine and `git push origin main` after SHA/HEAD checkpoints.
+
+---
+
+## P3.81 Update — AI provider adapter and remaining intelligence contracts
+
+AI Phase is PARTIALLY COMPLETE. P3.81 added the documented Provider Adapter + Research/Strategy/Risk contracts. No external LLM is invoked. `live_llm=false`. External runtime NOT_EXECUTED.
+
+```text
+Started from: 7ea18fee4525ced2cb2461aa0b205ced228cd167
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED
+LIVE DATA: NOT VERIFIED
+INSTALLATION: NOT STARTED
+```

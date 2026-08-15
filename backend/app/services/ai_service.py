@@ -14,10 +14,11 @@ from pydantic import BaseModel, Field
 
 from app.core.config import is_verified_live
 from app.domain.ai_intelligence import AIIntelligenceCore
+from app.domain.ai_provider import resolve_ai_provider
 from app.engines.filter_dsl import FilterError, validate_filter
 
 AIProviderMode = Literal["fallback", "external_not_configured"]
-AITaskType = Literal["assistant", "analyst", "optimizer"]
+AITaskType = Literal["assistant", "analyst", "optimizer", "research", "strategy", "risk"]
 
 
 class AIRequest(BaseModel):
@@ -45,6 +46,7 @@ class AIResult(BaseModel):
     task: AITaskType
     provider: AIProviderMode = "fallback"
     provider_label: str = "deterministic-rule-based-fallback"
+    source: str = "controlled_context"
     title: str = ""
     summary: str = ""
     answer: str = ""
@@ -190,6 +192,7 @@ class FallbackAIProvider:
         warnings = ctx.warnings + ["این پاسخ fallback/rule-based است و LLM زنده استفاده نشده است."]
         return AIResult(
             task="assistant",
+            source="controlled_context",
             title="AI Assistant — پاسخ کنترل‌شده",
             summary=" ".join(observations[:3]),
             answer="\n".join(observations),
@@ -238,6 +241,7 @@ class FallbackAIProvider:
             observations.append("برای تحلیل نماد، symbol معتبر لازم است.")
         return AIResult(
             task="analyst",
+            source="controlled_context",
             title="AI Analyst — تحلیل ساختاریافته",
             summary=conclusion,
             answer=conclusion,
@@ -295,6 +299,124 @@ class FallbackAIProvider:
             warnings=ctx.warnings + ["Optimizer هیچ تغییری را خودکار اعمال نمی‌کند."],
         )
 
+    def research(self, ctx: AIContext) -> AIResult:
+        """Local-context research only. Never fabricates news, Telegram, or external intelligence."""
+        observations: list[str] = []
+        evidence: list[dict[str, Any]] = []
+        if ctx.symbol_context:
+            snap = ctx.symbol_context.get("snapshot") or {}
+            observations.append(
+                f"پژوهش محلی روی نماد {snap.get('l18', ctx.symbol)} از context کنترل‌شده انجام شد."
+            )
+            evidence.append({"type": "local_symbol", "symbol": snap.get("l18"), "source": "controlled_context"})
+        if ctx.market:
+            observations.append(
+                f"وضعیت بازار محلی: منبع {ctx.market.get('source', 'unknown')}، اعتماد {ctx.market.get('trust_level', 'mixed')}."
+            )
+            evidence.append({"type": "local_market", "value": {"source": ctx.market.get("source")}})
+        if ctx.filter_context and not ctx.filter_context.get("error"):
+            observations.append("فیلتر موجود فقط به‌عنوان شواهد محلی بررسی شد؛ عملکرد زنده ادعا نمی‌شود.")
+            evidence.append({"type": "local_filter", "count": (ctx.filter_context.get("sample") or {}).get("count")})
+        if ctx.backtest_context:
+            observations.append("نتیجه بک‌تست/سناریو موجود به‌عنوان شواهد تاریخی محلی استفاده شد، نه سود تضمینی.")
+            evidence.append({"type": "local_backtest", "keys": list(ctx.backtest_context)[:8]})
+        if not observations:
+            observations.append("Insufficient Data: هیچ corpus پژوهشی محلی (نماد/بازار/فیلتر/بک‌تست) موجود نیست.")
+        warnings = ctx.warnings + [
+            "AI Research خارجی (خبر / تلگرام / LLM) پیکربندی نشده و اجرا نشده است.",
+            "این خروجی پژوهش زنده یا خبر بازار نیست.",
+        ]
+        has_ctx = bool(ctx.symbol_context or ctx.filter_context or ctx.backtest_context)
+        return AIResult(
+            task="research",
+            source="local_controlled_context",
+            title="AI Research — پژوهش محلی کنترل‌شده",
+            summary="پژوهش فقط روی context موجود است؛ منبع خارجی UNVERIFIED/NOT_EXECUTED است.",
+            answer="\n".join(observations),
+            market_context=ctx.market,
+            symbol_context=ctx.symbol_context,
+            data_trust=ctx.data_trust,
+            key_observations=observations,
+            risk_flags=_trust_warnings(ctx.data_trust),
+            uncertainty=["بدون منبع خبر/LLM خارجی، پژوهش قطعی یا پوشش رویداد بازار ممکن نیست."],
+            evidence=evidence,
+            confidence=min(0.30, _trust_confidence(ctx.data_trust, has_context=has_ctx)),
+            safety=self._safety(),
+            warnings=warnings,
+        )
+
+    def strategy(self, ctx: AIContext) -> AIResult:
+        """Strategy intelligence over existing filter/backtest evidence. Never auto-applies."""
+        opt = self.optimizer(ctx)
+        observations = list(opt.key_observations)
+        observations.insert(0, "Strategy Intelligence فقط پیشنهاد دستی است و هیچ استراتژی‌ای را فعال نمی‌کند.")
+        if ctx.backtest_context:
+            observations.append("شواهد بک‌تست/Walk-Forward موجود برای بررسی انسانی است، نه استقرار خودکار.")
+        return AIResult(
+            task="strategy",
+            source="controlled_context",
+            title="AI Strategy Intelligence — پیشنهاد کنترل‌شده",
+            summary="پیشنهاد استراتژی نیازمند تأیید انسانی است و استقرار خودکار ندارد.",
+            answer="هیچ Strategy یا Filter به‌صورت خودکار تغییر نکرد.",
+            market_context=ctx.market,
+            symbol_context=ctx.symbol_context,
+            data_trust=ctx.data_trust,
+            key_observations=observations,
+            risk_flags=_trust_warnings(ctx.data_trust),
+            uncertainty=opt.uncertainty,
+            evidence=opt.evidence,
+            suggestions=opt.suggestions,
+            confidence=min(opt.confidence, _trust_confidence(ctx.data_trust)),
+            safety=self._safety(),
+            warnings=ctx.warnings + ["Strategy Intelligence هیچ تغییری را خودکار اعمال نمی‌کند."],
+        )
+
+    def risk(self, ctx: AIContext) -> AIResult:
+        """Risk intelligence from existing RiskManager + trust gate. Educational only."""
+        from app.engines.risk_manager import risk_manager
+
+        observations: list[str] = []
+        evidence: list[dict[str, Any]] = []
+        suggestions: list[dict[str, Any]] = []
+        snap = (ctx.symbol_context or {}).get("snapshot") or {}
+        metrics = (ctx.symbol_context or {}).get("metrics") or {}
+        price = snap.get("pl")
+        if price:
+            try:
+                px = float(price)
+                stops = risk_manager.suggest_stop_loss(px, atr=px * 0.02, support=None)
+                suggestions.append({"type": "stop_loss", "action": "review_stops", "reason": "حد ضرر آموزشی از قیمت فعلی محاسبه شد.", "value": stops})
+                observations.append(f"حد ضرر آموزشی برای قیمت {px:.0f} محاسبه شد.")
+                evidence.append({"type": "stop_suggestions", "value": stops})
+            except (TypeError, ValueError):
+                observations.append("قیمت نماد برای محاسبه حد ضرر قابل استفاده نیست.")
+        exit_s = metrics.get("exit_score")
+        if exit_s is not None:
+            observations.append(f"Exit Score فعلی: {_fmt_num(exit_s, 1)} — فشار خروج در تابلو.")
+            evidence.append({"type": "exit_score", "value": exit_s})
+        if not observations:
+            observations.append("Insufficient Data: برای Risk Intelligence نماد یا قیمت لازم است.")
+        if not is_verified_live(ctx.data_trust):
+            observations.append("داده تأییدشده زنده نیست؛ اندازه موقعیت یا حد ضرر مبنای معامله زنده نیست.")
+        return AIResult(
+            task="risk",
+            source="controlled_context",
+            title="AI Risk Intelligence — ارزیابی کنترل‌شده",
+            summary="ریسک آموزشی است و تضمین زیان/سود نیست.",
+            answer="\n".join(observations),
+            market_context=ctx.market,
+            symbol_context=ctx.symbol_context,
+            data_trust=ctx.data_trust,
+            key_observations=observations,
+            risk_flags=_trust_warnings(ctx.data_trust),
+            uncertainty=["محاسبه ریسک بدون داده live تأییدشده یا تاریخچه بازده کامل، تقریبی است."],
+            evidence=evidence,
+            suggestions=suggestions,
+            confidence=min(0.40, _trust_confidence(ctx.data_trust, has_context=bool(ctx.symbol_context))),
+            safety=self._safety(),
+            warnings=ctx.warnings + ["Risk Intelligence اندازه موقعیت واقعی حساب کارگزاری را تغییر نمی‌دهد."],
+        )
+
     @staticmethod
     def _safety() -> dict[str, Any]:
         return {
@@ -304,6 +426,7 @@ class FallbackAIProvider:
             "no_broker_connection": True,
             "no_repository_changes": True,
             "requires_user_confirmation_for_actions": True,
+            "no_live_llm_claim": True,
         }
 
 
@@ -312,6 +435,20 @@ class AIService:
         self.context_builder = AIContextBuilder()
         self.provider = FallbackAIProvider()
         self.intelligence_core = AIIntelligenceCore()
+
+    @staticmethod
+    def _with_provider(payload: dict[str, Any]) -> dict[str, Any]:
+        info = resolve_ai_provider()
+        payload["provider"] = info["mode"]
+        payload["provider_label"] = info.get("provider_label") or payload.get("provider_label")
+        payload["source"] = payload.get("source") or "controlled_context"
+        payload["external_runtime"] = info.get("external_runtime")
+        payload["live_llm"] = False
+        warnings = list(payload.get("warnings") or [])
+        if info.get("warning"):
+            warnings.append(str(info["warning"]))
+        payload["warnings"] = list(dict.fromkeys(warnings))
+        return payload
 
     async def intelligence(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
         ctx = await self.context_builder.build(request, "analyst", market_service)
@@ -322,21 +459,33 @@ class AIService:
             backtest_context=ctx.backtest_context,
             data_trust=ctx.data_trust,
         ).model_dump(mode="json")
-        result["provider"] = self.provider.mode
+        result["source"] = "controlled_context"
         result["warnings"] = list(dict.fromkeys((result.get("warnings") or []) + ctx.warnings))
-        return result
+        return self._with_provider(result)
 
     async def assistant(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
         ctx = await self.context_builder.build(request, "assistant", market_service)
-        return self.provider.assistant(ctx).model_dump(mode="json")
+        return self._with_provider(self.provider.assistant(ctx).model_dump(mode="json"))
 
     async def analyst(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
         ctx = await self.context_builder.build(request, "analyst", market_service)
-        return self.provider.analyst(ctx).model_dump(mode="json")
+        return self._with_provider(self.provider.analyst(ctx).model_dump(mode="json"))
 
     async def optimizer(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
         ctx = await self.context_builder.build(request, "optimizer", market_service)
-        return self.provider.optimizer(ctx).model_dump(mode="json")
+        return self._with_provider(self.provider.optimizer(ctx).model_dump(mode="json"))
+
+    async def research(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
+        ctx = await self.context_builder.build(request, "assistant", market_service)
+        return self._with_provider(self.provider.research(ctx).model_dump(mode="json"))
+
+    async def strategy(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
+        ctx = await self.context_builder.build(request, "optimizer", market_service)
+        return self._with_provider(self.provider.strategy(ctx).model_dump(mode="json"))
+
+    async def risk(self, request: AIRequest, market_service: Any) -> dict[str, Any]:
+        ctx = await self.context_builder.build(request, "analyst", market_service)
+        return self._with_provider(self.provider.risk(ctx).model_dump(mode="json"))
 
 
 ai_service = AIService()

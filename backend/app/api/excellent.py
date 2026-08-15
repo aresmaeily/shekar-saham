@@ -62,20 +62,34 @@ async def ai_explain(symbol: str) -> Dict[str, Any]:
     entry_exp = explainer.explain_entry(snap, m, tc, data.get("fundamental"))
     exit_exp = explainer.explain_exit(snap, m)
     
+    trust = market_service.data_trust_context()
+    from app.core.config import is_verified_live
+    from app.services.ai_service import _trust_confidence, _trust_warnings
+
     return {
         "symbol": symbol,
         "entry_explanation": entry_exp,
         "exit_explanation": exit_exp,
         "scores": {"entry": m.entry_score, "exit": m.exit_score},
         "educational": True,
-        "disclaimer": "این توضیحات توسط الگوریتم rule-based تولید شده و جایگزین تحلیل شخصی نیست"
+        "disclaimer": "این توضیحات توسط الگوریتم rule-based تولید شده و جایگزین تحلیل شخصی نیست",
+        "provider": "fallback",
+        "source": "rule-based-explainer",
+        "data_trust": trust,
+        "confidence": _trust_confidence(trust),
+        "warnings": _trust_warnings(trust),
+        "live_llm": False,
+        "verified_live": is_verified_live(trust),
     }
 
 @router.get("/risk/position-size")
 @router.post("/risk/position-size")
 async def position_size(portfolio_value: float, entry_price: float, stop_loss: float, risk_pct: float = 1.0):
     """Creative: Position sizing calculator"""
-    return risk_manager.calculate_position_size(portfolio_value, entry_price, stop_loss, risk_pct)
+    out = risk_manager.calculate_position_size(portfolio_value, entry_price, stop_loss, risk_pct)
+    out["data_trust"] = market_service.data_trust_context()
+    out["educational"] = True
+    return out
 
 @router.get("/risk/stop-loss/{symbol}")
 async def stop_loss_suggest(symbol: str):

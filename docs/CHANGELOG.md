@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.81 AI provider adapter and remaining intelligence contracts
+
+- Added environment-only AI provider adapter. Client secrets are rejected. No external LLM is invoked.
+- Added AI Research / Strategy / Risk tasks over controlled context with data_trust, confidence, warnings, source.
+- `/api/v07/ai-explain` now carries data_trust and is labelled fallback.
+- LLM runtime remains NOT_EXECUTED / UNVERIFIED.
+
 ## 2026-08-15 — P3.80 Local remaining-work closure
 
 - Service Worker no longer caches `/api/*` (stale market data and post-logout replay).

@@ -54,3 +54,11 @@ Security, performance, observability, backup, recovery and release candidate wor
 - AI cannot auto-trade or mutate production strategy without approval.
 - No global expansion before Iran alpha stability.
 - No feature drift before Alpha gates are closed or explicitly accepted.
+
+## Numbering Reconciliation (P3.81)
+
+Official lock next product launch phase remains **P3.43 Controlled Alpha Launch** (Windows / live / GitHub).
+
+Repository numbering after P3.42 was used for recovery, GitHub, Filter UI, data-trust, and hardening (P3.55–P3.80). Those numbers are **not** the unused AI-expansion titles from some earlier chat drafts.
+
+P3.81 is the first locally implementable remainder of the P3.38 AI architecture gate (Provider Adapter + Research/Strategy/Risk contracts). It does **not** replace or launch P3.43.

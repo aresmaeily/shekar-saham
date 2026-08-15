@@ -86,12 +86,19 @@ Implemented now:
 - evidence/warning/confidence fields
 - recommendation gate that blocks actionable live recommendations on non-live data
 
-Not implemented now:
+P3.81 added locally (contracts only; no live LLM invocation):
 
-- live LLM provider
-- AI Research Agent
+- `resolve_ai_provider()` adapter: environment-only config, client secrets rejected
+- AI Research / Strategy / Risk tasks over controlled context
+- `/api/ai/research`, `/api/ai/strategy`, `/api/ai/risk`, `/api/ai/provider-status`
+- `/api/v07/ai-explain` now carries `data_trust`
+
+Still not implemented / not verified:
+
+- live LLM provider invocation
+- external news / Telegram research corpus
 - multi-agent AI
-- continuous monitoring runtime
+- continuous monitoring runtime / scheduler
 - autonomous strategy changes
 - live trading
 

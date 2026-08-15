@@ -126,3 +126,4 @@ Details: `docs/architecture/IRAN_MARKET_ARCHITECTURE_LOCK.md`.
 | P3.78 | Complete locally — GitHub deferred | Conservative same-bar TP/SL on OHLC; walk-forward labeled non-optimizer; GitHub still blocked. |
 | P3.79 | Complete locally — GitHub deferred | Public probe redaction + cookie auth + Electron origin lock; pytest 194; GitHub still blocked. |
 | P3.80 | Complete locally — GitHub deferred | SW no longer caches `/api/*`; production OpenAPI/docs disabled; chart_builder bare except removed. |
+| P3.81 | Complete locally — AI contracts only | Provider adapter + Research/Strategy/Risk contracts; no live LLM invocation; GitHub still blocked. |

@@ -19,6 +19,24 @@ router = APIRouter(prefix="/api")
 SENSITIVE_DEPENDENCIES = [Depends(require_api_key)]
 
 
+async def forbid_client_ai_secrets(request: Request) -> None:
+    """Reject LLM/API secrets in client JSON. Body is cached by Starlette after first read."""
+    ctype = (request.headers.get("content-type") or "").lower()
+    if "application/json" not in ctype:
+        return
+    try:
+        body = await request.json()
+    except Exception:
+        return
+    from app.domain.ai_provider import client_secret_fields_present
+
+    if isinstance(body, dict) and client_secret_fields_present(body):
+        raise HTTPException(status_code=400, detail="client-supplied credentials are rejected")
+
+
+AI_DEPENDENCIES = [Depends(forbid_client_ai_secrets)]
+
+
 def _probe_authorized(request: Request | None) -> bool:
     """Public probe routes stay reachable; market payload is redacted unless authorized."""
     s = get_settings()
@@ -473,6 +491,16 @@ class AIRequestBody(BaseModel):
     backtest_result: Optional[dict[str, Any]] = None
     language: str = "fa"
 
+    @classmethod
+    def model_validate(cls, obj, *args, **kwargs):  # type: ignore[override]
+        if isinstance(obj, dict):
+            from app.domain.ai_provider import client_secret_fields_present
+
+            secrets = client_secret_fields_present(obj)
+            if secrets:
+                raise ValueError("client-supplied credentials are rejected")
+        return super().model_validate(obj, *args, **kwargs)
+
 
 class BacktestBody(BaseModel):
     entry_threshold: float = Field(65, ge=0, le=100)
@@ -525,34 +553,74 @@ class OptionPriceBody(BaseModel):
     side: str = "buy"
 
 
-@router.post("/ai/assistant")
+@router.post("/ai/assistant", dependencies=AI_DEPENDENCIES)
 async def ai_assistant(body: AIRequestBody = Body(default_factory=AIRequestBody)) -> dict[str, Any]:
     from app.services.ai_service import AIRequest, ai_service
 
     return await ai_service.assistant(AIRequest(**body.model_dump()), market_service)
 
 
-@router.post("/ai/analyze")
+@router.post("/ai/analyze", dependencies=AI_DEPENDENCIES)
 async def ai_analyze(body: AIRequestBody = Body(default_factory=AIRequestBody)) -> dict[str, Any]:
     from app.services.ai_service import AIRequest, ai_service
 
     return await ai_service.analyst(AIRequest(**body.model_dump()), market_service)
 
 
-@router.post("/ai/optimize")
+@router.post("/ai/optimize", dependencies=AI_DEPENDENCIES)
 async def ai_optimize(body: AIRequestBody = Body(default_factory=AIRequestBody)) -> dict[str, Any]:
     from app.services.ai_service import AIRequest, ai_service
 
     return await ai_service.optimizer(AIRequest(**body.model_dump()), market_service)
 
 
-@router.post("/ai/intelligence/{symbol}")
+@router.post("/ai/intelligence/{symbol}", dependencies=AI_DEPENDENCIES)
 async def ai_intelligence(symbol: str, body: AIRequestBody = Body(default_factory=AIRequestBody)) -> dict[str, Any]:
     from app.services.ai_service import AIRequest, ai_service
 
     payload = body.model_dump()
     payload["symbol"] = symbol
     return await ai_service.intelligence(AIRequest(**payload), market_service)
+
+
+@router.post("/ai/research", dependencies=AI_DEPENDENCIES)
+async def ai_research(body: AIRequestBody = Body(default_factory=AIRequestBody)) -> dict[str, Any]:
+    from app.services.ai_service import AIRequest, ai_service
+
+    return await ai_service.research(AIRequest(**body.model_dump()), market_service)
+
+
+@router.post("/ai/strategy", dependencies=AI_DEPENDENCIES)
+async def ai_strategy(body: AIRequestBody = Body(default_factory=AIRequestBody)) -> dict[str, Any]:
+    from app.services.ai_service import AIRequest, ai_service
+
+    return await ai_service.strategy(AIRequest(**body.model_dump()), market_service)
+
+
+@router.post("/ai/risk", dependencies=AI_DEPENDENCIES)
+async def ai_risk(body: AIRequestBody = Body(default_factory=AIRequestBody)) -> dict[str, Any]:
+    from app.services.ai_service import AIRequest, ai_service
+
+    return await ai_service.risk(AIRequest(**body.model_dump()), market_service)
+
+
+@router.get("/ai/provider-status")
+async def ai_provider_status() -> dict[str, Any]:
+    from app.domain.ai_provider import resolve_ai_provider
+
+    info = resolve_ai_provider()
+    return {
+        "ok": True,
+        "mode": info.get("mode"),
+        "provider_label": info.get("provider_label"),
+        "configured": bool(info.get("configured")),
+        "key_present": bool(info.get("key_present")),
+        "model_configured": bool(info.get("model_configured")),
+        "external_runtime": info.get("external_runtime"),
+        "live_llm": False,
+        "accepts_client_secrets": False,
+        "warning": info.get("warning"),
+    }
 
 
 @router.get("/ai/filters")
