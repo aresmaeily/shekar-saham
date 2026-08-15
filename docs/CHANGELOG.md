@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — Post-P3.54 closure audit
+
+- Reproduced P3.54–P3.77 repository state at `d6e56b2`.
+- No additional authorized local P0/P1 remaining after fallback-AI trust gate.
+- GitHub push still blocked (no credentials). Installation remains locked.
+
 ## 2026-08-15 — P3.77 evidence follow-up
 
 - `DataQualityScorer` no longer emits `trust=live` from a tsetmc/brsapi source label.

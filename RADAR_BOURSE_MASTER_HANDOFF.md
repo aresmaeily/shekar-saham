@@ -685,3 +685,24 @@ Windows / Electron / Browser E2E = NOT VERIFIED
 ```
 
 Repairs: notifier/notify-now cannot present unverified as LIVE; MarketService display trust_level follows canonical context; Forex/legacy UI triple-gated; production COOKIE_SECURE required; wildcard CORS rejected in production; auto-refresh wording is polling not LIVE.
+
+---
+
+## Post-P3.54 Closure — 2026-08-15
+
+Independent reconstruction of the actual repository after P3.54 through P3.77.
+
+```text
+Authoritative HEAD: d6e56b2107819533ac1c2e1ff2c5217a46b876ee
+Remote HEAD:        26a2d120b596aa298a40b2ebc6952310658f45b5
+Local vs remote:    42 ahead / 0 behind
+Tests:              178 passed, 1 warning
+LIVE DATA:          NOT VERIFIED
+INSTALLATION:       NOT STARTED
+GITHUB:             BLOCKED
+WINDOWS:            NOT VERIFIED
+ALPHA:              NOT READY
+CAN INSTALL:        NO
+```
+
+No further authorized local P0/P1 repairs remain. Remaining work is external: GitHub auth, Windows pre-install, live provider credentials. Do not install until the owner says INSTALL.

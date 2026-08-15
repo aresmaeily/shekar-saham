@@ -64,3 +64,4 @@
 - `P3.75_DATA_TRUST_HARDENING_REPORT.md` — P3.75 independent live_verified contract and avg_vol provenance
 - `P3.76_ADVERSARIAL_AUDIT_REPORT.md` — P3.76 post-P3.75 adversarial audit and local repairs
 - `P3.77_LOCAL_HARDENING_REPORT.md` — P3.77 local hardening and defect closure
+- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — includes Post-P3.54 closure appendix (HEAD `d6e56b2`)
