@@ -5,8 +5,8 @@ from typing import Any, Optional
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
-from app.core.config import get_settings
-from app.core.security import require_api_key
+from app.core.config import get_settings, is_verified_live
+from app.core.security import request_is_authorized, require_api_key
 from app.core.runtime_settings import (
     get_thresholds_public,
     reset_thresholds,
@@ -17,6 +17,39 @@ from app.services.market_service import market_service
 
 router = APIRouter(prefix="/api")
 SENSITIVE_DEPENDENCIES = [Depends(require_api_key)]
+
+
+def _probe_authorized(request: Request | None) -> bool:
+    """Public probe routes stay reachable; market payload is redacted unless authorized."""
+    s = get_settings()
+    if not (s.auth_required or s.private_mode):
+        return True
+    return bool(request) and request_is_authorized(request, s)
+
+
+def _redacted_probe(st: dict[str, Any]) -> dict[str, Any]:
+    s = get_settings()
+    trust = st.get("data_trust") or market_service.data_trust_context()
+    return {
+        "ok": True,
+        "redacted": True,
+        "private_ok": False,
+        "auth_required": bool(s.auth_required),
+        "private_mode": bool(s.private_mode),
+        "source": st.get("source", "unknown"),
+        "trust_level": trust.get("trust_level") or "mixed",
+        "data_trust": trust,
+        "version": st.get("version"),
+        "poll_seconds": st.get("poll_seconds"),
+        "symbol_count": None,
+        "store": {},
+        "flow_meta": {},
+        "confluence": {},
+        "notifier": {},
+        "ws": {},
+        "portfolio_count": None,
+        "market_session": st.get("market_session"),
+    }
 
 
 class ThresholdUpdate(BaseModel):
@@ -38,26 +71,9 @@ async def health(request: Request = None) -> dict[str, Any]:
     s = get_settings()
     # در حالت خصوصی، برای بازدیدکننده بدون توکن فقط حداقل اطلاعات را بده
     # (جلوگیری از نشت آمار بازار/اسنپ‌شات به غریبه‌ها)
-    authorized = True
-    if request and (s.auth_required or s.private_mode):
-        from app.core.security import authorize_request
-        key = request.headers.get("X-API-Key")
-        authz = request.headers.get("Authorization") or ""
-        bearer = authz[7:] if authz.lower().startswith("bearer ") else None
-        authorized = authorize_request(key, bearer)
-
     st = market_service.status()
-    if not authorized:
-        return {
-            "ok": True,
-            "auth_required": bool(s.auth_required),
-            "private_mode": bool(s.private_mode),
-            "private_ok": False,
-            "source": st.get("source", "unknown"),
-            "symbol_count": None,
-            "store": {},
-            "flow_meta": {},
-        }
+    if not _probe_authorized(request):
+        return _redacted_probe(st)
 
     out: dict[str, Any] = {
         "ok": True,
@@ -66,13 +82,17 @@ async def health(request: Request = None) -> dict[str, Any]:
         "auth_required": bool(s.auth_required),
         "private_mode": bool(s.private_mode),
         "private_ok": True,
+        "redacted": False,
     }
     return out
 
 
 @router.get("/status")
-async def status() -> dict[str, Any]:
-    return market_service.status()
+async def status(request: Request = None) -> dict[str, Any]:
+    st = market_service.status()
+    if not _probe_authorized(request):
+        return _redacted_probe(st)
+    return st
 
 
 @router.post("/refresh")
@@ -739,16 +759,31 @@ async def notify_log(limit: int = Query(50, ge=1, le=200)) -> list[dict[str, Any
 
 
 @router.get("/live/status")
-async def live_status() -> dict[str, Any]:
+async def live_status(request: Request = None) -> dict[str, Any]:
     from app.services.ws_hub import ws_hub
     from app.services.notifier import notifier
 
+    trust_ctx = market_service.data_trust_context()
+    if not _probe_authorized(request):
+        return {
+            "ok": True,
+            "redacted": True,
+            "private_ok": False,
+            "ws": {},
+            "notifier": {},
+            "poll_seconds": market_service.status().get("poll_seconds"),
+            "trust_level": trust_ctx.get("trust_level") or "mixed",
+            "data_trust": trust_ctx,
+            "confluence": {},
+        }
     return {
+        "ok": True,
+        "redacted": False,
         "ws": ws_hub.status(),
         "notifier": notifier.get_public_config(),
         "poll_seconds": market_service.status().get("poll_seconds"),
         "trust_level": market_service.trust_level(),
-        "data_trust": market_service.data_trust_context(),
+        "data_trust": trust_ctx,
         "confluence": (market_service.get_confluence() or {}).get("summary"),
     }
 
@@ -808,7 +843,6 @@ async def confluence_notify_now() -> dict[str, Any]:
             "alerts": alerts[:20],
             "previews": texts,
         }
-    from app.core.config import is_verified_live
 
     if (not is_verified_live(trust_ctx)) and not ncfg.get("allow_synthetic"):
         return {

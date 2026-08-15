@@ -22,11 +22,42 @@ function createWindow() {
   // For personal use - load local server
   // Change to https://your-server.com for production
   const startUrl = process.env.RADAR_BOURSE_URL || process.env.SHEKAR_URL || 'http://127.0.0.1:8000';
-  
+
+  let allowedOrigin = 'http://127.0.0.1:8000';
+  try {
+    allowedOrigin = new URL(startUrl).origin;
+  } catch (e) {
+    allowedOrigin = 'http://127.0.0.1:8000';
+  }
+
+  function isAllowedNavigation(url) {
+    try {
+      return new URL(url).origin === allowedOrigin;
+    } catch (e) {
+      return false;
+    }
+  }
+
   mainWindow.loadURL(startUrl);
+
+  // Keep the shell on the configured backend origin. External targets open in the OS browser.
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    if (!isAllowedNavigation(url)) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
+  mainWindow.webContents.on('will-redirect', (event, url) => {
+    if (!isAllowedNavigation(url)) {
+      event.preventDefault();
+    }
+  });
 
   // Open external links in browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (isAllowedNavigation(url)) {
+      return { action: 'allow' };
+    }
     shell.openExternal(url);
     return { action: 'deny' };
   });

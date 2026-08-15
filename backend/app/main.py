@@ -209,11 +209,14 @@ def create_app() -> FastAPI:
         # (P0: بدون این استثنا، فیکس is_public_path باعث 401 شدن خود login می‌شد)
         if path.startswith("/api/auth/") or path.startswith("/api/health"):
             need = False
+        elif path.startswith("/api") and is_public_path(path):
+            # Probe routes stay reachable; handlers redact market/notifier details.
+            need = False
         elif s.auth_required and path.startswith("/api") and not is_public_path(path):
             need = True
         elif s.api_key and is_sensitive_path(path):
             need = True
-        elif s.private_mode and path.startswith("/api"):
+        elif s.private_mode and path.startswith("/api") and not is_public_path(path):
             need = True
 
         if need:

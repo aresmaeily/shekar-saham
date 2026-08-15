@@ -712,3 +712,28 @@ No further authorized local P0/P1 repairs remain. Remaining work is external: Gi
 ## P3.78 Update — Conservative same-bar TP/SL
 
 OHLC bars that touch both TP and SL now take a conservative stop. Walk-forward is explicitly not an optimizer. GitHub remains BLOCKED. Use the Git bundle of the new HEAD after this commit for later push.
+
+---
+
+## P3.79 Update — Final repository hardening and closure
+
+P3.79 independently re-audited the P3.78 tree. Early sections 5 and 11 of this file remain the historical P3.52 snapshot (`Current stage is P3.52`, `no .venv`). Authoritative current state is this appendix plus `git rev-parse HEAD`.
+
+```text
+Started from: 516d3a17e1c970f682905f283bd0c138a61c9e26
+Remote HEAD:  26a2d120b596aa298a40b2ebc6952310658f45b5
+GitHub: BLOCKED — AUTHENTICATION UNAVAILABLE
+Tests after P3.79: 194 passed, 1 warning
+LIVE DATA: NOT VERIFIED
+INSTALLATION: NOT STARTED
+WINDOWS: NOT VERIFIED
+CAN INSTALL: NO
+```
+
+Local repairs:
+
+- Public probe routes redact market/confluence/notifier destinations unless authorized.
+- Health/status accept cookie sessions.
+- Electron navigation is origin-locked. `SHEKAR_URL` remains a documented fallback.
+
+Next safe action: transfer the P3.79 Git bundle to an owner-authenticated machine and run a normal `git push origin main` after SHA/HEAD checkpoints, or say `INSTALL` only after PRE-INSTALL `validate_install.ps1`.

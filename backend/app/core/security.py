@@ -156,6 +156,17 @@ def authorize_ws(ws, settings=None) -> bool:
     return False
 
 
+def request_is_authorized(request, settings=None) -> bool:
+    """True if the HTTP request carries a valid API key, Bearer token, or session cookie."""
+    if request is None:
+        return False
+    settings = settings or get_settings()
+    key = request.headers.get("X-API-Key")
+    authz = request.headers.get("Authorization") or ""
+    bearer = authz[7:] if authz.lower().startswith("bearer ") else None
+    return authorize_request(key, bearer, settings) or authorize_cookie(request, settings)
+
+
 def authorize_request(
     api_key_header: Optional[str],
     bearer_token: Optional[str],

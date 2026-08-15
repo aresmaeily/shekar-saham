@@ -1,5 +1,14 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-15 — P3.79 Final repository hardening
+
+- Public `/api/status` and `/api/live/status` now redact market/confluence/notifier details when auth is required and the caller is not authorized.
+- `/api/health` accepts the HttpOnly session cookie, not only API key / Bearer.
+- Private-mode middleware honors documented public probe paths; handlers redact instead of leaking or blindly 401ing probes.
+- Electron shell locks in-window navigation/redirects to the configured backend origin. `SHEKAR_URL` fallback remains.
+- Added `backend/tests/test_p3_79_local_hardening.py`. Full suite: 194 passed, 1 warning.
+- No installation, live verification, GitHub push, or feature addition.
+
 ## 2026-08-15 — P3.78 Conservative same-bar TP/SL
 
 - Close-only bars still use close vs TP then SL (cannot both trigger).
