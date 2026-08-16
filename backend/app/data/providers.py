@@ -127,7 +127,15 @@ def brsapi_row_to_snapshot(row: dict[str, Any]) -> SymbolSnapshot:
 
 def tsetmc_mw_to_snapshot(item: dict[str, Any]) -> Optional[SymbolSnapshot]:
     try:
-        l18 = str(item.get("lval18AFC") or item.get("l18") or item.get("symbol") or "").strip()
+        # CDN GetMarketWatch uses compressed keys: lva=نماد (lVal18), lvc=نام (lVal30).
+        # Older payloads used lval18AFC / l18 / symbol. Empty ticker is rejected.
+        l18 = str(
+            item.get("lva")
+            or item.get("lval18AFC")
+            or item.get("l18")
+            or item.get("symbol")
+            or ""
+        ).strip()
         if not l18:
             return None
         pl = _safe_float(item.get("pl") or item.get("last") or item.get("pDrCotVal"))
@@ -149,20 +157,20 @@ def tsetmc_mw_to_snapshot(item: dict[str, Any]) -> Optional[SymbolSnapshot]:
         return SymbolSnapshot(
             time=str(item.get("hEven") or item.get("time") or ""),
             l18=l18,
-            l30=str(item.get("lVal30") or item.get("l30") or l18),
+            l30=str(item.get("lvc") or item.get("lVal30") or item.get("l30") or l18),
             isin=str(item.get("isin") or ""),
-            id=str(item.get("insCode") or item.get("id") or ""),
+            id=str(item.get("insCode") or item.get("insID") or item.get("id") or ""),
             cs=str(item.get("lSecVal") or item.get("cs") or ""),
             cs_id=str(item.get("cgrValCot") or item.get("cs_id") or ""),
             z=_safe_float(item.get("z") or item.get("zTitad")),
-            bvol=_safe_float(item.get("bvol") or item.get("baseVol")),
+            bvol=_safe_float(item.get("bvol") or item.get("baseVol") or item.get("bv")),
             mv=_safe_float(item.get("mv")),
             eps=_safe_float(item.get("eps")) or None,
             pe=_safe_float(item.get("pe") or item.get("peh")) or None,
             tmin=_safe_float(item.get("tmin") or item.get("priceMinThr")),
             tmax=_safe_float(item.get("tmax") or item.get("priceMaxThr")),
-            pmin=_safe_float(item.get("pmin") or item.get("priceMin")),
-            pmax=_safe_float(item.get("pmax") or item.get("priceMax")),
+            pmin=_safe_float(item.get("pmin") or item.get("priceMin") or item.get("pMin") or item.get("pmn")),
+            pmax=_safe_float(item.get("pmax") or item.get("priceMax") or item.get("pMax") or item.get("pmx")),
             py=py,
             pf=_safe_float(item.get("pf") or item.get("priceFirst")),
             pl=pl,
