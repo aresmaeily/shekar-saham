@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-16 — P3.90.2 Windows tzdata runtime dependency
+
+- Owner Windows `start.ps1` failed at import: `ModuleNotFoundError: tzdata` then `ZoneInfoNotFoundError: Asia/Tehran`.
+- Cause: `backend/app/domain/market_session.py` uses stdlib `ZoneInfo("Asia/Tehran")`. Windows has no IANA zoneinfo database. `tzdata` was not declared in `backend/requirements.txt`.
+- Fix: pin `tzdata==2026.3`. `install.ps1` already installs from that file; no installer logic change.
+- No business-logic, security, AI, frontend, or `.env` change.
+
 ## 2026-08-15 — P3.90.1 Windows validation project-root resolution
 
 - `validate_install.ps1`, `install.ps1`, and `start.ps1` no longer resolve `$PSScriptRoot` in `param()` defaults.
