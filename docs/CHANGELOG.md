@@ -1,5 +1,15 @@
 # Changelog — RADAR BOURSE
 
+## 2026-08-17 — P3.91 CDN snapshot → Filter DSL contract
+
+- After P3.90.7 mapper, Filter DSL can consume snapshots built from CDN `lva`/`pDrCotVal` keys.
+- Tests only. No filter/provider/fallback/trust change. `live_verified` stays false.
+
+## 2026-08-16 — P3.90.7 CDN GetMarketWatch mapper
+
+- `tsetmc_mw_to_snapshot` maps CDN keys `lva`/`lvc` (and existing `pDrCotVal`/`pClosing`/`qTotTran5J`).
+- Owner runtime after apply: `source=tsetmc`, `symbol_count=1509`. Not verified LIVE.
+
 ## 2026-08-16 — P3.90.2 Windows tzdata runtime dependency
 
 - Owner Windows `start.ps1` failed at import: `ModuleNotFoundError: tzdata` then `ZoneInfoNotFoundError: Asia/Tehran`.
