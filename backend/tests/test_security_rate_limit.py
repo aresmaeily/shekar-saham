@@ -1,8 +1,6 @@
 """
 test_security_rate_limit.py - تست‌های محدودسازی ورود و اعتماد به XFF
 """
-import pytest
-
 from app.core.rate_limiter import InMemoryRateLimiter
 from app.core.security import is_public_path
 
@@ -40,7 +38,6 @@ def test_auth_rate_limit_20_per_hour():
 def test_get_client_ip_ignores_xff_by_default():
     """بدون TRUST_PROXY نباید XFF جعلی پذیرفته شود (رفع دور زدن rate limit)"""
     from types import SimpleNamespace
-    from unittest.mock import MagicMock
 
     class FakeRequest:
         headers = {"x-forwarded-for": "1.2.3.4"}

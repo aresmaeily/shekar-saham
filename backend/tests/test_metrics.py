@@ -1,4 +1,3 @@
-import pytest
 from app.engines.metrics import compute_metrics
 from app.models.schemas import SymbolSnapshot
 

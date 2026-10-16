@@ -74,8 +74,7 @@ def test_data_quality_uses_snapshot_source_for_mock():
 
 
 def test_iran_session_open_weekday_hours():
-    now = datetime(2026, 8, 15, 10, 30, tzinfo=timezone.utc)  # Saturday 14:00 Tehran
-    # 2026-08-15 is Saturday; 10:30 UTC = 14:00 Tehran (UTC+3:30) → after close
+    # 2026-08-15 is Saturday; 10:30 UTC would be 14:00 Tehran (UTC+3:30) → after close
     morning = datetime(2026, 8, 15, 6, 30, tzinfo=timezone.utc)  # 10:00 Tehran Saturday
     session = infer_iran_market_session(morning)
     assert session.timezone == "Asia/Tehran"

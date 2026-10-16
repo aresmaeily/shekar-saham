@@ -1,8 +1,6 @@
 """
 test_auth.py - v1.5 تست حالت خصوصی (فقط مالک)
 """
-import pytest
-
 from app.core.security import (
     issue_session_token,
     verify_session_token,

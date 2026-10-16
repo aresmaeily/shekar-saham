@@ -31,10 +31,11 @@ class InMemoryRateLimiter:
     def check_limit(self, ip: str, path: str) -> tuple[bool, str, int]:
         """
         Returns (is_limited, message, limit)
-        Professional per-path logic:
-        - General: 120/min global per IP
-        - Heavy paths: 20/min per path per IP
+        Professional per-path logic (matches enforcement below):
+        - General: 150/min global per IP
+        - Heavy paths: 25/min per path per IP
         - Sensitive: 15/min per path per IP
+        - Login (/api/auth/login): 5/min + 20/hour per IP
         """
         # Define limits per path type
         heavy_paths = ("/api/analyze", "/api/confluence", "/api/backtest", "/api/filter/run", "/api/market-map", "/api/fundamentals", "/api/big-moves", "/api/tablocastic")
