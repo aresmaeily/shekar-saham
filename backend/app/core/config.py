@@ -102,6 +102,12 @@ class Settings(BaseSettings):
     # trust level override اختیاری
     trust_level_override: str = os.getenv("TRUST_LEVEL", "")  # synthetic|mixed|live|""
 
+    # AI-2 second-stage analysis (Category A offline scaffold).
+    # Real-data AI-2 additionally requires is_verified_live(data_trust) —
+    # which cannot be minted in this repository today — plus G2 independent
+    # validation and owner acceptance (governance gate, NOT_PASSED).
+    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+
     # کش بنیادی (ثانیه)
     fundamental_cache_ttl_sec: int = int(os.getenv("FUND_CACHE_TTL", "300"))
 

@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-10-17 — REM-1 full-code audit remediation + AI2-A AI-2 Category A offline scaffold
+
+- REM-1 (audit remediation): 7 unused-import/variable findings in `backend/tests/` fixed (behavior-neutral); `backend/app/core/rate_limiter.py` docstring aligned to the enforced limits (150/min general, 25/min heavy, 15/min sensitive, login 5/min + 20/hour). `pyflakes app tests` now exits 0 (was 7 findings); full suite unchanged at 308 passed / 2 warnings. Full audit ledger: `docs/active/REM1_AI2A_IMPLEMENTATION_RECORD.md`.
+- AI2-A: new `backend/app/services/ai2_service.py` — AI-2 second-stage analysis scaffold with typed contracts, strict interpretation-schema validation, deterministic-domain integration via the existing `AIContextBuilder`/`invoke_ai_provider` seam, provenance metadata (input SHA-256, trust state, provider status, gate report), deterministic failure mapping, and secret-free structured logging. Fail-closed gates: `AI2_ENABLED` default off; the production path additionally requires `is_verified_live(data_trust)` (cannot be minted today) — real-data AI-2 stays BLOCKED behind G2 independent validation + owner acceptance. Additive config: `ai2_enabled` in `backend/app/core/config.py`. New tests: `backend/tests/test_ai2_service.py` (12, mock-based). No HTTP route exposed; no `live_verified` change; LLM NOT EXECUTED.
+- Task IDs REM-1/AI2-A deliberately avoid a "P3.94" number: a reported P3.94 exists only in a second workspace whose commits are absent from this repository.
+
 ## 2026-10-17 — P3.92 Documentation state reconciliation (docs-only)
 
 - `docs/STATUS.md`: rows added for P3.90.2 (`00e392e`, tzdata pin), P3.90.7 (`5206569`, CDN GetMarketWatch mapper), P3.91 (`c1984e7`, Filter DSL CDN-snapshot proof), and P3.92; "Last updated" bumped to 2026-10-17.

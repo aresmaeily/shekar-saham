@@ -869,3 +869,17 @@ LIVE DATA: NOT VERIFIED
 LLM EXECUTION: NOT EXECUTED
 INSTALLATION: NOT STARTED
 ```
+
+## REM-1 / AI2-A Update — full-code audit remediation and AI-2 Category A scaffold (2026-10-17)
+
+REM-1 performed one full remaining-code audit (backend 60 modules/14,663 lines with deep reads of the security core, routes, AI service/provider seam, data store, and backtest same-bar policy; 37 test files; frontend security sinks; CI config) and fixed every verified safe defect: 7 unused-import/variable lint findings in `backend/tests/` and the stale `rate_limiter.py` docstring (now states the enforced 150/25/15 + login 5/min & 20/hour limits). `pyflakes app tests` went from 7 findings to 0; the suite stayed at 308 passed / 2 warnings. Residual recorded items (no demonstrated failure, owner discretion): blocklist-based formula sandbox in `frontend/js/modules/custom_indicator.js:126`, planned nonce-based CSP (`security.py:258`), and the missing literal-429 middleware test. AI2-A then implemented the AI-2 Category A offline scaffold (`backend/app/services/ai2_service.py` + `backend/tests/test_ai2_service.py`, 12 mock tests, additive `AI2_ENABLED` config): typed contracts, strict interpretation-schema validation, reuse of the existing deterministic `AIContextBuilder` and fail-closed `invoke_ai_provider` seam, provenance metadata, deterministic failure mapping, secret-free logging, and two independent gates — `AI2_ENABLED` (default off) and `is_verified_live(data_trust)` for the production path, which is structurally unreachable today. No HTTP route was exposed for AI-2; real-data AI-2 remains BLOCKED behind G2 independent validation + owner acceptance; `live_verified` stays false; LLM NOT EXECUTED. The IDs REM-1/AI2-A deliberately avoid "P3.94" because a reported P3.94 exists only in a second workspace whose commits are NOT_PRESENT here. Audit/ledger evidence: `docs/active/REM1_AI2A_IMPLEMENTATION_RECORD.md`.
+
+```text
+Started from: c1984e7979f89f2d727b471deb602953ec62fad5 (P3.91)
+Local commits: 6ff6b07 (P3.93) → a578abe (P3.92) → REM-1 + AI2-A (this update)
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED (local ahead of origin — publication owner-gated)
+LIVE DATA: NOT VERIFIED (live_verified=false)
+LLM EXECUTION: NOT EXECUTED (AI-2 scaffold offline-only; AI2_ENABLED=0)
+INSTALLATION: NOT STARTED
+```
