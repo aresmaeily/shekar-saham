@@ -3,10 +3,12 @@
 Governance position (see docs/active/REM1_AI2A_IMPLEMENTATION_RECORD.md):
 - The authoritative AI-2 definition lives in the 2026-10-02 owner amendment
   corpus (NOT_SYNCED in this repository). This module implements ONLY the
-  Category A scope that is safe to build and test offline: typed contracts,
-  deterministic-domain integration, strict output-schema validation,
-  provenance metadata, deterministic failure handling, and a fail-closed gate.
-- Real-data AI-2 execution is blocked behind two independent gates:
+  Category A scope that is safe to build and test offline: typed and bounded
+  request contracts, deterministic-domain integration (the deterministic
+  stage-1 analysis feeds the provider prompt), strict output-schema
+  validation, provenance metadata, deterministic failure handling,
+  trust-state enforcement, and fail-closed gates.
+- Real-data AI-2 execution is blocked behind three independent gates:
     1. ``is_verified_live(data_trust)`` — the repository-wide LIVE gate.
        No caller can mint ``live_verified=True`` here
        (config.build_data_trust_context hard-codes verified=False), so the
@@ -14,27 +16,35 @@ Governance position (see docs/active/REM1_AI2A_IMPLEMENTATION_RECORD.md):
        independent provider-verification boundary exists AND G2 independent
        validation + owner acceptance are recorded by the owner.
     2. ``AI2_ENABLED`` configuration (default: off).
+    3. data-trust state enforcement — missing or ``unavailable`` market data
+       is refused before any provider invocation (fail-closed).
 - Model output is interpretive/advisory ONLY and must validate against
   ``AI2Interpretation``. Deterministic financial values come exclusively
-  from the existing domain layer (AIContextBuilder over market_service)
-  and are never overwritten by model text.
+  from the existing domain layer (AIContextBuilder over market_service plus
+  the deterministic stage-1 FallbackAIProvider analysis) and are never
+  overwritten by model text. ``AI2Interpretation`` forbids unknown fields.
 - Provider invocation reuses the existing P3.83/P3.85/P3.86 seam
   (app.domain.ai_provider.invoke_ai_provider): client secrets rejected,
   HTTPS-only transport, explicit timeouts, bounded retries, and
   ``live_llm=False`` semantics preserved. No new architecture is introduced.
+  The sync seam is executed off the event loop (``asyncio.to_thread``); an
+  injected ``test_transport`` runs in a worker thread and must be
+  thread-safe. Provenance records both the input-snapshot hash and the
+  exact prompt hash for stable traceability.
 - No HTTP route is exposed for AI-2: the owner-facing surface for AI-2 is
   defined in the NOT_SYNCED amendments and must not be invented here.
 """
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import logging
 from datetime import datetime, timezone
-from typing import Any, Callable, Literal
+from typing import Annotated, Any, Callable, Literal
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from app.core.config import Settings, get_settings, is_verified_live
 from app.domain.ai_provider import invoke_ai_provider, resolve_ai_provider
@@ -58,22 +68,52 @@ AI2Status = Literal[
 
 AI2Transport = Callable[[dict[str, Any]], Any]
 
+# Interpretive list items are individually bounded (bounded-output contract).
+BoundedStr = Annotated[str, Field(max_length=500)]
+
 
 class AI2Request(BaseModel):
+    """Bounded AI-2 request contract (implementation hardening).
+
+    Bounds prevent unbounded memory amplification through context building,
+    canonical hashing, and prompt construction. The authoritative request
+    schema, if it differs, is defined by the NOT_SYNCED 2026-10-02 amendment
+    corpus and supersedes these bounds when the owner supplies it.
+    """
+
     task: AITaskType = "analyst"
-    question: str = ""
-    symbol: str | None = None
-    filter_expr: str | None = None
+    question: str = Field(default="", max_length=2000)
+    symbol: str | None = Field(default=None, max_length=64)
+    filter_expr: str | None = Field(default=None, max_length=2048)
     backtest_result: dict[str, Any] | None = None
-    language: str = "fa"
+    language: str = Field(default="fa", max_length=16)
+
+    @model_validator(mode="after")
+    def _bounded_payload(self) -> "AI2Request":
+        if self.backtest_result is None:
+            return self
+        try:
+            raw = json.dumps(self.backtest_result, ensure_ascii=False)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("backtest_result_not_json_serializable") from exc
+        if len(raw.encode("utf-8")) > 65536:
+            raise ValueError("backtest_result_too_large")
+        return self
 
 
 class AI2Interpretation(BaseModel):
-    """Strict schema for model output. Interpretive/advisory content only."""
+    """Strict schema for model output. Interpretive/advisory content only.
+
+    ``extra="forbid"``: unspecified structured fields emitted by the model
+    fail validation instead of being silently ignored, so unvalidated model
+    content can never enter an AI-2 result. All strings are bounded.
+    """
+
+    model_config = ConfigDict(extra="forbid")
 
     summary: str = Field(min_length=1, max_length=2000)
-    observations: list[str] = Field(default_factory=list, max_length=20)
-    risks: list[str] = Field(default_factory=list, max_length=20)
+    observations: list[BoundedStr] = Field(default_factory=list, max_length=20)
+    risks: list[BoundedStr] = Field(default_factory=list, max_length=20)
     confidence: float = Field(ge=0.0, le=1.0)
 
 
@@ -82,8 +122,10 @@ class AI2Provenance(BaseModel):
 
     stage: Literal["ai2"] = "ai2"
     input_snapshot_sha256: str
+    prompt_sha256: str = ""
     deterministic_source: str = (
-        "market_service(status,data_trust_context,symbol,filter,backtest) via AIContextBuilder"
+        "market_service(status,data_trust_context,symbol,filter,backtest) via AIContextBuilder "
+        "+ FallbackAIProvider deterministic stage-1 analysis"
     )
     data_trust_state: str
     live_verified: bool
@@ -163,12 +205,12 @@ class AI2Service:
     def _base_provenance(
         self,
         *,
-        ctx_dump: dict[str, Any],
+        deterministic_context: dict[str, Any],
         data_trust: dict[str, Any],
         gates: dict[str, Any],
         transport: AI2Transport | None,
     ) -> AI2Provenance:
-        digest, _ = self._input_digest(ctx_dump)
+        digest, _ = self._input_digest(deterministic_context)
         info = resolve_ai_provider()
         return AI2Provenance(
             input_snapshot_sha256=digest,
@@ -180,6 +222,37 @@ class AI2Service:
             gate=gates,
             created_at_utc=datetime.now(timezone.utc).isoformat(),
         )
+
+    # ------------------------------------------------------------------
+    # Deterministic stage-1 analysis (AI-1 fallback core)
+    # ------------------------------------------------------------------
+    _STAGE1_TASKS = ("assistant", "analyst", "optimizer", "research", "strategy", "risk")
+
+    @staticmethod
+    def _bounded_stage1(result: Any) -> dict[str, Any]:
+        dump = result.model_dump(mode="json")
+        return {
+            "available": True,
+            "summary": str(dump.get("summary") or "")[:800],
+            "key_observations": [str(o)[:240] for o in (dump.get("key_observations") or [])[:8]],
+            "confidence": float(dump.get("confidence") or 0.0),
+        }
+
+    def _stage1_analysis(self, ctx: Any) -> dict[str, Any]:
+        """Run the deterministic stage-1 (AI-1 fallback core) for this task.
+
+        Purely in-process; never invokes a provider. Failure is recorded, not
+        raised: AI-2 degrades to raw-context interpretation with an explicit
+        ``stage1.available=False`` record (deterministic failure handling).
+        """
+        task = str(ctx.task)
+        if task not in self._STAGE1_TASKS:
+            return {"available": False, "error_code": "stage1_task_unsupported"}
+        try:
+            method = getattr(FallbackAIProvider(), task)
+            return self._bounded_stage1(method(ctx))
+        except Exception as exc:
+            return {"available": False, "error_code": f"stage1_unavailable:{type(exc).__name__}"}
 
     # ------------------------------------------------------------------
     # Main entry
@@ -203,12 +276,22 @@ class AI2Service:
             request.task,
             market_service,
         )
+        stage1 = self._stage1_analysis(ctx)
         ctx_dump = ctx.model_dump(mode="json")
+        deterministic_context = {**ctx_dump, "stage1": stage1}
         gates = self.gate_report(ctx.data_trust, s)
         warnings = list(ctx.warnings)
+        if not stage1.get("available"):
+            warnings.append(
+                "Deterministic stage-1 analysis was unavailable; "
+                f"interpretation context is limited ({stage1.get('error_code')})."
+            )
         safety = FallbackAIProvider._safety()
         provenance = self._base_provenance(
-            ctx_dump=ctx_dump, data_trust=ctx.data_trust, gates=gates, transport=transport
+            deterministic_context=deterministic_context,
+            data_trust=ctx.data_trust,
+            gates=gates,
+            transport=transport,
         )
 
         def _log(status: str, error_code: str | None) -> None:
@@ -233,7 +316,7 @@ class AI2Service:
                 status="gated_not_executed",
                 task=request.task,
                 error_code="ai2_disabled",
-                deterministic_context=ctx_dump,
+                deterministic_context=deterministic_context,
                 provenance=provenance,
                 warnings=warnings,
                 safety=safety,
@@ -241,7 +324,29 @@ class AI2Service:
             _log(result.status, result.error_code)
             return result
 
-        # Gate 2 — G2 / owner acceptance for real-data execution.
+        # Gate 2 — trust-state enforcement (fail-closed).
+        # Missing or unavailable market data gives the model nothing
+        # deterministic to interpret; execution is refused before any
+        # provider invocation.
+        trust_state = str((ctx.data_trust or {}).get("state") or "").strip()
+        if not trust_state or trust_state == "unavailable":
+            warnings.append(
+                "Data trust state is missing or unavailable; AI-2 refused to execute."
+            )
+            result = AI2Result(
+                ok=False,
+                status="gated_not_executed",
+                task=request.task,
+                error_code="data_trust_unavailable",
+                deterministic_context=deterministic_context,
+                provenance=provenance,
+                warnings=warnings,
+                safety=safety,
+            )
+            _log(result.status, result.error_code)
+            return result
+
+        # Gate 3 — G2 / owner acceptance for real-data execution.
         # The production path (no injected transport) requires an independently
         # verified LIVE trust context, which cannot be produced in this
         # repository today. AI-2 therefore never reaches the provider seam here.
@@ -255,7 +360,7 @@ class AI2Service:
                 status="gated_not_executed",
                 task=request.task,
                 error_code="g2_independent_validation_required",
-                deterministic_context=ctx_dump,
+                deterministic_context=deterministic_context,
                 provenance=provenance,
                 warnings=warnings,
                 safety=safety,
@@ -263,18 +368,28 @@ class AI2Service:
             _log(result.status, result.error_code)
             return result
 
-        # Provider invocation through the existing fail-closed seam.
-        payload = {
-            "task": ctx.task,
-            "data_trust": ctx.data_trust,
-            "prompt": build_controlled_provider_prompt(
-                {**ctx_dump, "task": ctx.task}, question=request.question
-            ),
-        }
+        # Provider invocation through the existing fail-closed seam. The
+        # prompt carries the deterministic stage-1 analysis (summary and key
+        # observations) so the model interprets domain-owned values; when
+        # stage-1 is unavailable the prompt degrades to task + trust + rules.
+        prompt = build_controlled_provider_prompt(
+            {
+                "task": ctx.task,
+                "data_trust": ctx.data_trust,
+                "summary": str(stage1.get("summary") or ""),
+                "key_observations": stage1.get("key_observations") or [],
+            },
+            question=request.question,
+        )
+        payload = {"task": ctx.task, "data_trust": ctx.data_trust, "prompt": prompt}
+        provenance.prompt_sha256 = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+        # The seam is synchronous; execute it off the event loop.
         if transport is not None:
-            execution = invoke_ai_provider(payload, test_transport=transport)
+            execution = await asyncio.to_thread(
+                invoke_ai_provider, payload, test_transport=transport
+            )
         else:
-            execution = invoke_ai_provider(payload)
+            execution = await asyncio.to_thread(invoke_ai_provider, payload)
 
         provenance.provider_status = str(execution.get("status") or "")
         provenance.provider_error_code = (
@@ -288,7 +403,7 @@ class AI2Service:
                 status="failed_provider",
                 task=request.task,
                 error_code=provenance.provider_error_code or "provider_unavailable",
-                deterministic_context=ctx_dump,
+                deterministic_context=deterministic_context,
                 provenance=provenance,
                 warnings=warnings,
                 safety=safety,
@@ -307,7 +422,7 @@ class AI2Service:
                 status="failed_schema",
                 task=request.task,
                 error_code=schema_error,
-                deterministic_context=ctx_dump,
+                deterministic_context=deterministic_context,
                 provenance=provenance,
                 warnings=warnings,
                 safety=safety,
@@ -332,7 +447,7 @@ class AI2Service:
             ok=True,
             status=status,
             task=request.task,
-            deterministic_context=ctx_dump,
+            deterministic_context=deterministic_context,
             interpretation=interpretation,
             provenance=provenance,
             warnings=list(dict.fromkeys(warnings)),

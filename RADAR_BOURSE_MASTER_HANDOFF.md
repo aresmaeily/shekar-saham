@@ -883,3 +883,17 @@ LIVE DATA: NOT VERIFIED (live_verified=false)
 LLM EXECUTION: NOT EXECUTED (AI-2 scaffold offline-only; AI2_ENABLED=0)
 INSTALLATION: NOT STARTED
 ```
+
+## AI2-B Update — AI-2 Category A hardening batch (2026-10-17)
+
+AI2-B (same session as AI2-A, mandate: implement all AI-2 work unblocked by existing in-repository sources) hardened `backend/app/services/ai2_service.py` within its established contract without changing governance positions: (1) `AI2Request` is now a bounded, fail-closed request contract (question/symbol/filter_expr/language length caps; `backtest_result` must be JSON-serializable and ≤64 KiB); (2) `AI2Interpretation` is now `extra="forbid"` with per-item string bounds — unspecified model-emitted fields (e.g. a smuggled `price` or `data_trust`) fail validation instead of being silently ignored, and tests prove model output can never mutate the deterministic context; (3) a new fail-closed trust-state gate refuses execution when data trust is missing or `unavailable` (error `data_trust_unavailable`) before any provider invocation — gate order is now `AI2_ENABLED` (default off) → trust-state → G2/`is_verified_live` (production path still structurally unreachable); (4) the deterministic stage-1 analysis (existing `FallbackAIProvider`, AI-1 core) now feeds the provider prompt via `build_controlled_provider_prompt` — previously the prompt carried no deterministic analysis at all — is recorded as `deterministic_context.stage1`, and degrades deterministically (recorded, never raised) on stage-1 failure; (5) provenance now records both the stage-1-aware input-snapshot SHA-256 and the exact prompt SHA-256; (6) the synchronous provider seam is executed off the event loop (`asyncio.to_thread`) with cancellation propagating without fabricating results. Tests grew 12 → 23 (all mock-based, no network); full suite 320 → 331 passed / 2 warnings; pyflakes `app tests` 0; pip-audit clean; validator 8/8. No AI-2 HTTP route exists; `AI2_ENABLED` defaults off; G2 NOT_PASSED and not self-approved; `live_verified` stays false; LLM NOT EXECUTED. Category B blockers unchanged: the authoritative AI-2 task list/route surface/output schema remain defined only by the NOT_SYNCED 2026-10-02 amendment corpus, plus live credentials. Record §6: `docs/active/REM1_AI2A_IMPLEMENTATION_RECORD.md`; raw evidence: `docs/governance/evidence/raw/2026-10-17_ai2b/`.
+
+```text
+Started from: c1984e7979f89f2d727b471deb602953ec62fad5 (P3.91)
+Local commits: 6ff6b07 (P3.93) → a578abe (P3.92) → 48c1e2b (REM-1) → 0af6d06 (AI2-A) → AI2-B (this update)
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED (local ahead of origin — publication owner-gated)
+LIVE DATA: NOT VERIFIED (live_verified=false)
+LLM EXECUTION: NOT EXECUTED (AI-2 offline-only; AI2_ENABLED=0; no route)
+INSTALLATION: NOT STARTED
+```

@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-10-17 — AI2-B AI-2 Category A hardening batch
+
+- `backend/app/services/ai2_service.py` hardened within the existing contract: bounded `AI2Request` (field length caps; `backtest_result` must be JSON-serializable and ≤64 KiB — fail-closed at construction); `AI2Interpretation` now `extra="forbid"` with per-item bounds, so unspecified model-emitted fields fail validation instead of being silently ignored; new fail-closed Gate 2 (missing/`unavailable` data trust → `gated_not_executed/data_trust_unavailable` before any provider invocation); deterministic stage-1 analysis (existing `FallbackAIProvider`) now feeds the provider prompt and is recorded as `deterministic_context.stage1` with recorded-not-raised degradation; provenance adds `prompt_sha256` and stage-1-aware input-snapshot hash; provider seam executed off the event loop via `asyncio.to_thread`.
+- Tests `backend/tests/test_ai2_service.py`: 12 → 23 (request bounds; unknown-field rejection incl. non-mutation of deterministic context; boundary acceptance; stage-1 presence/idempotency; stage-1 degradation; unavailable/missing trust gates; test-transport isolation; empty-output defense; concurrency isolation; cancellation). Full suite 320 → 331 passed / 2 warnings; pyflakes `app tests` 0 findings; pip-audit clean; bootstrap validator 8/8. Raw evidence: `docs/governance/evidence/raw/2026-10-17_ai2b/`.
+- Governance unchanged: no AI-2 HTTP route; `AI2_ENABLED` default off; G2 NOT_PASSED (not self-approved); `live_verified=false`; LLM NOT EXECUTED. Category B blockers unchanged (NOT_SYNCED 2026-10-02 amendments, live credentials). Record: `docs/active/REM1_AI2A_IMPLEMENTATION_RECORD.md` §6.
+
 ## 2026-10-17 — REM-1 full-code audit remediation + AI2-A AI-2 Category A offline scaffold
 
 - REM-1 (audit remediation): 7 unused-import/variable findings in `backend/tests/` fixed (behavior-neutral); `backend/app/core/rate_limiter.py` docstring aligned to the enforced limits (150/min general, 25/min heavy, 15/min sensitive, login 5/min + 20/hour). `pyflakes app tests` now exits 0 (was 7 findings); full suite unchanged at 308 passed / 2 warnings. Full audit ledger: `docs/active/REM1_AI2A_IMPLEMENTATION_RECORD.md`.

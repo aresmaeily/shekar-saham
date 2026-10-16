@@ -77,3 +77,49 @@ git diff --check                                                 # exit 0
 ```
 
 (Exit codes and durations recorded in `docs/governance/evidence/raw/2026-10-17_rem1_ai2a/00_exit_codes.txt`; tested SHA noted in `00_context.txt`.)
+
+## 6. AI2-B — second AI-2 Category A/B batch (2026-10-17, same session)
+
+Continuation mandate: implement all AI-2 work unblocked by existing in-repository sources; do not invent product requirements; keep the G2 boundary intact. Baseline reused from AI2-A (no repeated audit/reconciliation); HEAD at start `0af6d06` (AI2-A) on top of `48c1e2b` (REM-1).
+
+### 6.1 Acceptance matrix (authoritative sources: mandate objective list + in-repo architecture; NOT_SYNCED amendments remain the authoritative AI-2 definition)
+
+| # | Criterion | Location | Tests | Status before → after |
+|---|---|---|---|---|
+| A1 | Bounded request contract (question ≤2000, symbol ≤64, filter_expr ≤2048, language ≤16, backtest_result JSON-serializable ≤64 KiB) | `AI2Request` + `_bounded_payload` validator | `test_ai2_request_bounds_enforced` | missing → **implemented** |
+| A2 | Strict output schema: unknown model-emitted fields rejected (`extra="forbid"`), item-level bounds (≤500 chars) | `AI2Interpretation` | `test_ai2_interpretation_rejects_unknown_fields`, `test_ai2_boundary_limits_accepted` | partial (top-level bounds only) → **implemented** |
+| A3 | Deterministic stage-1 (AI-1 `FallbackAIProvider`) analysis feeds the provider prompt and is recorded in the result — previously the prompt carried NO deterministic analysis at all (only task+trust+rules+question), making the second-stage interpretation vacuous | `_stage1_analysis`, `_bounded_stage1`, run() prompt payload | `test_ai2_stage1_present_traceable_and_idempotent` | gap → **implemented** |
+| A4 | Stage-1 failure degrades deterministically (recorded `available=False`, warning, run continues) — never raises | `_stage1_analysis` | `test_ai2_stage1_failure_degrades_deterministically` | n/a → **implemented** |
+| A5 | Trust-state enforcement: missing or `unavailable` data refuses execution before any provider invocation (Gate 2; G2 gate becomes Gate 3) | run() Gate 2 | `test_ai2_unavailable_data_gated_fail_closed`, `test_ai2_missing_trust_state_gated` | missing → **implemented** |
+| A6 | Provenance completeness: input-snapshot hash now covers stage-1 (`deterministic_context`), plus exact `prompt_sha256` for stable traceability | `AI2Provenance`, `_base_provenance` | hash assertions extended | partial → **implemented** |
+| A7 | Async contract: sync provider seam executed off the event loop (`asyncio.to_thread`); cancellation propagates without fabricating a result | run() | `test_ai2_cancellation_propagates_no_fabricated_result` | blocking call → **implemented** |
+| A8 | Concurrency isolation on the shared singleton (no cross-contamination of context/warnings/hashes) | stateless design proof | `test_ai2_concurrent_runs_isolated` | unproven → **proven** |
+| A9 | Test-transport isolation: injected transport can only produce `executed_shadow`; "executed" unreachable with mock output | run() | `test_ai2_test_transport_never_yields_executed_status` | implicit → **explicit test** |
+| A10 | Defense in depth: seam-contract violation (`ok=True` + empty text) maps to `failed_schema/empty_output`, never a result | `_parse_interpretation` | `test_ai2_empty_output_from_ok_seam_maps_failed_schema` | defensive branch untested → **tested** |
+| A11 | Secret-free logging extended: prompt content (question text, stage-1 summary) proven absent from logs | `_log` | secret test extended | partial → **strengthened** |
+| A12 | Model output cannot mutate deterministic context/provenance (smuggled `price`/`data_trust` keys rejected) | structural + A2 | part of `test_ai2_interpretation_rejects_unknown_fields` | implicit → **tested** |
+
+Blocked categories (unchanged, real blockers recorded — not invented around):
+- **B (missing source/infrastructure)**: authoritative AI-2 task list, route surface, output schema fields and language requirements live in the NOT_SYNCED 2026-10-02 amendment corpus (5 files absent); live provider credentials; real provider contract tests. Unresolved owner question: *which AI-2 request/response surface and task set does the amendment corpus define beyond this Category A contract?*
+- **C (independent G2 validation)**: real-data AI-2 execution; `live_verified` transition; production-path end-to-end run.
+- **D (owner acceptance)**: `AI2_ENABLED=1` outside tests; any use of AI-2 output beyond advisory.
+
+### 6.2 Implementation changes (exact)
+
+- `backend/app/services/ai2_service.py`: `AI2Request` bounded fields + `_bounded_payload` model validator (JSON-serializable, ≤64 KiB, fail-closed); `AI2Interpretation` `ConfigDict(extra="forbid")` + `BoundedStr` item bounds; `AI2Provenance.prompt_sha256` + updated `deterministic_source`; `_STAGE1_TASKS`/`_bounded_stage1`/`_stage1_analysis` (in-process deterministic reuse of `FallbackAIProvider`, failure recorded not raised); run() gate order now: Gate 1 `AI2_ENABLED` (default off) → Gate 2 trust-state (missing/unavailable → `data_trust_unavailable`) → Gate 3 G2/`is_verified_live` (unchanged semantics); prompt now built from stage-1 summary/key_observations via the existing `build_controlled_provider_prompt`; seam invoked via `asyncio.to_thread`; all outcomes carry `deterministic_context` including `stage1`.
+- `backend/tests/test_ai2_service.py`: 12 → 23 tests (11 added: bounds, unknown-field rejection, boundary acceptance, stage-1 presence/idempotency, stage-1 degradation, unavailable-data gate, missing-trust gate, transport isolation, empty-output defense, concurrency isolation, cancellation; secret-free log assertions extended).
+
+### 6.3 Verification (exact, raw evidence `docs/governance/evidence/raw/2026-10-17_ai2b/`)
+
+```bash
+# cwd: backend; interpreter: repo .venv (Python 3.12.15)
+PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_ai2_service.py -q   # 23 passed
+PYTHONPATH=. ../.venv/bin/python -m pytest -q                             # 331 passed, 2 warnings (baseline 320 → +11, no regressions)
+../.venv/bin/python -m compileall -q app tests                            # exit 0
+PYTHONPATH=. ../.venv/bin/python -m pyflakes app tests                    # exit 0
+../.venv/bin/python -m pip_audit                                          # No known vulnerabilities found
+.venv/bin/python scripts/validate_bootstrap_config.py                     # 8/8 PASS (repo root)
+git diff --check                                                          # exit 0
+```
+
+Governance invariants preserved: no HTTP route for AI-2; `AI2_ENABLED` default off; production path still structurally unreachable (`is_verified_live` cannot be minted here); G2 NOT_PASSED and not self-approved; `live_verified=false` unchanged; no real-data execution; LLM NOT EXECUTED; no mock output represented as live evidence.
