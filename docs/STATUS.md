@@ -1,6 +1,6 @@
 # Project Status — RADAR BOURSE
 
-Last updated: 2026-08-15
+Last updated: 2026-10-17
 
 ## Current Phase Status
 
@@ -136,3 +136,7 @@ Details: `docs/architecture/IRAN_MARKET_ARCHITECTURE_LOCK.md`.
 | P3.88 | Residual classification — runtime BLOCKED | Four P3.87 residuals classified; no product-behavior change; LLM NOT EXECUTED. |
 | P3.89 | Gemini header hardening — runtime BLOCKED | Query-string Gemini key removed; `x-goog-api-key` used; LLM NOT EXECUTED. |
 | P3.90.1 | Windows validation root fix | `$PSScriptRoot` no longer used in `param()` defaults; GitHub was 0/0 at P3.89 before this commit. |
+| P3.90.2 | Complete locally — GitHub deferred | Windows `ZoneInfoNotFoundError: Asia/Tehran` fixed by pinning `tzdata==2026.3` in `backend/requirements.txt`; `tests/test_tzdata_runtime.py` added; no installer logic change. Commit `00e392e`. |
+| P3.90.7 | Complete locally — GitHub deferred | `tsetmc_mw_to_snapshot` maps CDN keys `lva`/`lvc` (+ existing `pDrCotVal`/`pClosing`/`qTotTran5J`); historical owner-runtime apply observed `source=tsetmc, symbol_count=1509`, NOT verified LIVE; `tests/test_p3_90_7_tsetmc_cdn_schema.py` added. Commit `5206569`. |
+| P3.91 | Complete locally — GitHub deferred (0/0 at SHA) | Filter DSL proven to consume CDN-mapped TSETMC snapshots; tests-only change; `live_verified` stays false. Commit `c1984e7`; GitHub `main` verified == local at this SHA on 2026-10-16. |
+| P3.92 | Complete locally — GitHub deferred | Documentation state reconciliation (docs-only): STATUS rows for P3.90.2/P3.90.7/P3.91, INDEX entries, handoff appendix, CHANGELOG entry; companion P3.93 corrected `SECURITY_PRIVATE_MODE.md` v1.6 (commit `6ff6b07`); no application code change; fresh QA 308 passed / 2 warnings. |

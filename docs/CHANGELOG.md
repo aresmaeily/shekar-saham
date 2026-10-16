@@ -1,5 +1,13 @@
 # Changelog — RADAR BOURSE
 
+## 2026-10-17 — P3.92 Documentation state reconciliation (docs-only)
+
+- `docs/STATUS.md`: rows added for P3.90.2 (`00e392e`, tzdata pin), P3.90.7 (`5206569`, CDN GetMarketWatch mapper), P3.91 (`c1984e7`, Filter DSL CDN-snapshot proof), and P3.92; "Last updated" bumped to 2026-10-17.
+- `docs/active/INDEX.md`: P3.92 report entry + factual note that P3.90.2/P3.90.7/P3.91 evidence lives in CHANGELOG/tests/commits (no dedicated phase reports exist; none fabricated).
+- `RADAR_BOURSE_MASTER_HANDOFF.md`: appendix block "P3.90–P3.93 Update" appended.
+- Companion task P3.93 (`6ff6b07`, same date): `docs/active/SECURITY_PRIVATE_MODE.md` v1.5→v1.6 aligned with the HttpOnly cookie session implementation; rate limits corrected to code values (150/25/15 + login 5/min & 20/hour); CSRF origin check, fail-closed startup validation, probe redaction and `?legacy` debug mode documented; no security control changed.
+- No application code change. `live_verified` stays false. LLM NOT EXECUTED. Fresh QA: 308 passed / 2 warnings (evidence: `docs/governance/evidence/raw/2026-10-17_truth_sweep/`).
+
 ## 2026-08-17 — P3.91 CDN snapshot → Filter DSL contract
 
 - After P3.90.7 mapper, Filter DSL can consume snapshots built from CDN `lva`/`pDrCotVal` keys.

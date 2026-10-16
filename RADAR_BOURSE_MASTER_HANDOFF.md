@@ -855,3 +855,17 @@ LIVE DATA: NOT VERIFIED
 LLM EXECUTION: NOT EXECUTED
 INSTALLATION: NOT STARTED
 ```
+
+## P3.90–P3.93 Update — Windows fixes, CDN mapper, DSL proof, docs reconciliation (2026-10-17)
+
+P3.90.1 fixed Windows `$PSScriptRoot` resolution in PowerShell `param()` defaults. P3.90.2 (`00e392e`) pinned `tzdata==2026.3` — Windows has no IANA zoneinfo DB, so `ZoneInfo("Asia/Tehran")` failed at import; installed by the existing `install.ps1` flow. P3.90.7 (`5206569`) added `tsetmc_mw_to_snapshot`, mapping CDN GetMarketWatch keys `lva`/`lvc` (plus existing `pDrCotVal`/`pClosing`/`qTotTran5J`); a historical owner-runtime apply observed `source=tsetmc, symbol_count=1509` — recorded as an observation, NOT a live-data verification. P3.91 (`c1984e7`) proved by tests only that Filter DSL consumes snapshots built from CDN-mapped data; no filter/provider/fallback/trust change. These commits postdated the last STATUS/INDEX/handoff pass (P3.90.1/P3.89 era); P3.92 reconciled the canonical documents (docs-only, no application-code change) and the companion P3.93 (`6ff6b07`) corrected `docs/active/SECURITY_PRIVATE_MODE.md` v1.5→v1.6 to match the actual HttpOnly cookie session implementation (no security-control change). Fresh baseline re-verified 2026-10-17: pytest 308 passed / 2 warnings; pyflakes app clean; pip-audit clean; bootstrap validator 8/8.
+
+```text
+Started from: c1984e7979f89f2d727b471deb602953ec62fad5 (P3.91)
+Latest local commit: 6ff6b073abb172ca5330dfac535c77a3a5c20b45 (P3.93)
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED (local ahead of origin after P3.93 — publication owner-gated)
+LIVE DATA: NOT VERIFIED
+LLM EXECUTION: NOT EXECUTED
+INSTALLATION: NOT STARTED
+```

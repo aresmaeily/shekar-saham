@@ -76,4 +76,7 @@
 - `P3.87_AI_INTEGRATION_AUDIT.md` — independent audit of P3.86; OPTION B
 - `P3.88_RESIDUAL_CLASSIFICATION.md` — four residuals classified; OPTION B
 - `P3.89_SECURITY_HARDENING_AI_TRANSPORT.md` — Gemini header auth; OPTION A
-- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.89
+- `P3.92_DOCUMENTATION_STATE_RECONCILIATION_REPORT.md` — P3.92 STATUS/INDEX/handoff reconciliation for P3.90.2/P3.90.7/P3.91 (+ companion P3.93 security-doc correction)
+
+Note: P3.90.2/P3.90.7/P3.91 have no dedicated phase reports — their evidence lives in `docs/CHANGELOG.md` (2026-08-15..19), `backend/tests/test_tzdata_runtime.py`, `backend/tests/test_p3_90_7_tsetmc_cdn_schema.py`, `backend/tests/test_p3_91_cdn_snapshot_filter.py`, and commits `00e392e` / `5206569` / `c1984e7`.
+- `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after P3.93
