@@ -915,3 +915,18 @@ LIVE DATA: NOT VERIFIED (live_verified=false)
 LLM EXECUTION: NOT EXECUTED (AI-2 offline-only; AI2_ENABLED=0; no route)
 INSTALLATION: NOT STARTED
 ```
+
+## AI2-E Update — AI-2 G2 reviewer checklist and handoff staleness fixes (2026-10-17)
+
+AI2-E (mandate: AI-2 G2 handoff and governance blocker resolution) verified the repository state once — HEAD `56deaff` on `main` (AI2-D), ancestry `56deaff` → `0834b19` (AI2-C) → `6cf2d93` (AI2-B) → `0af6d06` (AI2-A) → `48c1e2b` (REM-1) → `a578abe` (P3.92) → `6ff6b07` (P3.93) → `c1984e7` (P3.91 = live GitHub `main`); tracked tree clean, stash 0, single worktree; ahead 7/behind 0 vs live `origin/main` `c1984e7` (read-only `git ls-remote` re-verified 2026-10-17; push owner-gated) — then audited the AI2-D evidence package line-by-line against the committed tree: every cited file, every implementation line range in `ai2_service.py`/`app/domain/ai_provider.py`/`app/core/config.py`, all 37 named tests (40 total in `test_ai2_service.py`), command results (348/2w 77.30s at `0834b19`; 348/2w 77.51s at committed `56deaff`; AI-2 40/40 both), and raw evidence paths verified; the package's self-resolution provenance note confirmed (`git log -1 -- docs/active/AI2_G2_READINESS_EVIDENCE_PACKAGE.md` → `56deaff`). No fabricated or overreaching claim found. Amendment sources re-verified absent (`ls docs/governance/amendment_sources_2026-10-02/` → exit 2 → NOT_SYNCED; contents never reconstructed). Deliverable: `docs/active/AI2_G2_REVIEWER_CHECKLIST.md` — the reviewer-facing working document for the authorized G2 review: reviewed commit/state (§1); compact acceptance matrix with PASS/BLOCKED/NOT_VERIFIED classification (§2); implementation + named-test references for A1–A14 (§3); exact battery commands/results (§4); the `asyncio.to_thread` cancellation limitation with test-proven late-result containment (§5); provider/network/credential/Windows/Python 3.13/CLI limitations (§6); explicit local-testing vs independent-G2-validation separation (§7); reviewer/owner decision table R1–R6 with expected evidence (§8); G2 entry criteria E1–E6 checkable from available sources and exit criteria explicitly BLOCKED — the authoritative G2 procedure is owner-defined and NOT_SYNCED, nothing invented (§9); owner handoff for the 5 missing amendment originals with per-file impact (§10); reviewer sign-off block (§11). One additive staleness fix: package §10 divergence count → "ahead 7 as of the AI2-E reconciliation; ahead 6 at packaging time" (§1 packaging-time block untouched — historical evidence preserved).
+
+```text
+Started from: c1984e7979f89f2d727b471deb602953ec62fad5 (P3.91)
+Latest local commit: AI2-E (this update — SHA resolves via git log --oneline -1 -- docs/active/AI2_G2_REVIEWER_CHECKLIST.md)
+Local commits: 6ff6b07 (P3.93) → a578abe (P3.92) → 48c1e2b (REM-1) → 0af6d06 (AI2-A) → 6cf2d93 (AI2-B) → 0834b19 (AI2-C) → 56deaff (AI2-D) → AI2-E (this update)
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED (local ahead of origin — publication owner-gated)
+LIVE DATA: NOT VERIFIED (live_verified=false)
+LLM EXECUTION: NOT EXECUTED (AI-2 offline-only; AI2_ENABLED=0; no route)
+INSTALLATION: NOT STARTED
+```

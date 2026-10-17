@@ -223,7 +223,7 @@ LLM NOT EXECUTED.
 | G2 independent validation of AI-2 (procedure owner-defined) | BLOCKED | Owner + independent validator |
 | Owner acceptance to enable `AI2_ENABLED` outside tests | BLOCKED (D) | Owner (packet §8 items PENDING) |
 | Live provider credentials + authorized live validation run | BLOCKED (B/C) | Owner |
-| Push/publication authorization (local main ahead 6) | BLOCKED | Owner |
+| Push/publication authorization (local main ahead 7 as of the AI2-E reconciliation 2026-10-17; ahead 6 at packaging time) | BLOCKED | Owner |
 | Windows INSTALL / Python 3.13 parity / Claude CLI recognition | NOT_VERIFIED | Owner environment |
 
 **Next smallest authorized action** (no boundary crossed): owner supplies the
