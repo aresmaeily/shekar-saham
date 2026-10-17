@@ -123,3 +123,44 @@ git diff --check                                                          # exit
 ```
 
 Governance invariants preserved: no HTTP route for AI-2; `AI2_ENABLED` default off; production path still structurally unreachable (`is_verified_live` cannot be minted here); G2 NOT_PASSED and not self-approved; `live_verified=false` unchanged; no real-data execution; LLM NOT EXECUTED; no mock output represented as live evidence.
+
+## 7. AI2-C — async boundary, deterministic-context integrity, and bounded-input hardening (2026-10-17, same session)
+
+Continuation mandate (titled "AI2-B hardening and unblocked implementation"; recorded as **AI2-C** because the AI2-B batch ID is already committed at `6cf2d93`). Baseline reused from AI2-B; HEAD at start `6cf2d93`. Sections below map mandate items → verified evidence.
+
+### 7.1 Work items (all verified against code before acting; no speculation)
+
+| # | Mandate item | Verified finding → action |
+|---|---|---|
+| C1 | Async cancellation & execution boundaries | `asyncio.to_thread` cannot terminate a running worker thread. Cancellation contract now documented in the module docstring and **proven by tests**: a transport blocked in the worker thread completes LATE after the caller is cancelled; the late success/failure is discarded (task raises `CancelledError`, `task.cancelled()` true, the stateless singleton gains no state — `vars(svc).keys() == {"_context_builder"}`), and the instance serves a fresh correct run afterwards. Cancellation during context building reaches no seam invocation (spy-proven). No claim is made that the thread is terminated — the tests prove the opposite. |
+| C2 | Deterministic-context integrity | Hashes are now **verifiable from the returned artifacts alone**: re-canonicalizing `res.deterministic_context` reproduces `input_snapshot_sha256` (idempotent), and rebuilding the prompt via the existing `build_controlled_provider_prompt` from the recorded `task`/`data_trust`/`stage1` + request question reproduces `prompt_sha256` exactly (also proven for the degraded missing-symbol shape). A schema-valid model output claiming different deterministic facts leaves `deterministic_context` **bit-for-bit identical** to a gated (model-free) run of the same request. |
+| C3 | Bounded-input security | **Demonstrated risks fixed** (probed on Python 3.12.15): a `backtest_result` legal under the 64 KiB cap but nested ~1000 deep crashes `ctx.model_dump(mode="json")` with `ValueError("Circular reference detected")` (uncaught in run()); ~10.9k-deep overflows `json.dumps` with `RecursionError` (uncaught by the old validator). New: iterative depth bound `_MAX_BACKTEST_DEPTH=24` (error `backtest_result_too_deep`), `allow_nan=False` (NaN/Infinity are not RFC 8259 JSON → `backtest_result_not_json_serializable`), `RecursionError` belt-and-braces. Wide-but-shallow structures and finite extreme floats stay legal (boundary-tested at depth 24). Pydantic truncates ValidationError input reprs (measured ≤ ~257 chars for a 70 KB payload) — no unbounded payload echo; AI-2's own error codes never contain payload content. |
+| C4 | Output & provenance test depth | New tests: missing required fields (`{}` → `schema_validation_failed` naming `summary`+`confidence`), JSON-valid non-object outputs (array/string/number/null → `schema_not_object`), whitespace-only output via seam-contract stand-in → `empty_output`, **provenance completeness on all 8 outcome paths** (disabled gate / unavailable trust / missing trust / G2 gate / provider timeout / failed schema / executed_shadow / future executed: 64-hex input hash, parseable UTC timestamp, trust state, provider identity, full gate dict; `prompt_sha256` empty **iff** the prompt was never constructed; `provider_attempts` recorded iff the seam was reached), and **exact inter-stage value transfer** (the transport receives the seam's bounded payload — task, trust *state*, exact prompt containing task line, trust state, `live_verified: false`, question, stage-1 summary and first observation, ≤2000 chars; model values pass through to the interpretation unchanged). |
+| C5 | Unexpected provider responses | Defense in depth: the seam contract guarantees a dict on every path; a contract-violating non-dict execution previously crashed with `AttributeError` — now mapped deterministically to `failed_provider/provider_contract_violation` (no crash, no interpretation, warning recorded). |
+| C6 | Retry traceability | Provenance adds `provider_attempts` (mirrors the seam's `attempts` contract, recorded by AI-1 already): valid non-negative ints recorded; missing/invalid degrade to `None`. |
+
+### 7.2 Files changed (exact)
+
+- `backend/app/services/ai2_service.py` — cancellation-containment contract in module docstring; `_MAX_BACKTEST_DEPTH` + iterative `AI2Request._check_depth` (no recursion on attacker input); validator order depth → `json.dumps(allow_nan=False)` → size; `RecursionError` belt; `AI2Provenance.provider_attempts`; seam-contract (non-dict) guard after `asyncio.to_thread` mapping to `failed_provider/provider_contract_violation`; `provider_attempts` population.
+- `backend/tests/test_ai2_service.py` — 23 → 40 tests (17 added): late-success and late-failure cancellation containment + instance reuse; cancellation before seam (spy-proven no invocation); input-hash verifiability from returned context (+ idempotency); prompt-hash rebuild from recorded inputs; input-hash sensitivity to backtest/question; model output cannot override deterministic values (bit-for-bit equality vs gated run); missing-symbol degradation hashed+prompted; deep-nesting rejection (25/100/1000; depth-24 accepted; wide-shallow legal); NaN/Inf/set rejection without payload echo; missing-required-fields mapping; non-object outputs; whitespace-only output; provenance completeness across 8 outcomes; exact inter-stage values; seam non-dict contract violations; `provider_attempts` recording/degradation.
+
+### 7.3 Verification (exact; raw evidence `docs/governance/evidence/raw/2026-10-17_ai2c/`; battery script `scripts/ai2c_battery.sh` sandbox-side)
+
+```bash
+# cwd: backend; interpreter: repo .venv (Python 3.12.15)
+PYTHONPATH=. ../.venv/bin/python -m pytest -q                             # 348 passed, 2 warnings in 77.26s at the committed AI2-C tree (pre-commit run: 348 passed in 77.38s; baseline 331 → +17, zero regressions; same 2 pre-existing starlette/anyio deprecation warnings; exact battery HEAD recorded in the raw evidence header)
+PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_ai2_service.py -q   # 40 passed
+../.venv/bin/python -m compileall -q app tests                            # exit 0
+PYTHONPATH=. ../.venv/bin/python -m pyflakes app tests                    # exit 0
+../.venv/bin/python -m pip_audit                                          # No known vulnerabilities found
+.venv/bin/python scripts/validate_bootstrap_config.py                     # 8/8 PASS (repo root)
+git diff --check                                                          # exit 0
+```
+
+### 7.4 Remaining source-dependent questions (unchanged, real blockers — not invented around)
+
+- **B**: the authoritative AI-2 task list, route surface, output-schema fields and language requirements remain defined by the NOT_SYNCED 2026-10-02 amendment corpus (5 files absent); live provider credentials; real provider contract tests. *Unresolved owner question unchanged from §6.1.*
+- **C**: G2 independent validation for any real-data AI-2 execution; `live_verified` transition.
+- **D**: owner acceptance to enable `AI2_ENABLED=1` outside tests or use AI-2 output beyond advisory.
+
+Governance invariants preserved: no HTTP route for AI-2; `AI2_ENABLED` default off; production path still structurally unreachable; G2 NOT_PASSED and not self-approved; `live_verified=false` unchanged; no real-data execution; LLM NOT EXECUTED; no mock output represented as live evidence.

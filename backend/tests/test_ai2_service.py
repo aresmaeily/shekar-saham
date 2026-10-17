@@ -8,21 +8,34 @@ deterministic failure mapping (timeout / HTTP error / empty output),
 provenance hashing + prompt traceability, stale-data handling, secret-free
 logging, concurrency isolation, cancellation, test-transport isolation
 (no accidental live/"executed" path), and the future live-gated mapping path.
+
+AI2-C hardening additions: cancellation/late-completion containment (the
+worker thread is NOT terminated by cancellation and its late result is
+discarded), hash-to-payload verifiability (input snapshot and prompt hashes
+rebuild from the returned artifacts), request depth/NaN rejection,
+seam-contract violation handling, provenance completeness on every outcome,
+exact inter-stage value transfer, and missing/whitespace/non-object output
+mapping.
 """
 
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
+import threading
 import time
+from datetime import datetime
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 from pydantic import ValidationError
 
 from app.services import ai2_service as ai2_module
 from app.services.ai2_service import AI2Request, AI2Interpretation, AI2Service
+from app.services.ai_service import build_controlled_provider_prompt
 
 # Short alias used throughout the tests below.
 AIRequest2 = AI2Request
@@ -539,4 +552,471 @@ async def test_ai2_cancellation_propagates_no_fabricated_result(monkeypatch, _op
     task.cancel()
     with pytest.raises(asyncio.CancelledError):
         await task
+
+
+# ---------------------------------------------------------------------------
+# AI2-C additions: async cancellation/late-completion containment, hash-to-
+# payload verifiability, bounded-input depth/NaN rejection, seam-contract
+# defense, provenance completeness, exact inter-stage value transfer.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_ai2_cancellation_during_slow_provider_late_success_discarded(monkeypatch, _openai_env):
+    """Cancellation containment: the worker thread is NOT terminated (to_thread
+    cannot cancel a running thread) — it completes LATE — and the late result
+    is discarded: never returned to the cancelled caller and never committed to
+    any downstream state (the service singleton stays stateless)."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    started, release, done = threading.Event(), threading.Event(), threading.Event()
+
+    def _blocking_transport(payload):
+        started.set()
+        release.wait(3.0)  # stays running across the caller's cancellation
+        done.set()
+        return {"text": json.dumps(VALID_OUTPUT)}
+
+    svc = AI2Service()
+    task = asyncio.create_task(
+        svc.run(AIRequest2(), DummyMarketService(), transport=_blocking_transport)
+    )
+    # Yield to the loop while waiting on the threading event (a plain blocking
+    # wait would starve the very task that must reach the transport).
+    loop = asyncio.get_running_loop()
+    assert await loop.run_in_executor(None, started.wait, 2.0)  # worker is inside transport
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    # Late completion happens AFTER cancellation — and is provably discarded.
+    release.set()
+    assert done.wait(2.0)
+    assert task.cancelled()
+    # No late result reached any state: the stateless singleton gained nothing.
+    assert vars(svc).keys() == {"_context_builder"}  # stateless: no late result committed
+
+
+@pytest.mark.asyncio
+async def test_ai2_cancellation_late_provider_failure_discarded_and_reusable(monkeypatch, _openai_env):
+    """A provider that fails LATE (after caller cancellation) leaves no stale
+    error state: the late failure is discarded and the same service instance
+    serves a fresh, correct run afterwards."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    started, release, done = threading.Event(), threading.Event(), threading.Event()
+
+    def _late_failure_transport(payload):
+        started.set()
+        release.wait(3.0)
+        done.set()
+        raise TimeoutError("timeout")
+
+    svc = AI2Service()
+    task = asyncio.create_task(
+        svc.run(AIRequest2(), DummyMarketService(), transport=_late_failure_transport)
+    )
+    loop = asyncio.get_running_loop()
+    assert await loop.run_in_executor(None, started.wait, 2.0)
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    release.set()
+    assert await loop.run_in_executor(None, done.wait, 2.0)  # the late failure did occur in the worker thread
+    assert vars(svc).keys() == {"_context_builder"}  # stateless: no late result committed
+    # Reuse: a fresh run on the same instance is unaffected by the discarded failure.
+    res = await svc.run(AIRequest2(), DummyMarketService(), transport=_valid_transport)
+    assert res.ok is True
+    assert res.status == "executed_shadow"
+    assert res.provenance.provider_error_code is None
+
+
+@pytest.mark.asyncio
+async def test_ai2_cancellation_before_seam_no_invocation(monkeypatch):
+    """Cancellation during context building aborts the run before the provider
+    seam is ever invoked (no invocation, no late payload, no partial result)."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    invoked = []
+
+    def _spy_seam(payload, **kwargs):
+        invoked.append(payload)
+        return {"text": json.dumps(VALID_OUTPUT)}
+
+    monkeypatch.setattr(ai2_module, "invoke_ai_provider", _spy_seam)
+
+    class _SlowAnalysisMarketService(DummyMarketService):
+        async def get_analysis(self, force=False):
+            await asyncio.sleep(0.3)
+            return None
+
+    task = asyncio.create_task(
+        AI2Service().run(AIRequest2(), _SlowAnalysisMarketService(), transport=_spy_seam)
+    )
+    await asyncio.sleep(0.05)
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    assert invoked == []
+
+
+# ---------------------------------------------------------------------------
+# AI2-C — deterministic-context integrity: the recorded hashes must be
+# re-derivable from the exact payloads they claim to represent.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_ai2_input_hash_verifiable_from_returned_context(monkeypatch, _openai_env):
+    """input_snapshot_sha256 is the canonical digest of the deterministic_context
+    actually returned in the result — verifiable from the artifact alone."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    res = await AI2Service().run(
+        AIRequest2(symbol="فملی", backtest_result={"trades": [1, 2, 3]}),
+        DummyMarketService(),
+        transport=_valid_transport,
+    )
+    digest, size = AI2Service._input_digest(res.deterministic_context)
+    assert digest == res.provenance.input_snapshot_sha256
+    assert size > 0
+    # Stable serialization: re-digesting is idempotent.
+    digest_again, _ = AI2Service._input_digest(res.deterministic_context)
+    assert digest_again == digest
+
+
+@pytest.mark.asyncio
+async def test_ai2_prompt_hash_rebuilds_from_recorded_inputs(monkeypatch, _openai_env):
+    """prompt_sha256 is the exact hash of the prompt rebuilt from the recorded
+    deterministic inputs (task, data_trust, stage-1 summary/observations) plus
+    the request question — proving the hash represents the real prompt payload."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    req = AIRequest2(symbol="فملی", question="تحلیل وضعیت نماد")
+    res = await AI2Service().run(req, DummyMarketService(), transport=_valid_transport)
+    ctx = res.deterministic_context
+    rebuilt = build_controlled_provider_prompt(
+        {
+            "task": ctx["task"],
+            "data_trust": ctx["data_trust"],
+            "summary": ctx["stage1"]["summary"],
+            "key_observations": ctx["stage1"]["key_observations"],
+        },
+        question=req.question,
+    )
+    assert len(res.provenance.prompt_sha256) == 64
+    assert hashlib.sha256(rebuilt.encode("utf-8")).hexdigest() == res.provenance.prompt_sha256
+
+
+@pytest.mark.asyncio
+async def test_ai2_input_hash_sensitive_to_backtest_and_question(monkeypatch, _openai_env):
+    """Modified inputs change the recorded hashes (no stale-digest reuse)."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    svc = AI2Service()
+    base = await svc.run(
+        AIRequest2(symbol="فملی", backtest_result={"a": 1}), DummyMarketService(), transport=_valid_transport
+    )
+    other_backtest = await svc.run(
+        AIRequest2(symbol="فملی", backtest_result={"a": 2}), DummyMarketService(), transport=_valid_transport
+    )
+    other_question = await svc.run(
+        AIRequest2(symbol="فملی", question="سوال دیگر"), DummyMarketService(), transport=_valid_transport
+    )
+    assert base.provenance.input_snapshot_sha256 != other_backtest.provenance.input_snapshot_sha256
+    assert base.provenance.input_snapshot_sha256 != other_question.provenance.input_snapshot_sha256
+    # The question enters the prompt as well.
+    assert base.provenance.prompt_sha256 != other_question.provenance.prompt_sha256
+
+
+@pytest.mark.asyncio
+async def test_ai2_model_output_cannot_override_deterministic_values(monkeypatch, _openai_env):
+    """A schema-valid model output claiming different deterministic facts leaves
+    the deterministic context bit-for-bit identical to a gated (model-free) run."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    claim = {
+        "summary": "Model claims entry_score=999 and price=999999.",
+        "observations": ["entry_score is 999"],
+        "risks": [],
+        "confidence": 0.9,
+    }
+    svc = AI2Service()
+    req = AIRequest2(symbol="فملی")
+    res_exec = await svc.run(req, DummyMarketService(), transport=lambda p: {"text": json.dumps(claim)})
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(False))
+    res_gated = await svc.run(req, DummyMarketService(), transport=_valid_transport)
+    assert res_exec.ok is True and res_exec.interpretation is not None
+    assert res_exec.interpretation.summary.startswith("Model claims")
+    assert res_exec.deterministic_context == res_gated.deterministic_context
+    assert res_exec.deterministic_context["symbol_context"]["metrics"]["entry_score"] == 75
+    assert res_exec.deterministic_context["stage1"]["available"] is True
+
+
+@pytest.mark.asyncio
+async def test_ai2_missing_symbol_context_recorded_hashed_and_prompted(monkeypatch, _openai_env):
+    """Missing symbol context degrades deterministically: empty symbol_context,
+    explicit warning, hashes still recorded, prompt rebuilds from the degraded
+    recorded inputs."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    req = AIRequest2(symbol="نماد-غایب", question="سلام")
+    res = await AI2Service().run(req, DummyMarketService(), transport=_valid_transport)
+    assert res.ok is True
+    assert res.deterministic_context["symbol_context"] == {}
+    assert any("نماد-غایب" in w for w in res.warnings)
+    assert len(res.provenance.input_snapshot_sha256) == 64
+    ctx = res.deterministic_context
+    rebuilt = build_controlled_provider_prompt(
+        {
+            "task": ctx["task"],
+            "data_trust": ctx["data_trust"],
+            "summary": ctx["stage1"]["summary"],
+            "key_observations": ctx["stage1"]["key_observations"],
+        },
+        question=req.question,
+    )
+    assert hashlib.sha256(rebuilt.encode("utf-8")).hexdigest() == res.provenance.prompt_sha256
+
+
+# ---------------------------------------------------------------------------
+# AI2-C — bounded-input security: deterministic rejection of deep, non-JSON,
+# and oversized request payloads (no crash, no payload echo).
+# ---------------------------------------------------------------------------
+
+
+def _nest(depth: int):
+    value: Any = 1
+    for _ in range(depth):
+        value = {"a": value}
+    return value
+
+
+def test_ai2_request_rejects_deep_nesting():
+    """Demonstrated risks contained at the contract boundary: depth-1000
+    payloads crash pydantic-core serialization and ~10.9k-deep payloads overflow
+    json.dumps recursion; both are now rejected deterministically at
+    construction, while the depth-24 boundary is accepted."""
+    assert AIRequest2(backtest_result=_nest(24)).backtest_result is not None
+    for depth in (25, 100, 1000):
+        with pytest.raises(ValidationError) as exc:
+            AIRequest2(backtest_result=_nest(depth))
+        assert "backtest_result_too_deep" in str(exc.value)
+    # Wide-but-shallow structures stay legal.
+    wide = {f"k{i}": [i, {"x": i}] for i in range(100)}
+    assert AIRequest2(backtest_result=wide).backtest_result == wide
+
+
+def test_ai2_request_rejects_non_json_values_without_payload_echo():
+    """NaN/Infinity are not RFC 8259 JSON and sets are not JSON-compatible:
+    all are rejected deterministically; the error text carries only the code —
+    pydantic truncates the input repr, so no unbounded payload echo occurs."""
+    for bad in ({"x": float("nan")}, {"x": float("inf")}, {"x": -float("inf")}, {"x": {1, 2}}):
+        with pytest.raises(ValidationError) as exc:
+            AIRequest2(backtest_result=bad)
+        assert "backtest_result_not_json_serializable" in str(exc.value)
+        assert len(str(exc.value)) < 500
+    # Finite extreme floats are JSON-legal and accepted.
+    req = AIRequest2(backtest_result={"hi": 1e308, "lo": -1e308})
+    assert req.backtest_result["hi"] == 1e308
+
+
+# ---------------------------------------------------------------------------
+# AI2-C — output and provenance depth: missing/whitespace/non-object outputs,
+# seam-contract violations, provenance completeness on every outcome, and
+# exact inter-stage value transfer.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_ai2_missing_required_fields_maps_schema_error(monkeypatch, _openai_env):
+    """Missing required fields (summary/confidence) map to a structured schema
+    error naming the fields; no interpretation is attached."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    res_empty = await AI2Service().run(
+        AIRequest2(), DummyMarketService(), transport=lambda p: {"text": "{}"}
+    )
+    assert res_empty.status == "failed_schema"
+    assert "summary" in (res_empty.error_code or "")
+    assert "confidence" in (res_empty.error_code or "")
+    res_partial = await AI2Service().run(
+        AIRequest2(), DummyMarketService(), transport=lambda p: {"text": json.dumps({"summary": "s"})}
+    )
+    assert res_partial.status == "failed_schema"
+    assert "confidence" in (res_partial.error_code or "")
+    assert res_partial.interpretation is None
+
+
+@pytest.mark.asyncio
+async def test_ai2_non_object_output_maps_schema_not_object(monkeypatch, _openai_env):
+    """JSON-valid but non-object model outputs (array/string/number/null) map
+    deterministically to schema_not_object."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    for text in ("[1, 2]", '"just text"', "5", "null"):
+        res = await AI2Service().run(
+            AIRequest2(), DummyMarketService(), transport=lambda p, t=text: {"text": t}
+        )
+        assert res.status == "failed_schema"
+        assert res.error_code == "schema_not_object"
+        assert res.interpretation is None
+
+
+@pytest.mark.asyncio
+async def test_ai2_whitespace_only_output_maps_empty_output(monkeypatch, _openai_env):
+    """Whitespace-only output is treated as empty content (no interpretation).
+    The seam itself rejects whitespace text as malformed, so this reaches the
+    service only through a seam-contract stand-in (ok=True + whitespace text)."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    monkeypatch.setattr(ai2_module, "invoke_ai_provider", _seam_returning(None, "   \n\t  "))
+    res = await AI2Service().run(
+        AIRequest2(), DummyMarketService(), transport=_valid_transport
+    )
+    assert res.status == "failed_schema"
+    assert res.error_code == "empty_output"
+
+
+@pytest.mark.asyncio
+async def test_ai2_provenance_complete_on_every_outcome(monkeypatch, _openai_env):
+    """Every outcome path carries complete provenance: input hash, timestamp,
+    trust state, provider identity, gate report; prompt hash is recorded iff the
+    provider prompt was actually constructed; attempts recorded on seam-reached
+    paths."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    gate_keys = {
+        "ai2_enabled",
+        "live_verified",
+        "g2_owner_acceptance",
+        "g2_independent_validation",
+        "provider_invocation_ready",
+        "real_data_ai2_allowed",
+    }
+    outcomes = []
+
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(False))
+    outcomes.append(("ai2_disabled", await AI2Service().run(
+        AIRequest2(), DummyMarketService(), transport=_spy_transport)))
+
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    outcomes.append(("data_trust_unavailable", await AI2Service().run(
+        AIRequest2(), DummyMarketService(trust_state="unavailable"), transport=_valid_transport)))
+    outcomes.append(("trust_missing", await AI2Service().run(
+        AIRequest2(), EmptyTrustMarketService(), transport=_valid_transport)))
+    outcomes.append(("g2_gate", await AI2Service().run(
+        AIRequest2(), DummyMarketService(), transport=None)))
+
+    def _timeout_transport(payload):
+        raise TimeoutError("timeout")
+
+    outcomes.append(("failed_provider_timeout", await AI2Service().run(
+        AIRequest2(), DummyMarketService(), transport=_timeout_transport)))
+    outcomes.append(("failed_schema", await AI2Service().run(
+        AIRequest2(), DummyMarketService(), transport=lambda p: {"text": "not json"})))
+    outcomes.append(("executed_shadow", await AI2Service().run(
+        AIRequest2(), DummyMarketService(), transport=_valid_transport)))
+
+    def _seam_attempts(payload, **kwargs):
+        return {
+            "ok": True, "status": "executed", "error_code": None,
+            "text": json.dumps(VALID_OUTPUT), "live_llm": False, "test_only": False,
+            "requested": "openai", "attempts": 1,
+        }
+
+    monkeypatch.setattr(ai2_module, "invoke_ai_provider", _seam_attempts)
+    outcomes.append(("future_executed", await AI2Service().run(
+        AIRequest2(), LiveCapableMarketService(), transport=None)))
+
+    prompt_not_built = {"ai2_disabled", "data_trust_unavailable", "trust_missing", "g2_gate"}
+    schema_valid_expected = {"executed_shadow", "future_executed"}
+    for name, res in outcomes:
+        prov = res.provenance
+        assert prov is not None, name
+        assert len(prov.input_snapshot_sha256) == 64, name
+        assert prov.created_at_utc, name
+        datetime.fromisoformat(prov.created_at_utc)  # parseable UTC timestamp
+        assert prov.data_trust_state, name
+        assert prov.provider_mode and prov.provider_label, name
+        assert gate_keys <= set(prov.gate), name
+        assert (name in prompt_not_built) == (prov.prompt_sha256 == ""), name
+        if name not in prompt_not_built:
+            assert len(prov.prompt_sha256) == 64, name
+        assert prov.schema_valid == (name in schema_valid_expected), name
+        if name not in prompt_not_built:
+            assert prov.provider_attempts == 1, name
+        else:
+            assert prov.provider_attempts is None, name
+    statuses = {name: res.status for name, res in outcomes}
+    assert statuses["ai2_disabled"] == "gated_not_executed"
+    assert statuses["g2_gate"] == "gated_not_executed"
+    assert statuses["failed_provider_timeout"] == "failed_provider"
+    assert statuses["future_executed"] == "executed"
+
+
+@pytest.mark.asyncio
+async def test_ai2_inter_stage_values_exact(monkeypatch, _openai_env):
+    """The exact values passed between stages are verified: the transport sees
+    the deterministic task/trust/prompt; the interpretation carries the model
+    values through unchanged."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    captured: dict[str, Any] = {}
+
+    def _spy(payload):
+        captured["payload"] = payload
+        return {"text": json.dumps(VALID_OUTPUT)}
+
+    req = AIRequest2(symbol="فملی", question="تحلیل وضعیت نماد")
+    res = await AI2Service().run(req, DummyMarketService(), transport=_spy)
+    payload = captured["payload"]
+    assert payload["task"] == "analyst"
+    # The transport receives the seam's bounded execution payload: the trust
+    # STATE (not the full dict) plus the exact prompt built by AI-2.
+    assert payload["data_trust_state"] == res.deterministic_context["data_trust"]["state"]
+    prompt = payload["prompt"]
+    assert "Task: analyst" in prompt
+    assert "Data trust state: mock" in prompt
+    assert "live_verified: false" in prompt
+    assert req.question in prompt
+    assert res.deterministic_context["stage1"]["summary"][:100] in prompt
+    observations = res.deterministic_context["stage1"]["key_observations"]
+    assert observations and observations[0] in prompt
+    assert len(prompt) <= 2000
+    # Exact model values pass through to the interpretation.
+    assert res.interpretation.summary == VALID_OUTPUT["summary"]
+    assert res.interpretation.confidence == 0.42
+    assert res.interpretation.observations == VALID_OUTPUT["observations"]
+
+
+@pytest.mark.asyncio
+async def test_ai2_seam_contract_violation_non_dict_maps_failed_provider(monkeypatch, _openai_env):
+    """Defense in depth: a seam returning a non-dict payload is mapped to a
+    deterministic provider failure instead of crashing with AttributeError."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    for bad in (None, ["x"], "text"):
+        monkeypatch.setattr(ai2_module, "invoke_ai_provider", lambda p, **k: bad)
+        res = await AI2Service().run(AIRequest2(), DummyMarketService(), transport=_valid_transport)
+        assert res.ok is False
+        assert res.status == "failed_provider"
+        assert res.error_code == "provider_contract_violation"
+        assert res.interpretation is None
+        assert res.provenance.provider_status is None
+        assert any("seam contract" in w for w in res.warnings)
+
+
+@pytest.mark.asyncio
+async def test_ai2_provider_attempts_recorded_or_none(monkeypatch, _openai_env):
+    """provider_attempts mirrors the seam's attempts contract: valid ints are
+    recorded; missing or non-int values degrade to None (never a crash)."""
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+
+    def _seam(payload, *, attempts="MISSING", **kwargs):
+        out = {
+            "ok": True, "status": "executed_test_only", "error_code": None,
+            "text": json.dumps(VALID_OUTPUT), "live_llm": False, "test_only": True,
+            "requested": "openai",
+        }
+        if attempts != "MISSING":
+            out["attempts"] = attempts
+        return out
+
+    monkeypatch.setattr(ai2_module, "invoke_ai_provider", lambda p, **k: _seam(p, attempts=3))
+    res3 = await AI2Service().run(AIRequest2(), DummyMarketService(), transport=_valid_transport)
+    assert res3.provenance.provider_attempts == 3
+
+    monkeypatch.setattr(ai2_module, "invoke_ai_provider", lambda p, **k: _seam(p, attempts="3"))
+    res_bad = await AI2Service().run(AIRequest2(), DummyMarketService(), transport=_valid_transport)
+    assert res_bad.provenance.provider_attempts is None
+
+    monkeypatch.setattr(ai2_module, "invoke_ai_provider", lambda p, **k: _seam(p))
+    res_missing = await AI2Service().run(AIRequest2(), DummyMarketService(), transport=_valid_transport)
+    assert res_missing.provenance.provider_attempts is None
 

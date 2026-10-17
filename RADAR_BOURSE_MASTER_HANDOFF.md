@@ -860,16 +860,6 @@ INSTALLATION: NOT STARTED
 
 P3.90.1 fixed Windows `$PSScriptRoot` resolution in PowerShell `param()` defaults. P3.90.2 (`00e392e`) pinned `tzdata==2026.3` — Windows has no IANA zoneinfo DB, so `ZoneInfo("Asia/Tehran")` failed at import; installed by the existing `install.ps1` flow. P3.90.7 (`5206569`) added `tsetmc_mw_to_snapshot`, mapping CDN GetMarketWatch keys `lva`/`lvc` (plus existing `pDrCotVal`/`pClosing`/`qTotTran5J`); a historical owner-runtime apply observed `source=tsetmc, symbol_count=1509` — recorded as an observation, NOT a live-data verification. P3.91 (`c1984e7`) proved by tests only that Filter DSL consumes snapshots built from CDN-mapped data; no filter/provider/fallback/trust change. These commits postdated the last STATUS/INDEX/handoff pass (P3.90.1/P3.89 era); P3.92 reconciled the canonical documents (docs-only, no application-code change) and the companion P3.93 (`6ff6b07`) corrected `docs/active/SECURITY_PRIVATE_MODE.md` v1.5→v1.6 to match the actual HttpOnly cookie session implementation (no security-control change). Fresh baseline re-verified 2026-10-17: pytest 308 passed / 2 warnings; pyflakes app clean; pip-audit clean; bootstrap validator 8/8.
 
-```text
-Started from: c1984e7979f89f2d727b471deb602953ec62fad5 (P3.91)
-Latest local commit: 6ff6b073abb172ca5330dfac535c77a3a5c20b45 (P3.93)
-Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
-GitHub: BLOCKED (local ahead of origin after P3.93 — publication owner-gated)
-LIVE DATA: NOT VERIFIED
-LLM EXECUTION: NOT EXECUTED
-INSTALLATION: NOT STARTED
-```
-
 ## REM-1 / AI2-A Update — full-code audit remediation and AI-2 Category A scaffold (2026-10-17)
 
 REM-1 performed one full remaining-code audit (backend 60 modules/14,663 lines with deep reads of the security core, routes, AI service/provider seam, data store, and backtest same-bar policy; 37 test files; frontend security sinks; CI config) and fixed every verified safe defect: 7 unused-import/variable lint findings in `backend/tests/` and the stale `rate_limiter.py` docstring (now states the enforced 150/25/15 + login 5/min & 20/hour limits). `pyflakes app tests` went from 7 findings to 0; the suite stayed at 308 passed / 2 warnings. Residual recorded items (no demonstrated failure, owner discretion): blocklist-based formula sandbox in `frontend/js/modules/custom_indicator.js:126`, planned nonce-based CSP (`security.py:258`), and the missing literal-429 middleware test. AI2-A then implemented the AI-2 Category A offline scaffold (`backend/app/services/ai2_service.py` + `backend/tests/test_ai2_service.py`, 12 mock tests, additive `AI2_ENABLED` config): typed contracts, strict interpretation-schema validation, reuse of the existing deterministic `AIContextBuilder` and fail-closed `invoke_ai_provider` seam, provenance metadata, deterministic failure mapping, secret-free logging, and two independent gates — `AI2_ENABLED` (default off) and `is_verified_live(data_trust)` for the production path, which is structurally unreachable today. No HTTP route was exposed for AI-2; real-data AI-2 remains BLOCKED behind G2 independent validation + owner acceptance; `live_verified` stays false; LLM NOT EXECUTED. The IDs REM-1/AI2-A deliberately avoid "P3.94" because a reported P3.94 exists only in a second workspace whose commits are NOT_PRESENT here. Audit/ledger evidence: `docs/active/REM1_AI2A_IMPLEMENTATION_RECORD.md`.
@@ -890,7 +880,31 @@ AI2-B (same session as AI2-A, mandate: implement all AI-2 work unblocked by exis
 
 ```text
 Started from: c1984e7979f89f2d727b471deb602953ec62fad5 (P3.91)
-Local commits: 6ff6b07 (P3.93) → a578abe (P3.92) → 48c1e2b (REM-1) → 0af6d06 (AI2-A) → AI2-B (this update)
+Local commits: 6ff6b07 (P3.93) → a578abe (P3.92) → 48c1e2b (REM-1) → 0af6d06 (AI2-A) → 6cf2d93 (AI2-B) (this update)
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED (local ahead of origin — publication owner-gated)
+LIVE DATA: NOT VERIFIED (live_verified=false)
+LLM EXECUTION: NOT EXECUTED (AI-2 offline-only; AI2_ENABLED=0; no route)
+INSTALLATION: NOT STARTED
+```
+
+## AI2-C Update — AI-2 async boundary, context-integrity, and bounded-input hardening (2026-10-17)
+
+AI2-C (same session; mandate titled "AI2-B hardening", recorded as AI2-C because AI2-B is already committed at `6cf2d93`) continued the hardening without changing governance positions: (1) **cancellation containment documented and proven** — `asyncio.to_thread` cannot terminate a running worker thread, so tests prove the opposite claim: a transport blocked in the worker thread completes LATE after caller cancellation, the late success/failure is discarded (task raises `CancelledError`, the stateless singleton gains no state, the instance serves a fresh correct run afterwards), and cancellation during context building reaches no seam invocation; (2) **hash-to-payload verifiability** — `input_snapshot_sha256` re-derives from the returned `deterministic_context` alone and `prompt_sha256` re-derives by rebuilding the prompt from the recorded task/data_trust/stage-1 inputs plus the question (including the degraded missing-symbol shape); a schema-valid model output claiming different deterministic facts leaves the deterministic context bit-for-bit identical to a gated (model-free) run; (3) **demonstrated bounded-input risks fixed** — a `backtest_result` legal under the 64 KiB cap but nested ~1000 deep crashed `ctx.model_dump(mode="json")` with pydantic-core `ValueError("Circular reference detected")` and ~10.9k deep overflowed `json.dumps` with `RecursionError` (both previously uncaught); new iterative depth bound (24, `backtest_result_too_deep`), NaN/Infinity rejection (`allow_nan=False` → `backtest_result_not_json_serializable`), wide-but-shallow and finite-float inputs stay legal; (4) a seam-contract-violating non-dict execution now maps to `failed_provider/provider_contract_violation` instead of crashing with `AttributeError`; (5) provenance adds `provider_attempts` and a completeness test now covers all 8 outcome paths (prompt hash empty iff the prompt was never constructed; attempts recorded iff the seam was reached); exact inter-stage value transfer is asserted (transport sees the seam's bounded payload with the exact prompt; model values pass through unchanged). Tests 23 → 40 (all mock-based, no network); full suite 331 → 348 passed / 2 warnings; pyflakes `app tests` 0; pip-audit clean; validator 8/8. No AI-2 HTTP route exists; `AI2_ENABLED` defaults off; G2 NOT_PASSED and not self-approved; `live_verified` stays false; LLM NOT EXECUTED. Category B blockers unchanged: NOT_SYNCED 2026-10-02 amendment corpus + live credentials. Record §7: `docs/active/REM1_AI2A_IMPLEMENTATION_RECORD.md`; raw evidence: `docs/governance/evidence/raw/2026-10-17_ai2c/`.
+
+```text
+Started from: c1984e7979f89f2d727b471deb602953ec62fad5 (P3.91)
+Latest local commit: 6ff6b073abb172ca5330dfac535c77a3a5c20b45 (P3.93)
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED (local ahead of origin after P3.93 — publication owner-gated)
+LIVE DATA: NOT VERIFIED
+LLM EXECUTION: NOT EXECUTED
+INSTALLATION: NOT STARTED
+```
+
+```text
+Started from: c1984e7979f89f2d727b471deb602953ec62fad5 (P3.91)
+Local commits: 6ff6b07 (P3.93) → a578abe (P3.92) → 48c1e2b (REM-1) → 0af6d06 (AI2-A) → 6cf2d93 (AI2-B) → AI2-C (this update)
 Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
 GitHub: BLOCKED (local ahead of origin — publication owner-gated)
 LIVE DATA: NOT VERIFIED (live_verified=false)

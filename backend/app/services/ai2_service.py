@@ -31,6 +31,13 @@ Governance position (see docs/active/REM1_AI2A_IMPLEMENTATION_RECORD.md):
   injected ``test_transport`` runs in a worker thread and must be
   thread-safe. Provenance records both the input-snapshot hash and the
   exact prompt hash for stable traceability.
+- Cancellation containment (async boundary contract): ``asyncio.to_thread``
+  cannot terminate a running worker thread. Cancelling the awaiting task
+  delivers ``CancelledError`` to the caller; a late provider completion in
+  the worker thread is discarded — it can never be returned to a cancelled
+  caller or committed to downstream state, because the service keeps no
+  cross-run state and a result object is only ever handed back to the
+  awaited caller.
 - No HTTP route is exposed for AI-2: the owner-facing surface for AI-2 is
   defined in the NOT_SYNCED amendments and must not be invented here.
 """
@@ -71,6 +78,12 @@ AI2Transport = Callable[[dict[str, Any]], Any]
 # Interpretive list items are individually bounded (bounded-output contract).
 BoundedStr = Annotated[str, Field(max_length=500)]
 
+# Bounded request payload nesting depth. Demonstrated risk being contained:
+# payloads legal under the 64 KiB size cap but nested ~1000 deep crash
+# pydantic-core serialization ("Circular reference detected") and ~10.9k
+# deep overflow json.dumps recursion; real backtest results are far shallower.
+_MAX_BACKTEST_DEPTH = 24
+
 
 class AI2Request(BaseModel):
     """Bounded AI-2 request contract (implementation hardening).
@@ -88,12 +101,32 @@ class AI2Request(BaseModel):
     backtest_result: dict[str, Any] | None = None
     language: str = Field(default="fa", max_length=16)
 
+    @staticmethod
+    def _check_depth(value: Any, max_depth: int = _MAX_BACKTEST_DEPTH) -> None:
+        """Iteratively bound container nesting (no recursion on attacker input)."""
+        stack: list[tuple[Any, int]] = [(value, 0)]
+        while stack:
+            node, depth = stack.pop()
+            if depth > max_depth:
+                raise ValueError("backtest_result_too_deep")
+            if isinstance(node, dict):
+                stack.extend((v, depth + 1) for v in node.values())
+            elif isinstance(node, (list, tuple)):
+                stack.extend((v, depth + 1) for v in node)
+
     @model_validator(mode="after")
     def _bounded_payload(self) -> "AI2Request":
         if self.backtest_result is None:
             return self
+        # Depth first: it makes the json.dumps recursion overflow below
+        # unreachable for any accepted payload.
+        self._check_depth(self.backtest_result)
         try:
-            raw = json.dumps(self.backtest_result, ensure_ascii=False)
+            # allow_nan=False: NaN/Infinity are not RFC 8259 JSON; reject them
+            # deterministically instead of emitting non-standard JSON downstream.
+            raw = json.dumps(self.backtest_result, ensure_ascii=False, allow_nan=False)
+        except RecursionError as exc:  # belt-and-braces; depth bound above caps this
+            raise ValueError("backtest_result_too_deep") from exc
         except (TypeError, ValueError) as exc:
             raise ValueError("backtest_result_not_json_serializable") from exc
         if len(raw.encode("utf-8")) > 65536:
@@ -133,6 +166,7 @@ class AI2Provenance(BaseModel):
     provider_label: str
     provider_status: str | None = None
     provider_error_code: str | None = None
+    provider_attempts: int | None = None
     schema_valid: bool = False
     test_only_transport: bool = False
     gate: dict[str, Any] = Field(default_factory=dict)
@@ -391,9 +425,34 @@ class AI2Service:
         else:
             execution = await asyncio.to_thread(invoke_ai_provider, payload)
 
+        if not isinstance(execution, dict):
+            # Defense in depth: the seam contract guarantees a dict on every
+            # path; a violating payload is mapped to a deterministic failure
+            # instead of crashing the service with AttributeError.
+            warnings.append(
+                "Provider execution violated the seam contract (non-dict payload); "
+                "mapped to a deterministic provider failure."
+            )
+            result = AI2Result(
+                ok=False,
+                status="failed_provider",
+                task=request.task,
+                error_code="provider_contract_violation",
+                deterministic_context=deterministic_context,
+                provenance=provenance,
+                warnings=warnings,
+                safety=safety,
+            )
+            _log(result.status, result.error_code)
+            return result
+
         provenance.provider_status = str(execution.get("status") or "")
         provenance.provider_error_code = (
             str(execution.get("error_code")) if execution.get("error_code") else None
+        )
+        attempts = execution.get("attempts")
+        provenance.provider_attempts = (
+            attempts if isinstance(attempts, int) and attempts >= 0 else None
         )
 
         if not execution.get("ok"):
