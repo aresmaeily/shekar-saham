@@ -1005,3 +1005,18 @@ LIVE DATA: NOT VERIFIED (live_verified=false)
 LLM EXECUTION: NOT EXECUTED (AI2_ENABLED=0; no route)
 INSTALLATION: NOT STARTED
 ```
+
+## AI3-M Update — AI-3 Research Memory contract layer (2026-10-18)
+
+AI3-M (dependency successor of AI-MA-C per `02` line 7) verified the repository state first — HEAD `aa86c3c` (AI-MA-Ca) on `main`, tracked tree clean, ahead 17/behind 0 vs live `origin/main` `c1984e7` (read-only `git ls-remote` re-verified; push owner-gated) — then derived the AI-3 scope from the imported corpus. Scope derivation published BEFORE implementation: `docs/active/AI3_M_SCOPE_DERIVATION.md` — the AI-3 definition (`02` lines 83–85: "Episodic immutable run artifacts plus curated/versioned semantic memory", resolving the AI3-A blocker at definition level) mapped to five deliverables (D1 episodic archive, D2 semantic lessons, D3 PIT honesty, D4 closed lifecycle operations, D5 run traceability); blocked integrations isolated precisely: persistence technology (the corpus specifies none — an owner deployment decision) and live research-run feeding (G2-gated; smallest owner action = authorize G2, reviewer-ready package exists). One additive module `backend/app/domain/research_memory.py` (frozen, deterministic, clock-free; no existing module modified): `EpisodicRunArtifact` (full provenance incl. code/dataset/policy version linkage per `06` §7 + MANDATORY information cutoff per `02`:142, cutoff-after-recording refused) + `EpisodicRunArchive` (append-only; NO update/delete/purge/expire/rewrite path; run/hypothesis indexes; PIT `available_at`); `SemanticLesson` (version chain; curation names deterministic rule or human; mandatory source-artifact citation) + `derive_lesson()` (refuses lessons citing artifacts absent from the archive) + `SemanticLessonStore` (register/supersede/retire; retirement = explicit NEW terminal version; history never rewritten); `lessons_active_at(cutoff)` (documented conservative PIT semantics: current-status-at-latest-version ≤ cutoff); closed `MemoryLifecycleOperation` set that structurally cannot express a production mutation (03 §Memory). 13 corpus-derived tests. Battery (repo venv; raw `docs/governance/evidence/raw/2026-10-18_ai3m/`): 512 passed / 2 pre-existing warnings in 78.11s; new-block 13/13; pyflakes 0; compileall 0; pip-audit clean; validators exit 0; bootstrap validator 8/8; `git diff --check` 0; tracked_dirty 0/0. Execution record: `docs/active/AI3M_EXECUTION_RECORD.md`. Dependency-chain position: AI-1 (gap closure) → AI-2 (required items) → AI-MA (contracts) → AI-3 (this block) — ALL DELIVERED at the pre-G2-authorized contract class; the roadmap's remaining blocks (AI-4..AI-7) and G2 remain owner-gated. Governance unchanged: no new HTTP route; `AI2_ENABLED` default off; G2 NOT_PASSED (not self-approved); `live_verified=false`; LLM NOT EXECUTED; no push.
+
+```text
+Started from: aa86c3cc827ba4a9ff655aeba8917746418c5d8d (AI-MA-Ca)
+Latest local commit: AI3-M (this update — SHA resolves via git log --oneline -1 -- docs/active/AI3M_EXECUTION_RECORD.md)
+Local commits: 6ff6b07 (P3.93) → … → ea3277e (AI1-GC) → 2f86c4a (AI1-GCa) → 6aeeaa2 (AI2-F) → 17ef611 (AI2-Fa) → e385415 (AI-MA-C) → aa86c3c (AI-MA-Ca) → AI3-M (this update)
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED (local ahead of origin — publication owner-gated)
+LIVE DATA: NOT VERIFIED (live_verified=false)
+LLM EXECUTION: NOT EXECUTED (AI2_ENABLED=0; no route)
+INSTALLATION: NOT STARTED
+```

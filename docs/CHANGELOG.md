@@ -1,5 +1,12 @@
 # Changelog — RADAR BOURSE
 
+## 2026-10-18 — AI3-M AI-3 Research Memory contract layer (episodic + semantic)
+
+- Scope derivation published BEFORE implementation (`docs/active/AI3_M_SCOPE_DERIVATION.md`): corpus AI-3 definition (`02` lines 83–85 — resolving the AI3-A blocker at definition level) mapped to five deliverables; blocked integrations isolated precisely (persistence technology = owner deployment decision; live research-run feeding = G2-gated).
+- Additive module `backend/app/domain/research_memory.py` (frozen, deterministic, clock-free): `EpisodicRunArtifact` (full provenance + mandatory information cutoff) + `EpisodicRunArchive` (append-only, no delete/purge path, PIT available_at); `SemanticLesson` (version chain, curation basis, mandatory source-artifact citation) + `derive_lesson()` (archive-citation enforcement) + `SemanticLessonStore` (register/supersede/retire; retirement = explicit terminal version; history never rewritten); `lessons_active_at` (documented conservative PIT semantics); closed `MemoryLifecycleOperation` set (03 §Memory structural lock).
+- Tests: 13 corpus-derived acceptance tests (`test_ai3_research_memory.py`). Battery (repo venv; raw `docs/governance/evidence/raw/2026-10-18_ai3m/`): 512 passed / 2 pre-existing warnings in 78.11s; new-block 13/13; pyflakes 0; compileall 0; pip-audit clean; alpha env/runtime/frontend validators 0; bootstrap validator 8/8; `git diff --check` 0; tracked_dirty 0/0.
+- Execution record: `docs/active/AI3M_EXECUTION_RECORD.md`. Dependency chain AI-1→AI-2→AI-MA→AI-3 now fully delivered at the pre-G2 contract class. Governance unchanged: no new HTTP route; `AI2_ENABLED` default off; G2 NOT_PASSED; `live_verified=false`; LLM NOT EXECUTED; no push.
+
 ## 2026-10-18 — AI-MA-C multi-agent runtime contract layer (AI-MA-1..6, contracts only)
 
 - Scope derivation published BEFORE implementation (`docs/active/AIMA_C_SCOPE_DERIVATION.md`): corpus AI-MA definition (`02` lines 55–81) mapped to six sub-blocks; runtime NOT instantiated (pre-G2 class; D-AI-17/18 roles-stay-lenses); carries the AI2F-06 residual docs correction (CHANGELOG/handoff "new-block 24/24" attribution — the pre-remediation ai2f pack recorded 23/23; 24/24 belongs to the ai2fa at-commit battery).
