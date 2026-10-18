@@ -229,6 +229,22 @@ def test_invalidation_fires_on_trust_change_and_downgrade() -> None:
     assert invalidates("live", "live", None, "ds-2") == ()
 
 
+def test_trust_downgrade_uses_canonical_coarse_levels() -> None:
+    """Canonical ranking (config._legacy_trust_level_from_state): live >
+    mixed/stale/unavailable > mock/synthetic — no invented fine ordering."""
+    # mixed is at the same canonical level as stale/unavailable: changes but
+    # NOT a downgrade (this is the AI2F-05 remediation behavior).
+    assert invalidates("mixed", "stale", None, None) == ("TRUST_STATE_CHANGED",)
+    assert invalidates("stale", "mixed", None, None) == ("TRUST_STATE_CHANGED",)
+    # live -> mixed IS a downgrade; mock -> mixed is an upgrade.
+    assert invalidates("live", "mixed", None, None) == ("TRUST_STATE_CHANGED", "TRUST_DOWNGRADED")
+    assert invalidates("mock", "mixed", None, None) == ("TRUST_STATE_CHANGED",)
+    # same canonical level: a change fires TRUST_STATE_CHANGED but never a
+    # downgrade (both mock and synthetic sit at canonical level synthetic).
+    assert invalidates("mock", "synthetic", None, None) == ("TRUST_STATE_CHANGED",)
+    assert invalidates("mixed", "unavailable", None, None) == ("TRUST_STATE_CHANGED",)
+
+
 def test_invalidation_rule_record() -> None:
     rule = AI2InvalidationRule(
         reason_codes=("TRUST_STATE_CHANGED",),

@@ -21,13 +21,14 @@ Report: `docs/active/AI2_F_SCOPE_DERIVATION.md`. Authoritative requirement: `02_
 | invalidation | `AI2InvalidationRule` (explicit reason codes; declared_by mandatory) + `invalidates()` — TRUST_STATE_CHANGED / TRUST_DOWNGRADED / DATASET_SUPERSEDED; None version never silently equal; invalidation is a NEW ledger record, never a rewrite |
 | human approval state | `AI2RunRecord.approval_state` (AI1-GC ApprovalState) + `governed_acceptance` blocking PENDING/ESCALATED/REJECTED |
 
-Tests: `backend/tests/test_ai2_f_governance.py` (23 tests) — one or more per required item plus an end-to-end composition walkthrough of all eight items (`test_composition_end_to_end_all_eight_required_items`). Development-time defect note (honest record): two initial test expectations were unconstructible/uniformly-too-strict (empty-string policy_version is model-rejected; mismatched identity fires BOTH run_id_binding and provenance_incomplete blockers — the dual firing is correct behavior) — fixed in tests, no implementation change.
+Tests: `backend/tests/test_ai2_f_governance.py` (24 tests) — one or more per required item plus an end-to-end composition walkthrough of all eight items (`test_composition_end_to_end_all_eight_required_items`). Development-time defect notes (honest record): (a) two initial test expectations were unconstructible/uniformly-too-strict (empty-string policy_version is model-rejected; mismatched identity fires BOTH run_id_binding and provenance_incomplete blockers — the dual firing is correct behavior) — fixed in tests, no implementation change; (b) post-audit remediation replaced the invented fine-grained trust ordering with the repository's canonical coarse trust levels (AI2F-05) and added the canonical-level tests.
 
 ## 3. Validation battery (raw `docs/governance/evidence/raw/2026-10-18_ai2f/`)
 
 | Check | Result |
 |---|---|
 | `pytest -q tests` (repo venv, `backend/`) | **473 passed, 2 warnings** (450 + 23; pre-existing deprecations only) in 77.63s — exit 0 |
+| At-commit battery at the AI2-Fa remediation SHA (`raw/2026-10-18_ai2fa/`) | see §7 |
 | `pytest -q tests/test_ai2_f_governance.py` | **23 passed** in 0.19s — exit 0 |
 | `pyflakes app tests` | 0 findings — exit 0 |
 | `compileall app tests` | 0 — exit 0 |
@@ -39,12 +40,26 @@ Tests: `backend/tests/test_ai2_f_governance.py` (23 tests) — one or more per r
 
 ## 4. Governance reconciliation
 
-Tracked updates committed: STATUS row, CHANGELOG entry, INDEX entries, master-handoff appendix, scope-derivation report, execution record, the domain module, the test file. Untracked (bootstrap-governance set): state-file reconciliation, audit reports, raw evidence. Commit message cites untracked evidence per the established precedent.
+Tracked updates committed: STATUS row, CHANGELOG entry, INDEX entries, master-handoff appendix, scope-derivation report, execution record, the domain module, the test file. Untracked (bootstrap-governance set): state-file reconciliation (§7), audit reports, raw evidence. Commit message cites untracked evidence per the established precedent.
 
 ## 5. Statuses after this block (separated, not conflated)
 
 - AI-2 required-items completion: **IMPLEMENTED (contract layer, paper/synthetic scope)** — all eight `02` lines 50–53 items now have contracts + deterministic tests; the Category A service is unchanged and remains default-off.
 - NOT claimed (D-AI-41): AI-2 runtime/real-data execution stays BLOCKED (G2 NOT_PASSED; owner acceptance of G2 outstanding); `AI2_ENABLED` default off; no route; LLM NOT EXECUTED; `live_verified=false`.
 - Research-loop runtime instantiation: NOT attempted (requires G2-passed real-data execution per `02` lines 10–11/201; out of AI2-F scope by design).
-- Push: owner-gated (14 local commits after this block).
+- Push: owner-gated (15 local commits after this block).
 - Next authorized block (dependency graph `02` line 7): **AI-MA-1..6** — contract-level orchestration/specialist/registry/artifact/traceability layer reusing AI1-GC run-governance + artifact contracts.
+
+## 6. Independent audit (AI2F-audit)
+
+Independent read-only audit: `docs/governance/evidence/2026-10-18_AI2F_independent_audit.md` — verdict **FAIL (narrow)**; every substantive deliverable verified (commit integrity 8 files +830/−1, additive discipline incl. zero diff on `ai2_service.py`, all 8 corpus items mapped, 23/23 tests re-executed live, auditor's own battery 473 passed at `6aeeaa2`). Findings dispositioned:
+
+- **AI2F-01 (MEDIUM)**: record §4 + scope-derivation D3 claimed a state-file reconciliation that had not been performed (the AI1GC-01 pattern recurring) → reconciliation actually performed (untracked; header/§1/§2h/§3/§7/§8/§9) and this record corrected.
+- **AI2F-02 (LOW)**: pre-commit-only battery → at-commit battery executed at the AI2-Fa SHA into `raw/2026-10-18_ai2fa/`.
+- **AI2F-03 (LOW)**: duplicate taxonomy (`DUPLICATE_REPEATED_QUESTION`) was an undisclosed engineering choice → module docstring now carries the engineering-authority note (corpus defines no dedup semantics; labels never block); no behavioral change.
+- **AI2F-04 (LOW)**: `AI2BudgetSpec` docstring falsely claimed to "mirror the existing hard ceilings" → docstring corrected to name the values as engineering-authority choices under D-AI-24 (they intentionally differ from the monitoring ceilings 10/3600/8/60).
+- **AI2F-05 (LOW)**: `invalidates()` trust ordering was invented AND incomplete (omitted canonical `"mixed"`; placed `unavailable` below `mock`) → replaced with the repository's canonical coarse trust levels (`config._legacy_trust_level_from_state`, config.py:191–196: live > mixed/stale/unavailable > mock/synthetic); canonical-level tests added (`test_trust_downgrade_uses_canonical_coarse_levels`); test count 23 → 24.
+
+## 7. Remediation commit (AI2-Fa)
+
+Remediation commit **AI2-Fa**: small code fix in `ai2_governance.py` (canonical trust ranking + honest docstrings/notes), test additions (24 total), record §2/§3/§6 corrections, STATUS/CHANGELOG/handoff wording, plus the untracked state-file reconciliation. At-commit battery at the AI2-Fa SHA into `raw/2026-10-18_ai2fa/`. Audit FAIL history preserved verbatim in the audit report.

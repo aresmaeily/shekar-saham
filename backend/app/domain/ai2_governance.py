@@ -22,6 +22,20 @@ level; the service remains default-off (AI2_ENABLED=0) and G2-blocked.
 
 Contract/domain only: frozen records, deterministic, clock-free (elapsed
 time, timestamps always passed in), no I/O, no network, no LLM, no scheduler.
+
+Engineering-authority notes (05 §Engineering authority — choices NOT defined
+by the corpus text, documented here per the AI1-GC ambiguity-note precedent):
+- Duplicate-detection taxonomy: the corpus requires duplicate detection
+  (02:52) but defines no semantics. ``classify_duplicate`` labels an identical
+  (task, input snapshot) pair DUPLICATE_IDENTICAL and any other repeat of the
+  same whitelisted task DUPLICATE_REPEATED_QUESTION. Labels never block
+  ledgering; the coarse second class is a visible heuristic, not a corpus rule.
+- Budget ceilings (16 invocations / 64 iterations / 86400s) are engineering-
+  authority values chosen to bound resources (D-AI-24), NOT mirrors of any
+  existing contract's ceilings (the monitoring contract uses 10/3600/8/60).
+- Trust downgrade ordering in ``invalidates`` reuses the repository's own
+  canonical coarse trust levels (``config._legacy_trust_level_from_state``,
+  config.py:191-196): live > mixed/stale/unavailable > mock/synthetic.
 """
 
 from __future__ import annotations
@@ -64,8 +78,11 @@ DuplicateClass = Literal[
 class AI2BudgetSpec(BaseModel):
     """Immutable resource ceilings for one AI-2 research run.
 
-    Structural bounds mirror the existing hard ceilings of the monitoring
-    and provider contracts; a budget cannot be unbounded by construction.
+    Every ceiling is structurally bounded (no unbounded budget by
+    construction). The specific ceiling values are engineering-authority
+    choices under D-AI-24; they intentionally do NOT copy the monitoring
+    contract's ceilings (10 retries / 3600s timeout / 8 concurrency / 60
+    runs-per-hour) because AI-2 runs have a different shape.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -210,6 +227,20 @@ class AI2InvalidationRule(BaseModel):
         return self
 
 
+# Canonical coarse trust levels (backend/app/core/config.py:191-196,
+# _legacy_trust_level_from_state): live > mixed/stale/unavailable >
+# mock/synthetic. Reused here so a "downgrade" means exactly what the
+# repository's own trust semantics mean — no invented fine ordering.
+_TRUST_RANK: dict[str, int] = {
+    "live": 2,
+    "mixed": 1,
+    "stale": 1,
+    "unavailable": 1,
+    "mock": 0,
+    "synthetic": 0,
+}
+
+
 def invalidates(
     previous_trust_state: str,
     current_trust_state: str,
@@ -225,10 +256,8 @@ def invalidates(
     reasons: list[str] = []
     if previous_trust_state != current_trust_state:
         reasons.append("TRUST_STATE_CHANGED")
-    _TRUST_ORDER = {"live": 3, "stale": 2, "mock": 1, "synthetic": 1, "unavailable": 0}
-    if (
-        _TRUST_ORDER.get(current_trust_state, -1) < _TRUST_ORDER.get(previous_trust_state, -1)
-        and current_trust_state != previous_trust_state
+    if _TRUST_RANK.get(current_trust_state, -1) < _TRUST_RANK.get(
+        previous_trust_state, -1
     ):
         reasons.append("TRUST_DOWNGRADED")
     if (
