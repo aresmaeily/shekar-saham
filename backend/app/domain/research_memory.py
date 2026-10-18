@@ -105,9 +105,12 @@ class EpisodicRunArtifact(BaseModel):
     @model_validator(mode="after")
     def _provenance_honesty(self) -> "EpisodicRunArtifact":
         # 06 §7: results link to code/config/data versions — when a version
-        # is unknown it stays explicitly None; it is never invented. But an
-        # artifact whose cutoff precedes its own recording is self-
-        # contradictory (information cannot be cut off before it exists).
+        # is unknown it stays explicitly None; it is never invented. And per
+        # 02:142 the cutoff states up to which information was available:
+        # an artifact whose cutoff lies AFTER its own recording would claim
+        # awareness of information beyond its existence — refused
+        # (anti-look-ahead; AI3M-01 comment-direction fix, behavior
+        # unchanged and test-pinned).
         if self.information_cutoff_utc > self.recorded_at_utc:
             raise ValueError("information_cutoff_after_recording")
         return self

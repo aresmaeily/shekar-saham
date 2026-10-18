@@ -24,6 +24,14 @@ Tests: `backend/tests/test_ai3_research_memory.py` (13 tests) — provenance fre
 - **Persistence technology**: the corpus specifies no storage engine/format/service for AI-3. The deterministic in-memory stores are delivered; actual persistence is an owner-environment deployment decision. Everything else in the AI-3 scope is unblocked and delivered.
 - **Live research-run feeding**: episodic artifacts are produced by governed research runs; the research-loop runtime requires G2-passed real-data execution (`02` lines 10–11/201). AI3-M accepts/archives; it does not execute research. Smallest owner action: authorize G2 (reviewer-ready package exists) — then the loop runtime + persistence integration become the next decisions.
 
+## 3b. Independent audit (AI3M-audit) and dispositions
+
+Audit: `docs/governance/evidence/2026-10-18_AI3M_independent_audit.md` — verdict **PASS** (0 MEDIUM; 1 LOW + 2 INFO disclosed; auditor's own battery at the exact `80585c8` tree = 512 passed / 2 warnings 77.60s). Dispositions:
+
+- **AI3M-01 (LOW)**: inverted inline comment in `_provenance_honesty` (comment said "cutoff precedes recording is self-contradictory" while the code correctly refuses cutoff AFTER recording per 02:142) → comment corrected; behavior unchanged and test-pinned; remediation commit **AI3-Ma**.
+- **AI3M-02 (INFO)**: `lessons_active_at` one-sided conservative semantics (can hide a lesson that was active at cutoff but superseded later; never over-reports/never look-ahead) — disclosed in docstring + test + this record; status-event log noted as a future additive option only if strict PIT reconstruction is ever needed. No change.
+- **AI3M-03 (INFO)**: undisclosed engineering choices catalogued (derive_lesson dedup, version-number gaps permitted, retire preserves curation_basis, available_at keys on recorded_at, free-form run_kind/trust_state, 02:198 approval-state via run_id linkage) — documented here as the disposition record; no behavior change.
+
 ## 4. Statuses after this block (separated, not conflated)
 
 - AI-3 Research Memory: **IMPLEMENTED (contract layer, paper/synthetic scope)** — episodic immutable archive + curated/versioned lessons + PIT honesty + closed lifecycle operations.
