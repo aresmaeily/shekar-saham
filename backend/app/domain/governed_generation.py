@@ -27,11 +27,11 @@ Corpus loci (2026-10-02 amendment corpus, byte-verified import):
   failure-path evidence and an approval record (90-94).
 - 00_OWNER_ROADMAP_DECISION lines 85-86: no self-modifying production logic;
   no broker order execution.
-- 02 line 170: improvement proposals carry baseline, expected benefit,
+- 02 line 179: improvement proposals carry baseline, expected benefit,
   evidence, uncertainty, cost, risks, rollback plan and evaluation design;
   the system must not automatically change production, promote filters,
   alter permissions/budgets, or deploy software.
-- 02 line 196: all governed actions carry traceable run identity, versions,
+- 02 line 198: all governed actions carry traceable run identity, versions,
   human approval state and explicit limitations.
 - 06 charter line 107: reproducible runs demonstrate preregistration,
   deterministic evaluation, holdout protection, versioned artifacts and
@@ -52,7 +52,7 @@ Structural no-production-mutation guarantees (D-AI-03/05/12/13; 03:19-25):
 - the sandbox record cannot express production contact;
 - the evaluator binding cannot express a stochastic (LLM) evaluator;
 - dataset origin is closed to SYNTHETIC/PAPER — LIVE is unrepresentable;
-- software-change proposals must carry the 02:170 fields (incl. a rollback
+- software-change proposals must carry the 02:179 fields (incl. a rollback
   plan) or they cannot be admitted.
 
 An APPROVED candidate remains an ADVISORY artifact awaiting a separate human
@@ -76,10 +76,10 @@ from app.domain.run_governance import (
 )
 
 # ---------------------------------------------------------------------------
-# Closed vocabularies (02:88 + 02:159; 02:202; D-AI-11)
+# Closed vocabularies (02:89-90 + 02:159; 02:202; D-AI-11)
 # ---------------------------------------------------------------------------
 
-#: Exactly the artifact kinds the corpus names for AI-4 (02:88 filters /
+#: Exactly the artifact kinds the corpus names for AI-4 (02:89-90 filters /
 #: indicators / strategy specifications; 02:159 scoring rules, fundamental
 #: features, software-change proposals). Closed Literal: unknown kinds are
 #: unrepresentable by construction.
@@ -96,7 +96,7 @@ GeneratedCandidateKind = Literal[
 #: inexpressible — G2 blocks all real-data evaluation (02:201).
 DatasetOrigin = Literal["SYNTHETIC", "PAPER"]
 
-#: Candidate lifecycle states (D-AI-10/D-AI-11; 02:88-90). There is NO
+#: Candidate lifecycle states (D-AI-10/D-AI-11; 02:87-90). There is NO
 #: production/applied/deployed state: approval terminates the lifecycle with
 #: an advisory artifact; promotion to production is not expressible.
 CandidateLifecycleState = Literal[
@@ -148,14 +148,14 @@ ALLOWED_TRANSITIONS: dict[str, frozenset[str]] = {
 
 
 # ---------------------------------------------------------------------------
-# Candidate record (02:159 "remain candidates"; 02:196 explicit limitations)
+# Candidate record (02:159 "remain candidates"; 02:198 explicit limitations)
 # ---------------------------------------------------------------------------
 
 
 class SoftwareChangeProposalFields(BaseModel):
     """Mandatory content fields for SOFTWARE_CHANGE_PROPOSAL candidates.
 
-    02:170 requires improvement proposals to carry baseline, expected
+    02:179 requires improvement proposals to carry baseline, expected
     benefit, evidence, uncertainty, cost, risks, rollback plan and
     evaluation design. All eight fields are mandatory and non-empty; a
     software-change proposal without a rollback plan cannot be admitted
@@ -178,8 +178,8 @@ class GeneratedCandidate(BaseModel):
     """Immutable record of one AI-generated candidate artifact.
 
     The candidate is generated under a governed run (``run_id`` binds to the
-    canonical RunContext; 02:196). A non-empty ``rationale`` is mandatory
-    (explainable generation; 02:196 explicit limitations). The specification
+    canonical RunContext; 02:198). A non-empty ``rationale`` is mandatory
+    (explainable generation; 02:198 explicit limitations). The specification
     is versioned (06:107 versioned artifacts).
     """
 
@@ -194,7 +194,7 @@ class GeneratedCandidate(BaseModel):
     run_id: str = Field(min_length=1, max_length=128)
     hypothesis_id: str | None = None
     created_at_utc: datetime
-    #: Mandatory only when kind == SOFTWARE_CHANGE_PROPOSAL (02:170); must be
+    #: Mandatory only when kind == SOFTWARE_CHANGE_PROPOSAL (02:179); must be
     #: None for every other kind (kind-specific field discipline).
     proposal: SoftwareChangeProposalFields | None = None
     notes: str = ""
@@ -258,7 +258,7 @@ def sandbox_budget_verdict(spec: SandboxBudgetSpec, usage: SandboxBudgetUsage) -
 
 
 class SandboxAdmissionRecord(BaseModel):
-    """Sandbox-admission record for one candidate (D-AI-11; 02:88).
+    """Sandbox-admission record for one candidate (D-AI-11; 02:89-90).
 
     Structural guarantees enforced at construction:
     - ``isolation_declared=False`` is refused (sandbox must declare

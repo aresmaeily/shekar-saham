@@ -45,9 +45,9 @@ corpus lines.
   applicable, provenance, failure-path evidence, independent validation where
   required, and an approval record.
 - `00:85-86` — no self-modifying production logic; no broker order execution.
-- `02:196` — all governed actions carry traceable run identity, versions,
+- `02:198` — all governed actions carry traceable run identity, versions,
   human approval state and explicit limitations.
-- `02:170` — improvement proposals carry baseline/expected benefit/evidence/
+- `02:179` — improvement proposals carry baseline/expected benefit/evidence/
   uncertainty/cost/risks/rollback plan/evaluation design; must not
   automatically change production, promote filters, alter
   permissions/budgets, or deploy software.
@@ -95,18 +95,18 @@ corpus requirement maps to one planned contract element.
 
 | # | Requirement (corpus locus) | Status | Planned implementation (`backend/app/domain/governed_generation.py` unless noted) |
 |---|---|---|---|
-| R1 | Generated artifact kinds are exactly: filters, indicators, strategy specifications (`02:88`) plus scoring rules, fundamental features, software-change proposals (`02:159`) | GAP | Closed `GeneratedCandidateKind` Literal of six members; unknown kinds unrepresentable |
-| R2 | "only through sandbox" (D-AI-11; `02:88`) | GAP | `SandboxAdmissionRecord` — isolation declaration required, dataset origin closed to SYNTHETIC/PAPER (LIVE structurally inexpressible), production-contact field that cannot be True, bounded `SandboxBudgetSpec`; gate function `sandbox_admission_gate` |
-| R3 | "→ deterministic evaluation" (D-AI-11; D-AI-19; `02:88`) | GAP | `DeterministicEvaluatorBinding` with `service_class: Literal["DETERMINISTIC"]` and NO model/prompt fields (stochastic evaluator unrepresentable); `EvaluatorRegistry` resolve-by-kind; `evaluation_gate` validates binding/candidate/admission coherence |
+| R1 | Generated artifact kinds are exactly: filters, indicators, strategy specifications (`02:89-90`) plus scoring rules, fundamental features, software-change proposals (`02:159`) | GAP | Closed `GeneratedCandidateKind` Literal of six members; unknown kinds unrepresentable |
+| R2 | "only through sandbox" (D-AI-11; `02:89-90`) | GAP | `SandboxAdmissionRecord` — isolation declaration required, dataset origin closed to SYNTHETIC/PAPER (LIVE structurally inexpressible), production-contact field that cannot be True, bounded `SandboxBudgetSpec`; gate function `sandbox_admission_gate` |
+| R3 | "→ deterministic evaluation" (D-AI-11; D-AI-19; `02:89-90`) | GAP | `DeterministicEvaluatorBinding` with `service_class: Literal["DETERMINISTIC"]` and NO model/prompt fields (stochastic evaluator unrepresentable); `EvaluatorRegistry` resolve-by-kind; `evaluation_gate` validates binding/candidate/admission coherence |
 | R4 | "→ lifecycle" (D-AI-10/D-AI-11) | GAP | Closed `CandidateLifecycleState` (DRAFT → SANDBOX_ADMITTED → EVALUATED → APPROVAL_PENDING → APPROVED/REJECTED) + `transition_candidate` table; illegal transitions refused with deterministic reason codes |
 | R5 | "→ approval" — required human approval (`02:159`; `03:90-94`) | GAP | `CandidateApprovalRecord` (decision APPROVED/REJECTED, human `decided_by` + `approval_ref` mandatory — same discipline as RunContext L4); approval only valid in APPROVAL_PENDING |
 | R6 | Candidates "remain candidates until isolated tests, evaluation gates and required human approval are passed" (`02:159`) | GAP | `evaluation_gate` requires preregistration + holdout-protection declarations (`06:107`); EVALUATED→APPROVAL_PENDING refused unless evaluation verdict PASS; end-to-end `governed_candidate_acceptance` |
 | R7 | Hypotheses enter the governed research lifecycle "when a suitable deterministic evaluator exists" (`02:158`) | GAP | `generation_admission_verdict(candidate, registry)` — refuses entry when no binding covers the candidate kind |
 | R8 | Missing required provenance blocks governed acceptance (`03:40`) | GAP | `sandbox_admission_gate` and `governed_candidate_acceptance` call existing `missing_required_provenance` with `dataset_version` additionally required |
-| R9 | No self-modifying production logic; no auto-promotion; ExperimentLab apply blocked (D-AI-03/05/12/13; `03:19-25`; `00:85`; `02:170`) | GAP | Structural: lifecycle vocabulary contains NO production/applied/deployed state; transition table has no edge to any such state; module contains no apply/deploy/promote function; software-change proposals must carry rollback plan + evaluation design + risks (`02:170`) or admission is refused |
+| R9 | No self-modifying production logic; no auto-promotion; ExperimentLab apply blocked (D-AI-03/05/12/13; `03:19-25`; `00:85`; `02:179`) | GAP | Structural: lifecycle vocabulary contains NO production/applied/deployed state; transition table has no edge to any such state; module contains no apply/deploy/promote function; software-change proposals must carry rollback plan + evaluation design + risks (`02:179`) or admission is refused |
 | R10 | Governor owns budget/quota; must not duplicate financial logic (`03:42-47`) | GAP | `SandboxBudgetSpec` (structurally bounded ceilings) + `sandbox_budget_verdict`; gates check binding/provenance/lifecycle only — metric math and thresholds stay in deterministic evaluators (never computed here) |
 | R11 | Autonomy ceiling; no silent escalation (`03:78-83`) | GAP | Admission gate calls existing `assert_autonomy_permitted` with a gate-declared ceiling |
-| R12 | Explicit limitations on governed actions (`02:196`) | GAP | Candidates require non-empty `rationale`; records carry `notes`; refusal codes are explicit strings |
+| R12 | Explicit limitations on governed actions (`02:198`) | GAP | Candidates require non-empty `rationale`; records carry `notes`; refusal codes are explicit strings |
 | R13 | Acceptance evidence: provenance, failure-path evidence, approval record (`03:90-94`; `06:107`) | GAP | `governed_candidate_acceptance` returns explicit blocking codes (failure-path evidence = deterministic refusal reasons); tests cover every refusal path |
 | R14 | Pre-G2 class: synthetic/paper only (`02:202`) | GAP | Dataset origin closed Literal {SYNTHETIC, PAPER}; G2/live discipline documented in module docstring |
 
@@ -130,8 +130,9 @@ corpus requirement maps to one planned contract element.
   gate).
 - Full repository battery (pytest, pyflakes, compileall, pip-audit, alpha
   env/runtime/frontend validators, bootstrap validator, `git diff --check`)
-  pre-commit and at the committed SHA, raw outputs under
-  `docs/governance/evidence/raw/2026-10-18_ai4/`.
+  pre-commit (raw outputs under `docs/governance/evidence/raw/2026-10-18_ai4/`)
+  and at the committed SHA (raw outputs under
+  `docs/governance/evidence/raw/2026-10-18_ai4a/`).
 - Independent read-only audit → `docs/governance/evidence/
   2026-10-18_AI4_independent_audit.md` (post-implementation).
 - Execution record `docs/active/AI4_EXECUTION_RECORD.md`; pointers updated

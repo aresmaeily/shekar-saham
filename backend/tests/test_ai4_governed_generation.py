@@ -4,7 +4,7 @@ Sources: 02:87-90 (sandbox -> deterministic evaluation -> lifecycle ->
 approval), 02:158-159 (candidates remain candidates until isolated tests,
 evaluation gates and required human approval; no self-modifying production
 logic), D-AI-10/11/12/13, D-AI-19, 03:19-25/40/78-83/90-94, 00:85-86,
-02:170 (proposal fields), 06:107 (preregistration/holdout), 02:202
+02:179 (proposal fields), 06:107 (preregistration/holdout), 02:202
 (synthetic/paper pre-G2 class). Contract-level synthetic tests only — no
 sandbox runtime, no real data, no LLM (02:202; G2 NOT_PASSED).
 """
@@ -180,7 +180,7 @@ def make_approval(
 
 # ---------------------------------------------------------------------------
 # Positive lifecycle: sandbox -> deterministic evaluation -> lifecycle ->
-# approval (02:88-90)
+# approval (02:87-90)
 # ---------------------------------------------------------------------------
 
 
@@ -242,7 +242,7 @@ def test_registry_resolution_is_deterministic_and_additive() -> None:
 
 
 def test_software_change_proposal_with_full_fields_is_admissible() -> None:
-    # 02:170: proposals carry baseline/expected benefit/evidence/uncertainty/
+    # 02:179: proposals carry baseline/expected benefit/evidence/uncertainty/
     # cost/risks/rollback plan/evaluation design.
     candidate = make_candidate(kind="SOFTWARE_CHANGE_PROPOSAL")
     binding = make_binding(kinds=("SOFTWARE_CHANGE_PROPOSAL",))
@@ -318,7 +318,7 @@ def test_sandbox_budget_verdict_within_and_exhausted() -> None:
 
 # ---------------------------------------------------------------------------
 # Structural no-production-mutation guarantees (D-AI-03/05/12/13; 03:19-25;
-# 00:85; 02:170)
+# 00:85; 02:179)
 # ---------------------------------------------------------------------------
 
 
@@ -409,7 +409,7 @@ def test_software_change_proposal_requires_proposal_fields() -> None:
 
 
 def test_software_change_proposal_requires_rollback_plan() -> None:
-    # 02:170: a proposal without a rollback plan cannot even be represented.
+    # 02:179: a proposal without a rollback plan cannot even be represented.
     with pytest.raises(ValidationError):
         SoftwareChangeProposalFields(
             baseline="b",
@@ -836,7 +836,7 @@ def test_acceptance_blocks_when_evaluation_failed() -> None:
 
 
 def test_acceptance_blocks_on_wrong_run_binding() -> None:
-    # 02:196: governed actions carry traceable run identity; a candidate
+    # 02:198: governed actions carry traceable run identity; a candidate
     # generated under another run cannot be accepted under this one.
     ctx = make_context(run_id="RUN_AI4_1")
     prov = make_provenance(run_id="RUN_AI4_1")

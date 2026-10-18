@@ -49,13 +49,13 @@ Contract surface (exactly the five dependency-matrix groups):
    vocabulary contains NO production/applied/deployed state and the
    transition table has no edge to one (test-enforced); the module contains
    no apply/deploy/promote function; `GeneratedCandidate.kind` is a closed
-   six-member Literal (`02:88` filters/indicators/strategy specifications +
+   six-member Literal (`02:89-90` filters/indicators/strategy specifications +
    `02:159` scoring rules/fundamental features/software-change proposals);
-   `SOFTWARE_CHANGE_PROPOSAL` candidates must carry the eight `02:170`
+   `SOFTWARE_CHANGE_PROPOSAL` candidates must carry the eight `02:179`
    fields (baseline, expected benefit, evidence, uncertainty, cost, risks,
    rollback plan, evaluation design) via `SoftwareChangeProposalFields` or
    they are unrepresentable; non-proposal kinds cannot carry proposal
-   fields; `rationale` is mandatory (explainable generation, `02:196`).
+   fields; `rationale` is mandatory (explainable generation, `02:198`).
    `governed_candidate_acceptance()` composes every gate end-to-end and
    returns explicit blocking codes (failure-path evidence, `03:90-94`).
 
@@ -77,7 +77,7 @@ candidates-until-gates → preregistration/holdout declarations +
 → `generation_admission_verdict`. R8 provenance blocking → canonical
 completeness check wired into admission and acceptance. R9 no-production-
 mutation → structural (schema + transition table + absence of promotion
-functions + `02:170` proposal fields). R10 budget/quota → sandbox budget
+functions + `02:179` proposal fields). R10 budget/quota → sandbox budget
 spec/verdict; gates never compute metric math (D-AI-19 financial truth
 stays in deterministic services). R11 autonomy ceiling → canonical guard
 wired into admission. R12 explicit limitations → mandatory rationale,
@@ -86,11 +86,20 @@ notes fields, explicit refusal codes. R13 acceptance evidence →
 synthetic/paper class → closed `DatasetOrigin`. All 14 rows closed; 0
 unresolved requirements.
 
-## 3. Validation battery (pre-commit, raw `docs/governance/evidence/raw/2026-10-18_ai4/`)
+## 3. Validation battery (pre-commit raw `docs/governance/evidence/raw/2026-10-18_ai4/`; at-commit raw `docs/governance/evidence/raw/2026-10-18_ai4a/`)
 
 - pytest full suite: **563 passed / 2 pre-existing warnings** in 78.26s
   (512 baseline + 51 new), exit 0 (`pytest_full.txt`).
-- AI-4 block: **51/51 passed** in 0.24s, exit 0 (`pytest_new_block.txt`).
+- AI-4 block: **51/51 passed** in 0.18s, exit 0 (`pytest_new_block.txt`).
+- At-commit battery at the committed SHA (`6a10e5a`), raw
+  `docs/governance/evidence/raw/2026-10-18_ai4a/`: pytest full suite
+  **563 passed / 2 pre-existing warnings in 78.38s**, exit 0
+  (`pytest_full.txt`); AI-4 block **51/51 in 0.23s**
+  (`pytest_new_block.txt`); compileall 0; pyflakes `app tests` 0;
+  pip-audit clean (`pip_audit_summary.txt`); alpha env/runtime/frontend
+  validators 0; bootstrap validator 0; providers tsetmc+brsapi exit 0
+  with `"live_verified": false`; `git diff --check` 0; SHA-256 manifest
+  `00_evidence_sha256.txt`.
 - compileall exit 0 (`compileall.txt`); pyflakes `app` exit 0; pyflakes
   `app tests` exit 0; pyflakes new files exit 0 (`pyflakes_app.txt`,
   `pyflakes_app_tests.txt`, `pyflakes_new.txt`).
