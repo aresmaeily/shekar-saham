@@ -975,3 +975,18 @@ LIVE DATA: NOT VERIFIED (live_verified=false)
 LLM EXECUTION: NOT EXECUTED (AI2_ENABLED=0; no route)
 INSTALLATION: NOT STARTED
 ```
+
+## AI2-F Update — AI-2 required-items completion (2026-10-18)
+
+AI2-F (dependency-chain successor of AI1-GC per `02` line 7) verified the repository state first — HEAD `2f86c4a` (AI1-GCa) on `main`, tracked tree clean, ahead 13/behind 0 vs live `origin/main` `c1984e7` (read-only `git ls-remote` re-verified; push owner-gated) — then derived the AI-2 scope from the imported corpus. Scope derivation published BEFORE implementation: `docs/active/AI2_F_SCOPE_DERIVATION.md` — item-by-item audit of the Category A service (`backend/app/services/ai2_service.py`, AI2-A…AI2-E) against the official AI-2 required items (`02` lines 44–53: immutable run identity · provenance · budget/time/iteration limits · evidence artifacts · duplicate detection · failure/recovery · invalidation · human approval state), cross-checked with import-audit finding F5. The service is NOT modified. One additive module `backend/app/domain/ai2_governance.py` (frozen, deterministic, clock-free; reuses AI1-GC `RunContext`/`ArtifactRef`/`provenance_complete`): `AI2RunRecord`, `AI2BudgetSpec`+`budget_verdict`, `AI2EvidenceArtifact`, `AI2RunLedger`+`classify_duplicate`, `recovery_decision`, `AI2InvalidationRule`+`invalidates`, `governed_acceptance`. 23 corpus-derived tests incl. an end-to-end composition walkthrough of all eight items. Battery (repo venv; raw `docs/governance/evidence/raw/2026-10-18_ai2f/`): 473 passed / 2 pre-existing warnings in 77.63s; new-block 23/23; pyflakes 0; compileall 0; pip-audit clean; validators exit 0; bootstrap validator 8/8; `git diff --check` 0. Execution record: `docs/active/AI2F_EXECUTION_RECORD.md`. Governance unchanged: no new HTTP route; `AI2_ENABLED` default off; G2 NOT_PASSED; `live_verified=false`; LLM NOT EXECUTED; research-loop runtime instantiation NOT attempted (G2-dependent); no push.
+
+```text
+Started from: 2f86c4a9bef3a4cf2efbe741d6e3f0d678f4a2f0 (AI1-GCa)
+Latest local commit: AI2-F (this update — SHA resolves via git log --oneline -1 -- docs/active/AI2F_EXECUTION_RECORD.md)
+Local commits: 6ff6b07 (P3.93) → … → 42587fa (AI3-A) → 357f4b6 (P0-AMD-1) → b3cbeb1 (P0-AMD-1a) → ea3277e (AI1-GC) → 2f86c4a (AI1-GCa) → AI2-F (this update)
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED (local ahead of origin — publication owner-gated)
+LIVE DATA: NOT VERIFIED (live_verified=false)
+LLM EXECUTION: NOT EXECUTED (AI2_ENABLED=0; no route)
+INSTALLATION: NOT STARTED
+```
