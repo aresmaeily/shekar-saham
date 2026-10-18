@@ -11,8 +11,8 @@ Evidence basis for ALL items (re-executed 2026-10-18, raw outputs preserved at
 
 | Check | Command (cwd) | Result |
 |---|---|---|
-| Full suite | `.venv/bin/python -m pytest tests/ -q` (backend/) | **512 passed / 2 warnings / 78.30s / exit 0** (2 warnings = pre-existing starlette/anyio deprecations) |
-| New-block focused | `pytest tests/test_ai2_f_governance.py tests/test_ai_ma_contracts.py tests/test_ai3_research_memory.py -q` | 62 passed (24 + 25 + 13) |
+| Full suite | `.venv/bin/python -m pytest tests/ -q` (backend/) | **512 passed / 2 warnings / 78.24s / exit 0** (2 warnings = pre-existing starlette/anyio deprecations) |
+| New-block focused | `pytest tests/test_ai2_f_governance.py tests/test_ai_ma_contracts.py tests/test_ai3_research_memory.py -q` | 62 passed (24 + 25 + 13) — raw `pytest_focused_new_blocks_3file.txt`; all-blocks focused run (5 files) = 164 passed, raw `pytest_new_blocks.txt` |
 | Bytecode | `python -m compileall -q app tests` | exit 0 |
 | Lint | `python -m pyflakes app tests` | exit 0, 0 findings |
 | Dependencies | `python -m pip_audit -f json` | 67 deps, 0 vulnerable |

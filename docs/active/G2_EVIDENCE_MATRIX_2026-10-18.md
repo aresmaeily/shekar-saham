@@ -20,7 +20,7 @@ Roles 6/14 (R); Roles 9/10/15 (C)**. Self-approval is void.
 3. AI1-GC, AI-MA-C, AI3-M delivered the upstream contract chain (AI-1 → AI-2 →
    AI-MA → AI-3 all delivered at the pre-G2 contract class).
 4. Full battery independently re-run at `37c529d`: 512 passed / 2 pre-existing
-   warnings / 78.30s (raw: `evidence/raw/2026-10-18_acceptance/`).
+   warnings / 78.24s (raw: `evidence/raw/2026-10-18_acceptance/`).
 5. The authoritative G2 PROCEDURE (owner property, `05`/owner-defined) has
    still not arrived — G2 exit criteria remain BLOCKED on it, not invented.
 
@@ -29,8 +29,10 @@ Roles 6/14 (R); Roles 9/10/15 (C)**. Self-approval is void.
 Current result: **PASS** (14/14) — packaged at AI2-D, checklist §3 with
 implementation line ranges and named tests (40/40). Re-verified indirectly at
 `37c529d` by the full battery (the service file is untouched since AI2-E:
-`git log --oneline -- backend/app/services/ai2_service.py` → AI2-A/B/C/D/E
-only). Evidence: checklist §3; `evidence/raw/2026-10-17_ai2*` packs.
+`git log --oneline -- backend/app/services/ai2_service.py` → AI2-A/B/C
+commits only — AI2-D/E were docs-only and never modified the file, so the
+file is unchanged since AI2-C). Evidence: checklist §3;
+`evidence/raw/2026-10-17_ai2*` packs.
 Responsible: Role 14 (R) with Roles 6/10/15 (C). Blocker: **No** (for review
 entry; G2 verdict itself stays owner-gated).
 
@@ -38,13 +40,13 @@ entry; G2 verdict itself stays owner-gated).
 
 | Required item | Contract evidence (file:line) | Tests | Result |
 |---|---|---|---|
-| Immutable run identity + whitelist | `ai2_governance.py:286-291,315-320` (frozen; `unknown_ai2_task`) | `test_ai2_f_governance.py:84-87,157-158` | PASS (contract class) |
+| Immutable run identity + whitelist | `ai2_governance.py:286-291,315-320` (frozen; `unknown_ai2_task`) | `test_ai2_f_governance.py:84-87,90-94` | PASS (contract class) |
 | Provenance | `governed_acceptance` → `provenance_complete` (`:413-418`; run_governance `:213-262`) | `:290-306` | PASS (contract) |
 | Budget/time/iteration limits | `AI2BudgetSpec` `:91-93` (≤16/≤64/≤86400); ceiling-inclusive clock-free verdict `:109-121` | `:109-132` | PASS (contract) |
 | Evidence artifacts | `AI2EvidenceArtifact` `:137-157` + status consistency `:322-328` | `:136-158` | PASS (contract) |
 | Duplicate detection (append-only) | `classify_duplicate` `:331-351`; `AI2RunLedger` `:354-385` (no update/delete path) | `:160-188` | PASS (contract) |
 | Failure/recovery | `recovery_decision` `:167-184` (deterministic gate ⇒ `ESCALATE_FAIL_CLOSED`, never retried) | `:196-210` | PASS (contract) |
-| Invalidation | `invalidates` `:244-269` + canonical trust rank `:234-241` (matches `config.py:191-196` for all 6 canonical states) | `:232-272` | PASS (contract) |
+| Invalidation | `invalidates` `:244-269` + canonical trust rank `:234-241` (matches `config.py:191-196` for all 6 canonical states) | `:223-272` | PASS (contract) |
 | Human approval state | `governed_acceptance` `:407-422` (pending/escalated/rejected blocked) | `:275-306` | PASS (contract) |
 
 Residual (disclosed in the acceptance package, one-commit remediable):
