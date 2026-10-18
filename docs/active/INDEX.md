@@ -84,3 +84,5 @@
 
 Note: P3.90.2/P3.90.7/P3.91 have no dedicated phase reports — their evidence lives in `docs/CHANGELOG.md` (2026-08-15..19), `backend/tests/test_tzdata_runtime.py`, `backend/tests/test_p3_90_7_tsetmc_cdn_schema.py`, `backend/tests/test_p3_91_cdn_snapshot_filter.py`, and commits `00e392e` / `5206569` / `c1984e7`.
 - `../../RADAR_BOURSE_MASTER_HANDOFF.md` — current appendix after REM-1/AI2-A/AI2-B/AI2-C/AI2-D/AI2-E/AI3-A
+- `P0_AMENDMENT_CONTRACTS_SCOPE_DERIVATION_REPORT.md` — P0-AMD-1: next-block derivation from the imported 2026-10-02 amendment corpus (dependency-first candidates table; P0 addendum "Contracts and source-universe design" selected with corpus citations; 7-deliverable traceability matrix with acceptance criteria; out-of-scope list; pre-G2 authorization basis; follow-on queue AI-1 → AI-2 → AI-MA → AI-3)
+- `P0AMD1_EXECUTION_RECORD.md` — P0-AMD-1: import integrity (7/7 byte-identical), governance audit summary, implementation inventory (6 domain contract modules + 44 corpus-derived tests), full battery results, separated statuses
