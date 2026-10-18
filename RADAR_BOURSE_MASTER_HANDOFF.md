@@ -1020,3 +1020,18 @@ LIVE DATA: NOT VERIFIED (live_verified=false)
 LLM EXECUTION: NOT EXECUTED (AI2_ENABLED=0; no route)
 INSTALLATION: NOT STARTED
 ```
+
+## ACC-PKG Update — Owner acceptance package, G2 evidence matrix, AI-3 persistence brief, AI-4..AI-7/P3.43 dependency matrix (2026-10-18)
+
+Fresh baseline re-verified first: HEAD `37c529d` (AI3-Ma) on `main`, ahead 19 / behind 0 vs live `origin/main` `c1984e7` (`git ls-remote` read-verified), tracked tree clean, 4 untracked bootstrap paths preserved, 7-file amendment corpus re-hashed byte-identical against the still-present owner upload, `357f4b6`/`b3cbeb1` confirmed HEAD ancestors. Independent acceptance audit of all five pre-G2 blocks then re-inspected the actual module code + test bodies (not only execution records) and re-ran the battery at HEAD: **512 passed / 2 pre-existing warnings / 78.24s**, focused new-block 62 passed (24+25+13), compileall 0, pyflakes 0, pip-audit 67 deps / 0 vulns, bootstrap validator 8/8, `git diff --check` 0 (raw: `docs/governance/evidence/raw/2026-10-18_acceptance/`). Four decision-support deliverables (docs-only, no application code changed): `docs/active/OWNER_ACCEPTANCE_PACKAGE_2026-10-18.md` (five items: implemented / independently verified / unverified / implications / exact criteria + evidence / recommended decision — ACCEPT; AI2-F: ACCEPT WITH CONDITIONS pending one-commit residual cleanup; nothing marked owner-accepted on the owner's behalf); `docs/active/G2_EVIDENCE_MATRIX_2026-10-18.md` (A1–A14 PASS; AI2-F required-items layer mapped at contract class; governance gates PASS in code; runtime BLOCKED; environment NOT_VERIFIED; E1–E6 status — corpus now SYNCED so R1 is decidable; R1–R6 owner decisions table; G2 NOT_PASSED, not self-approved); `docs/active/AI3_PERSISTENCE_DECISION_BRIEF.md` (source-backed constraints A1–A12 from the corpus + incumbent stack; three viable options compared across the seven directive dimensions; unknowns and missing owner decisions D1–D7 listed; no technology selected); `docs/active/AI4_AI7_P343_DEPENDENCY_MATRIX.md` (official scope/dependencies/authorized-now per AI-4/AI-5/AI-6/AI-7 + P3.43 Controlled Alpha Launch with P3.43-numbering disambiguation; next complete authorized execution block = AI-4 contract layer). Residual observations disclosed for owner visibility (not gate-affecting): P0 `pit_eligible` self-declaration + free-string `source_tier`; AI1 `MemoryOperationKind` dead schema; AI2 `governed_acceptance` ignores `record.status` + record-level approver gap + unknown-trust −1 folding; AI-MA dead `_shape`/`MAX_HIERARCHY_DEPTH` + DEGRADED payload-free semantics. Gates unchanged: no new route; `AI2_ENABLED` default off; G2 NOT_PASSED; `live_verified=false`; LLM NOT EXECUTED; push owner-gated.
+
+```text
+Started from: 37c529d1d558317307238d654e3723240a1f400f (AI3-Ma)
+Latest local commit: ACC-PKG (this update — SHA resolves via git log --oneline -1 -- docs/active/OWNER_ACCEPTANCE_PACKAGE_2026-10-18.md)
+Local commits: 6ff6b07 (P3.93) → … → 357f4b6 (P0-AMD-1) → b3cbeb1 (P0-AMD-1a) → ea3277e (AI1-GC) → 2f86c4a (AI1-GCa) → 6aeeaa2 (AI2-F) → 17ef611 (AI2-Fa) → e385415 (AI-MA-C) → aa86c3c (AI-MA-Ca) → 80585c8 (AI3-M) → 37c529d (AI3-Ma) → ACC-PKG (this update)
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED (local ahead of origin — publication owner-gated)
+LIVE DATA: NOT VERIFIED (live_verified=false)
+LLM EXECUTION: NOT EXECUTED (AI2_ENABLED=0; no route)
+INSTALLATION: NOT STARTED
+```
