@@ -303,3 +303,47 @@ def test_isolate_failure_is_deterministic() -> None:
     p = plan((step("a"), step("c")))
     r = branch(branch_id="f3", step_id="c", status="FAILED", failure_code="boom", artifact=None)
     assert isolate_failure("c", p, (r,)) == isolate_failure("c", p, (r,))
+
+
+# ---------------------------------------------------------------------------
+# AIMAC dispositions — bind helpers (AI-MA-3 composition rule), summary bound
+# ---------------------------------------------------------------------------
+
+
+def test_bind_specialist_to_step_is_the_ma3_composition_rule() -> None:
+    """AI-MA-3: the first bounded specialist composes as a tool/capability —
+    a step delegates through bind_specialist_to_step to a registered contract."""
+    from app.domain.multi_agent import bind_specialist_to_step
+
+    contract = specialist()
+    s = step("s1", specialist_id=contract.specialist_id, capability=contract.capability)
+    bind_specialist_to_step(s, contract)  # composition accepted
+    with pytest.raises(ValueError, match="step_specialist_mismatch"):
+        bind_specialist_to_step(step("s2", specialist_id="spec-other"), contract)
+    with pytest.raises(ValueError, match="step_capability_mismatch"):
+        bind_specialist_to_step(
+            step("s3", specialist_id=contract.specialist_id, capability="other_capability"),
+            contract,
+        )
+
+
+def test_bind_run_context_structural_identity_binding() -> None:
+    """AIMAC-04 disposition: plan↔RunContext binding is now a structural,
+    testable check (mirrors run_governance.bind_provenance)."""
+    from app.domain.multi_agent import bind_run_context
+    from app.domain.run_governance import RunContext
+
+    ctx = RunContext(run_id=RUN, run_kind="AI_MA_ORCHESTRATION", policy_version="gov-1", created_at_utc=T0)
+    bind_run_context(plan((step("s1"),)), ctx)
+    with pytest.raises(ValueError, match="plan_run_id_mismatch"):
+        bind_run_context(plan((step("s1"),), ).model_copy(update={"run_id": "other"}), ctx)
+    with pytest.raises(ValueError, match="plan_policy_version_mismatch"):
+        bind_run_context(plan((step("s1"),)).model_copy(update={"policy_version": "gov-2"}), ctx)
+
+
+def test_branch_summary_bounded() -> None:
+    """AIMAC-05 disposition: the inline summary is schema-bounded (500)."""
+    with pytest.raises(ValidationError):
+        branch(summary="x" * 501)
+    ok = branch(summary="x" * 500)
+    assert len(ok.summary) == 500

@@ -21,12 +21,23 @@ artifact protocol, one policy authority (02-product §Complexity budget).
 
 Engineering-authority notes (05 §Engineering authority; choices not defined
 by the corpus text, documented per the AI1-GC ambiguity-note precedent):
-- the fan-out ceiling value (``MAX_PARALLEL_BRANCHES``) is an engineering
-  bound, not a corpus number; the corpus only requires parallelism to be
-  bounded (D-AI-24);
+- the fan-out ceiling value (``MAX_PARALLEL_BRANCHES``) and the plan default
+  (``max_parallel=2``) are engineering bounds, not corpus numbers; the corpus
+  only requires parallelism to be bounded (D-AI-24);
 - peer-addressing refusal is the structural encoding of "no peer-to-peer
   backbone" (02:81; D-AI-20): BranchResults may only be addressed to the
-  orchestrator.
+  orchestrator of their own run (``orchestrator:<run_id>``). Within the type
+  system this is a validator-enforced convention, not a transport guarantee;
+- capability/trace-prefix lowercase patterns are engineering choices (the
+  corpus is silent on naming);
+- FAILURE-MODEL MAPPING IS PARTIAL (02-product §Failure model enumerates
+  nine failure kinds): this layer represents failures generically —
+  BranchResult.status/failure_code, SpecialistContract.failure_behavior,
+  deterministic containment via ``isolate_failure`` — and enforces
+  idempotency on registry/trace/ledger appends. There is no kind→behavior
+  taxonomy table and no BranchResult duplicate-operation detection yet; a
+  future additive iteration may introduce one. Nothing silently swallows a
+  failure: every failure stays a visible, frozen record.
 """
 
 from __future__ import annotations
@@ -37,7 +48,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.domain.evidence import SCHEMA_VERSION, ensure_utc
-from app.domain.run_governance import ArtifactRef
+from app.domain.run_governance import ArtifactRef, RunContext
 
 #: Engineering bound for D-AI-24 bounded parallelism (see module notes).
 MAX_PARALLEL_BRANCHES = 4
@@ -315,7 +326,7 @@ class BranchResult(BaseModel):
     addressed_to: str = Field(min_length=1, max_length=128)
     status: Literal["SUCCEEDED", "FAILED", "DEGRADED"]
     artifact: ArtifactRef | None = None
-    summary: str = ""
+    summary: str = Field(default="", max_length=500)
     summary_only: bool = False
     failure_code: str | None = None
     completed_at_utc: datetime
@@ -415,9 +426,12 @@ def isolate_failure(
 
     A step whose output is consumed by another plan step is load-bearing:
     its failure terminates the run (dependents can never run honestly).
-    An independent branch's failure is contained: the other branches
-    continue and the failure is reported (02-product: specialists "must
-    safely fail, degrade or retry"; no silent swallowing).
+    ANY independent branch's failure is contained: the other branches
+    continue and the failure stays recorded on its BranchResult and the
+    trace (02-product: specialists "must safely fail, degrade or retry";
+    nothing silently swallows a failure). ``results`` is accepted for
+    signature stability and future policy refinements; the current decision
+    depends only on the plan's dependency graph.
     """
     dependents = [
         s.step_id
@@ -426,7 +440,33 @@ def isolate_failure(
     ]
     if dependents:
         return "TERMINATE_RUN"
-    succeeded = {r.step_id for r in results if r.status == "SUCCEEDED"}
-    if succeeded:
-        return "CONTINUE_OTHER_BRANCHES"
     return "CONTINUE_OTHER_BRANCHES"
+
+
+def bind_run_context(plan: OrchestrationPlan, context: "RunContext") -> None:
+    """Deterministic plan↔canonical-identity binding (02-product rules 10/12).
+
+    ``OrchestrationPlan.run_id`` is a plain string at the type level (the
+    module's contracts stay decoupled from runtime objects); this helper
+    performs the structural check against the canonical RunContext,
+    mirroring ``run_governance.bind_provenance``. Raises ``ValueError`` on
+    run-id or policy-version mismatch.
+    """
+    if plan.run_id != context.run_id:
+        raise ValueError("plan_run_id_mismatch")
+    if plan.policy_version != context.policy_version:
+        raise ValueError("plan_policy_version_mismatch")
+
+
+def bind_specialist_to_step(step: OrchestrationStep, contract: SpecialistContract) -> None:
+    """Deterministic plan↔registry composition check (orchestrator's
+    specialist selection, 03 §Orchestrator): the step must target the
+    specialist contract that owns the step's capability. This is the
+    AI-MA-3 'first bounded specialist as a tool/capability' composition
+    rule made explicit and testable: a step DELEGATES to a registered
+    specialist capability through this binding (agent-as-tool, D-AI-21).
+    """
+    if step.specialist_id != contract.specialist_id:
+        raise ValueError("step_specialist_mismatch")
+    if step.capability != contract.capability:
+        raise ValueError("step_capability_mismatch")
