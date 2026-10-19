@@ -1050,3 +1050,49 @@ LIVE DATA: NOT VERIFIED (live_verified=false)
 LLM EXECUTION: NOT EXECUTED (AI2_ENABLED=0; no route)
 INSTALLATION: NOT STARTED
 ```
+
+## AI-6 Update — Untrusted-content boundary + injection-isolation contract layer (2026-10-19)
+
+AI-6 (dependency successor of AI-4 per `02` line 8; authorized-now class per
+`AI4_AI7_P343_DEPENDENCY_MATRIX.md`: "untrusted-content boundary +
+injection-isolation CONTRACT design; source-class admission schema
+extension") delivered under owner directive 2026-10-19 (R2). Scope
+derivation published BEFORE implementation (`docs/active/AI6_SCOPE_DERIVATION.md`,
+R1–R17 with corpus loci `02:97-100`, `02:161-170`, `03:73-76`, D-AI-29,
+`06` §10/§3, `02_PRODUCT:120/126`). Additive module
+`backend/app/domain/external_intelligence.py`: trust label locked to
+UNTRUSTED; content-instruction separation with non-executable embedded
+candidates; closed injection taxonomy; append-only quarantine ledger with
+named-human release; Two-Key structural mechanism (distinct authorizers);
+source-class controls locked to PENDING_OWNER_DECISION (scan unwaivable);
+evidence-refs-only advisory interpretation; six fixed-order deterministic
+gates + `assert_boundary_allowed` (tool-execution / production-mutation /
+autonomous-action structurally refused). 58 corpus-derived tests; battery
+621 passed / 2 pre-existing warnings / 78.31s (raw
+`docs/governance/evidence/raw/2026-10-19_ai6/`; all exits 0). Record:
+`docs/active/AI6_EXECUTION_RECORD.md` (independent audit PENDING at the
+block commit; verdict recorded by the remediation commit). D-AI-29 NOT
+activated; no network path exists; source-class admissions + Two-Key
+operational parameters + credentials remain owner decisions.
+
+```text
+Started from: cc98c64009f0ea10f3c132fbcf4dc29c87c1e58d (AI-4a)
+Latest local commit: AI-6 block (this update — SHA resolves via git log --oneline -1)
+Local commits: 6ff6b07 (P3.93) → … → a3165c4 (ACCPKGa) → 6a10e5a (AI-4) → cc98c64 (AI-4a) → AI-6 block
+Official next launch phase: P3.43 Controlled Alpha Launch (still blocked)
+GitHub: BLOCKED (local ahead of origin — publication owner-gated; readiness report 2026-10-19)
+LIVE DATA: NOT VERIFIED (live_verified=false)
+LLM EXECUTION: NOT EXECUTED (AI2_ENABLED=0; no route)
+INSTALLATION: NOT STARTED
+```
+
+Owner directive 2026-10-19 companion artifacts: AI-4 acceptance verified
+(R1; `6a10e5a`+`cc98c64` in history; audit dispositions hold; no remaining
+defect; contractual ≠ operational readiness), `AI4_SANDBOX_LIMITS_PROPOSAL.md`
+(R4; no invented numbers; runtime disabled), `AI3_PERSISTENCE_CANDIDATE_EVALUATION.md`
+(R3; SQLite WAL + JSONL preferred candidate; no migration),
+`PUBLICATION_READINESS_REPORT_2026-10-19.md` (R5; no push),
+`OWNER_DECISION_REGISTER_REVIEW_2026-10-19.md` (R7; five-class register),
+G2 evidence matrix addendum (R6; E1 refreshed; NOT an approval). Gates
+unchanged: G2 NOT_PASSED; `AI2_ENABLED=0`; `live_verified=false`; LLM NOT
+EXECUTED.

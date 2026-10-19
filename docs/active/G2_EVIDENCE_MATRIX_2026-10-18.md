@@ -114,3 +114,51 @@ Linux sandbox / Python 3.12.x. No evidence exists; none invented.
 Blocker summary: the ONLY non-owner blocker class remaining before a G2 review
 can convene is **R2's procedure document**; everything else is owner scheduling
 or post-G2 sequencing. No criterion in this matrix may be self-approved.
+
+---
+
+# ADDENDUM — 2026-10-19 (owner directive R6: continue G2 package preparation; NOT an approval)
+
+Status: REVIEW-PREPARATION EVIDENCE ONLY. G2 remains `NOT_PASSED`; this
+addendum refreshes evidence currency for the future authorized review; it
+is not a review and not a decision. Self-approval remains void.
+
+## A1. Evidence currency refresh (supersedes matrix §86 E1 note)
+
+- Reviewed-SHA chain extended: `37c529d` (matrix baseline) → `a3165c4`
+  (ACCPKGa) → `6a10e5a` (AI-4) → `cc98c64` (AI-4a) → AI-6 block commit
+  (this cycle; SHA via `git log`). Battery re-executed pre-commit at
+  HEAD `cc98c64` + AI-6 working tree: **621 passed / 2 pre-existing
+  warnings / 78.31s** (raw `docs/governance/evidence/raw/2026-10-19_ai6/`,
+  all components exit 0; providers `live_verified=false` fail-closed;
+  bootstrap 8/8). E1/E3 currency: refreshed.
+- E2 (package + checklist present, internally consistent): unchanged
+  PASS; AI-2 criteria A1–A14 and the eight `02:44-53` required items are
+  untouched by later blocks (additive-only discipline, audit-verified
+  per block).
+- E4 (gates in code): re-verified this cycle — `AI2_ENABLED=0`
+  (`config.py:109` untouched by AI-4/AI-6), no new route in either new
+  module (import-surface tests enforce), G2 NOT_PASSED, `live_verified=false`.
+- E5 (limitations acknowledged): cancellation-containment and
+  environment limitations unchanged; AI-6 adds none (no runtime exists).
+- E6 (corpus SYNCED): unchanged (7 files byte-verified).
+
+## A2. New block evidence available to the reviewer (adds to §C-class rows)
+
+| Block | Contract evidence | Test evidence | Audit evidence |
+|---|---|---|---|
+| AI-4 (`6a10e5a`+`cc98c64`) | `AI4_SCOPE_DERIVATION.md` R1–R14; `governed_generation.py` | 51 tests; battery 563 (raw `_ai4`, `_ai4a`) | initial FAIL (narrow) → remediation AI-4a → delta re-audit **PASS** (history preserved) |
+| AI-6 (this block) | `AI6_SCOPE_DERIVATION.md` R1–R17; `external_intelligence.py` | 58 tests; battery 621 (raw `2026-10-19_ai6`) | PENDING at block commit; recorded by remediation commit |
+
+## A3. Owner decisions R1–R6 currency (unchanged; see `OWNER_DECISION_REGISTER_REVIEW_2026-10-19.md` for the full five-class register)
+
+- R1 (corpus authority): corpus SYNCED since 2026-10-18; formal
+  acceptance can ride the next owner review (class 5).
+- R2 (G2 procedure + scheduling): STILL BLOCKED — the authoritative G2
+  procedure is not among the 7 synced corpus files; reviewer assignment
+  open (class 1/4).
+- R3/R4 (live credentials; `AI2_ENABLED=1`): blocked, unchanged.
+- R5 (push): publication-readiness report delivered 2026-10-19; push
+  remains owner-gated; NO push performed.
+- R6 (owner-environment verification): Windows / Python 3.13 / CLI
+  recognition remain NOT_VERIFIED.
