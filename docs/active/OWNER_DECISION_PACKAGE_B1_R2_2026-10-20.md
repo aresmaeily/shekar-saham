@@ -67,7 +67,9 @@ warnings / 77.97s (raw `docs/governance/evidence/raw/2026-10-20_g2prep_battery/`
 SHA-256 manifest 37/37 OK); audit chains re-confirmed with FAIL→remediation→PASS
 histories preserved verbatim (P0-AMD-1, AI1-GC, AI2-F) and PASS verdicts intact
 (AI-MA-C, AI3-M); gates re-verified in code
-(`raw/2026-10-20_g2prep_baseline/gates_fresh_evidence.txt`).
+(`raw/2026-10-20_g2prep_baseline/gates_config_capture_supplement_G2P-02_2026-10-20.txt`
+for the config.py:109/:270 captures — dated G2P-02 remediation supplement — and
+`raw/2026-10-20_g2prep_baseline/gates_fresh_evidence.txt` for the import-surface grep).
 
 ### R2 — Authorize + schedule the G2 review; supply the authoritative G2 procedure; designate the reviewer
 
