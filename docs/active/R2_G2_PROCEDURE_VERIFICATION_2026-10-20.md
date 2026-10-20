@@ -89,3 +89,27 @@ review-preparation scaffolding.
   record an explicit owner statement that the corpus text (`02:32-37` +
   `04:72` + D-AI-26) IS the whole procedure. Either resolves R2's procedure
   input; only the owner can record it.
+
+## ADDENDUM 2026-10-20 — owner direction received; drafting initiated per Option C; still NOT formally approved
+
+An owner decision on R2 was received 2026-10-20 (recorded verbatim with
+provenance in `OWNER_DECISION_B1_R2_RECORDED_2026-10-20.md`). The owner
+directs R2 to use a formally documented, repeatable procedure with explicit
+evidence requirements, reviewer independence, reviewer appointment and
+acknowledgement, review outputs, and recorded acceptance criteria.
+
+- The canonical A/B/C options were inspected per the owner's instruction and
+  **Option C** (approve a procedure drafted from the six minimum topics, on
+  explicit owner instruction, via a recorded owner decision naming the
+  approving authority and version) was selected — the owner's message is that
+  instruction; full inspection rationale in the canonical record §3 and the
+  approval-request addendum.
+- **Drafting initiated:** `G2_REVIEW_PROCEDURE_DRAFT_v0.1_2026-10-20.md`
+  (DRAFT / NOT APPROVED).
+- **Path B status after this addendum:** the NOT_FOUND/NOT_VERIFIED finding
+  of §4 above remains historically true and unrewritten; the owner direction
+  initiates the Path-B remedy through Option C. The procedure input is still
+  **NOT formally approved** (approval requires a recorded owner decision with
+  approving authority + effective version), therefore G2 exit criteria remain
+  **BLOCKED**, R2 remains **OPEN**, E5 remains `NOT_VERIFIED`, G2 =
+  `NOT_PASSED`.

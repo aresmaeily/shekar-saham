@@ -156,3 +156,29 @@ sequencing, not an acceptance condition.
 No field above may be filled by the implementing agent. Absence of response is
 not approval. While any item is unanswered, all gates and the prohibited set
 (`OWNER_DECISION_PACKAGE_B1_R2_2026-10-20.md` §3) remain in force unchanged.
+
+## ADDENDUM 2026-10-20 — owner decision received; AI2-F (a) and AI3-M D1–D7 remain unauthorized
+
+The owner decision of 2026-10-20 (recorded verbatim with provenance in
+`OWNER_DECISION_B1_R2_RECORDED_2026-10-20.md`) explicitly states:
+
+> "AI2-F condition (a) remediation and AI3-M persistence decisions D1–D7
+> remain unauthorized unless separately and explicitly decided through their
+> canonical owner-decision records."
+
+Applied to this record, per the stricter-rule-governs principle already
+recorded above:
+
+1. **AI2-F condition (a)**: disposal of the three named residuals in
+   `backend/app/domain/ai2_governance.py` was NOT executed in this cycle and
+   remains **unauthorized** despite the earlier class-3 classification — the
+   owner decision's explicit listing governs. Condition (a) status: OPEN.
+2. **AI2-F condition (b)**: standing no-runtime-readiness boundary unchanged;
+   disposed by construction while gates hold.
+3. **AI3-M persistence D1–D7**: remain unanswered/unauthorized; no adapter,
+   migration, or storage work performed or authorized. Condition status:
+   OPEN.
+4. The owner decision's B-1 evidence acceptance does NOT change this record:
+   block-level acceptance for AI2-F and AI3-M remains open, and the per-block
+   statuses retain `VERIFIED_PENDING_ACCEPTANCE` with these conditions
+   recorded (canonical record §2).

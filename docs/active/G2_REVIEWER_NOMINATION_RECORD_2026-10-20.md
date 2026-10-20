@@ -93,3 +93,18 @@ block has a named reviewer identity.
   current and reviewer-ready) but not CONVENED as a formal G2 review; and
   even a convened review cannot conclude — exit criteria are blocked on the
   authoritative procedure (`R2_G2_PROCEDURE_VERIFICATION_2026-10-20.md` §4).
+
+## ADDENDUM 2026-10-20 — owner decision received; NO reviewer designated; record unchanged
+
+The owner decision of 2026-10-20 (recorded verbatim in
+`OWNER_DECISION_B1_R2_RECORDED_2026-10-20.md`) restates the reviewer
+requirement ("reviewer appointment and acknowledgement" as a required element
+of the G2 procedure; until appointment + acknowledgement, R2 remains open and
+E5 remains `NOT_VERIFIED`) but does **NOT** designate a reviewer by name or
+role.
+
+- §3 designation fields above remain EMPTY (implementing agent must not and
+  did not fill them).
+- Record status: **NOT_APPOINTED — BLOCKED on owner designation** — unchanged.
+- E5 remains `NOT_VERIFIED` deliberately; no acknowledgement exists or can
+  exist until the owner designates a reviewer and that reviewer acknowledges.

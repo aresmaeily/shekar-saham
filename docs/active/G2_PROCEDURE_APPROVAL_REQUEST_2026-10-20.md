@@ -84,3 +84,30 @@ the decision):
 - The decision to convene a review — with or without this request resolved —
   is NOT a decision to pass the gate; the exit decision requires the owner's
   recorded verdict under the authoritative procedure.
+
+## ADDENDUM 2026-10-20 — owner direction received; Option C selected; request OPEN until formal approval
+
+An owner decision on R2 was received 2026-10-20 and is recorded verbatim with
+provenance in `OWNER_DECISION_B1_R2_RECORDED_2026-10-20.md`. The owner directs
+R2 to use a formally documented, repeatable procedure (explicit evidence
+requirements; reviewer independence; reviewer appointment and acknowledgement;
+review outputs; recorded acceptance criteria) and directs that the canonical
+A/B/C options be inspected and the implementing option selected without
+weakening independence or required evidence.
+
+- **Inspection outcome (documented in the canonical record §3):** Option A is
+  not implementable today (no owner procedure document exists — Path B
+  verification stands); Option B is REJECTED because declaring the corpus
+  text the whole procedure would formalize a thinner procedure than the
+  owner's five required elements; **Option C is SELECTED** — the owner's
+  message constitutes the explicit owner instruction contemplated by C, and
+  the six minimum topics resolve exactly the required elements.
+- **Draft prepared:** `G2_REVIEW_PROCEDURE_DRAFT_v0.1_2026-10-20.md` —
+  status DRAFT / NOT APPROVED; resolves the six topics as proposals with
+  authoritative loci; items without corpus basis are marked
+  **[OWNER TO CONFIRM]**; approval block intentionally EMPTY.
+- **This request remains OPEN** until the owner records formal approval of
+  the procedure (approving authority + effective version — Option C's own
+  terms), supplies an owner procedure (A), or records an explicit Option B
+  statement. Until then: G2 exit criteria remain BLOCKED; R2 remains OPEN;
+  E5 remains `NOT_VERIFIED`; G2 = `NOT_PASSED`; all gates unchanged.

@@ -49,3 +49,26 @@ functionality. Every block remains `VERIFIED_PENDING_ACCEPTANCE` in the ledger
 until the owner records a decision in
 `OWNER_DECISION_PACKAGE_B1_R2_2026-10-20.md` §4 (the owner fill-in template —
 the authoritative decision form).
+
+## ADDENDUM 2026-10-20 — owner decision received (recording only; matrix rows remain RECOMMENDATIONS)
+
+An owner decision on B-1 was received 2026-10-20 and is recorded verbatim with
+provenance in `OWNER_DECISION_B1_R2_RECORDED_2026-10-20.md` (canonical record;
+recording performed this cycle). Effect mapping applied by that record:
+
+- **Decision B-1 = Conditional Evidence Acceptance**: the owner accepts the
+  independently reproduced test and documentation evidence ONLY within the
+  scope directly supported by the recorded artifacts. It does NOT constitute
+  final acceptance of any block whose explicit exit criteria remain unmet,
+  does NOT grant production or live-data authorization, and does NOT pass G2.
+- **Per-block statuses UNCHANGED** per the decision's own rule: P0-AMD-1,
+  AI1-GC, AI2-F, AI-MA-C, AI3-M each retain `VERIFIED_PENDING_ACCEPTANCE`
+  (with the recorded conditions for AI2-F (a)/(b) and AI3-M persistence
+  routing). No matrix row above is converted into an accepted status; the
+  RECOMMENDATION column remains a recommendation; per-block ACCEPT/REJECT/
+  DEFER decisions remain open via the §4 template.
+- No historical audit result was rewritten. All audit histories (FAIL→
+  remediation→PASS chains; G2P-01/G2P-02; E5 = `NOT_VERIFIED`) remain
+  verbatim-preserved.
+- The decision affirmatively restates: silence, missing fields, test success,
+  and programmer recommendations do not constitute owner approval.
