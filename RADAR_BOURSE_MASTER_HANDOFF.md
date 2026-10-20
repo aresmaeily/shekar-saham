@@ -1113,3 +1113,30 @@ yet consumed); readiness-report modified-set parenthetical corrected;
 at-commit battery `2026-10-19_ai6a/` cited in record §5. AI-6a battery:
 raw `docs/governance/evidence/raw/2026-10-20_ai6a/`. Delta re-audit
 recorded in the audit file.
+
+## POSTAI3-VERIFY — POST-AI-3 directive independent verification + docs currency (2026-10-20)
+
+Fresh read-only baseline at HEAD `a8d6e19`: the POST-AI-3 directive's reported
+HEAD `37c529d` (AI3-Ma) is confirmed present and ancestral, with exactly 7
+later commits (ACC-PKG `45f0b8b` → ACCPKGa `a3165c4` → AI-4 `6a10e5a` → AI-4a
+`cc98c64` → AI-6 `adf8cdf` → AI-6a `1d9030c` → AI-6b `a8d6e19`); ahead 26 /
+behind 0 vs live `origin/main` `c1984e7` (`git ls-remote` exit 0); stash 0;
+single worktree; the 4 untracked bootstrap paths preserved; 7-file amendment
+corpus re-validated byte-identical against owner originals.
+
+Independent verification of the five directive block groups at the current
+HEAD: all 17 block commits verified ancestors with `--stat` matching records;
+per-block focused tests re-executed green (P0-AMD-1 44, AI1-GC 58, AI2-F 24,
+AI-MA-C 25, AI3-M 13); audit FAIL→remediation→PASS histories preserved
+verbatim; structural spot-checks clean (no network/subprocess primitive in the
+15 contract modules; autonomy ceiling; canonical trust rank incl. `mixed`;
+peer-refusal + cycle detection; no delete/purge; no production state;
+UNTRUSTED lock + Two-Key + quarantine). First full at-HEAD battery for
+`a8d6e19`: 621 passed / 2 pre-existing warnings / 77.65s, all 18 components
+exit 0 (raw `docs/governance/evidence/raw/2026-10-20_postai3_battery/`, SHA
+manifest 38/38 OK). Docs-only currency remediation: publication-readiness
+report §7–§10 (26-commit chain, 65 files +14790/−32), G2 matrix A1/A2/C3,
+decision-register B-2, owner-package currency addendum. Consolidated
+verification report: `docs/governance/evidence/2026-10-20_POSTAI3_independent_verification.md`.
+Gates unchanged: G2 NOT_PASSED; `AI2_ENABLED=0`; `live_verified=false`; LLM
+NOT EXECUTED; no push.

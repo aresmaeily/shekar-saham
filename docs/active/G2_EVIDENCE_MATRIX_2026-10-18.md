@@ -67,7 +67,7 @@ procedure).
 | `live_verified=false` | `config.py` trust builder cannot mint verified LIVE (`build_data_trust_context` hard-codes verified=False, `:214`) | PASS |
 | Production path structurally unreachable | Gate 1→2→3 ordering `ai2_service.py:345-403`; tests A5/A13 | PASS |
 | LLM NOT EXECUTED | no credentials in environment; no live transport | PASS |
-| Tree state | tracked clean; untracked = 4 bootstrap paths + governance set (preserved); ahead 19 / behind 0; push owner-gated | PASS |
+| Tree state | tracked clean; untracked = 4 bootstrap paths + governance set (preserved); ahead 19 / behind 0 at the matrix baseline `37c529d` (re-verified 2026-10-20 at HEAD `a8d6e19`: ahead 26 / behind 0, tracked clean, live remote unchanged — currency addendum §A1); push owner-gated | PASS |
 
 ## C4 — Runtime / production / operational criteria
 
@@ -126,12 +126,17 @@ is not a review and not a decision. Self-approval remains void.
 ## A1. Evidence currency refresh (supersedes matrix §86 E1 note)
 
 - Reviewed-SHA chain extended: `37c529d` (matrix baseline) → `a3165c4`
-  (ACCPKGa) → `6a10e5a` (AI-4) → `cc98c64` (AI-4a) → AI-6 block commit
-  (this cycle; SHA via `git log`). Battery re-executed pre-commit at
+  (ACCPKGa) → `6a10e5a` (AI-4) → `cc98c64` (AI-4a) → `adf8cdf` (AI-6
+  block commit; SHA resolved 2026-10-20) → `1d9030c` (AI-6a) →
+  `a8d6e19` (AI-6b, current HEAD). Battery re-executed pre-commit at
   HEAD `cc98c64` + AI-6 working tree: **621 passed / 2 pre-existing
   warnings / 78.31s** (raw `docs/governance/evidence/raw/2026-10-19_ai6/`,
   all components exit 0; providers `live_verified=false` fail-closed;
-  bootstrap 8/8). E1/E3 currency: refreshed.
+  bootstrap 8/8). **Battery re-executed at the current HEAD `a8d6e19`
+  2026-10-20 (first full at-HEAD run for this commit): 621 passed / 2
+  warnings / 77.65s, all 18 battery components exit 0** (raw
+  `docs/governance/evidence/raw/2026-10-20_postai3_battery/`, SHA
+  manifest 38/38 OK). E1/E3 currency: refreshed 2026-10-20.
 - E2 (package + checklist present, internally consistent): unchanged
   PASS; AI-2 criteria A1–A14 and the eight `02:44-53` required items are
   untouched by later blocks (additive-only discipline, audit-verified
@@ -148,7 +153,7 @@ is not a review and not a decision. Self-approval remains void.
 | Block | Contract evidence | Test evidence | Audit evidence |
 |---|---|---|---|
 | AI-4 (`6a10e5a`+`cc98c64`) | `AI4_SCOPE_DERIVATION.md` R1–R14; `governed_generation.py` | 51 tests; battery 563 (raw `_ai4`, `_ai4a`) | initial FAIL (narrow) → remediation AI-4a → delta re-audit **PASS** (history preserved) |
-| AI-6 (this block) | `AI6_SCOPE_DERIVATION.md` R1–R17; `external_intelligence.py` | 58 tests; battery 621 (raw `2026-10-19_ai6`) | PENDING at block commit; recorded by remediation commit |
+| AI-6 (`adf8cdf`+`1d9030c`+`a8d6e19`) | `AI6_SCOPE_DERIVATION.md` R1–R17; `external_intelligence.py` | 58 tests; battery 621 (raw `2026-10-19_ai6`; at-HEAD re-run 2026-10-20 `_postai3_battery`) | completed chain: initial FAIL (narrow, preserved verbatim) → remediation AI-6a `1d9030c` → delta re-audit **PASS** → AI-6b `a8d6e19` closure (AI6-13/14) |
 
 ## A3. Owner decisions R1–R6 currency (unchanged; see `OWNER_DECISION_REGISTER_REVIEW_2026-10-19.md` for the full five-class register)
 

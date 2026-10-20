@@ -279,3 +279,49 @@ Recommended ledger state after owner decisions: each block
 class) with runtime integration rows remaining separate and gated. No
 project-wide completion percentage is implied or invented. Owner acceptance
 must be recorded by the owner (absence of response is not approval).
+
+---
+
+# CURRENCY ADDENDUM — 2026-10-20 (POST-AI-3 directive independent verification cycle)
+
+Status: read-only re-verification of this package's five block verdicts at the
+current HEAD; NOT an acceptance; the original 2026-10-18 package (baseline
+`37c529d`) is preserved unchanged above as history. No owner decision is
+recorded or implied by this addendum.
+
+## What was re-verified at HEAD `a8d6e19` (2026-10-20)
+
+- **Commit chains:** all five blocks' commits (P0-AMD-1 `357f4b6` + P0-AMD-1a
+  `b3cbeb1`; AI1-GC `ea3277e` + AI1-GCa `2f86c4a`; AI2-F `6aeeaa2` + AI2-Fa
+  `17ef611`; AI-MA-C `e385415` + AI-MA-Ca `aa86c3c`; AI3-M `80585c8` + AI3-Ma
+  `37c529d`) are verified ancestors of HEAD; per-commit `--stat` matches the
+  recorded file/line counts exactly.
+- **Tests re-executed (fresh at-HEAD run, raw
+  `docs/governance/evidence/raw/2026-10-20_postai3_battery/`):** P0-AMD-1 44,
+  AI1-GC 58, AI2-F 24, AI-MA-C 25, AI3-M 13 — all green, counts unchanged from
+  this package's evidence basis; full suite **621 passed / 2 pre-existing
+  warnings / 77.65s** (the suite has since grown by AI-4 51 + AI-6 58 beyond
+  this package's 512-test baseline).
+- **Audit chains:** each block's independent audit file re-confirmed present
+  with its FAIL → remediation → PASS history preserved verbatim (P0-AMD-1,
+  AI1-GC, AI2-F) or PASS verdicts (AI-MA-C, AI3-M) intact.
+- **Structural spot-checks:** no network/subprocess primitive in any of the 15
+  contract modules (no unintended reachability); AI-1 autonomy ceiling +
+  `REFUSED_BY_POLICY`; AI-2 canonical `_TRUST_RANK` incl. `mixed` + append-only
+  ledger; AI-MA structural `peer_to_peer_addressing_refused` + cycle
+  detection; AI-3 no delete/purge path + mandatory cutoffs + archive
+  citations; AI-4 no production lifecycle state exists; AI-6 `TrustLabel`
+  locked to UNTRUSTED + distinct-authorizer Two-Key + quarantine ledger.
+- **Gates re-verified:** `AI2_ENABLED=0` (`config.py:109`); G2 NOT_PASSED;
+  `live_verified=false` (`config.py:270` `verified = False`); no route wiring
+  of any contract module in `app/api/` or `app/services/`; LLM NOT EXECUTED;
+  no push (live remote `c1984e7` re-verified via `git ls-remote` 2026-10-20).
+- **Repository deltas since this package was written:** ACC-PKG/ACCPKGa
+  (`45f0b8b`+`a3165c4` — the package, G2 matrix, persistence brief, and
+  dependency matrix themselves), AI-4/AI-4a (`6a10e5a`+`cc98c64`), and
+  AI-6/AI-6a/AI-6b (`adf8cdf`+`1d9030c`+`a8d6e19`) — each separately recorded
+  in the state file §2k–§2m; none of them modified the five blocks'
+  contract modules or tests (additive-only discipline).
+
+The five blocks' recommended dispositions and conditions in this package
+remain unchanged and remain PENDING owner decision.
