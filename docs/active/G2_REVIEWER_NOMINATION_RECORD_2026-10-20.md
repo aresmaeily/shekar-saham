@@ -108,3 +108,18 @@ role.
 - Record status: **NOT_APPOINTED — BLOCKED on owner designation** — unchanged.
 - E5 remains `NOT_VERIFIED` deliberately; no acknowledgement exists or can
   exist until the owner designates a reviewer and that reviewer acknowledges.
+
+## ADDENDUM 2026-10-20 (CONSOL-GOV-4 cycle) — second owner decision designates NO reviewer; record unchanged
+
+A second owner decision on 2026-10-20 (trace `1a15b105a0662765`; canonical
+record `OWNER_DECISIONS_CONSOLGOV4_2026-10-20.md` §1.2/§4.3) explicitly
+selects Option C for the procedure draft and expressly forbids the
+implementing agent to "appoint the independent reviewer on the owner's
+behalf, or declare R2 closed", and directs: "Until formal approval and
+reviewer appointment/acknowledgement are evidenced: Keep `R2=OPEN`. Keep
+`E5=NOT_VERIFIED`. Keep `G2=NOT_PASSED`."
+
+- The decision contains NO reviewer name/role and NO designation instruction
+  beyond the above; §3 fields remain EMPTY; this record's status stays
+  **NOT_APPOINTED — BLOCKED**.
+- R2 OPEN; E5 `NOT_VERIFIED`; G2 `NOT_PASSED` — all unchanged.

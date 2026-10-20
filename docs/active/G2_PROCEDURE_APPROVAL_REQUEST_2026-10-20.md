@@ -111,3 +111,25 @@ weakening independence or required evidence.
   terms), supplies an owner procedure (A), or records an explicit Option B
   statement. Until then: G2 exit criteria remain BLOCKED; R2 remains OPEN;
   E5 remains `NOT_VERIFIED`; G2 = `NOT_PASSED`; all gates unchanged.
+
+## ADDENDUM 2026-10-20 (CONSOL-GOV-4 cycle) — Option C selection now EXPLICIT; request still OPEN
+
+A second owner decision on 2026-10-20 (trace `1a15b105a0662765`; canonical
+record `OWNER_DECISIONS_CONSOLGOV4_2026-10-20.md` §1.2) states verbatim:
+"The owner selects Option C to prepare a formal, repeatable independent G2
+review-procedure draft." This upgrades the Option C selection from
+implementing-side inspection (prior addendum) to an explicit owner
+statement. The owner also imposed six minimum topics for the draft and the
+boundaries: draft remains `NOT APPROVED` until owner-only formal approval;
+no reviewer appointment by the implementing agent; R2 stays OPEN,
+E5 `NOT_VERIFIED`, G2 `NOT_PASSED` until formal approval AND reviewer
+appointment/acknowledgement are evidenced.
+
+- **Request disposition: still OPEN.** Selecting Option C prepares the
+  draft; it is not the formal approval that closes this request (that
+  requires approving authority + effective version in a recorded owner
+  decision), nor an Option A supply, nor an Option B statement.
+- Draft coverage of the six topics re-verified this cycle (canonical record
+  §4.2). Draft identity unchanged:
+  `G2_REVIEW_PROCEDURE_DRAFT_v0.1_2026-10-20.md` (NOT APPROVED; approval
+  block EMPTY).

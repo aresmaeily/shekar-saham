@@ -136,3 +136,25 @@ Approval evidence / locus:  ______________________
 No field above may be filled by the implementing agent. Absence of response
 is not approval. Until this block is filled by the owner, this document is a
 draft proposal with no governing force.
+
+## ADDENDUM 2026-10-20 (CONSOL-GOV-4 cycle) — Option C now EXPLICITLY owner-selected; six-topic coverage re-verified; still NOT APPROVED
+
+A second owner decision on 2026-10-20 (trace `1a15b105a0662765`; recorded
+verbatim in `OWNER_DECISIONS_CONSOLGOV4_2026-10-20.md` §1.2) states directly:
+"The owner selects Option C to prepare a formal, repeatable independent G2
+review-procedure draft." The selection previously documented in the approval
+request addendum (owner instruction + implementing inspection) is therefore
+now grounded in an explicit owner statement — same outcome, stronger
+provenance.
+
+- **Six-topic coverage re-verified section-by-section this cycle** (mapping
+  table in the canonical record §4.2): owner topics 1–6 map onto T2, T4, T4,
+  T5+T3, T3+T6, and the T4 independence clause respectively. All covered;
+  items without corpus basis remain marked [OWNER TO CONFIRM].
+- **Status UNCHANGED: DRAFT / NOT APPROVED.** The owner's decision prepares a
+  draft — it is NOT the formal approval Option C requires (a recorded owner
+  decision naming the approving authority and effective version). The
+  approval block above remains EMPTY.
+- R2 remains OPEN; E5 remains `NOT_VERIFIED`; G2 remains `NOT_PASSED`. The
+  implementing agent has not approved this procedure, has not appointed a
+  reviewer, and does not declare R2 closed.

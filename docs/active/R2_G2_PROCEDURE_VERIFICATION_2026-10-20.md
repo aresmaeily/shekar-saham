@@ -113,3 +113,19 @@ acknowledgement, review outputs, and recorded acceptance criteria.
   approving authority + effective version), therefore G2 exit criteria remain
   **BLOCKED**, R2 remains **OPEN**, E5 remains `NOT_VERIFIED`, G2 =
   `NOT_PASSED`.
+
+## ADDENDUM 2026-10-20 (CONSOL-GOV-4 cycle) — Option C explicitly owner-selected; Path B verification unchanged
+
+Second owner decision of 2026-10-20 (trace `1a15b105a0662765`; canonical
+record `OWNER_DECISIONS_CONSOLGOV4_2026-10-20.md` §1.2/§4): "The owner
+selects Option C to prepare a formal, repeatable independent G2 review-
+procedure draft." The Option-A-not-actionable / Option-B-insufficient
+comparison was re-grounded THIS cycle in the actual option definitions
+(canonical record §4.1): A's required owner-supplied procedure document is
+still ABSENT (Path B NOT_FOUND stands, unrewritten); B's corpus text lacks
+explicit evidence-integrity criteria, review outputs, recorded acceptance
+criteria, and the implementer-audit-chain exclusion rule.
+
+- Procedure input remains **NOT APPROVED** (draft v0.1 addendum appended);
+  Path B remedy continues through Option C only up to the approval
+  boundary. R2 **OPEN**; E5 `NOT_VERIFIED`; G2 `NOT_PASSED` — unchanged.

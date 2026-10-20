@@ -72,3 +72,23 @@ recording performed this cycle). Effect mapping applied by that record:
   verbatim-preserved.
 - The decision affirmatively restates: silence, missing fields, test success,
   and programmer recommendations do not constitute owner approval.
+
+## ADDENDUM 2026-10-20 (CONSOL-GOV-4 cycle) — B-1 reaffirmed and sharpened by the second owner decision; all statuses UNCHANGED
+
+A second owner decision on 2026-10-20 (trace `1a15b105a0662765`; recorded
+verbatim in `OWNER_DECISIONS_CONSOLGOV4_2026-10-20.md` §1.2/§1.3) restates
+B-1 with sharpened wording: "Each of the five B-1 blocks must remain
+`VERIFIED_PENDING_ACCEPTANCE` or `BLOCKED` until its own documented exit
+criteria and required authority are satisfied. No block is accepted or
+rejected by implication."
+
+- **Per-block statuses UNCHANGED** (all five rows above keep
+  `VERIFIED_PENDING_ACCEPTANCE` with their recorded conditions); the
+  RECOMMENDATION column remains a recommendation; the §4 template remains
+  the per-block decision instrument.
+- The new wording is consistent with the first decision recorded above
+  (same rule; adds the no-implication clause and names the two retained
+  statuses) — recorded as a consistency analysis, not a rewrite, in
+  `OWNER_DECISIONS_CONSOLGOV4_2026-10-20.md` §2.
+- No historical audit result rewritten; E5 remains `NOT_VERIFIED`;
+  `G2 = NOT_PASSED`.

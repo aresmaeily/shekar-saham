@@ -182,3 +182,41 @@ recorded above:
    block-level acceptance for AI2-F and AI3-M remains open, and the per-block
    statuses retain `VERIFIED_PENDING_ACCEPTANCE` with these conditions
    recorded (canonical record §2).
+
+## ADDENDUM 2026-10-20 (CONSOL-GOV-4 cycle) — second owner decision: (a) stays OPEN; brief preparation AUTHORIZED (prepared); D1–D7 stay OPEN with per-item register
+
+A second owner decision on 2026-10-20 (trace `1a15b105a0662765`; recorded
+verbatim in `OWNER_DECISIONS_CONSOLGOV4_2026-10-20.md` §1.3/§1.4) states:
+
+> "AI2-F condition (a) remains OPEN. No code change, remediation, bypass,
+> closure, or reinterpretation of condition (a) is authorized by the B-1 or
+> R2 decisions. … Any remediation or closure requires a separate explicit
+> owner authorization that identifies the selected option and scope."
+
+> "AI3-M decisions D1–D7 remain OPEN unless a specific, existing, verifiable
+> owner decision explicitly resolves an individual item. No approval may be
+> inferred from B-1 evidence acceptance, the R2 Option C selection, or the
+> preparation of the G2 procedure draft. No architecture, persistence,
+> autonomy, runtime, permission, or consequential-behavior change is
+> authorized by this decision."
+
+Applied to this record:
+
+1. **AI2-F condition (a): OPEN — unchanged.** No remediation executed. The
+   owner DID authorize preparing an evidence-based decision brief; that brief
+   is delivered: `AI2F_CONDITION_A_DECISION_BRIEF_2026-10-20.md` (exact
+   condition terminology preserved; canonical intake disposal scope quoted
+   verbatim incl. the (iii) sub-choice; dependencies/risks/reversibility/
+   tests/gate impact; separate explicit owner authorization required). The
+   three residuals were fresh re-verified present at HEAD `bef3a53` this
+   cycle (zero drift; §1.4 table stands, with the RunContext enforcement
+   locus precisely `backend/app/domain/run_governance.py:109`).
+2. **AI2-F condition (b): standing no-runtime-readiness boundary unchanged.**
+3. **AI3-M D1–D7: OPEN — unchanged**, now with the owner-required PER-ITEM
+   register (definition / status / provenance / unresolved choice /
+   dependencies / impact / risk / verification evidence / required
+   authority) recorded in `OWNER_DECISIONS_CONSOLGOV4_2026-10-20.md` §6.
+   No item status was changed; no missing decision invented.
+4. Per-block statuses retain `VERIFIED_PENDING_ACCEPTANCE`; B-1 evidence
+   acceptance (reaffirmed and sharpened by the second decision) does not
+   accept or reject any block by implication.
