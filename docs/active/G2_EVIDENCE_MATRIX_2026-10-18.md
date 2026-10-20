@@ -167,3 +167,46 @@ is not a review and not a decision. Self-approval remains void.
   remains owner-gated; NO push performed.
 - R6 (owner-environment verification): Windows / Python 3.13 / CLI
   recognition remain NOT_VERIFIED.
+
+---
+
+# ADDENDUM A4 — 2026-10-20 (Consolidated Governance Directive cycle; NOT an approval)
+
+Status: currency refresh under the Consolidated Governance Directive §6.
+Prior content preserved unchanged. G2 remains `NOT_PASSED`;
+`AI2_ENABLED=0` (`config.py:109`); `live_verified=false` (`config.py:270`);
+LLM NOT EXECUTED; no push (live remote `c1984e7` re-verified via `ls-remote`
+exit 0 this cycle). Self-approval void.
+
+- **E1/E3 currency**: fresh read-only baseline at HEAD `d380ee5` — ahead 29 /
+  behind 0; tracked clean; `git diff --check` 0; stash 0; single worktree;
+  untracked = exactly the 4 bootstrap paths; all block commits ancestors;
+  corpus 7/7 byte-identical; full battery reproduced **621 passed / 2
+  pre-existing warnings / 77.94s**, 18/18 components exit 0, per-block
+  44/58/24/25/13/51/58 (raw `docs/governance/evidence/raw/2026-10-20_consol_precommit/`,
+  manifest 20/20 OK; baseline `.../2026-10-20_consolidated_baseline/`,
+  manifest 10/10 OK). Zero discrepancy from every preserved baseline.
+- **C2 residual note**: the three AI2-F residual observations were re-verified
+  STILL PRESENT in code this cycle (`governed_acceptance` :393-423 no
+  `record.status`; record-level APPROVED without approver field;
+  `_TRUST_RANK` :234-241 unknown-string −1 vs `config.py:191-196` folding) —
+  condition (a) OPEN, disposal-ready, owner authorization required per the
+  governing directive §7 (see `AI2F_AI3M_DECISION_RECORD_2026-10-20.md`).
+- **E5**: remains **NOT_VERIFIED** (reviewer acknowledgment pending) —
+  deliberately preserved, not carried forward blindly; no qualifying new
+  evidence exists.
+- **G2 procedure**: re-verified ABSENT this cycle (fresh search — zero
+  "procedure" occurrences across all 7 corpus files; every body hit outside
+  the corpus classified as absence-record/unrelated-procedure/pre-import
+  expectation). R2 remains BLOCKED on owner input; formal change request
+  delivered (`G2_PROCEDURE_APPROVAL_REQUEST_2026-10-20.md`; verification
+  report `R2_G2_PROCEDURE_VERIFICATION_2026-10-20.md`).
+- **Audit history**: G2PREP audit chain (FAIL narrow G2P-02 MEDIUM +
+  G2P-01 LOW at `8e10e11` → remediation `d380ee5` → delta PASS) preserved
+  verbatim in `docs/governance/evidence/2026-10-20_G2PREP_independent_audit.md`.
+- **New companion artifacts**: `B1_OWNER_DECISION_MATRIX_2026-10-20.md`,
+  `AI2F_AI3M_DECISION_RECORD_2026-10-20.md`,
+  `R2_G2_PROCEDURE_VERIFICATION_2026-10-20.md`,
+  `G2_PROCEDURE_APPROVAL_REQUEST_2026-10-20.md`,
+  `G2_REVIEWER_NOMINATION_RECORD_2026-10-20.md` (reviewer NOT_APPOINTED —
+  owner designation required).

@@ -128,3 +128,71 @@ recorded by the owner with the independent validator; self-approval is void;
 - Standing gate statement: until the owner records the verdict per the
   authoritative procedure, **G2 = `NOT_PASSED`** and every prohibition in
   `OWNER_DECISION_PACKAGE_B1_R2_2026-10-20.md` §3 stays in force.
+
+---
+
+# CURRENCY ADDENDUM — 2026-10-20 (Consolidated Governance Directive cycle; NOT an approval, NOT a review)
+
+Status: traceable evidence-backed currency update under the Consolidated
+Governance Directive §6 (preserve + revalidate; no history rewritten). The
+original package (§1–§6 above, bound to candidate SHA `7490ad4`) is preserved
+unchanged. G2 remains `NOT_PASSED`; E5 remains **NOT_VERIFIED**; self-approval
+remains void.
+
+## A1. Candidate-SHA currency at HEAD `d380ee5` (fresh this cycle)
+
+- Commits after `7490ad4`: exactly two — `8e10e11` (G2PREP, 8 files
+  +421/−3) and `d380ee5` (G2PREPa, 2 files +10/−5). Verified docs-only:
+  `git diff --stat 7490ad4..HEAD` = 8 files, all `.md`, zero `backend/`/
+  `frontend/` paths (fresh check this cycle). The §1 E1 convention ("commits
+  after `7490ad4` are expected to be governance/documentation-only") remains
+  TRUE; the reviewer re-fixes the reviewed SHA at review start per checklist
+  §1 and re-derives with `git diff --stat 7490ad4..HEAD`.
+- Fresh baseline re-verified at `d380ee5` (evidence
+  `docs/governance/evidence/raw/2026-10-20_consolidated_baseline/`, SHA-256
+  manifest 10/10 OK): HEAD/branch/main; ahead 29 / behind 0; live
+  `origin/main` `c1984e7` via `ls-remote` exit 0 (unchanged — no push);
+  tracked clean; `git diff --check` 0; stash 0; single worktree; untracked =
+  exactly the four preserved bootstrap paths (`.claude/`, `CLAUDE.md`,
+  `docs/governance/`, `scripts/validate_bootstrap_config.py`); all five
+  blocks' 10 block commits + `d380ee5`/`8e10e11`/`7490ad4`/`37c529d` verified
+  ancestors (`06_ancestry.txt`); amendment corpus 7/7 byte-identical
+  (`09_corpus_integrity.txt`); gates in code: `AI2_ENABLED=0` (`config.py:109`),
+  `verified=False` (`config.py:270`) (`08_gates_source.txt`).
+- Full battery reproduced at `d380ee5` this cycle: **621 passed / 2
+  pre-existing warnings / 77.94s**, 18/18 components exit 0, per-block
+  44/58/24/25/13/51/58, manifest 20/20 OK
+  (`raw/2026-10-20_consol_precommit/`) — zero discrepancy from the §3/§4
+  lineage (621/2 across six preserved baselines now).
+
+## A2. E1–E6 statuses revalidated this cycle (no blind carry-forward)
+
+| Criterion | Status after revalidation | Note |
+|---|---|---|
+| E1 reviewed SHA fixed / tree state | VERIFIED (at `7490ad4` package time + `d380ee5` currency) | Re-fix at review start unchanged |
+| E2 package consistency | VERIFIED | New companion artifacts cross-referenced (see A3); every path resolves |
+| E3 battery reproducible | VERIFIED — zero discrepancy | Fresh 621/2 run this cycle (A1) |
+| E4 gates in code | VERIFIED | Fresh `config.py:109`/:270 captures + import-surface grep (baseline `08_gates_source.txt`) |
+| E5 limitations acknowledged | **NOT_VERIFIED — unchanged, deliberately preserved** | Reviewer act; no new qualifying evidence exists; the governing directive §6 requires preserving NOT_VERIFIED unless new evidence + independent review justify change — none has occurred |
+| E6 corpus acknowledged | VERIFIED (SYNCED) | 7/7 fresh byte-identical (A1) |
+
+## A3. New companion artifacts added this cycle (cross-referenced, no duplicates)
+
+`B1_OWNER_DECISION_MATRIX_2026-10-20.md` (per-block decision matrix),
+`AI2F_AI3M_DECISION_RECORD_2026-10-20.md` (source-backed conditions + fresh
+code verification of the three AI2-F residuals), `R2_G2_PROCEDURE_VERIFICATION_2026-10-20.md`
+(procedure NOT_FOUND/NOT_VERIFIED, Path B), `G2_PROCEDURE_APPROVAL_REQUEST_2026-10-20.md`
+(formal change request), `G2_REVIEWER_NOMINATION_RECORD_2026-10-20.md`
+(reviewer nomination; appointment NOT_APPOINTED — blocked on owner).
+
+## A4. Audit history preservation (verified intact this cycle)
+
+The G2PREP independent-audit history is preserved verbatim in
+`docs/governance/evidence/2026-10-20_G2PREP_independent_audit.md`: original
+verdict at `8e10e11` = **FAIL (narrow)** with **G2P-02 MEDIUM** (evidence
+provenance — cited config capture absent from the cited file; gate facts
+themselves re-verified TRUE live by the auditor) and **G2P-01 LOW** (file-count
+wording), remediated by `G2PREPa d380ee5` (dated supplementary capture
+`raw/2026-10-20_g2prep_baseline/gates_config_capture_supplement_G2P-02_2026-10-20.txt`,
+never backdated), delta re-audit **PASS** — original FAIL verdict preserved in
+the report. No failure was erased or rewritten.
