@@ -732,7 +732,8 @@ def evidence_filing_gate(
     03:33-40). VERIFIED trust requires a source-verification record
     (03:75). An active quarantine blocks filing until the ledger's
     named-human release disposes of it — quarantine is a containment
-    state and cannot re-enter any allowed flow while active (03:76;
+    state and cannot re-enter any evidence-use flow (filing or
+    interpretation) while active (03:76;
     06:90; scope R7); injection findings without quarantine coverage
     also block.
 

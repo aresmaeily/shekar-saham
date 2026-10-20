@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-10-20 — AI-6b delta-re-audit closure (AI6-13 + AI6-14)
+
+- Delta re-audit of the AI-6a remediation by the same independent auditor: **PASS** (AI6-01..09 FIXED with evidence; AI6-10/11/12 accepted) — `docs/governance/evidence/2026-10-19_AI6_independent_audit.md`, original FAIL verdict preserved verbatim.
+- AI6-13 (LOW) fixed: the AI-6a at-commit battery `raw/2026-10-20_ai6b/` (621 passed / 2 warnings / 77.69s at `1d9030c`; 58 in 0.23s; manifest 13/13 OK) is now cited in execution-record §5 alongside the pre-commit `_ai6a/` capture.
+- AI6-14 (INFO) narrowed: containment wording in scope R7 + `evidence_filing_gate` docstring now reads "cannot re-enter any evidence-use flow (filing or interpretation) while quarantine is active — containment-aware intake for scan/segmentation remains the designed precondition" (behavior unchanged; docstring/comment-only module touch).
+
 ## 2026-10-20 — AI-6a independent-audit remediation (locus corrections + evidence_filing_gate quarantine tightening)
 
 - Independent read-only audit of the AI-6 block (`adf8cdf`) returned **FAIL (narrow)** — zero CRITICAL, zero gate drift, zero test failures; report: `docs/governance/evidence/2026-10-19_AI6_independent_audit.md` (FAIL history preserved verbatim). Findings: 3 MEDIUM (AI6-01 corpus locus `02:195-197` → actual `02:194`; AI6-02 scope `06 §11 (lines 124-127)` → actual `(lines 100-101)`; AI6-03 `evidence_filing_gate` XOR gap allowed filing while content was BOTH finding-bearing AND actively quarantined, contradicting the gate docstring and scope R7) + 6 LOW (AI6-04 locus cluster; AI6-05 sandbox-proposal loci; AI6-06 CoverageReport "consumed" overstatement; AI6-07 `two_key_gate()` nonexistent name; AI6-08 readiness-report modified-set parenthetical; AI6-09 at-commit battery uncited) + 3 INFO (AI6-10/11/12).

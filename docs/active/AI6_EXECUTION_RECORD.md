@@ -141,6 +141,13 @@ At-commit battery at the block commit `adf8cdf` (raw
 58 passed in 0.24s; pyflakes 0; compileall 0; pip-audit clean;
 validators 0; bootstrap 8/8; `git diff --check` 0; SHA manifest
 `00_evidence_sha256.txt` (13 evidence files, self-excluded).
+AI-6a batteries: pre-commit at the AI-6a content (raw
+`docs/governance/evidence/raw/2026-10-20_ai6a/`, tracked_dirty=9,
+context-labeled) and at-commit at `1d9030c` (raw
+`docs/governance/evidence/raw/2026-10-20_ai6b/`, tracked_dirty=0):
+**621 passed / 2 warnings / 77.63s (pre-commit) and 77.69s
+(at-commit)**; AI-6 block 58 in 0.26s / 0.23s; all 12 components exit 0
+in both; both SHA manifests verify 13/13 OK.
 
 Harness disclosure (also in `00_context.txt`): the first battery pass had
 two invocation defects in the harness itself (`pip_audit
@@ -187,8 +194,19 @@ INSTRUCTION_CONFLICT not gate-exercised as a blocking kind; unbounded
 acceptable); intake-gate docstring order list omits the 7th emitted code
 `verification_source_mismatch`; redundant `controls is not None`.
 
-Delta re-audit outcome recorded in the audit report after this commit
-(see audit file "Delta re-audit (post AI-6a)" section).
+Delta re-audit (same independent auditor, after the AI-6a commit):
+**PASS** — AI6-01..09 verified FIXED against the actual `1d9030c` diff
+(gate logic hand-traced for all four findings × quarantine combinations;
+both refusal codes retained; all corrected corpus loci re-verified
+verbatim); AI6-10/11/12 ACCEPTED. Two residual items from the delta
+re-audit, dispositioned by the AI-6b commit: AI6-13 (LOW — the AI-6a
+at-commit battery `2026-10-20_ai6b/` was cited by no tracked document)
+fixed by the §5 citation above; AI6-14 (INFO — containment wording
+breadth) narrowed: scope R7 and the gate docstring now say
+"evidence-use flow (filing or interpretation)" with containment-aware
+intake recorded as the designed precondition. Final chain verdict:
+**PASS** (`docs/governance/evidence/2026-10-19_AI6_independent_audit.md`,
+original FAIL verdict preserved verbatim).
 
 ## 7. Governance reconciliation
 
