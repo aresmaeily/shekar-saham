@@ -33,8 +33,8 @@ proceeds.
 
 | ID | Decision | Affected scope | Recommended disposition | Consequence of deferral |
 |---|---|---|---|---|
-| B-1 | Acceptance of the five delivered pre-G2 blocks (P0-AMD-1, AI1-GC, AI2-F, AI-MA-C, AI3-M — package recommends ACCEPT; AI2-F/AI3-M WITH CONDITIONS) | Whole pre-G2 contract class; G2 entry | Follow package recommendations; dispose AI-2 residual conditions in next AI-2 contract touch (one-commit remediable) | Work continues lawfully (contract class authorized by corpus), but G2 package stays "owner acceptance PENDING" |
-| B-2 | Push authorization for the unpublished local chain (G2-matrix R5) | Everything (publication) | Authorize fast-forward push after the readiness-report checks; or defer | 26 commits remain local-only (count re-verified 2026-10-20 at HEAD `a8d6e19`, ahead 26 / behind 0; publication-readiness report currency update §7–§10); no remote backup |
+| B-1 | Acceptance of the five delivered pre-G2 blocks (P0-AMD-1, AI1-GC, AI2-F, AI-MA-C, AI3-M — package recommends ACCEPT; AI2-F/AI3-M WITH CONDITIONS) | Whole pre-G2 contract class; G2 entry | Follow package recommendations; dispose AI-2 residual conditions in next AI-2 contract touch (one-commit remediable). Decision package with exact criteria/consequences: `OWNER_DECISION_PACKAGE_B1_R2_2026-10-20.md` | Work continues lawfully (contract class authorized by corpus), but G2 package stays "owner acceptance PENDING" |
+| B-2 | Push authorization for the unpublished local chain (G2-matrix R5) | Everything (publication) | Authorize fast-forward push after the readiness-report checks; or defer | 27 commits remain local-only (count re-verified 2026-10-20 at HEAD `7490ad4`, ahead 27 / behind 0, live remote unchanged; readiness-report §11 currency note — push-time count re-derived per its §6 procedure); no remote backup |
 | B-3 | Source classes to admit first (AI-6) + Two-Key Rule operational parameters + source credentials (dependency matrix) | AI-6 operationalization (D-AI-29) | Decide after reviewing AI-6 contract layer; parameters needed before ANY runtime ingestion | Contract layer stands; AI-6 runtime stays blocked (as it already is, G2-class) |
 | B-4 | D-AI-30 core-stability declaration + AI-5 cadence/budget approval | AI-5 | Owner judgment call when core stability is declared | AI-5 contract extensions remain the only lawful work; scheduler runtime stays blocked |
 | B-5 | D-AI-31 autonomy-expansion evidence thresholds | AI-7 | Defer until evidence exists (register already says "DEFERRED UNTIL EVIDENCE") | None today (no evidence exists to expand on) |
@@ -44,7 +44,7 @@ proceeds.
 
 | ID | Gate | Why not waivable | Next action |
 |---|---|---|---|
-| C-1 | G2 (NOT_PASSED) | Requires independent validation + owner acceptance (D-AI-26; `02:201`); "a permission to conduct a review is not a decision to pass the gate" (directive R6) | Continue G2 package preparation (this cycle: E1 SHA currency refreshed); supply the authoritative G2 procedure (still missing) + reviewer assignment |
+| C-1 | G2 (NOT_PASSED) | Requires independent validation + owner acceptance (D-AI-26; `02:201`); "a permission to conduct a review is not a decision to pass the gate" (directive R6) | Continue G2 package preparation (this cycle: E1 SHA currency refreshed; consolidated reviewer package delivered as `G2_REVIEW_PACKAGE_2026-10-20.md`); supply the authoritative G2 procedure (still missing — verified absent from the corpus 2026-10-20, not invented) + reviewer assignment |
 | C-2 | `AI2_ENABLED=1` | Blocked on G2 pass + explicit acceptance (G2-matrix R4) | None until C-1 |
 | C-3 | `live_verified=true` | Requires live-credential provisioning + a live validation run (G2-matrix R3) | Owner provisions credentials when ready |
 | C-4 | Windows / Python 3.13 / native Claude CLI verification | Requires owner-environment access (G2-matrix R6; P3.43) | Owner-environment runs per checklists |

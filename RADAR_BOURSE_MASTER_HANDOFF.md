@@ -1140,3 +1140,33 @@ decision-register B-2, owner-package currency addendum. Consolidated
 verification report: `docs/governance/evidence/2026-10-20_POSTAI3_independent_verification.md`.
 Gates unchanged: G2 NOT_PASSED; `AI2_ENABLED=0`; `live_verified=false`; LLM
 NOT EXECUTED; no push.
+
+## G2PREP — G2 review convening + owner-decision readiness (2026-10-20)
+
+Docs-only cycle under the G2 REVIEW CONVENING AND OWNER-DECISION READINESS
+directive (no code change; the review was NOT convened by this work; G2 NOT
+self-approved). Fresh read-only baseline at HEAD `7490ad4`: 27 ahead / 0
+behind vs live `origin/main` `c1984e7` (`git ls-remote` exit 0); stash 0;
+single worktree; 4 untracked bootstrap paths preserved; all 17 block commits
+re-verified ancestors; amendment corpus 7/7 byte-identical vs owner originals.
+
+Two deliverables: (1) `docs/active/OWNER_DECISION_PACKAGE_B1_R2_2026-10-20.md`
+— the exact owner decisions for B-1 (five pre-G2 blocks acceptance) and R2
+(authorize + schedule G2 + supply the authoritative procedure + designate the
+reviewer), the AI2-F/AI3-M recorded conditions with the evidence needed to
+dispose of each, approve/reject/defer consequences, and the
+prohibited-under-every-outcome set; the authoritative G2 procedure verified
+ABSENT from the corpus and NOT invented. (2) `docs/active/G2_REVIEW_PACKAGE_2026-10-20.md`
+— reviewer-facing package binding candidate SHA `7490ad4` to the five block
+groups' verbatim-preserved audit histories, the E1–E6 criterion-to-evidence
+matrix (E1/E2/E3/E4/E6 VERIFIED; E5 NOT_VERIFIED pending the reviewer's own
+acknowledgment; exit criteria BLOCKED on the missing owner procedure), the
+reproduced validation battery (621 passed / 2 pre-existing warnings / 77.97s
+at `7490ad4`, 18/18 components exit 0, SHA-256 manifest 37/37 OK — zero
+discrepancy from the reported 621/2; raw
+`docs/governance/evidence/raw/2026-10-20_g2prep_battery/`), the eight
+NOT_VERIFIED environment/runtime gaps, and the reviewer RACI (`04:72`) +
+required owner sign-off. Independent read-only audit of the package:
+`docs/governance/evidence/2026-10-20_G2PREP_independent_audit.md` (untracked).
+Gates unchanged: G2 NOT_PASSED; `AI2_ENABLED=0`; `live_verified=false`; LLM
+NOT EXECUTED; no push.

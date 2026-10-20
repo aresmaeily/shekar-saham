@@ -139,3 +139,21 @@ alpha env/runtime/frontend validators 0; providers tsetmc+brsapi 0 with
 post-battery tree integrity clean. Gates re-verified: `AI2_ENABLED=0`
 (`config.py:109`), G2 NOT_PASSED, `live_verified=false`, no route wiring of
 any contract module in `app/api/` or `app/services/` (grep 2026-10-20).
+
+## 11. Currency note — G2PREP cycle (2026-10-20)
+
+Head has advanced by one docs-only governance commit since §7–§10 were
+written: POSTAI3-VERIFY `7490ad4` (itself verified 27 ahead / 0 behind vs
+live `c1984e7`, `git ls-remote` exit 0; tracked clean; stash 0; single
+worktree; 4 bootstrap paths preserved). The G2PREP cycle adds further
+docs-only commits (decision package + G2 review package + pointers), so the
+exact push-time count must be re-derived at push time per §6's procedure
+(`git rev-list --count HEAD..origin/main` must be 0; count = `git rev-list
+--count origin/main..HEAD`). The §8 aggregate-diff numbers (65 files
++14790/−32) describe the chain through `a8d6e19` and grow only by docs/pointers
+from `7490ad4` onward — no application code is added by these commits; the
+post-push `ls-remote` expectation must equal the then-current HEAD SHA.
+Full battery re-reproduced at `7490ad4` in the G2PREP cycle: 621 passed /
+2 warnings / 77.97s, 18/18 components exit 0 (raw
+`docs/governance/evidence/raw/2026-10-20_g2prep_battery/`, manifest 37/37 OK).
+Push remains owner-gated (B-2/R5); NO push performed.
