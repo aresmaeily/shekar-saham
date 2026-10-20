@@ -196,3 +196,46 @@ wording), remediated by `G2PREPa d380ee5` (dated supplementary capture
 `raw/2026-10-20_g2prep_baseline/gates_config_capture_supplement_G2P-02_2026-10-20.txt`,
 never backdated), delta re-audit **PASS** — original FAIL verdict preserved in
 the report. No failure was erased or rewritten.
+
+## A5. Evidence currency + owner-decision intake at HEAD `b12b0cf` (2026-10-20, docs-only cycle; NOT an approval)
+
+Status: currency refresh under the CONSOL-GOV Evidence Currency directive; no
+status upgraded, no owner decision inferred.
+
+- **Baseline re-verified** (zero discrepancy from the reported state): HEAD
+  `b12b0cfc665c712dd8584099f4945c01b342dc59` on `main`; ahead 30 / behind 0 vs
+  live `origin/main` `c1984e7` (`git ls-remote` exit 0 — NO push); tracked
+  clean; staged 0; stash 0; single worktree; untracked = exactly the 4
+  bootstrap paths (existence re-verified, preserved). Evidence:
+  `evidence/raw/2026-10-20_consolgov2_baseline/` (25-file SHA-256 manifest OK).
+- **Owner-decision intake** (directive §2): all four canonical decision files
+  inspected at `b12b0cf` — `OWNER_DECISION_PACKAGE_B1_R2_2026-10-20.md` §4
+  template (all fields blank), `G2_PROCEDURE_APPROVAL_REQUEST_2026-10-20.md`
+  (no option A/B/C selected), `G2_REVIEWER_NOMINATION_RECORD_2026-10-20.md`
+  (§3 designation fields blank; NOT_APPOINTED — BLOCKED unchanged),
+  `AI2F_AI3M_DECISION_RECORD_2026-10-20.md` (condition (a) OPEN; D1–D7 open).
+  **NO owner decision is present**; no new commits exist; tracked tree clean
+  since `b12b0cf`; the only post-commit file churn is gitignored runtime data
+  (`data/` per `.gitignore:23`, touched by the prior cycle's battery runs).
+  Silence is not approval — the template warning stands verbatim.
+- **Corpus integrity re-verified**: 7/7 byte-identical vs owner upload
+  originals (fresh per-file `cmp` + SHA-256; all 7 digests MATCH the values
+  recorded in `raw/2026-10-20_g2prep_baseline/`). Evidence:
+  `raw/2026-10-20_consolgov2_baseline/26_corpus_integrity_refresh.txt` +
+  `27_corpus_sha_xref_vs_g2prep.txt`.
+- **Battery re-run at `b12b0cf`** (raw `evidence/raw/2026-10-20_consolgov2_battery/`,
+  SHA-256 manifest 19/19 OK): **621 passed / 2 pre-existing warnings / 77.94s**,
+  all 18 components exit 0, per-block P0-AMD-1 44, AI1-GC 58, AI2-F 24,
+  AI-MA-C 25, AI3-M 13, AI-4 51, AI-6 58 — zero discrepancy from the reported
+  621/2; the 2 warnings remain the same pre-existing environment deprecations
+  (Starlette testclient httpx; anyio BlockingPortal).
+- **Gates fresh capture** (`raw/2026-10-20_consolgov2_baseline/28_gates_fresh_capture.txt`):
+  `AI2_ENABLED=0` (`backend/app/core/config.py:109`); `verified = False`
+  hard-coded (`config.py:270` region); contract-module import grep over
+  `app/api` + `app/services` exit 1 (no match).
+- **E1–E6 statuses**: unchanged from A2 — E1/E2/E3/E4/E6 VERIFIED (this
+  cycle's evidence above), **E5 remains NOT_VERIFIED** (reviewer
+  acknowledgment pending; no qualifying new evidence; deliberately preserved
+  per directive). Exit criteria remain BLOCKED on the missing authoritative
+  owner procedure (Path B, `R2_G2_PROCEDURE_VERIFICATION_2026-10-20.md` §4)
+  and the un-designated reviewer. G2 remains `NOT_PASSED`; self-approval void.

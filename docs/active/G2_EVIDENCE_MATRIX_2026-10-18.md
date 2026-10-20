@@ -210,3 +210,35 @@ exit 0 this cycle). Self-approval void.
   `G2_PROCEDURE_APPROVAL_REQUEST_2026-10-20.md`,
   `G2_REVIEWER_NOMINATION_RECORD_2026-10-20.md` (reviewer NOT_APPOINTED —
   owner designation required).
+
+---
+
+# ADDENDUM A5 — 2026-10-20 (CONSOL-GOV Evidence Currency cycle @ `b12b0cf`; NOT an approval)
+
+Status: currency refresh under the CONSOL-GOV Evidence Currency directive; no
+status upgraded; no owner decision inferred.
+
+- **Candidate-SHA currency**: HEAD now `b12b0cf` (30 ahead / 0 behind vs live
+  `origin/main` `c1984e7`, ls-remote exit 0, NO push); commits after the
+  package-time candidate `7490ad4` remain docs-only (8e10e11 G2PREP,
+  d380ee5 G2PREPa, b12b0cf CONSOL-GOV); tracked tree clean; 4 bootstrap
+  paths preserved. Evidence: `raw/2026-10-20_consolgov2_baseline/`.
+- **Owner-decision intake**: NO owner decision present in any of the four
+  canonical decision files (all owner fill-in fields blank at `b12b0cf`;
+  no new commits; tracked tree clean). Silence is not approval.
+- **Corpus (E6)**: 7/7 byte-identical fresh (cmp + SHA-256, all digests match
+  the g2prep-baseline recorded values) — `raw/2026-10-20_consolgov2_baseline/26_corpus_integrity_refresh.txt`.
+- **Battery (E3)**: re-run at `b12b0cf` — 621 passed / 2 pre-existing
+  warnings / 77.94s, 18/18 components exit 0, per-block 44/58/24/25/13/51/58,
+  zero discrepancy (raw `raw/2026-10-20_consolgov2_battery/`, manifest 19/19 OK).
+- **Gates (E4)**: fresh capture at `b12b0cf` — `AI2_ENABLED=0`
+  (`config.py:109`), `verified=False` (`config.py:270` region), contract-module
+  import grep `app/api`+`app/services` exit 1
+  (`raw/2026-10-20_consolgov2_baseline/28_gates_fresh_capture.txt`).
+- **E5**: remains **NOT_VERIFIED** (reviewer acknowledgment pending) —
+  deliberately preserved; no qualifying new evidence exists.
+- **G2 procedure**: remains ABSENT from the corpus (Path B NOT_FOUND/NOT_VERIFIED
+  stands; no owner selection among options A/B/C recorded).
+- **Audit history**: G2PREP chain (FAIL narrow G2P-02 MEDIUM + G2P-01 LOW at
+  `8e10e11` → remediation `d380ee5` → delta PASS) preserved verbatim —
+  untouched this cycle.
