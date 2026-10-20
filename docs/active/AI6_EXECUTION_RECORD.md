@@ -37,12 +37,12 @@ parameters, credentials — owner decisions).
 
 ## 3. Implementation (additive; no existing module modified)
 
-`backend/app/domain/external_intelligence.py` (881 lines; frozen,
+`backend/app/domain/external_intelligence.py` (880 lines; frozen,
 deterministic, clock-free; imports only stdlib + pydantic +
 `app.domain.{evidence,run_governance,source_registry}`):
 
 - Closed vocabularies: `TrustLabel=Literal["UNTRUSTED"]` (no trusted
-  content expressible); `ContentKind` (exactly 02:162-164 kinds);
+  content expressible); `ContentKind` (exactly 02:164-165 kinds);
   `TrustBoundaryFlow` (four content-side flows allowed; TOOL_EXECUTION /
   PRODUCTION_MUTATION / AUTONOMOUS_ACTION exist only as structurally
   refused members); `InjectionFindingKind` taxonomy (DIRECT_INSTRUCTION,
@@ -135,6 +135,13 @@ All exit codes preserved as `<name>.exit` files; SHA manifest
 | validate_bootstrap_config | 8 checks, 0 FAIL | 0 |
 | `git diff --check` | clean | 0 |
 
+At-commit battery at the block commit `adf8cdf` (raw
+`docs/governance/evidence/raw/2026-10-19_ai6a/`): pytest full suite
+**621 passed, 2 pre-existing warnings in 78.19s**; AI-6 new block
+58 passed in 0.24s; pyflakes 0; compileall 0; pip-audit clean;
+validators 0; bootstrap 8/8; `git diff --check` 0; SHA manifest
+`00_evidence_sha256.txt` (13 evidence files, self-excluded).
+
 Harness disclosure (also in `00_context.txt`): the first battery pass had
 two invocation defects in the harness itself (`pip_audit
 --progress-terminal` unsupported; `validate_providers.py` requires
@@ -144,14 +151,44 @@ affected.
 
 ## 6. Independent read-only audit
 
-PENDING at the time of this block commit (governance order: battery →
-commit → independent read-only audit of the actual diff → remediation →
-delta re-audit). The audit report will be
-`docs/governance/evidence/2026-10-19_AI6_independent_audit.md` (untracked
-governance-evidence location, same as all prior block audits); its
-verdict and any remediation/delta re-audit outcome will be recorded in
-this section by the remediation commit. No verdict is claimed here in
-advance.
+Audit executed AFTER this block commit by an independent read-only
+auditor (governance order: battery → commit → audit → remediation →
+delta re-audit): `docs/governance/evidence/2026-10-19_AI6_independent_audit.md`
+(untracked governance-evidence location, same as all prior block
+audits). **Initial verdict: FAIL (narrow)** — zero CRITICAL, zero gate
+drift, zero test failures; 3 MEDIUM (AI6-01 corpus-locus `02:195-197` →
+actual `02:194`; AI6-02 scope `06 §11 (lines 124-127)` → actual
+`06 §11 (lines 100-101)`; AI6-03 `evidence_filing_gate` allowed filing
+while content was BOTH finding-bearing AND actively quarantined —
+contradicting the gate's own docstring and scope R7) + 6 LOW (AI6-04
+locus cluster; AI6-05 sandbox-proposal loci; AI6-06 CoverageReport
+"consumed" overstatement; AI6-07 `two_key_gate()` name; AI6-08
+readiness-report modified-set parenthetical; AI6-09 at-commit battery
+uncited) + 3 INFO (AI6-10/11/12).
+
+Remediation (AI-6a, this commit): AI6-01/02/04/05 — corpus-locus
+corrections across module docstring/comments, scope matrix, execution
+record, sandbox proposal (all content was verbatim-accurate; loci
+corrected); **AI6-03 — the gate was TIGHTENED to the documented rule**
+(`evidence_filing_gate` now refuses whenever the content is actively
+quarantined, regardless of findings; findings-without-quarantine
+coverage still refuses; both refusal codes retained; test
+`test_filing_gate_blocked_by_findings_and_quarantine` updated to assert
+the both-set refusal — this enforces the block's own declared contract
+and corpus quarantine discipline; no requirement invented); AI6-06/07 —
+scope R13/R8 reworded to the actual mechanism; AI6-08 — readiness
+report parenthetical corrected against `git diff --name-status`; AI6-09
+— at-commit battery `_ai6a` cited in §5 (also fixes AI6-10's 880-line
+count). AI6-11/12 (INFO) ACCEPTED as recorded observations: weak
+same-process determinism test / freeze test covers 2 of 12 record types /
+INSTRUCTION_CONFLICT not gate-exercised as a blocking kind; unbounded
+`notes`/tuple fields; uncaught AttributeError on non-str hash in
+`evidence_filing_gate` (deterministic loud failure, contract-level
+acceptable); intake-gate docstring order list omits the 7th emitted code
+`verification_source_mismatch`; redundant `controls is not None`.
+
+Delta re-audit outcome recorded in the audit report after this commit
+(see audit file "Delta re-audit (post AI-6a)" section).
 
 ## 7. Governance reconciliation
 
@@ -178,5 +215,7 @@ advance.
   remains post-G2 class work.
 - Unverified environments unchanged: Windows targets, Python 3.13 CI
   parity, native Claude CLI recognition, live providers/LLM.
-- AI-6 coverage/freshness/failure reporting at RUNTIME (02:165) remains
-  NOT PROVEN; the contract consumes the existing CoverageReport schema.
+- AI-6 coverage/freshness/failure reporting at RUNTIME (02:169) remains
+  NOT PROVEN; `source_registry.coverage_report` / `CoverageReport`
+  remain canonical in `source_registry.py` and are not yet consumed by
+  the contract layer (runtime reporting is post-gate).

@@ -1070,8 +1070,9 @@ gates + `assert_boundary_allowed` (tool-execution / production-mutation /
 autonomous-action structurally refused). 58 corpus-derived tests; battery
 621 passed / 2 pre-existing warnings / 78.31s (raw
 `docs/governance/evidence/raw/2026-10-19_ai6/`; all exits 0). Record:
-`docs/active/AI6_EXECUTION_RECORD.md` (independent audit PENDING at the
-block commit; verdict recorded by the remediation commit). D-AI-29 NOT
+`docs/active/AI6_EXECUTION_RECORD.md` (independent audit FAIL narrow
+after the block commit — AI6-01..09 + INFO — all dispositioned by the
+AI-6a remediation commit below). D-AI-29 NOT
 activated; no network path exists; source-class admissions + Two-Key
 operational parameters + credentials remain owner decisions.
 
@@ -1096,3 +1097,19 @@ defect; contractual ≠ operational readiness), `AI4_SANDBOX_LIMITS_PROPOSAL.md`
 G2 evidence matrix addendum (R6; E1 refreshed; NOT an approval). Gates
 unchanged: G2 NOT_PASSED; `AI2_ENABLED=0`; `live_verified=false`; LLM NOT
 EXECUTED.
+
+## AI-6a Update — independent-audit remediation (2026-10-20)
+
+Independent read-only audit of the AI-6 block: **FAIL (narrow)** — zero
+CRITICAL, zero gate drift, zero test failures; 3 MEDIUM + 6 LOW + 3 INFO
+(report: `docs/governance/evidence/2026-10-19_AI6_independent_audit.md`,
+FAIL history preserved verbatim). Remediation commit AI-6a: corpus-locus
+corrections (02:194 / 06 §11 100-101 / 06 §3 16-30 / 02:169 / 03:76 /
+02:109-112 etc.); `evidence_filing_gate` TIGHTENED to the documented
+rule (active quarantine always blocks filing until named-human release,
+regardless of findings; test updated); scope R8/R13 reworded to the
+actual mechanism (no `two_key_gate()`; CoverageReport canonical but not
+yet consumed); readiness-report modified-set parenthetical corrected;
+at-commit battery `2026-10-19_ai6a/` cited in record §5. AI-6a battery:
+raw `docs/governance/evidence/raw/2026-10-20_ai6a/`. Delta re-audit
+recorded in the audit file.

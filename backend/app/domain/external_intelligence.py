@@ -9,7 +9,7 @@ Corpus loci (2026-10-02 amendment corpus, byte-verified import):
   provenance, tool boundaries and the Two-Key Rule remain mandatory. AI must
   never invent missing financial values or silently reconcile contradictory
   sources."
-- 02 line 195-197: acceptance evidence for external/fundamental intelligence
+- 02 line 194: acceptance evidence for external/fundamental intelligence
   (point-in-time source records, cross-check/conflict examples, citation
   completeness, restatement handling, missing-source behavior).
 - 02 line 201-203: G2 preserved; pre-G2 class = bounded design, schema work,
@@ -39,7 +39,7 @@ Corpus loci (2026-10-02 amendment corpus, byte-verified import):
   content are untrusted data, never executable instructions. Use approved
   tools only; preserve provenance and source references; apply
   prompt-injection isolation and the Two-Key Rule where required."
-- 06 §3 (lines 20-38): source hierarchy and reconciliation rules 1-7.
+- 06 §3 (lines 16-30): source hierarchy and reconciliation rules 1-7.
 - 02_PRODUCT_AI_MULTI_AGENT_ARCHITECTURE line 120: "External source content
   is ingested as untrusted data. Extraction is separated from
   interpretation. ... AI reasoning receives evidence references, not
@@ -114,8 +114,8 @@ from app.domain.source_registry import SourceRegistry, SourceTier
 TrustLabel = Literal["UNTRUSTED"]
 
 #: Content kinds exactly as the corpus names them for AI-6 extraction
-#: (02:164: "financial statements, notes, auditor opinions, guidance,
-#: material events and company disclosures"; 02:162 official filings).
+#: (02:165: "financial statements, notes, auditor opinions, guidance,
+#: material events and company disclosures"; 02:164 official filings).
 #: OTHER_DECLARED covers corpus source classes without a dedicated member;
 #: unknown kinds are unrepresentable.
 ContentKind = Literal[
@@ -162,7 +162,7 @@ _FORBIDDEN_FLOWS: frozenset[str] = frozenset(
 )
 
 #: Deterministic injection-finding taxonomy (02:170 "Prompt-injection and
-#: content-instruction isolation"; 03:75 "injection defense"). The SCAN that
+#: content-instruction isolation"; 03:76 "injection defense"). The SCAN that
 #: produces findings is a caller-side deterministic scanner; this module
 #: records and gates on the findings — it never runs content analysis.
 InjectionFindingKind = Literal[
@@ -628,7 +628,7 @@ class AdvisoryInterpretationRequest(BaseModel):
     source facts" (02_PRODUCT:120). The request carries evidence ids and
     content ids; it has NO write-authority field of any kind — the module
     contains no API through which interpretation could mutate source facts
-    (structural absence, test-enforced). Citation completeness (02:196) is
+    (structural absence, test-enforced). Citation completeness (02:194) is
     enforced: at least one evidence id is mandatory.
     """
 
@@ -730,8 +730,11 @@ def evidence_filing_gate(
     Provenance preservation is enforced against the canonical EvidenceItem:
     source and document hash must match the envelope (02:170 provenance;
     03:33-40). VERIFIED trust requires a source-verification record
-    (03:75). Content with unhandled injection findings or an active
-    quarantine cannot be filed (03:76; 06:90).
+    (03:75). An active quarantine blocks filing until the ledger's
+    named-human release disposes of it — quarantine is a containment
+    state and cannot re-enter any allowed flow while active (03:76;
+    06:90; scope R7); injection findings without quarantine coverage
+    also block.
 
     ``evidence_item`` is typed loosely on purpose: this module consumes the
     canonical ``evidence.EvidenceItem`` (REUSE, no new schema) and must not
@@ -761,10 +764,10 @@ def evidence_filing_gate(
         and verification.source_id != envelope.source_id
     ):
         codes.append("verification_source_mismatch")
-    if scan.has_findings and not ledger.actively_quarantined(envelope.content_id):
-        codes.append("filing_blocked_unhandled_injection_findings")
-    if ledger.actively_quarantined(envelope.content_id) and not scan.has_findings:
+    if ledger.actively_quarantined(envelope.content_id):
         codes.append("filing_blocked_active_quarantine")
+    elif scan.has_findings:
+        codes.append("filing_blocked_unhandled_injection_findings")
     return tuple(codes)
 
 

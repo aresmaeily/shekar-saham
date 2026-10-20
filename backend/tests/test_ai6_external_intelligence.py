@@ -1,7 +1,7 @@
 """AI-6 External Intelligence contract-layer tests (corpus-derived).
 
 Requirement sources: docs/active/AI6_SCOPE_DERIVATION.md R1-R17; corpus loci
-cited there (02:97-100, 02:161-170, 02:195-203; 03:19-25, 33-40, 73-76,
+cited there (02:97-100, 02:161-170, 02:194-203; 03:19-25, 33-40, 73-76,
 85-88, 113-114; 05 D-AI-29/33/38/40/41; 06:88-90, §3, §11; 02_PRODUCT:120,
 126). Positive end-to-end flows plus negative coverage for boundary
 violations, malicious content (injection findings), malformed inputs and
@@ -790,7 +790,7 @@ def test_filing_gate_blocked_by_findings_and_quarantine():
     codes = evidence_filing_gate(
         make_envelope(), make_registry(), dirty, make_evidence_item(), quarantined
     )
-    assert codes == ()
+    assert codes == ("filing_blocked_active_quarantine",)
     codes = evidence_filing_gate(
         make_envelope(), make_registry(), make_scan(), make_evidence_item(), quarantined
     )

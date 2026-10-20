@@ -32,8 +32,9 @@ AI3-Ma · `45f0b8b` ACC-PKG · `a3165c4` ACCPKGa · `6a10e5a` AI-4 ·
 `cc98c64` AI-4a
 
 Aggregate diff vs `origin/main`: 57 files, +11813/−32 (45 added, 12
-modified; modified set = docs/pointers + `ai2_service.py` + `config.py`
-hardening from the AI-2 line — each audited in its own block).
+modified; modified set = 4 docs/pointers + `SECURITY_PRIVATE_MODE.md` +
+`config.py` + `rate_limiter.py` + 5 test files; `ai2_service.py` is
+among the 45 ADDED files, not modified — each audited in its own block).
 
 ## 3. Intended remote target (for the owner's decision)
 

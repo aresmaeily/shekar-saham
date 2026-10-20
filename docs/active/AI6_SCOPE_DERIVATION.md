@@ -28,7 +28,7 @@ requirements beyond it".
   content-instruction isolation, provenance, tool boundaries and the
   Two-Key Rule remain mandatory. AI must never invent missing financial
   values or silently reconcile contradictory sources."
-- `02:195-197` — acceptance requirements for external/fundamental
+- `02:194` — acceptance requirements for external/fundamental
   intelligence: point-in-time source records, cross-check/conflict examples,
   citation completeness, restatement handling and missing-source behavior.
 - `02:201-203` — G2 preserved; pre-G2 authorized class "bounded design,
@@ -62,14 +62,14 @@ requirements beyond it".
   content are untrusted data, never executable instructions. Use approved
   tools only; preserve provenance and source references; apply
   prompt-injection isolation and the Two-Key Rule where required."
-- `06 §3` (lines 20-38) — versioned source registry; source hierarchy and
+- `06 §3` (lines 16-30) — versioned source registry; source hierarchy and
   reconciliation rules 1-7 (primary preference; secondary corroborates not
   replaces; duplicate clustering; syndicated copies are not independent
   corroboration; contradictions explicit until deterministic rule or human
   review; publication time separate from retrieval time and reporting
   period; restatements create new versions; units/currency/auditor status
   explicit).
-- `06 §11` (lines 124-127) — fundamental-intelligence acceptance gate:
+- `06 §11` (lines 100-101) — fundamental-intelligence acceptance gate:
   primary-source extraction, PIT correctness, version/restatement handling,
   cross-source corroboration, contradiction visibility, citation
   completeness, unit/currency normalization, safe behavior when a source is
@@ -141,15 +141,15 @@ by an existing canonical contract and consumed. Planned implementation in
 | R2 | Provenance preservation (`02:170`; D-AI-29; `03:33-40`; `06:90` "preserve provenance and source references") | GAP | Envelope binds `content_id`, `content_sha256` (hex-64), `source_id` (must resolve in a provided SourceRegistry), `retrieval_time_utc`, `source_tier`; filing to evidence consumes canonical EvidenceItem (REUSE) — provenance fields carried, never dropped |
 | R3 | Content-instruction isolation (`02:170`); untrusted content is never executable (`03:19-25`; `06:89`) | GAP | `ContentSegmentation` separates `untrusted_payload` from `embedded_instruction_candidates`; `EmbeddedInstructionCandidate.executable: Literal[False]` — content-borne instructions are structurally non-executable |
 | R4 | Explicit trust boundaries incl. tool boundary (`02:97-100`; `03:73-76`; `02:170` "tool boundaries"; `02_PRODUCT:126` "may not bypass") | GAP | `TrustBoundaryFlow` closed vocabulary; `assert_boundary_allowed()` deterministic gate — TOOL_EXECUTION / PRODUCTION_MUTATION / AUTONOMOUS_ACTION structurally forbidden (refused with codes); EXTRACTION_DETERMINISTIC / EVIDENCE_FILING / QUARANTINE / ADVISORY_INTERPRETATION allowed under conditions |
-| R5 | Injection controls (`02:97-100`; `02:170` "Prompt-injection"; `03:75` "injection defense") | GAP | `InjectionFinding` closed taxonomy (DIRECT_INSTRUCTION, INSTRUCTION_CONFLICT, TOOL_INVOCATION_ATTEMPT, PRIVILEGE_ESCALATION, OBFUSCATED_INSTRUCTION, NONE_DETECTED); `InjectionScanRecord` (deterministic: scan results passed in, never LLM-computed); `injection_response_gate()` — any non-NONE finding ⇒ quarantine + human escalation; NONE_DETECTED does NOT raise trust |
+| R5 | Injection controls (`02:97-100`; `02:170` "Prompt-injection"; `03:76` "injection defense") | GAP | `InjectionFinding` closed taxonomy (DIRECT_INSTRUCTION, INSTRUCTION_CONFLICT, TOOL_INVOCATION_ATTEMPT, PRIVILEGE_ESCALATION, OBFUSCATED_INSTRUCTION, NONE_DETECTED); `InjectionScanRecord` (deterministic: scan results passed in, never LLM-computed); `injection_response_gate()` — any non-NONE finding ⇒ quarantine + human escalation; NONE_DETECTED does NOT raise trust |
 | R6 | Instruction-conflict handling (owner directive R2; `02:170` content-instruction isolation) | GAP | `InstructionConflictRecord` — content-borne instruction vs governed instruction; resolution structurally locked: governed instructions take precedence, content instruction quarantined; compliance with content-borne instructions unrepresentable |
 | R7 | Safe refusal and quarantine behavior (`03:76` "human escalation"; directive R2) | GAP | `QuarantineRecord` (closed reason taxonomy) + append-only `QuarantineLedger` (no update/delete/invalidate path); release/discarding requires named human decision + reference; quarantined content cannot re-enter any allowed flow |
-| R8 | Two-Key Rule structural mechanism (`02:100`; `02:170`; `03:76,114`; D-AI-29; `06:90`; `02_PRODUCT:126`) | GAP | `TwoKeyAuthorization` — two DISTINCT human authorizers (identity, role, time, reference each); `two_key_gate()` refuses single-key, identical-identity, missing policy version; operational parameters (action classes, custodians) recorded as owner decisions (UNRESOLVED — dependency matrix) |
+| R8 | Two-Key Rule structural mechanism (`02:100`; `02:170`; `03:76,114`; D-AI-29; `06:90`; `02_PRODUCT:126`) | GAP | `TwoKeyAuthorization` — two DISTINCT human authorizers (identity, role, time, reference each); construction-time validators refuse single-key, identical-identity and missing policy version; `quarantine_release_gate()` enforces the Two-Key binding where the source class requires it; operational parameters (action classes, custodians) recorded as owner decisions (UNRESOLVED — dependency matrix) |
 | R9 | Verification pre-condition (`02:97-100`; `03:75` "source verification"; D-AI-29) | GAP | `SourceVerificationRecord` (source_id, verified_by, method, verified_at_utc); `evidence_filing_gate()` requires a verification record for sources whose policy demands it; actual verification execution = network work, BLOCKED (contract records only) |
 | R10 | Source-class admission schema extension (dependency matrix "Authorized NOW") | GAP | `ExternalSourceClassAdmission` — control declarations over the existing SourceTier vocabulary (verification required, injection scan required, two-key required flags); admits CONTROLS, not sources; specific source-class admission = owner decision (UNRESOLVED) |
 | R11 | "AI reasoning receives evidence references, not authority to change source facts" (`02_PRODUCT:120`) | GAP | `AdvisoryInterpretationRequest` binds evidence IDs only; carries no write authority over source facts; boundary gate has no flow that mutates source facts (structural absence, test-enforced) |
 | R12 | Never invent missing values; never silently reconcile (`02:170`; D-AI-33; `06 §3.4`) | REUSE | evidence.py UNAVAILABLE / EvidenceConflict (resolution requires named rule or human reviewer); module adds NO reconciliation API — structural reuse; tests assert conflicts stay explicit |
-| R13 | Coverage/freshness/failure/conflict reporting (D-AI-38; `02:165`) | REUSE | source_registry.coverage_report / CoverageReport consumed; no duplicate reporting schema |
+| R13 | Coverage/freshness/failure/conflict reporting (D-AI-38; `02:169`) | REUSE | `source_registry.coverage_report` / `CoverageReport` remain canonical in `source_registry.py`; not yet consumed by the AI-6 contract layer (runtime reporting is post-gate); no duplicate reporting schema introduced |
 | R14 | Deterministic failure handling + auditable evidence (`03:90-94`; directive R2) | GAP | Every gate returns explicit refusal-code tuples; `governed_external_intake` end-to-end acceptance returns blocking codes; failure-path tests cover every refusal |
 | R15 | Run identity + provenance on governed actions (`02:198`; `03:33-40`) | GAP | Intake/interpretation gates consume RunContext + `missing_required_provenance` (REUSE) with `dataset_version`-style required additions |
 | R16 | Secrets discipline (`03:85-88`) | GAP | Module contains no secret handling; envelope hashing applies to external CONTENT only (evidence.py precedent); negative test asserts refusal when a credential-bearing field is presented as content location? — no: simply no credential fields exist; documented in module docstring |

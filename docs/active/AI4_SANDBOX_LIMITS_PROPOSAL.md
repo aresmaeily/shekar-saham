@@ -32,8 +32,8 @@ post-G2 work (`AI4_AI7_P343_DEPENDENCY_MATRIX.md`; `02:202`).
 | Bounded budget/quota owned by the Governor; no self-modified budgets | `03:42-47` (Governor owns budget/quota), `03:19-25` (AI may not self-modify budgets) |
 | Bounded parallelism within explicit budget/rate/resource limits | D-AI-24 (`05:88-93`) |
 | Sandbox must declare isolation; production contact forbidden | `02:159` "isolated tests"; `governed_generation.py` validators |
-| Every job: idempotency, retry ceilings, timeout, concurrency/rate limits, run identity, audit trace, kill switch | `06 §9` (lines 97-102) |
-| Cadence/budgets not hard-coded before operational requirements and budgets are approved | `06 §9` line 104; `02:186` |
+| Every job: idempotency, retry ceilings, timeout, concurrency/rate limits, run identity, audit trace, kill switch | `06 §9` line 84 |
+| Cadence/budgets not hard-coded before operational requirements and budgets are approved | `06 §9` line 84; `02:186` |
 | Numeric sandbox budgets are owner decisions at runtime integration | `AI4_AI7_P343_DEPENDENCY_MATRIX.md:29-30` |
 
 ## 3. Grounded precedents in the existing configuration (no values invented)
@@ -61,7 +61,7 @@ For the future sandbox runtime, per one governed candidate evaluation:
 | max_evaluator_invocations | 8 | 64 (existing field cap) | One candidate needs one deterministic evaluator pass per lifecycle attempt; 8 leaves headroom for re-runs after deterministic failure without approaching the AI-2 iteration envelope |
 | max_wall_seconds | 3600 | 86400 (existing field cap) | Matches the monitoring per-job timeout ceiling (3600 s); a single synthetic evaluation should not outlive a monitoring job |
 | retry_attempts (evaluator invocation) | 3 | 10 (monitoring cap) | Deterministic evaluators fail deterministically; retries only cover transient infrastructure faults, not verdict changes |
-| concurrency (candidates in sandbox) | 2 | 8 (monitoring cap / D-AI-24) | Sandbox evaluations are isolated per candidate; parallelism only for genuinely independent work (speed rule `02:106-107`) |
+| concurrency (candidates in sandbox) | 2 | 8 (monitoring cap / D-AI-24) | Sandbox evaluations are isolated per candidate; parallelism only for genuinely independent work (speed rule `02:109-112`) |
 | kill switch | ENGAGED default | — | Monitoring `KillSwitchState` precedent: never released without explicit owner action |
 
 All five proposals reuse EXISTING field caps; none requires widening any
