@@ -320,3 +320,80 @@ and producing the owner approval form. Full recheck:
   form (four approval-block fields; then nomination §3 fields,
   acknowledgement → E5, COI + adjudication, scheduling) is re-presented
   unchanged in canonical record §2.3.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-10 cycle) — status-schema definition; item 2 split into 2.a/2.b; corrected eight-row matrix; status UNCHANGED: DRAFT / NOT APPROVED
+
+The CONSOL-GOV-10 directive reported a factual inconsistency: the GOV-9
+cycle assigned R2 item 2 BOTH `INDEPENDENT_REVIEWER_INPUT_REQUIRED` (the
+declaration) AND `OWNER_APPROVAL_REQUIRED` (the adjudication) while its own
+reports claim "exactly one status per item". The inconsistency is CONFIRMED
+real (fresh re-read of the GOV-9 record §2.1/§2.3, report §4 row 2, the
+GOV-9 addendum below, and the STATUS/INDEX rows). Root cause: the checklist
+never formally defined what counts as an item's status, so multi-authority
+items drifted into compound labels. This addendum fixes the SCHEMA only.
+
+**This is a factual consistency correction. It is NOT an approval, NOT new
+evidence of approval, and it changes no requirement.**
+
+### Corrected status schema (binding for current/active readiness reporting)
+
+1. Every checklist row carries **EXACTLY ONE current status** (the PRIMARY
+   STATUS) from the fixed vocabulary: `EVIDENCE_COMPLETE` |
+   `INDEPENDENT_REVIEWER_INPUT_REQUIRED` | `OWNER_APPROVAL_REQUIRED` |
+   `IMPLEMENTER_ACTION_REQUIRED`.
+2. A row MAY additionally record: (i) evidence notes (prose, never status
+   labels); (ii) at most one `BLOCKED-BY` reference to another row;
+   (iii) the authority that owns the next input (reviewer / owner /
+   implementer).
+3. **Compound statuses are PROHIBITED.** Where one checklist item contains
+   requirements owned by DIFFERENT authorities, the item is split into
+   lettered sub-rows (`2.a`, `2.b`, …); each sub-row carries exactly one
+   status.
+4. Sub-rows belong to their parent item; the checklist remains **SEVEN
+   items** (eight tracked rows). All existing cross-references to item
+   numbers 1–7 remain valid.
+5. This schema governs current/active readiness surfaces: procedure
+   addenda, review-package currency addenda, the owner decision package,
+   STATUS rows, INDEX entries, and any active review report. Historical
+   records retain their original wording under append-only discipline;
+   they are **superseded, not rewritten**.
+
+### Item 2 split (semantics fully preserved — nothing removed, nothing weakened)
+
+Canonical basis — T4 (`:90`) names two distinct authorities in two distinct
+clauses: the reviewer "discloses relevant interests at acknowledgement";
+"disclosed COIs are adjudicated by the owner". The disclosure precedes and
+enables the adjudication, so the split mirrors the canonical sequence:
+
+- **2.a — Reviewer COI declaration** on the adopted disclosure form
+  (T4 `:90` disclosure clause; authority: the designated independent
+  reviewer; coupled to the acknowledgement that completes E5).
+- **2.b — Owner adjudication of disclosed COIs** (T4 `:90` adjudication
+  clause; authority: the owner; BLOCKED-BY 2.a).
+
+The form's own completeness (field set ratified in GOV-6) is recorded as an
+EVIDENCE NOTE on row 2.a — it is a fact about the form, not a row status.
+
+### Corrected seven-item matrix (eight rows; fresh at `2ccfacb`)
+
+| Row | Requirement (canonical locus) | Authority | Evidence note (non-status) | Status (exactly one) | Blocked-by |
+|---|---|---|---|---|---|
+| 1 | Exception record form (T3, `:73`) | owner at review time (granting exceptions) | adopted in GOV-6; `[OWNER TO CONFIRM]` marker retained verbatim | **EVIDENCE_COMPLETE** | — |
+| 2.a | Reviewer COI declaration on adopted form (T4, `:90` disclosure clause) | independent reviewer | form field set ratified in GOV-6; no real reviewer exists, so no declaration can exist | **INDEPENDENT_REVIEWER_INPUT_REQUIRED** | — (requires reviewer designation) |
+| 2.b | Owner adjudication of disclosed COIs (T4, `:90` adjudication clause) | owner | adjudication is an owner act on a reviewer declaration | **OWNER_APPROVAL_REQUIRED** | 2.a |
+| 3 | Re-review threshold examples (T5, `:102`) | owner ratifies at approval | adopted in GOV-6 from 6 objective corpus precedents | **EVIDENCE_COMPLETE** | — |
+| 4 | Exact sign-off block form (T6, `:117`) | owner ratifies at approval | ratified in GOV-6 per §11 checklist + T6 content | **EVIDENCE_COMPLETE** | — |
+| 5 | Entry-prerequisites equivalence (T1; E1–E6 linkage) | — | fixed in GOV-6 (tightened); currency revalidated via §A8/§A9 | **EVIDENCE_COMPLETE** | — |
+| 6 | Verdict rule from precedents (T5) | owner ratifies at approval | codified from 6 FAIL-narrow precedents | **EVIDENCE_COMPLETE** | — |
+| 7 | Acceptance criteria of the approval act itself (Option C terms) | owner | approval block EMPTY (all 4 fields); self-approval void | **OWNER_APPROVAL_REQUIRED** | — |
+
+- **Zero IMPLEMENTER_ACTION_REQUIRED rows.** The corrected schema is
+  unambiguous: eight rows, eight status labels, one each. [VERIFIED]
+- **Status UNCHANGED: DRAFT / NOT APPROVED.** R2 remains OPEN;
+  E5 remains `NOT_VERIFIED`; G2 remains `NOT_PASSED`. No owner-only field
+  is populated by this correction. Consistency surfaces updated this
+  cycle: review package §A9, canonical record
+  `CONSOLGOV10_R2_STATUS_CONSISTENCY_OWNER_DECISION_READINESS_2026-10-21.md`
+  §2, STATUS row, INDEX entry. Historical compound formulations in GOV-7/8/9
+  records and STATUS history stand as written (append-only) and are
+  superseded by this schema for all current/active reporting.

@@ -413,3 +413,56 @@ remains **NOT_VERIFIED**; G2 remains `NOT_PASSED`; self-approval void.
   BLOCKED; fresh candidate search 2026-10-21 at `34ac37b`: zero named
   eligible candidates; §3 designation fields verified still blank — 8
   underscore fields; `consolgov9_audit_scratch/02/candidate_search.txt`).
+
+## A9. Status-schema correction + candidate-SHA currency at HEAD `2ccfacb` (CONSOL-GOV-10 cycle, 2026-10-21; consistency fix; NOT an approval)
+
+- **What changed (finding CG10-01, INFO, RESOLVED this cycle):** the R2
+  readiness status model is corrected — every tracked row now carries
+  EXACTLY ONE status from the fixed four-value vocabulary; item 2 is split
+  into **2.a** (reviewer COI declaration — INDEPENDENT_REVIEWER_INPUT_
+  REQUIRED) and **2.b** (owner adjudication — OWNER_APPROVAL_REQUIRED,
+  BLOCKED-BY 2.a). Schema + corrected eight-row matrix: the GOV-10 addendum
+  of `G2_REVIEW_PROCEDURE_DRAFT_v0.1_2026-10-20.md` (canonical record
+  `CONSOLGOV10_R2_STATUS_CONSISTENCY_OWNER_DECISION_READINESS_2026-10-21.md`
+  §2). **This is a documentation consistency fix only — it is NOT an
+  approval, NOT evidence of approval, and no requirement is removed or
+  weakened.** Historical §A-addenda and GOV-7/8/9 records keep their
+  original wording (append-only) and are superseded for current/active
+  reporting.
+- **Corrected matrix outcome (fresh at `2ccfacb`):** rows 1/3/4/5/6
+  EVIDENCE_COMPLETE; 2.a INDEPENDENT_REVIEWER_INPUT_REQUIRED; 2.b and 7
+  OWNER_APPROVAL_REQUIRED (2.b blocked-by 2.a); zero
+  IMPLEMENTER_ACTION_REQUIRED rows. Eight rows, eight status labels, one
+  each.
+- **Candidate-SHA currency at `2ccfacb`** (`consolgov10_audit_scratch/01/`):
+  HEAD `2ccfacb282b532fbf59e72cb3ee45b8d630740e5`, parent `34ac37b`, main,
+  ahead 38 / behind 0 vs live `origin/main` `c1984e7` (`git ls-remote`
+  exit 0, NO push); tracked clean; staged 0; stash 0; 1 worktree; untracked
+  = exactly the 4 bootstrap paths; zero commits after `2ccfacb`; GOV-9
+  commit re-audited (9 files all `.md` +671/−0, `diff --check` exit 0, 0
+  non-md, 0 bootstrap paths).
+- **Gates re-captured from canonical sources**
+  (`consolgov10_audit_scratch/01_gates_canonical.txt`): `AI2_ENABLED=0`
+  (`backend/app/core/config.py:109`); `verified = False` (`config.py:270`,
+  hard-coded); draft title "**NOT APPROVED**"; approval block EMPTY (4
+  fields); nomination §3 fields blank ×8.
+- **AI2-F surfaces re-validated** (`consolgov10_audit_scratch/04/`): three
+  residual loci PRESENT zero drift; module SHA-256
+  `43d0912b0b19c10f0484c530d0c5230892fc13a1e1360d518109131c10d7a9e1` and
+  test SHA-256
+  `335aed035bc862d2ce5c721b58f1b7854cfb071bba69042a2dff24a83fb273be`
+  UNCHANGED; 24/24 focused tests exit 0; 13/13 AI3-M tests exit 0.
+- **Corpus re-verified**: 7/7 byte-identical vs owner upload originals
+  (`consolgov10_audit_scratch/05/corpus_integrity.txt`; digests identical
+  to the GOV-8/GOV-9 captures).
+- **E1–E6 statuses revalidated (no blind carry-forward):** E1 VERIFIED
+  (package SHA `7490ad4` + §A6/§A7/§A8 currency chain + this §A9 currency
+  at `2ccfacb`; re-fix at review start unchanged); E2 VERIFIED (companion
+  set unchanged + cross-reference to
+  `CONSOLGOV10_R2_STATUS_CONSISTENCY_OWNER_DECISION_READINESS_2026-10-21.md`
+  §2); E3 VERIFIED (zero discrepancy); E4 VERIFIED (captures above); **E5
+  remains NOT_VERIFIED — deliberately preserved** (reviewer act; no
+  qualifying new evidence); E6 VERIFIED (7/7 fresh).
+- **Exit criteria remain BLOCKED** on the owner procedure approval (approval
+  block EMPTY, re-read at `2ccfacb`) and the un-designated reviewer
+  (NOT_APPOINTED — BLOCKED).
