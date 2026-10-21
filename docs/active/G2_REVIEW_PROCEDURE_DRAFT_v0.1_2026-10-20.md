@@ -287,3 +287,36 @@ package. Full recheck: `CONSOLGOV8_OWNER_DECISION_INTAKE_READINESS_
   approval-block fields), reviewer designation (§3 nomination fields) +
   written acknowledgement (completes E5) + COI declaration (owner-
   adjudicated), review scheduling.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-9 cycle) — seven-item recheck re-verified at `34ac37b`; approval block still EMPTY; status UNCHANGED: DRAFT / NOT APPROVED
+
+The CONSOL-GOV-9 directive required rechecking each R2 item against actual
+evidence with exactly one current status, closing implementer-owned gaps,
+and producing the owner approval form. Full recheck:
+`CONSOLGOV9_FORMAL_OWNER_DECISIONS_MINIMAL_EXECUTION_2026-10-21.md` §2.
+
+- **Recheck outcome (each item exactly one status, unchanged in substance
+  from GOV-8):** items 1/3/4/5/6 **EVIDENCE_COMPLETE**; item 2 COI form
+  complete with the actual declaration
+  **INDEPENDENT_REVIEWER_INPUT_REQUIRED** and its adjudication
+  **OWNER_APPROVAL_REQUIRED**; item 7 (the approval act itself)
+  **OWNER_APPROVAL_REQUIRED**. Zero IMPLEMENTER_ACTION_REQUIRED items.
+  The one implementer-owned gap found this cycle (review-package §A7
+  trail stopped at `1afd1aa` behind HEAD `34ac37b`) was CLOSED via **§A8**
+  of `G2_REVIEW_PACKAGE_2026-10-20.md` (finding CG9-01, INFO, RESOLVED).
+- **Fresh draft state at `34ac37b`:** title line "**NOT APPROVED**";
+  approval block EMPTY (all four underscore fields unfilled — re-read
+  this cycle); the four in-body `[OWNER TO CONFIRM]` markers at
+  :73/:90/:102/:117 retained verbatim under the append-only discipline;
+  the GOV-6 addendum above + the GOV-7/GOV-8/GOV-9 addenda are the
+  governing resolutions. The T2 battery-definition currency note of the
+  GOV-8 addendum stands; the 18-component core battery re-ran green at
+  `34ac37b` (19/19 incl. the documented `pip_state` component; record §5).
+- **No owner-only field is populated:** the approval block above remains
+  EMPTY; no reviewer designated; no acknowledgement exists; no approval is
+  fabricated or inferred.
+- **Status UNCHANGED: DRAFT / NOT APPROVED.** R2 remains OPEN;
+  E5 remains `NOT_VERIFIED`; G2 remains `NOT_PASSED`. The owner approval
+  form (four approval-block fields; then nomination §3 fields,
+  acknowledgement → E5, COI + adjudication, scheduling) is re-presented
+  unchanged in canonical record §2.3.

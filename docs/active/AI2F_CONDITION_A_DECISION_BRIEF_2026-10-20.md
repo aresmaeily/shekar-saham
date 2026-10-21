@@ -267,3 +267,42 @@ condition open and present the decision-ready package.
 - **Decision request unchanged (brief §8):** AUTHORIZED/DEFERRED + the
   selected (iii) sub-choice + scope confirmation. Absence of response is
   not approval.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-9 cycle) — loci + SHA-256 pins re-verified at `34ac37b`; no option authorized; condition (a) OPEN; no code modified
+
+The CONSOL-GOV-9 directive required: read the exact canonical option
+definitions including sub-option (iii) and the latest owner-decision
+record; compare prerequisites/scope/consequences/risks/required
+authority/acceptance tests/rollback; verify current residual code loci and
+their pinned hashes; execute an option ONLY if already authorized;
+otherwise do not change the affected code and retain `OPEN`.
+
+- **Authorization check (fresh):** no owner record selects an option (no
+  new owner-decision record exists since GOV-7; the newest owner-decision
+  documents remain `OWNER_DECISIONS_CONSOLGOV6_2026-10-21.md` and the
+  2026-10-20 decisions); the GOV-9 directive's own "otherwise" branch
+  applies. **NO code was modified; condition (a) OPEN.**
+- **Fresh loci at `34ac37b`** (`consolgov9_audit_scratch/03/
+  ai2f_residuals_fresh.txt` + `…fresh2.txt` + `…pins_surface.txt`; grep
+  exits captured pipe-free per the CG8-02 method disclosure): residual 1 —
+  `record.status` hits in `governed_acceptance`
+  (`ai2_governance.py:393-423`) = 0; residual 2 — approver hits in
+  `AI2RunRecord` (`:277-297`) = 0 (RunContext enforcement
+  `run_governance.py:109` unchanged); residual 3 — `_TRUST_RANK`
+  (`:234-241`) + unknown→−1 (`.get(state, -1)` `:259`) vs
+  `config.py:191-196` folding unchanged. SHA-256 pins UNCHANGED from
+  GOV-7/GOV-8: module `43d0912b…a9e1`, test `335aed03…73be`. Touch
+  history: only `6aeeaa2` + `17ef611` — no AI-2 contract touch since
+  `17ef611`. Import surface: contract grep over `app/api`+`app/services`
+  exit 1 (pipe-free); zero `ai2` mentions in `app/api` (exit 1,
+  pipe-free). AI2-F focused tests: 24 passed, exit 0 (GOV-9 battery).
+- **Option comparison:** stands as recorded (brief §2 verbatim scope with
+  elements (i)/(ii) and sub-choice (iii) — (iii-A) config-folding adoption
+  vs (iii-B) stricter −1 canonical test-pinned — + GOV-6 §4 for/against +
+  GOV-7 §3.1 map; GOV-9 record §3.3 re-presents the full per-dimension
+  table: prerequisites / scope / consequences / risks / required authority
+  / acceptance tests / rollback / gate impact). Gate impact: ZERO for
+  every option; condition (b) stands regardless.
+- **Decision request unchanged (brief §8):** AUTHORIZED/DEFERRED + the
+  selected (iii) sub-choice + scope confirmation. Absence of response is
+  not approval.

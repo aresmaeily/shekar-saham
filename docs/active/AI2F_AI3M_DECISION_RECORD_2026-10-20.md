@@ -319,3 +319,40 @@ authorized low-risk work. Full matrix:
   currency verification for every item (the §4 matrix + scratch 08/10).
   No architecture boundary, autonomy, production behavior, or
   consequential permission was altered.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-9 cycle) — D1–D7 four-way separation re-verified at `34ac37b`; nothing executed; D2 explicitly NOT complete (P3.43 fresh)
+
+The CONSOL-GOV-9 directive required per-item recording of canonical
+requirement / implementation status / evidence+locus / dependencies and
+blockers / acceptance criteria / authorized next action / test result,
+executing only explicitly authorized, reversible, objectively testable
+work, and preserving the P3.43 dependency of D2. Full matrix:
+`CONSOLGOV9_FORMAL_OWNER_DECISIONS_MINIMAL_EXECUTION_2026-10-21.md` §4.
+
+- **Fresh selection search (pipe-free):** `D[1-7] … (SELECTED|DECIDED:|
+  RESOLVED:|AUTHORIZED:)` over `docs/active/` — grep exit 1 (zero raw
+  hits); no new owner-decision record since GOV-8 — **D1–D7 all OPEN**.
+- **Four-way separation re-verified (unchanged in substance):**
+  documentation readiness COMPLETE ×7 / implementation readiness NONE ×7
+  (no implementation authorized; adapter = post-G2 work; persistence
+  integration PROHIBITED, D-AI-28) / execution NOTHING ×7 / acceptance =
+  owner decisions with D2 additionally upstream-BLOCKED.
+- **Fresh structural verification at `34ac37b`** (scratch
+  `04/ai3m_structure_fresh.txt`): episodic immutability surface
+  `research_memory.py:119-158` intact — only `__init__`/`entries`/`get`/
+  `for_run`/`for_hypothesis`/`available_at`/`append` in the class;
+  "NO update, delete, retention-purge or rewrite path" (:123 verbatim);
+  0 update/delete/purge/rewrite definitions module-wide; module untouched
+  since `37c529d`/`80585c8`; incumbent backup mechanism present
+  (`app/data/store.py:62-66`); **13/13 AI3-M tests exit 0** (GOV-9
+  battery).
+- **D2 upstream-blocked at P3.43 — fresh-verified** (scratch
+  `05/p343_and_selection.txt` + state file :241/:14): (1) INSTALL — no
+  positive authorization record; (2) Windows-target validation
+  NOT_STARTED (state file NOT_VERIFIED rows); (3) browser-E2E + Electron
+  NOT_VERIFIED; (4) live provider verification fail-closed
+  (`live_verified=false`, GOV-9 battery ×2); (5) push authorization
+  outstanding. **D2 is NOT complete** and is not marked complete here.
+- **Smallest authorized action executed this cycle:** documentation-only
+  currency verification for every item. No architecture boundary,
+  autonomy, production behavior, or consequential permission was altered.

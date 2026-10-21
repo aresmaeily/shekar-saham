@@ -227,3 +227,32 @@ documented, independent review."
   the acknowledgement artifact then completes E5 mechanically. Nothing
   else blocks E5.
 - `R2=OPEN`; `E5=NOT_VERIFIED`; `G2=NOT_PASSED` — all unchanged.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-9 cycle) — fresh candidate inspection at `34ac37b`; zero named candidates; §3 fields verified still blank; NOT_APPOINTED — BLOCKED unchanged
+
+The CONSOL-GOV-9 directive required searching canonical records for a real
+named reviewer and evidence of independence, retaining `NOT_APPOINTED` if
+none is documented. Fresh inspection:
+`CONSOLGOV9_FORMAL_OWNER_DECISIONS_MINIMAL_EXECUTION_2026-10-21.md` §2.4
+(`consolgov9_audit_scratch/02/candidate_search.txt`).
+
+- **Fresh candidate search at `34ac37b`:** pattern search over
+  `docs/active/*.md` + the amendment corpus for any named reviewer
+  candidate → **zero named eligible candidates** (the only proximity hit
+  is this record's own "Keep `R2=OPEN`" meta-line).
+- **§3 fields re-counted:** **8 underscore fields, all blank** (:72–:80,
+  incl. "Appointment recorded by … (owner only; implementing agent must
+  NOT fill)").
+- **:124 non-designation re-read verbatim** from
+  `OWNER_DECISION_B1_R2_RECORDED_2026-10-20.md`: "the owner decision does
+  NOT designate a reviewer … §3 fields remain blank; status stays
+  **NOT_APPOINTED — BLOCKED**; the implementing agent did not and will
+  not fill them."
+- **Status UNCHANGED: NOT_APPOINTED — BLOCKED on owner designation.** No
+  acknowledgement exists; no COI declaration exists; no independence
+  evidence exists; the implementing side remains explicitly ineligible to
+  review its own work. `E5=NOT_VERIFIED` — deliberately preserved;
+  `R2=OPEN`; `G2=NOT_PASSED`. Exact missing real-world inputs: (1) owner
+  designation (class 1 or class 2 with named identity); (2) reviewer's
+  written acknowledgement (UTC date + locus → E5); (3) COI declaration +
+  owner adjudication.
