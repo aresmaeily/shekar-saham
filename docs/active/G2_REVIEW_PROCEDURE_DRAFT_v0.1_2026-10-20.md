@@ -243,3 +243,47 @@ Full matrix: `CONSOLGOV7_R2_READINESS_EVIDENCE_CLOSURE_2026-10-21.md` §2.
   the Option C approval decision (approving authority + effective version),
   reviewer designation + written acknowledgement (+ COI declaration),
   review scheduling.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-8 cycle) — seven-item recheck with exactly-one-status dispositions; approval block verified still EMPTY; status UNCHANGED: DRAFT / NOT APPROVED
+
+The CONSOL-GOV-8 directive required rechecking each checklist item against
+actual evidence with exactly one status
+(EVIDENCE_COMPLETE / IMPLEMENTER_ACTION_REQUIRED /
+OWNER_APPROVAL_REQUIRED / INDEPENDENT_REVIEWER_INPUT_REQUIRED), closing
+implementer-owned gaps only, and preparing a concise owner decision
+package. Full recheck: `CONSOLGOV8_OWNER_DECISION_INTAKE_READINESS_
+2026-10-21.md` §2.
+
+- **Recheck outcome (each item exactly one status):** items 1/3/4/5/6
+  **EVIDENCE_COMPLETE** (adopted + corpus-grounded in GOV-6; nothing
+  further draftable); item 2 COI form EVIDENCE_COMPLETE with the actual
+  declaration **INDEPENDENT_REVIEWER_INPUT_REQUIRED** and its adjudication
+  **OWNER_APPROVAL_REQUIRED**; item 7 (the approval act itself)
+  **OWNER_APPROVAL_REQUIRED**. Zero IMPLEMENTER_ACTION_REQUIRED items
+  remain — the one implementer-owned currency gap found this cycle
+  (review-package §A6 trail stopped at `3b61795` behind HEAD `1afd1aa`)
+  was CLOSED via **§A7** of `G2_REVIEW_PACKAGE_2026-10-20.md` (finding
+  CG8-01, INFO, RESOLVED).
+- **Fresh draft state at `1afd1aa`:** title line "**NOT APPROVED**";
+  approval block EMPTY (all four underscore fields unfilled); the four
+  in-body `[OWNER TO CONFIRM]` markers at :73/:90/:102/:117 retained
+  verbatim under the append-only discipline; the GOV-6 addendum above +
+  the GOV-7/GOV-8 addenda are the governing resolutions.
+- **Battery-definition currency note (T2):** T2's "established
+  18-component battery" remains the core contract; the GOV-7 pre-commit
+  battery added a 19th evidence component (`pip_state` = certifi
+  `pip show` + `pip check`) to pin the GOV-6 certifi remediation —
+  investigated and documented from the actual evidence directories in
+  `CONSOLGOV8_OWNER_DECISION_INTAKE_READINESS_2026-10-21.md` §6 (core
+  18 components identical component-for-component across GOV-6/GOV-7/GOV-8;
+  no hidden or dropped check). This note records the currency; T2's body
+  is unchanged under append-only discipline.
+- **No owner-only field is populated:** the approval block above remains
+  EMPTY; no reviewer designated; no acknowledgement exists; no approval is
+  fabricated or inferred.
+- **Status UNCHANGED: DRAFT / NOT APPROVED.** R2 remains OPEN;
+  E5 remains `NOT_VERIFIED`; G2 remains `NOT_PASSED`. Remaining owner acts
+  (the concise decision package): the Option C approval decision (four
+  approval-block fields), reviewer designation (§3 nomination fields) +
+  written acknowledgement (completes E5) + COI declaration (owner-
+  adjudicated), review scheduling.

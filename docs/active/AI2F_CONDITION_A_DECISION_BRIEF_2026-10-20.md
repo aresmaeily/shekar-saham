@@ -236,3 +236,34 @@ OPEN. Full map: `CONSOLGOV7_R2_READINESS_EVIDENCE_CLOSURE_2026-10-21.md` §3.
   option; condition (b) stands regardless.
 - **Decision request unchanged (brief §8):** AUTHORIZED/DEFERRED + the (iii)
   sub-choice + scope confirmation. Absence of response is not approval.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-8 cycle) — loci + SHA-256 pins re-verified at `1afd1aa`; no option authorized; condition (a) OPEN; no code modified
+
+The CONSOL-GOV-8 directive required: read the exact canonical options and
+prior owner decisions; verify the current code loci and the pinned residual
+evidence; execute an option ONLY if already authorized; otherwise leave the
+condition open and present the decision-ready package.
+
+- **Authorization check (fresh):** no owner record and no CONSOL-GOV-8
+  directive text selects an option (no new owner-decision record exists
+  since GOV-7; the GOV-8 directive's own "otherwise" branch applies).
+  **NO code was modified; condition (a) OPEN.**
+- **Fresh loci at `1afd1aa`** (`consolgov8_audit_scratch/07_ai2f_residuals_fresh.txt`):
+  residual 1 — `record.status` hits in `governed_acceptance`
+  (`ai2_governance.py:393-423`) = 0; residual 2 — approver hits in
+  `AI2RunRecord` (`:277-297`) = 0 (RunContext enforcement
+  `run_governance.py:109` unchanged); residual 3 — `_TRUST_RANK`
+  (`:234-241`) + unknown→−1 (`.get(state, -1)` `:259`) vs
+  `config.py:191-196` folding unchanged. SHA-256 pins UNCHANGED from
+  GOV-7: module `43d0912b…a9e1`, test `335aed03…73be`. Touch history:
+  only `6aeeaa2` + `17ef611` — no AI-2 contract touch since `17ef611`.
+  Import surface: contract grep over `app/api`+`app/services` exit 1;
+  zero `ai2` mentions in `app/api` (pipe-free). AI2-F focused tests:
+  24 passed, exit 0 (GOV-8 battery).
+- **Option comparison:** stands as recorded (brief §2 verbatim scope +
+  GOV-6 §4 for/against + GOV-7 §3.1 option map; GOV-8 record §3
+  re-presents it unchanged in substance). Gate impact: ZERO for every
+  option; condition (b) stands regardless.
+- **Decision request unchanged (brief §8):** AUTHORIZED/DEFERRED + the
+  selected (iii) sub-choice + scope confirmation. Absence of response is
+  not approval.

@@ -277,3 +277,45 @@ creation alone. Full matrix: `CONSOLGOV7_R2_READINESS_EVIDENCE_CLOSURE_
   (D1/D2/D3/D4/D5/D6 ratification-or-decision; D7's engineering defer-
   resolution stands per register A-5 with the owner-facing timing question
   open).
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-8 cycle) — D1–D7 four-way readiness separation recorded; nothing executed; D2 explicitly NOT complete (P3.43 fresh)
+
+The CONSOL-GOV-8 directive required reconciling each item individually
+against the canonical decision register and current evidence, separating
+documentation readiness / implementation readiness / execution /
+acceptance, identifying the smallest authorized reversible testable action
+per item, preserving the P3.43 dependency of D2, and performing only
+authorized low-risk work. Full matrix:
+`CONSOLGOV8_OWNER_DECISION_INTAKE_READINESS_2026-10-21.md` §4.
+
+- **Fresh selection search** (`consolgov8_audit_scratch/09_candidate_and_owner_search.txt`):
+  zero SELECTED/RESOLVED/DECIDED hits in proximity to D-item/persistence
+  context across the canonical owner-decision records; no new
+  owner-decision record since GOV-7 — **D1–D7 all OPEN**.
+- **Four-way separation recorded per item** (canonical record §4):
+  documentation readiness COMPLETE for all seven (decision packages,
+  options, consequences, dependencies, authority all recorded);
+  implementation readiness NONE for all seven (no implementation
+  authorized; adapter = post-G2 work; persistence integration PROHIBITED,
+  D-AI-28); execution NOTHING for all seven; acceptance = owner decisions
+  (D1/D3/D4/D5/D6/D7) with **D2 additionally upstream-BLOCKED at the five
+  P3.43 gates**.
+- **Fresh structural verification at `1afd1aa`** (scratch
+  `08_ai3m_structure_fresh.txt`): episodic immutability surface
+  `research_memory.py:119-158` intact — only `__init__`/`entries`/`get`/
+  `for_run`/`for_hypothesis`/`available_at`/`append` definitions in the
+  range; "NO update, delete, retention-purge or rewrite path" (:123);
+  module untouched since `37c529d`/`80585c8`; incumbent backup mechanism
+  present (`app/data/store.py:62-66`); **13/13 AI3-M tests exit 0** (GOV-8
+  battery).
+- **D2 upstream-blocked at P3.43 — fresh-verified** (scratch
+  `10_p343_gates_fresh.txt` + state file :263/:§7): (1) INSTALL — no
+  positive authorization record; (2) Windows-target validation NOT_STARTED
+  (state file :263); (3) browser-E2E + Electron NOT_VERIFIED; (4) live
+  provider verification fail-closed (`live_verified=false`, GOV-8 battery
+  ×2); (5) push authorization outstanding. **D2 is NOT complete** and is
+  not marked complete here.
+- **Smallest authorized action executed this cycle:** documentation-only
+  currency verification for every item (the §4 matrix + scratch 08/10).
+  No architecture boundary, autonomy, production behavior, or
+  consequential permission was altered.

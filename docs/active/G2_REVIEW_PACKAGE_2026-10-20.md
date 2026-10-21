@@ -293,3 +293,61 @@ self-approval void.
   reviewer (NOT_APPOINTED — BLOCKED; fresh candidate search 2026-10-21:
   zero named eligible candidates in any record,
   `consolgov7_audit_scratch/11_candidate_search.txt`).
+
+## A7. Candidate-SHA currency at HEAD `1afd1aa` (CONSOL-GOV-8 cycle, 2026-10-21; implementer-owned E1-currency closure; NOT an approval)
+
+Status: currency refresh under the CONSOL-GOV-8 directive (§2: "Close any
+remaining implementer-owned traceability, consistency, or drafting
+gaps"). No status upgraded; no owner decision inferred; E5 remains
+**NOT_VERIFIED**; G2 remains `NOT_PASSED`; self-approval void.
+
+- **Currency gap identified (finding CG8-01, INFO, RESOLVED this cycle):**
+  the §A1–§A6 trail stopped at HEAD `3b61795` (35 ahead). One docs-only
+  commit has landed since, not yet audited here until now: `1afd1aa`
+  (CONSOL-GOV-7: NEW canonical record + five addenda + STATUS +
+  CHANGELOG + INDEX — exactly 9 files, all `.md`, +540/−0,
+  `git diff HEAD^ HEAD --check` exit 0, 0 non-md, 0 bootstrap paths;
+  audit: `consolgov8_audit_scratch/02_gov7_commit_reaudit.txt`). The §1
+  E1 convention ("commits after `7490ad4` are expected to be
+  governance/documentation-only") remains TRUE at `1afd1aa`; the reviewer
+  still re-fixes the reviewed SHA at review start per checklist §1 and
+  re-derives with `git diff --stat 7490ad4..HEAD`.
+- **Fresh baseline re-verified at `1afd1aa`** (2026-10-21T12:33:05Z,
+  `consolgov8_audit_scratch/01_git_ground_truth.txt`): HEAD
+  `1afd1aad7ea695cdf6bd142610f4d7169b69d62f` on `main`; parent `3b61795`;
+  ahead 36 / behind 0 vs live `origin/main` `c1984e7` (`git ls-remote`
+  exit 0 — NO push); tracked clean; staged 0; stash 0; single worktree;
+  untracked = exactly the four preserved bootstrap paths.
+- **Battery re-run at `1afd1aa`** (raw
+  `evidence/raw/2026-10-21_consolgov8_battery/`, SHA-256 manifest 19/19
+  OK): **621 passed / 2 pre-existing warnings / 78.51s**, 19/19 components
+  exit 0 (incl. pip-audit exit 0 — certifi 2026.10.19 remediation holding;
+  `pip check` clean; providers fail-closed `live_verified=false` both;
+  bootstrap 8/8; git diff --check 0/0), per-block 44/58/24/25/13/51/58 —
+  zero discrepancy from the §3/§4/A1/A5/A6 lineage (621/2 across the
+  preserved baselines). The 2 warnings re-classified with captured
+  evidence: third-party test-stack deprecations (fastapi testclient
+  StarletteDeprecationWarning; starlette anyio BlockingPortal), no
+  project-code locus.
+- **Gates in code re-verified** (`consolgov8_audit_scratch/04_gates_fresh.txt`
+  + `07/08`): `AI2_ENABLED=0` (`backend/app/core/config.py:109`; Settings
+  instantiation False with env unset); `verified = False`
+  (`config.py:270`); contract-module import grep over
+  `app/api`+`app/services` exit 1 (no match); zero `ai2` mentions in
+  `app/api` (pipe-free).
+- **Corpus re-verified**: 7/7 byte-identical vs owner upload originals
+  (`consolgov8_audit_scratch/12_corpus_integrity.txt`).
+- **E1–E6 statuses revalidated (no blind carry-forward):** E1 VERIFIED
+  (package SHA `7490ad4` + §A6 currency at `3b61795` + this §A7 currency
+  at `1afd1aa`; re-fix at review start unchanged); E2 VERIFIED (companion
+  set unchanged + cross-reference to
+  `CONSOLGOV8_OWNER_DECISION_INTAKE_READINESS_2026-10-21.md` §2); E3
+  VERIFIED (zero discrepancy); E4 VERIFIED (captures above); **E5 remains
+  NOT_VERIFIED — deliberately preserved** (reviewer act; no qualifying new
+  evidence); E6 VERIFIED (7/7 fresh).
+- **Exit criteria remain BLOCKED** on the authoritative owner procedure
+  (Option C approval act — approval block EMPTY, four fields unfilled) and
+  the un-designated reviewer (NOT_APPOINTED — BLOCKED; fresh candidate
+  search 2026-10-21 at `1afd1aa`: zero named eligible candidates; §3
+  designation fields verified still blank — 8 underscore fields;
+  `consolgov8_audit_scratch/09_candidate_and_owner_search.txt`).

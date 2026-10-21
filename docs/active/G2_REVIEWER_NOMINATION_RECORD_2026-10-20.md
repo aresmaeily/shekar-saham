@@ -191,3 +191,39 @@ NOT_APPOINTED and state the exact information needed."
   the acknowledgement artifact then completes E5 mechanically. Nothing else
   blocks E5.
 - `R2=OPEN`; `E5=NOT_VERIFIED`; `G2=NOT_PASSED` — all unchanged.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-8 cycle) — fresh candidate inspection at `1afd1aa`; zero named candidates; §3 fields verified blank; NOT_APPOINTED — BLOCKED unchanged
+
+The CONSOL-GOV-8 directive re-required: "Search canonical records for a
+real named candidate and supporting appointment evidence. If no eligible
+candidate exists, keep `NOT_APPOINTED` and report the exact missing human
+input. Do not appoint the implementer as the independent reviewer for work
+the implementer performed. Do not mark E5 verified without a real,
+documented, independent review."
+
+- **Fresh candidate inspection (2026-10-21 at HEAD `1afd1aa`,
+  `consolgov8_audit_scratch/09_candidate_and_owner_search.txt`):** zero
+  named eligible candidates in any governance record; the §3 designation
+  fields of this record verified still blank (8 underscore fields counted
+  unfilled); the recorded non-designation confirmation re-verified verbatim
+  (`OWNER_DECISION_B1_R2_RECORDED_2026-10-20.md:124` "the owner decision
+  does NOT designate a reviewer"). Same result as all four prior cycles.
+  No new owner-decision record exists since GOV-7 (`docs/active/` owner
+  records end at `OWNER_DECISIONS_CONSOLGOV6_2026-10-21.md`).
+- **Status UNCHANGED: NOT_APPOINTED — BLOCKED on owner designation.** No
+  appointment is fabricated; no designation field is filled by the
+  implementing agent; the implementing agent remains an explicitly
+  DISQUALIFIED class (§2) for work it performed.
+- **Exact missing human input (exhaustive, unchanged):** (1) an owner
+  designation record naming the reviewer — Class 1 (named independent
+  human validator with name/role/affiliation/competence verification) or
+  Class 2 (owner acting directly with roles 9/10/15, electing itself with
+  a named sign-off identity); (2) the designated reviewer's **written
+  acknowledgement** with UTC date and artifact locus — this completes E5;
+  (3) the reviewer's **COI declaration** on the adopted form
+  (`OWNER_ACTION_PACKAGE_CONSOLGOV5_2026-10-21.md` §2.3 field set),
+  adjudicated by the owner.
+- **Smallest next action:** one owner message completing the §3 fields;
+  the acknowledgement artifact then completes E5 mechanically. Nothing
+  else blocks E5.
+- `R2=OPEN`; `E5=NOT_VERIFIED`; `G2=NOT_PASSED` — all unchanged.
