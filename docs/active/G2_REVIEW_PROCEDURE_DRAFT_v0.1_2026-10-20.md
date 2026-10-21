@@ -208,3 +208,38 @@ evidence in `OWNER_DECISIONS_CONSOLGOV6_2026-10-21.md` §2):
 - Directive-required topic coverage (7 topics incl. implementer-audit
   separation + approval provenance): verified COVERED — mapping table in
   `OWNER_DECISIONS_CONSOLGOV6_2026-10-21.md` §2.1.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-7 cycle) — R2 requirement-to-evidence matrix recorded; implementer-owned items EXHAUSTED; status UNCHANGED: DRAFT / NOT APPROVED
+
+The CONSOL-GOV-7 directive required a requirement-to-evidence matrix for all
+seven checklist items with a four-class disposition
+(EVIDENCE_COMPLETE / IMPLEMENTER_ACTION_REQUIRED /
+OWNER_APPROVAL_REQUIRED / INDEPENDENT_REVIEWER_INPUT_REQUIRED), resolution
+of implementer-owned gaps only, and no population of owner-only fields.
+Full matrix: `CONSOLGOV7_R2_READINESS_EVIDENCE_CLOSURE_2026-10-21.md` §2.
+
+- **Classification outcome:** checklist items 1/3/4/5/6 (exception form,
+  re-review thresholds, sign-off form, E1–E6 binding, verdict rule) are
+  **EVIDENCE_COMPLETE** — drafted and corpus-grounded in GOV-6; item 2 (COI)
+  is EVIDENCE_COMPLETE as a form, with the actual declaration
+  INDEPENDENT_REVIEWER_INPUT_REQUIRED and its adjudication
+  OWNER_APPROVAL_REQUIRED; item 7 (the approval act itself) is
+  **OWNER_APPROVAL_REQUIRED** and cannot be advanced by any implementer.
+- **Traceability mapping (marker locus → resolution source):** draft :73 →
+  GOV-6 addendum #1 + CG6 record §2 row 1; draft :90 → GOV-6 addendum #2 +
+  nomination-record fields; draft :102 → GOV-6 addendum #3 (six precedents);
+  draft :117 → GOV-6 addendum #4 (checklist §11). The four in-body markers
+  are retained verbatim by append-only discipline; this addendum + the GOV-6
+  addendum above are the governing resolutions.
+- **Implementer-owned gap closed this cycle:** the companion review
+  package's candidate-SHA currency trail (§A1–§A5) stopped at `b12b0cf`;
+  a dated **§A6** addendum now records the five subsequent docs-only commits
+  and revalidates E1–E6 at `3b61795` (E5 remains NOT_VERIFIED).
+- **No owner-only field is populated:** the approval block above remains
+  EMPTY; no reviewer designated; no acknowledgement exists; no approval is
+  fabricated or inferred.
+- **Status UNCHANGED: DRAFT / NOT APPROVED.** R2 remains OPEN;
+  E5 remains `NOT_VERIFIED`; G2 remains `NOT_PASSED`. Remaining owner acts:
+  the Option C approval decision (approving authority + effective version),
+  reviewer designation + written acknowledgement (+ COI declaration),
+  review scheduling.

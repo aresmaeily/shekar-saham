@@ -239,3 +239,57 @@ status upgraded, no owner decision inferred.
   per directive). Exit criteria remain BLOCKED on the missing authoritative
   owner procedure (Path B, `R2_G2_PROCEDURE_VERIFICATION_2026-10-20.md` §4)
   and the un-designated reviewer. G2 remains `NOT_PASSED`; self-approval void.
+
+## A6. Candidate-SHA currency at HEAD `3b61795` (CONSOL-GOV-7 cycle, 2026-10-21; implementer-owned E1-currency closure; NOT an approval)
+
+Status: currency refresh under the CONSOL-GOV-7 directive (Phase 2: "Resolve
+all implementer-owned drafting, provenance, traceability, and consistency
+gaps that do not require owner-only approval"). No status upgraded; no owner
+decision inferred; E5 remains **NOT_VERIFIED**; G2 remains `NOT_PASSED`;
+self-approval void.
+
+- **Currency gap identified:** the §A1–§A5 trail stopped at HEAD `b12b0cf`
+  (30 ahead). Five docs-only commits have landed since, none staged or
+  audited here until now: `a3030db` (CONSOL-GOV-2, 2 files), `bef3a53`
+  (OWNER-B1R2, 4 files), `33107cc` (CONSOL-GOV-4, 11 files), `d59ce3e`
+  (CONSOL-GOV-5, 4 files), `3b61795` (CONSOL-GOV-6, 9 files) — each
+  independently scope-audited in its own cycle record (all `.md`, zero
+  `backend/`/`frontend/` paths; latest audit: `consolgov7_audit_scratch/
+  02_cg6_commit_audit.txt`, numstat 9 files +855/−1 all `.md`,
+  `git diff HEAD^ HEAD --check` exit 0). The §1 E1 convention ("commits
+  after `7490ad4` are expected to be governance/documentation-only") remains
+  TRUE at `3b61795`; the reviewer still re-fixes the reviewed SHA at review
+  start per checklist §1 and re-derives with
+  `git diff --stat 7490ad4..HEAD`.
+- **Fresh baseline re-verified at `3b61795`** (2026-10-21T11:49:49Z,
+  `consolgov7_audit_scratch/01_baseline_git_state.txt`): HEAD
+  `3b6179585b6e5b6e6d9fdc194eaaa50b48bb9c55` on `main`; parent `d59ce3e`;
+  ahead 35 / behind 0 vs live `origin/main` `c1984e7` (`git ls-remote`
+  exit 0 — NO push); tracked clean; staged 0; stash 0; single worktree;
+  untracked = exactly the four preserved bootstrap paths.
+- **Battery re-run at `3b61795`** (raw
+  `evidence/raw/2026-10-21_consolgov7_battery/`, SHA-256 manifest 19/19
+  OK): **621 passed / 2 pre-existing warnings / 78.45s**, 19/19 components
+  exit 0 (incl. pip-audit exit 0 — certifi 2026.10.19 remediation holding;
+  `pip check` clean; providers fail-closed `live_verified=false` both;
+  bootstrap 8/8), per-block 44/58/24/25/13/51/58 — zero discrepancy from
+  the §3/§4/A1/A5 lineage (621/2 across the preserved baselines).
+- **Gates in code re-verified** (`consolgov7_audit_scratch/04b_gates_corrected.txt`):
+  `AI2_ENABLED=0` (`backend/app/core/config.py:109`; Settings instantiation
+  False with env unset); `verified = False` (`config.py:270`); contract-
+  module import grep over `app/api`+`app/services` exit 1 (no match);
+  zero `ai2` mentions in `app/api` (pipe-free re-capture).
+- **Corpus re-verified**: 7/7 byte-identical vs owner upload originals
+  (`consolgov7_audit_scratch/13_corpus_integrity.txt`).
+- **E1–E6 statuses revalidated (no blind carry-forward):** E1 VERIFIED
+  (package SHA `7490ad4` + this §A6 currency at `3b61795`; re-fix at review
+  start unchanged); E2 VERIFIED (companion set unchanged + cross-reference
+  to `CONSOLGOV7_R2_READINESS_EVIDENCE_CLOSURE_2026-10-21.md` §2); E3
+  VERIFIED (zero discrepancy); E4 VERIFIED (captures above); **E5 remains
+  NOT_VERIFIED — deliberately preserved** (reviewer act; no qualifying new
+  evidence); E6 VERIFIED (7/7 fresh).
+- **Exit criteria remain BLOCKED** on the authoritative owner procedure
+  (Option C approval act — approval block EMPTY) and the un-designated
+  reviewer (NOT_APPOINTED — BLOCKED; fresh candidate search 2026-10-21:
+  zero named eligible candidates in any record,
+  `consolgov7_audit_scratch/11_candidate_search.txt`).

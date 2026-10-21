@@ -202,3 +202,37 @@ has NOT selected an option).
   `ai2_governance.py` touched; no closure, no bypass, no remediation. The
   §8 decision request stands (AUTHORIZED/DEFERRED + (iii) sub-choice +
   scope).
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-7 cycle) — loci re-verified at `3b61795`; decision-ready option map recorded; condition (a) OPEN (no option authorized)
+
+The CONSOL-GOV-7 directive required the exact canonical options (no
+paraphrasing), a per-option map (prerequisites / technical consequences /
+required authority / risks / available evidence), fresh code-loci and test
+verification, and — absent an exact owner authorization — the condition left
+OPEN. Full map: `CONSOLGOV7_R2_READINESS_EVIDENCE_CLOSURE_2026-10-21.md` §3.
+
+- **Authorization check:** no owner record and no GOV-7 directive text
+  selects an option (the directive's own branch applies: "produce a
+  decision-ready comparison and leave the condition open"). **NO remediation
+  executed; condition (a) OPEN.**
+- **Fresh loci at `3b61795`** (`consolgov7_audit_scratch/05_ai2f_residuals_fresh.txt`):
+  residual 1 — `record.status` hits in `governed_acceptance`
+  (`ai2_governance.py:393-423`) = 0; residual 2 — approver hits in
+  `AI2RunRecord` (`:277-297`) = 0 (RunContext enforcement
+  `run_governance.py:109` unchanged); residual 3 — `_TRUST_RANK` (`:234-241`)
+  + unknown→−1 (`.get(state, -1)` `:259`) vs `config.py:191-196` folding
+  unchanged. Module+test SHA-256 pinned in the GOV-7 record §3. Touch
+  history: only `6aeeaa2` + `17ef611` — no AI-2 contract touch since
+  `17ef611`. AI2-F focused tests: 24 passed, exit 0 (GOV-7 battery).
+- **Option map (terminology preserved):** the ONE specified disposal scope
+  (verbatim intake §2: one commit touching `backend/app/domain/
+  ai2_governance.py` + its test file) with elements (i)/(ii)/(iii); TWO
+  outcomes (A authorize at the specified scope / B defer) and the embedded
+  (iii) sub-choice (A: adopt config folding — rank 0 — vs B: keep stricter
+  −1 canonical, test-pinned). Each carries prerequisites, consequences,
+  required authority (OWNER for every variant — the stricter rule governs
+  over the register's class-3 classification), risks, and code-grounded
+  evidence (GOV-6 §4 for/against tables stand). Gate impact: ZERO for every
+  option; condition (b) stands regardless.
+- **Decision request unchanged (brief §8):** AUTHORIZED/DEFERRED + the (iii)
+  sub-choice + scope confirmation. Absence of response is not approval.

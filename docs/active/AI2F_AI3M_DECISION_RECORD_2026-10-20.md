@@ -246,3 +246,34 @@ Applied to this record:
   owner persistence decision record; AI2-F's rejected item is unmet
   condition (a). See `B1_OWNER_DECISION_MATRIX_2026-10-20.md` GOV-6
   addendum + `OWNER_DECISIONS_CONSOLGOV6_2026-10-21.md` §1.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-7 cycle) — D1–D7 evidence-reconciliation matrix recorded; nothing executed; D2 explicitly NOT complete (P3.43 dependency preserved)
+
+The CONSOL-GOV-7 directive required a per-item evidence reconciliation
+(exact requirement + canonical source; status + loci; dependency/blocking;
+required evidence; work type — documentation-only / testable implementation /
+owner-controlled; permitted next action; verification result) with the
+P3.43 dependency of D2 preserved and no completion claimed from record
+creation alone. Full matrix: `CONSOLGOV7_R2_READINESS_EVIDENCE_CLOSURE_
+2026-10-21.md` §4.
+
+- **Fresh selection search** (`consolgov7_audit_scratch/08_ai3m_owner_record_search.txt`):
+  zero SELECTED/RESOLVED/DECIDED hits for any D-option across the canonical
+  owner-decision records; 13 OPEN-status hits — **no owner decision record
+  exists**; D1–D7 all OPEN.
+- **Fresh structural verification:** episodic immutable surface in
+  `research_memory.py:119-158` intact (append/get/index only; "NO update,
+  delete, retention-purge or rewrite path" :123); module untouched since
+  `37c529d`/`80585c8`; incumbent backup mechanism present
+  (`app/data/store.py:62-66`); **13/13 AI3-M tests exit 0** (GOV-7 battery).
+- **D2 upstream-blocked at P3.43 — fresh-verified** (scratch
+  `10_p343_gates_fresh.txt`): (1) INSTALL — no positive authorization record;
+  (2) Windows-target validation NOT_STARTED (state file :252); (3) browser-E2E
+  + Electron NOT_VERIFIED; (4) live provider verification fail-closed
+  (`live_verified=false`, GOV-7 battery ×2); (5) push authorization
+  outstanding. **D2 is NOT complete.**
+- **Nothing executed:** persistence integration remains PROHIBITED
+  (D-AI-28); no option selected; work types per item are owner-controlled
+  (D1/D2/D3/D4/D5/D6 ratification-or-decision; D7's engineering defer-
+  resolution stands per register A-5 with the owner-facing timing question
+  open).

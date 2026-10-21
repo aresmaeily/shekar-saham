@@ -161,3 +161,33 @@ Never fabricate an appointment to make E5 pass."
 - **Status UNCHANGED: NOT_APPOINTED — BLOCKED on owner designation.** The
   implementing agent did not and cannot fill any designation field; no
   appointment is fabricated; `R2=OPEN`; `E5=NOT_VERIFIED`; `G2=NOT_PASSED`.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-7 cycle) — fresh candidate inspection at `3b61795`; zero named candidates; NOT_APPOINTED — BLOCKED unchanged
+
+The CONSOL-GOV-7 directive re-required: "Do not appoint a nonexistent or
+unidentified reviewer. If no real candidate is documented, preserve
+NOT_APPOINTED and state the exact information needed."
+
+- **Fresh candidate inspection (2026-10-21 at HEAD `3b61795`,
+  `consolgov7_audit_scratch/11_candidate_search.txt`):** zero named eligible
+  candidates in any governance record — the only matches reconfirm
+  NON-designation (`OWNER_DECISION_B1_R2_RECORDED_2026-10-20.md` :124 "the
+  owner decision does NOT designate a reviewer"; §3 designation fields of
+  this record verified still blank: 8 underscore fields unfilled). Same
+  result as all three prior cycles.
+- **Status UNCHANGED: NOT_APPOINTED — BLOCKED on owner designation.** No
+  appointment is fabricated; no designation field is filled by the
+  implementing agent.
+- **Exact information needed (exhaustive, unchanged):** (1) an owner
+  designation record naming the reviewer — Class 1 (named independent human
+  validator with name/role/affiliation/competence verification) or Class 2
+  (owner acting directly with roles 9/10/15, electing itself with a named
+  sign-off identity); (2) the designated reviewer's **written
+  acknowledgement** with UTC date and artifact locus — this completes E5;
+  (3) the reviewer's **COI declaration** on the adopted form
+  (`OWNER_ACTION_PACKAGE_CONSOLGOV5_2026-10-21.md` §2.3 field set),
+  adjudicated by the owner.
+- **Smallest next action:** one owner message completing the §3 fields;
+  the acknowledgement artifact then completes E5 mechanically. Nothing else
+  blocks E5.
+- `R2=OPEN`; `E5=NOT_VERIFIED`; `G2=NOT_PASSED` — all unchanged.
