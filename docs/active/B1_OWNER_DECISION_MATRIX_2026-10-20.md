@@ -92,3 +92,35 @@ rejected by implication."
   `OWNER_DECISIONS_CONSOLGOV4_2026-10-20.md` §2.
 - No historical audit result rewritten; E5 remains `NOT_VERIFIED`;
   `G2 = NOT_PASSED`.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-6 cycle) — per-block FINAL DISPOSITION recorded: REJECT ×5 under the directive's binding rule
+
+An owner directive on 2026-10-21 (CONSOL-GOV-6; canonical record
+`OWNER_DECISIONS_CONSOLGOV6_2026-10-21.md` §0/§1) delegated the per-block
+final disposition under a BINDING rule recorded verbatim in that record
+§0: ACCEPT only if every mandatory acceptance criterion is explicitly
+satisfied by traceable, reproducible evidence; REJECT if any mandatory
+criterion is unmet, contradictory, or not verifiable; DEFER must not be
+used merely to avoid a decision; missing/ambiguous criteria ⇒ "REJECT —
+acceptance criteria not established".
+
+Applied independently per block at HEAD `d59ce3e` (fresh evidence per
+block in the canonical record §1.1–§1.5):
+
+| Block | Disposition | Exact open acceptance item (what is rejected) | Satisfied items verified fresh |
+|---|---|---|---|
+| P0-AMD-1 | **REJECTED** | Owner ratification of numeric ceilings (evidence: owner ratification record — does not exist) | Byte-identity 7/7; 44 tests exit 0; no wiring; D-2 scheduling condition SATISFIED |
+| AI1-GC | **REJECTED** | Gate-calling evidence (future runtime block tests — absent); AI-5 carrying unverifiable (no AI-5 block exists; D-AI-30) | 58 tests exit 0; gap-matrix honesty; AI-4 carrying traceable |
+| AI2-F | **REJECTED** | Condition (a): three residuals PRESENT (zero drift); no AI-2 contract touch since `17ef611` | Eight required items enforced; 24 tests exit 0; condition (b) standing |
+| AI-MA-C | **REJECTED** | Fold-in (docstring line + dead-code removal) never executed; no AI-MA touch since `aa86c3c`; `MAX_HIERARCHY_DEPTH` :56 + `_shape` :101 still present | AI-MA-1..6 enforced; prohibition set structural; 25 tests exit 0 |
+| AI3-M | **REJECTED** | Owner persistence decision record (D1–D7) absent | Immutability structural; PIT honesty; 13 tests exit 0; brief+evaluation delivered |
+
+- Statuses above change from `VERIFIED_PENDING_ACCEPTANCE` to **REJECTED**
+  by this owner-authorized disposition. REJECT consequence per package §3:
+  remediation-or-rework per the stated open items (paths listed in the
+  canonical record §1); **code remains in tree**; all gates unchanged.
+- Restated verbatim from the directive: "B-1 block decisions do not
+  constitute G2 passage, real-data AI-2 authorization, or production
+  acceptance."
+- The RECOMMENDATION rows of this matrix remain historical recommendations,
+  unrewritten; this addendum is append-only.

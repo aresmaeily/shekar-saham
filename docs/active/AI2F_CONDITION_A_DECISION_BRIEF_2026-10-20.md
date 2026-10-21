@@ -175,3 +175,30 @@ that identifies: (1) AUTHORIZED or DEFERRED; (2) if AUTHORIZED — the selected
 documentation) and the confirmed one-commit scope; (3) any additional
 constraints. Absence of response is not approval. Until that decision:
 condition (a) stays OPEN and no code in `ai2_governance.py` is touched.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-6 cycle) — residuals re-verified PRESENT at `d59ce3e`; for/against option evidence added; condition (a) OPEN
+
+The CONSOL-GOV-6 directive authorizes completing the decision package
+("Complete all independent evidence-gathering and documentation now") while
+expressly withholding option selection ("the option definitions and their
+consequences have not been included in the directive itself" — so the owner
+has NOT selected an option).
+
+- **Fresh residual verification at `d59ce3e`** (`consolgov6_audit_scratch/06_ai2f_residuals_fresh.txt`):
+  all three residuals PRESENT, zero drift — (1) `record.status` hits in
+  `governed_acceptance` (`ai2_governance.py:393-423`) = 0; (2) approver
+  hits in `AI2RunRecord` (`:277-297`) = 0 (RunContext enforcement
+  `run_governance.py:109` unchanged); (3) `_TRUST_RANK` `:234` + unknown→−1
+  `:259` vs `config.py:191-196` folding unchanged. **No AI-2 contract touch
+  since `17ef611`** (fresh git log) — the "next AI-2 contract touch" has
+  not occurred.
+- **For/against option evidence added** (full tables in
+  `OWNER_DECISIONS_CONSOLGOV6_2026-10-21.md` §4): for each (iii) sub-choice
+  and each decision outcome (A authorize at specified scope / B defer),
+  with code-grounded FOR and AGAINST entries. Both (iii) sub-choices are
+  fail-closed; they differ in defense-in-depth degree only. Zero gate
+  impact for every option.
+- **Status UNCHANGED: condition (a) OPEN.** No option selected; no code in
+  `ai2_governance.py` touched; no closure, no bypass, no remediation. The
+  §8 decision request stands (AUTHORIZED/DEFERRED + (iii) sub-choice +
+  scope).

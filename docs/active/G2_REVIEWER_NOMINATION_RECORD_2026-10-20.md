@@ -123,3 +123,41 @@ reviewer appointment/acknowledgement are evidenced: Keep `R2=OPEN`. Keep
   beyond the above; §3 fields remain EMPTY; this record's status stays
   **NOT_APPOINTED — BLOCKED**.
 - R2 OPEN; E5 `NOT_VERIFIED`; G2 `NOT_PASSED` — all unchanged.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-6 cycle) — nomination workflow EXECUTED; no eligible named candidate exists in any record; NOT_APPOINTED — BLOCKED unchanged
+
+The CONSOL-GOV-6 owner directive authorizes executing the reviewer
+nomination workflow: "Inspect actual project records for eligible
+candidates. Do not invent a person's identity, role, independence, or
+acknowledgement... If an eligible real person and their acknowledgement
+are already available, complete the documented workflow according to the
+repository's appointment policy. Otherwise, produce a complete, actionable
+nomination record identifying precisely what real-world input is missing.
+Never fabricate an appointment to make E5 pass."
+
+- **Fresh candidate inspection (2026-10-21, HEAD `d59ce3e`):** re-searched
+  the governance records for named eligible candidates — no personnel
+  registry, role-holder roster, or named-validator record exists anywhere
+  in the authoritative corpus or the repository (fresh search: zero named
+  individuals; only the PROJECT OWNER is evidenced as a real-world actor,
+  via the recorded directive traces). Same result as both prior cycles.
+- **Workflow outcome:** the "otherwise" branch applies — the complete,
+  actionable nomination record ALREADY EXISTS (this record §1–§4 + the
+  ready-to-use blank form in `OWNER_ACTION_PACKAGE_CONSOLGOV5_2026-10-21.md`
+  §2.3, fields adopted for the COI form per the GOV-6 resolutions). It is
+  reproduced by reference, not duplicated.
+- **Precisely what real-world input is missing (exhaustive, actionable):**
+  1. An owner designation record naming the reviewer — Class 1 (named
+     independent human validator: name, role, affiliation, competence
+     verification) or Class 2 (owner acting directly with roles 9/10/15,
+     electing itself with a named sign-off identity).
+  2. The designated reviewer's written acknowledgement (UTC date + artifact
+     locus) — this completes E5 mechanically.
+  3. The reviewer's COI declaration on the adopted form, adjudicated by
+     the owner.
+- **Smallest next action:** one owner message completing the §3 fields
+  (designation) — then the acknowledgement artifact completes E5. Nothing
+  else blocks E5.
+- **Status UNCHANGED: NOT_APPOINTED — BLOCKED on owner designation.** The
+  implementing agent did not and cannot fill any designation field; no
+  appointment is fabricated; `R2=OPEN`; `E5=NOT_VERIFIED`; `G2=NOT_PASSED`.

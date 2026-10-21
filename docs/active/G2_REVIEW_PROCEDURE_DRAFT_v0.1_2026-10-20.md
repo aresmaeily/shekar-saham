@@ -158,3 +158,53 @@ provenance.
 - R2 remains OPEN; E5 remains `NOT_VERIFIED`; G2 remains `NOT_PASSED`. The
   implementing agent has not approved this procedure, has not appointed a
   reviewer, and does not declare R2 closed.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-6 cycle) — seven [OWNER TO CONFIRM] entries RESOLVED from canonical records; status UNCHANGED: DRAFT / NOT APPROVED
+
+The CONSOL-GOV-6 owner directive authorizes resolving "all implementer-
+owned drafting and evidence gaps, including the seven [OWNER TO CONFIRM]
+entries identified in CONSOL-GOV-5, wherever the required value can be
+established from existing canonical records or the approved governance
+framework. For each unresolved item, record the exact source and the
+evidence supporting the resolution. Do not invent owner intent, approval
+authority, or approval signatures."
+
+The seven resolutions, each grounded in an exact source (full table with
+evidence in `OWNER_DECISIONS_CONSOLGOV6_2026-10-21.md` §2):
+
+1. **Exception record form (T3)** — ADOPTED (scope + rationale + expiry +
+   granting authority + evidence locus), grounded in the established
+   disposition-recording precedent of the independent audit records
+   (AI4-06..08, AI6-10..12 ACCEPTED dispositions).
+2. **COI disclosure form (T4)** — ADOPTED: field set per the GOV-5
+   nomination form §3; owner adjudicates (`04:72`).
+3. **Re-review threshold examples (T5)** — ADOPTED with concrete examples
+   from the repository's own remediation history (docs-only → delta;
+   module-code touch → focused re-verification + delta; gate/evidence-
+   lineage touch → full re-review): precedents AI1-GCa `2f86c4a`,
+   G2PREPa `d380ee5`, ACCPKGa `a3165c4`, AI2-Fa `17ef611`, AI-4a `cc98c64`,
+   AI-6a `1d9030c`.
+4. **Sign-off block exact form (T6)** — ADOPTED (reviewed SHA; procedure
+   identity+version; reviewer identity+acknowledgement date; E1–E6
+   outcomes; findings census; verdict recommendation; owner decision
+   block), per `AI2_G2_REVIEWER_CHECKLIST.md` §11 + draft T6 contents.
+5. **Entry-prerequisites equivalence (T1)** — TIGHTENED: entry binds to
+   E1–E6 exactly; any substitution requires a recorded owner decision
+   naming the substituted criterion, replacement, and source (D-AI-40,
+   `05:197-200`).
+6. **Verdict-rule precedent (T5)** — CODIFIED from six applied audit
+   precedents (open CRITICAL/HIGH ⇒ FAIL; open MEDIUM ⇒ FAIL / FAIL-narrow
+   only when localized AND dispositioned; LOW/INFO non-blocking).
+7. **Approval-act criteria** — ALREADY FIXED by the owner's Option C
+   selection (recorded verbatim, trace `1a15b105a0662765`): approval = a
+   recorded owner decision naming approving authority + effective version.
+
+- **Status UNCHANGED: DRAFT / NOT APPROVED.** The resolutions are drafting
+  completions under implementer authority expressly granted by the
+  directive; the approval act remains owner-only. **The approval block
+  above remains EMPTY.** No owner intent, approval authority, or approval
+  signature is invented.
+- R2 remains OPEN; E5 remains `NOT_VERIFIED`; G2 remains `NOT_PASSED`.
+- Directive-required topic coverage (7 topics incl. implementer-audit
+  separation + approval provenance): verified COVERED — mapping table in
+  `OWNER_DECISIONS_CONSOLGOV6_2026-10-21.md` §2.1.

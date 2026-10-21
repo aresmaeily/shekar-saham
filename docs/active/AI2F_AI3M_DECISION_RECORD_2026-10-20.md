@@ -220,3 +220,29 @@ Applied to this record:
 4. Per-block statuses retain `VERIFIED_PENDING_ACCEPTANCE`; B-1 evidence
    acceptance (reaffirmed and sharpened by the second decision) does not
    accept or reject any block by implication.
+
+## ADDENDUM 2026-10-21 (CONSOL-GOV-6 cycle) — condition (a) remains OPEN; D1–D7 seven decision records delivered (preparation only; nothing executed)
+
+- **AI2-F condition (a): OPEN** — residuals re-verified PRESENT at
+  `d59ce3e` zero drift; no AI-2 contract touch since `17ef611`; the
+  CONSOL-GOV-6 directive authorizes PREPARATION ONLY and selects no option
+  (for/against comparison delivered in
+  `OWNER_DECISIONS_CONSOLGOV6_2026-10-21.md` §4). No remediation executed;
+  condition (b) standing unchanged.
+- **AI3-M D1–D7: all seven remain OPEN;** seven separate decision records
+  delivered (`OWNER_DECISIONS_CONSOLGOV6_2026-10-21.md` §5.1–§5.8 —
+  canonical wording, options+provenance, consequences, evidence,
+  dependencies, reversibility, tests, authority, permitted disposition).
+  **Nothing executed** — no option is selected by any owner record or by
+  CONSOL-GOV-6; persistence integration remains PROHIBITED (D-AI-28).
+  **D2 explicitly NOT complete**: upstream-blocked at the P3.43 launch
+  gates (INSTALL not issued; Windows validation NOT_STARTED; browser-E2E +
+  Electron NOT_VERIFIED; live provider verification fail-closed
+  `live_verified=false`; push authorization outstanding) — dependency
+  verified fresh this cycle from `AI4_AI7_P343_DEPENDENCY_MATRIX.md` §P3.43
+  + state file §7.
+- Related B-1 effect recorded this cycle: per-block disposition REJECT ×5
+  (owner-authorized, binding rule) — AI3-M's rejected item is the absent
+  owner persistence decision record; AI2-F's rejected item is unmet
+  condition (a). See `B1_OWNER_DECISION_MATRIX_2026-10-20.md` GOV-6
+  addendum + `OWNER_DECISIONS_CONSOLGOV6_2026-10-21.md` §1.
