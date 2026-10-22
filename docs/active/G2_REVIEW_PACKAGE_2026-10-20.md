@@ -466,3 +466,72 @@ remains **NOT_VERIFIED**; G2 remains `NOT_PASSED`; self-approval void.
 - **Exit criteria remain BLOCKED** on the owner procedure approval (approval
   block EMPTY, re-read at `2ccfacb`) and the un-designated reviewer
   (NOT_APPOINTED — BLOCKED).
+
+## A10. Full-remediation revalidation + reviewer package at HEAD `3e35f49` (CONSOL-GOV-13 cycle, 2026-10-22; docs-only; NOT an approval)
+
+- **What this addendum adds (finding-class: currency + reviewer tooling):** the
+  CONSOL-GOV-13 owner mandate required full remediation, fresh revalidation, and
+  reviewer-readiness completion. Canonical record:
+  `CONSOLGOV13_FULL_REMEDIATION_REVALIDATION_2026-10-22.md`. **Nothing here is an
+  approval; R2 remains OPEN; E5 remains NOT_VERIFIED; G2 remains NOT_PASSED; the
+  procedure remains DRAFT / NOT APPROVED with an EMPTY approval block.**
+- **Ground truth re-verified fresh (directive §2 items, all MATCH/RECONCILED):**
+  HEAD `3e35f49c7b14e5efe37e33dcd0b4fafbcfb97c4b`, parent
+  `c661a617b9f3fba2b70c1ea232f19f389115c8ce`; live `ls-remote` exit 0 →
+  `origin/main` `c1984e7979f89f2d727b471deb602953ec62fad5` (+ second branch
+  `9b30cbd` untouched); 40 local-only commits, each verified NOT an ancestor of
+  `c1984e7`; R2 v0.2 SHA-256 re-verified `0045febaa59a7baae0baf093c0bb6525b1a5
+  ba138f648eed9b88a9b2cc65dafc` (12,328 bytes / 214 lines, TRACKED clean,
+  NOT APPROVED, approval block EMPTY ×4); untracked = 1,444 files in exactly the
+  4 bootstrap paths (1,434 at the pre-GOV-12-commit baseline — count ambiguity
+  RECONCILED as measurement points, CG13-03).
+- **Independent R2 v0.2 traceability executed** (canonical record §2): 23 source
+  requirements mapped (R1–R23), 0 contradictions, 0 new requirements, 2 cosmetic
+  compressions recorded (non-semantic), 0 defects requiring repair; all eight
+  canonical loci re-verified at file:line. Status-schema separation checks hold
+  (2.a reviewer / 2.b owner BLOCKED-BY 2.a; eight rows, one status each).
+- **NEW reviewer-side package** `G2_INDEPENDENT_REVIEWER_PACKAGE_DRAFT_2026-10-22.md`
+  (DRAFT): objective qualification criteria Q1–Q5; COI declaration form (nomination
+  §3 field set — ratified GOV-6 #2, unchanged); acceptance form (R-A1 → E5); scope
+  + required evidence (v0.2 T1/T2 restated); 8-step reproducible runbook; verdict
+  rules + report template + decision record; honest dependency table (D-O1/O2/O3/O4,
+  R-A1/R-A2, D-O8 material visibility, ratification). No candidate named/contacted;
+  reviewer NOT_APPOINTED — BLOCKED (unchanged).
+- **16th consecutive full-battery reproduction** (evidence dir
+  `docs/governance/evidence/raw/2026-10-22_consolgov13_fullbattery/`, 19 components
+  all exit 0 + SHA256SUMS.manifest): 621 passed / 2 pre-existing warnings / 77.84s;
+  focused 44/58/24/25/13/51/58 (exact canonical counts); pyflakes 0; compileall 0;
+  pip-audit exit 0 (certifi 2026.10.19 holding); alpha env/runtime + frontend 0;
+  providers tsetmc+brsapi fail-closed ×2; bootstrap 8 checks 0 FAIL; `git diff
+  --check` 0; corpus 7/7 byte-identical.
+- **Security finding S1 DISPOSITIONED** (canonical record §4): the reported
+  "secret-scan hit / possible false positive" = `backend/tests/
+  test_ai2_service.py:305` `secret = "super-secret-ai2-key-987"` (introduced
+  `0af6d060`; blamed fresh) — a deliberately injected fake key inside
+  `test_ai2_no_secret_material_in_result_or_logs` whose purpose is to PROVE no
+  secret material reaches results/logs. FALSE POSITIVE CONFIRMED; scanner NOT
+  weakened; 8-pattern tree-wide scan (354 tracked + 1,444 untracked files) = 0
+  REAL-class hits; gate-flip scan 30 textual hits all disclosed prose/fixture
+  classes, 0 real gate changes.
+- **Reviewer-clone hygiene (CG13-01, INFO, RESOLVED):** the GOV-12 clone
+  (`reviewer_clone_20261022`, HEAD `c1984e7`) showed 281 filemode-only diffs
+  (0 content change) post-capture; dispositioned via local `core.fileMode=false`;
+  post-fix clean, HEAD unchanged — reviewer baseline remains a pristine
+  `c1984e7` clone.
+- **Gates re-captured fresh (canonical record §5):** `AI2_ENABLED=0`
+  (`config.py:109` + runtime False); `verified=False` hard-coded (`config.py:270`);
+  G2 NOT_PASSED; R2 OPEN; E5 NOT_VERIFIED; AI2-F (a) OPEN (residual loci zero
+  drift; pins `43d0912b…`/`335aed03…` fresh-verified UNCHANGED — the latter
+  pin = `backend/tests/test_ai2_f_governance.py`, locus now stated explicitly);
+  AI3-M structure intact (append/get/index-only; zero mutation defs); P3.43
+  BLOCKED ×5; G1/G3/G4/G5 recorded NOT_DEFINED in the canonical corpus (CG13-04
+  spec issue — not invented).
+- **E1–E6 revalidated (no blind carry-forward):** E1 VERIFIED (§A1–§A10 currency
+  chain; re-fix at review start unchanged); E2 VERIFIED (companion set + new
+  canonical record + reviewer package cross-referenced); E3 VERIFIED (16th
+  reproduction, zero discrepancy); E4 VERIFIED (fresh gate captures); **E5 remains
+  NOT_VERIFIED — deliberately preserved** (reviewer act; no qualifying new
+  evidence); E6 VERIFIED (7/7 fresh).
+- **Exit criteria remain BLOCKED** on the owner procedure approval (D-O1, approval
+  block EMPTY re-read at `3e35f49`) and the un-designated reviewer (D-O2,
+  NOT_APPOINTED — BLOCKED).
