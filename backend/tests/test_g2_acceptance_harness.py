@@ -162,6 +162,65 @@ class TestManifestVerify:
         assert g2.verify_manifest(tmp_path)["ok"] is False
 
 
+class TestEvidenceFreshness:
+    """GOV-15: anti-stale-evidence commit-binding checks (positive+negative)."""
+
+    def _write_report(self, evidence_dir, name, payload):
+        import json
+        (evidence_dir / name).write_text(json.dumps(payload), encoding="utf-8")
+
+    def _current_head(self):
+        return g2.git("rev-parse", "HEAD")
+
+    def test_fresh_report_detected(self, tmp_path):
+        self._write_report(tmp_path, "g2_harness_report.json",
+                           {"commit": self._current_head()})
+        state = g2.evidence_freshness(tmp_path, self._current_head())
+        assert state["ok"] is True and state["reason"] == "FRESH"
+
+    def test_stale_report_flagged(self, tmp_path):
+        stale = "0" * 40
+        assert stale != self._current_head()
+        self._write_report(tmp_path, "g2_harness_report.json",
+                           {"commit": stale})
+        state = g2.evidence_freshness(tmp_path, self._current_head())
+        assert state["ok"] is False and state["reason"] == "STALE_EVIDENCE"
+        assert state["bound"] == [stale]
+
+    def test_mixed_binding_flagged(self, tmp_path):
+        stale = "0" * 40
+        assert stale != self._current_head()
+        self._write_report(tmp_path, "g2_harness_report_a.json",
+                           {"commit": self._current_head()})
+        self._write_report(tmp_path, "g2_harness_report_b.json",
+                           {"commit": stale})
+        state = g2.evidence_freshness(tmp_path, self._current_head())
+        assert state["ok"] is False and state["reason"] == "MIXED_BINDING"
+        assert set(state["bound"]) == {self._current_head(), stale}
+
+    def test_report_without_commit_binding_rejected(self, tmp_path):
+        self._write_report(tmp_path, "g2_harness_report.json", {"verdict": "x"})
+        state = g2.evidence_freshness(tmp_path, self._current_head())
+        assert state["ok"] is False
+        assert state["reason"] == "NO_COMMIT_BINDING"
+
+    def test_malformed_report_honest_failure(self, tmp_path):
+        (tmp_path / "g2_harness_report.json").write_text("{not json", encoding="utf-8")
+        state = g2.evidence_freshness(tmp_path, self._current_head())
+        assert state["ok"] is False and state["reason"] == "PARSE_ERROR"
+
+    def test_no_report_in_dir(self, tmp_path):
+        state = g2.evidence_freshness(tmp_path, self._current_head())
+        assert state["ok"] is False and state["reason"] == "NO_HARNESS_REPORT"
+
+    def test_harness_emits_freshness_check_honestly_without_evidence_dir(self):
+        report = g2.collect(None, full_battery=False)
+        by_id = {c["id"]: c for c in report["checks"]}
+        check = by_id["G2-C-v-fresh"]
+        assert check["observed"] == "NO_EVIDENCE_DIR_SELECTED"
+        assert check["satisfied"] is False
+
+
 class TestVerdictContract:
     def test_harness_never_passes_g2(self):
         # structural guarantee: the verdict literal in collect() is NOT_PASSED
@@ -176,8 +235,8 @@ class TestVerdictContract:
         assert required.issubset(report.keys())
         ids = [c["id"] for c in report["checks"]]
         for expected in ("G2-C-i", "G2-C-ii", "G2-C-iii-1", "G2-C-iii-2",
-                         "G2-C-iii-3", "G2-C-iv", "G2-C-v", "G2-E5",
-                         "G2-D-O1"):
+                         "G2-C-iii-3", "G2-C-iv", "G2-C-v", "G2-C-v-fresh",
+                         "G2-E5", "G2-D-O1"):
             assert expected in ids
         assert report["g2_verdict"] == "NOT_PASSED"
 

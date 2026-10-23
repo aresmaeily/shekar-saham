@@ -8,6 +8,11 @@ PASSED -- the G2 verdict authority is the owner alone (charter 04:72 Role 1 A;
 register 05:148-150; D-AI-26; review procedure v0.2 T6). A fully green run is
 reported as HARNESS_GREEN, which is evidence, not a gate decision.
 
+Evidence freshness (GOV-15): when --evidence-dir is given, the bundle must
+commit-bind the CURRENT HEAD via its *harness_report*.json file(s) or the
+G2-C-v-fresh predicate reports STALE_EVIDENCE / NO_COMMIT_BINDING /
+PARSE_ERROR / NO_HARNESS_REPORT honestly (stale evidence is never accepted).
+
 Predicate sources (canonical):
   - T3 objective criteria: G2_REVIEW_PROCEDURE_PROPOSED_FINAL_v0.2_2026-10-22.md
     (i) full battery green; (ii) findings dispositioned; (iii) gate invariants
@@ -182,6 +187,45 @@ def verify_manifest(evidence_dir: Path) -> dict:
     return {"ok": not bad, "checked": checked, "mismatched": bad}
 
 
+def evidence_freshness(evidence_dir: Path, current_commit: str) -> dict:
+    """Commit-binding check for an evidence bundle (anti-stale-evidence).
+
+    A bundle is FRESH only when every harness report JSON it contains binds
+    the CURRENT commit. Any other state is reported honestly:
+      - STALE_EVIDENCE     report(s) exist, none binds the current commit
+      - MIXED_BINDING      some reports bind the current commit, others do not
+      - NO_COMMIT_BINDING  report(s) exist but carry no commit field
+      - PARSE_ERROR        a report file is not valid JSON
+      - NO_HARNESS_REPORT  no *harness_report*.json in the bundle
+    This check is DATA for the reviewer; it can never flip a gate.
+    """
+    reports = sorted(evidence_dir.glob("*harness_report*.json"))
+    if not reports:
+        return {"ok": False, "reason": "NO_HARNESS_REPORT", "reports": []}
+    bound = []
+    for path in reports:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {"ok": False, "reason": "PARSE_ERROR", "reports": [path.name]}
+        commit = data.get("commit") if isinstance(data, dict) else None
+        if not commit:
+            return {"ok": False, "reason": "NO_COMMIT_BINDING",
+                    "reports": [path.name]}
+        bound.append(commit)
+    distinct = sorted(set(bound))
+    if distinct == [current_commit]:
+        return {"ok": True, "reason": "FRESH", "bound_commit": current_commit,
+                "reports": [p.name for p in reports]}
+    if current_commit in distinct:
+        return {"ok": False, "reason": "MIXED_BINDING",
+                "bound": distinct, "current": current_commit,
+                "reports": [p.name for p in reports]}
+    return {"ok": False, "reason": "STALE_EVIDENCE",
+            "bound": distinct, "current": current_commit,
+            "reports": [p.name for p in reports]}
+
+
 # --------------------------------------------------------------------------
 # harness assembly
 # --------------------------------------------------------------------------
@@ -250,6 +294,18 @@ def collect(evidence_dir: Path | None, full_battery: bool) -> dict:
         "MANIFEST_VERIFY",
         manifest_state.get("reason") or f"checked={manifest_state.get('checked')}, mismatches={len(manifest_state.get('mismatched', []))}",
         "ok", manifest_state.get("ok", False),
+        str(evidence_dir) if evidence_dir else "not provided")
+
+    # ---- evidence freshness / commit binding (anti-stale) ----------------
+    fresh_state = {"ok": False, "reason": "NO_EVIDENCE_DIR_SELECTED"}
+    if evidence_dir is not None:
+        fresh_state = evidence_freshness(evidence_dir, head)
+    add("G2-C-v-fresh",
+        "evidence bundle commit-binds the CURRENT HEAD (no stale evidence)",
+        "EVIDENCE_COMMIT_BINDING",
+        fresh_state.get("reason"),
+        "FRESH",
+        fresh_state.get("ok", False),
         str(evidence_dir) if evidence_dir else "not provided")
 
     # ---- T3(i) full battery ---------------------------------------------
