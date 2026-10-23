@@ -476,3 +476,19 @@ evidence cannot exist pre-G2 — D-AI-31). No post-AI-7 stage invented.
 | 15 | Security / Reliability Auditor | 42-commit 8-pattern scan: 5 candidates → all verified FALSE POSITIVE with reproducible evidence (pre-existence on origin/main; 0 added/0 removed value lines; no tracked .env); scanner NOT weakened; pip-audit/pip check clean | §6 | 5 candidates → FP | dispositioned with evidence | none new | VERIFIED |
 | 16 | Prompt & Context Engineer | Directive workstreams A–I mapped 1:1 into §2–§12; unsupported-claim resistance enforced structurally (freshness check + verdict contract + exactly-one-status matrix) | §2–§9 | none new | n/a | none | VERIFIED |
 | 17 | Technical Documentation Lead | This canonical record + STATUS/CHANGELOG/INDEX currency + state-file row + worklog append + Persian report + download deliverables | §15 | none new | n/a | none | VERIFIED |
+
+## ADDENDUM 2026-10-23 — CG15-02 (INFO) — at-commit count arithmetic correction (observed value authoritative)
+
+The GOV-15 commit message and the pre-commit text of this record predicted
+the post-implementation battery count as "647 = 621 + 27". The correct
+arithmetic is **648 = 641 + 7** (621 base + 20 GOV-14 harness tests + 7
+GOV-15 freshness tests). The OBSERVED at-commit result at `b02c340` is
+**648 passed / 2 warnings / 77.80s** — exactly consistent with the correct
+expectation; the suite is green and no test is missing or extra. The error
+was in the predicted-number arithmetic only, not in any test or component.
+Per the CG9-02 precedent the GOV-15 commit is not amended; this addendum,
+the STATUS/CHANGELOG corrections in the follow-up docs commit, the state
+file, the worklog, and the Persian report record the correction. At-commit
+harness evidence: `g2_harness_report_atcommit_verified.json` at `b02c340`
+(parent `26ca1b7`): verdict NOT_PASSED; C-v checked=21 mismatches=0;
+**C-v-fresh FRESH**; manifest 22 entries `sha256sum -c` ALL OK.
