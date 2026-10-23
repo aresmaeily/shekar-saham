@@ -1,12 +1,13 @@
 # Project Status — RADAR BOURSE
 
-Last updated: 2026-10-22 (CONSOL-GOV-13)
+Last updated: 2026-10-23 (CONSOL-GOV-14)
 
 ## Current Phase Status
 
 | Phase | Status | Evidence |
 |---|---|---|
-| CONSOL-GOV-13 | Completed Locally — GitHub Closure Pending | Full-remediation revalidation cycle: ground truth re-verified (HEAD `3e35f49`, parent `c661a61`, live `c1984e7` ls-remote exit 0, 40 local-only commits all remote-absent, R2 v0.2 SHA-256 re-verified); independent R2 v0.2 traceability (R1–R23, zero contradictions/defects); NEW reviewer package DRAFT; 16th consecutive 621/2W battery (19/19); secret-scan S1 FALSE POSITIVE dispositioned; reviewer-clone filemode anomaly RESOLVED (CG13-01); gates preserved (G2 NOT_PASSED; AI2_ENABLED=0; verified=False; R2 OPEN; E5 NOT_VERIFIED; AI2-F (a) OPEN; P3.43 ×5; G1/G3/G4/G5 NOT_DEFINED recorded); docs-only commit; NO push. |
+| CONSOL-GOV-14 | Completed Locally — Owner Decisions Pending | Blocker-elimination cycle: 2 resolvable blockers eliminated by implementation (NEW deterministic G2 acceptance harness `scripts/g2_acceptance_battery.py` + 20 regression tests; NEW D-O8 41-commit publication-risk scan — 0 REAL secret findings, 2 verified doc-placeholder false positives); D-O1 approval package issued (v0.2 hash re-verified, READY_FOR_OWNER_DECISION); G1/G3/G4/G5 spec defect report + narrowest amendment PROPOSAL; 12/12 GOV-13 claims re-verified; 18th+19th consecutive battery (621/2W pre-commit at `a409ddf`; 641/2W at GOV-14 commit = 621+20 explained); gates preserved (G2 NOT_PASSED harness-enforced; AI2_ENABLED=0; verified=False; R2 OPEN; E5 NOT_VERIFIED; AI2-F (a) OPEN zero-drift; P3.43 ×5; D1–D7 per-item); recovery archive pre-change; NO push. |
+| CONSOL-GOV-13 | Completed Locally — GitHub Closure Pending (superseded by CONSOL-GOV-14 row) | Full-remediation revalidation cycle: ground truth re-verified (HEAD `3e35f49`, parent `c661a61`, live `c1984e7` ls-remote exit 0, 40 local-only commits all remote-absent, R2 v0.2 SHA-256 re-verified); independent R2 v0.2 traceability (R1–R23, zero contradictions/defects); NEW reviewer package DRAFT; 16th consecutive 621/2W battery (19/19); secret-scan S1 FALSE POSITIVE dispositioned; reviewer-clone filemode anomaly RESOLVED (CG13-01); gates preserved (G2 NOT_PASSED; AI2_ENABLED=0; verified=False; R2 OPEN; E5 NOT_VERIFIED; AI2-F (a) OPEN; P3.43 ×5; G1/G3/G4/G5 NOT_DEFINED recorded); docs-only commit; NO push. |
 | P3.23 | Completed | GitHub `main` contains `a00a0f4befb5582829b7fae2a8e248eaa7f4c4b8` and the closing P3.23-R1 commit. |
 | P3.23-R1 | Completed | GitHub `main` verified at `26a2d120b596aa298a40b2ebc6952310658f45b5`. |
 | P3.24 | Validated Locally — GitHub Closure Pending | Core product consolidation and Iran market architecture lock completed as documentation-only work; available validations passed; external runtime validations remain blocked/not executed as documented. |
