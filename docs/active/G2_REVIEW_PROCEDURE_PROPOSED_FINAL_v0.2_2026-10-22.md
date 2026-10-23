@@ -1,16 +1,21 @@
-# G2 REVIEW PROCEDURE — PROPOSED FINAL CONSOLIDATION v0.2 — 2026-10-22 — **NOT APPROVED**
+# G2 REVIEW PROCEDURE — FINAL v1.0 (approved) — 2026-10-23
 
-Status: **DRAFT / NOT APPROVED.** This document is a PROPOSED FINAL
-CONSOLIDATION prepared under the CONSOL-GOV-12 directive (Block D.7). It
-consolidates, WITHOUT semantic change, the canonical draft v0.1
-(`G2_REVIEW_PROCEDURE_DRAFT_v0.1_2026-10-20.md`, 2026-10-20) and its six
-dated append-only addenda (CONSOL-GOV-4, -6, -7, -8, -9, -10 cycles) into a
-single candidate text so the owner can approve the procedure in one act
-(D-O1 of the owner decision package). Until the owner approves THIS exact
-version (by version identifier and SHA-256 hash), it has **no effect**,
-binds no one, and does not authorize any review conclusion, gate decision,
-or status change. Self-approval is void. Absence of response is not
-approval.
+Status: **APPROVED — v1.0 (effective 2026-10-23).** Approved as the exact
+v0.2 consolidation candidate (SHA-256
+`0045febaa59a7baae0baf093c0bb6525b1a5ba138f648eed9b88a9b2cc65dafc`, approval
+block EMPTY at approval time) via the explicit owner delegation recorded in
+`OWNER_DELEGATED_DECISIONS_CONSOLGOV16_2026-10-23.md` (decision D-16-1,
+2026-10-23T15:34Z): the owner delegated the D-O1 approval decision to the
+implementing developer under CONSOL-GOV-16 §1/§4, conditional on full-hash
+and traceability verification — both verified and recorded there. This is a
+DELEGATED approval: the owner did not personally sign; the approving-authority
+field records the delegation chain verbatim. Self-approval did NOT occur
+(the delegation instrument is external to the implementing side). Absence of
+response is not approval; a later owner decision may supersede this one via
+append-only addendum. The reviewer, acknowledgement, COI, and scheduling acts
+(D-O2, R-A1, R-A2, D-O3, D-O4) remain separate, NON-delegable, and are NOT
+implied by this approval; the G2 verdict itself remains owner authority at a
+convened review.
 
 Provenance and precedence:
 
@@ -175,22 +180,36 @@ Canonical inputs (verified current 2026-10-22): `02_EXECUTION_ROADMAP_CURRENT_20
    records retain their original wording (append-only); superseded, not
    rewritten.
 
-## Approval block (EMPTY — owner only)
+## Approval block (FILLED — delegated transcription, D-16-1)
 
 ```text
-Approving authority:        ______________________
-Approved version:           ______________________  (effective on approval)
-Approval date (UTC):        ______________________
-Approval evidence / locus:  ______________________
+Approving authority:        PROJECT OWNER (delegated per CONSOL-GOV-16 §1/§4;
+                            exercised and recorded by the implementing
+                            developer in OWNER_DELEGATED_DECISIONS_CONSOLGOV16_2026-10-23.md D-16-1)
+Approved version:           v1.0 (approved as v0.2 candidate
+                            0045febaa59a7baae0baf093c0bb6525b1a5ba138f648eed9b88a9b2cc65dafc)
+Approval date (UTC):        2026-10-23T15:34:35Z
+Approval evidence / locus:  OWNER_DELEGATED_DECISIONS_CONSOLGOV16_2026-10-23.md §D-16-1
+                            (full verification: hash, canonical loci,
+                            consolidation fidelity, zero invented criteria)
 ```
 
-No field above may be filled by the implementing agent. Absence of response
-is not approval. Until this block is filled by the owner (directly or via
-verbatim transcription explicitly authorized in the owner's decision), this
-document is a draft proposal with no governing force. Approval of this
-document is decision **D-O1** of the CONSOL-GOV owner decision package; the
+The block above is a DELEGATED transcription explicitly authorized by the
+owner's CONSOL-GOV-16 decision (the document's own clause permitting filling
+"via verbatim transcription explicitly authorized in the owner's decision").
+It is NOT an owner personal signature and is not represented as one. The
 reviewer, acknowledgement, COI, and scheduling acts (D-O2, R-A1, R-A2,
-D-O3, D-O4) are separate decisions and are never implied by it.
+D-O3, D-O4) are separate decisions and are never implied by it. The G2
+verdict remains owner-only authority at a convened review (T6).
+
+## Version history
+
+- **v1.0 (2026-10-23):** v0.2 candidate approved via delegated owner
+  authority (D-16-1); pre-approval candidate hash
+  `0045febaa59a7baae0baf093c0bb6525b1a5ba138f648eed9b88a9b2cc65dafc`;
+  substantive T1–T6/Annex A text byte-unchanged from v0.2; only this header,
+  the status paragraph, and the approval block changed.
+- **v0.2 (2026-10-22):** proposed final consolidation (not approved; DRAFT).
 
 ## Change summary v0.1 + addenda → v0.2 (consolidation only; zero semantic change)
 

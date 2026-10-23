@@ -36,6 +36,24 @@ by the corpus text, documented here per the AI1-GC ambiguity-note precedent):
 - Trust downgrade ordering in ``invalidates`` reuses the repository's own
   canonical coarse trust levels (``config._legacy_trust_level_from_state``,
   config.py:191-196): live > mixed/stale/unavailable > mock/synthetic.
+- Unknown trust strings in ``invalidates``/``_TRUST_RANK`` rank −1 (below
+  mock), which is DELIBERATELY STRICTER than the legacy config folding
+  (``_legacy_trust_level_from_state`` maps any unknown state to
+  "synthetic", rank 0). This divergence is the canonical contract choice,
+  documented and test-pinned per the owner-delegated AI2-F (a) disposal
+  decision D-16-3 (OWNER_DELEGATED_DECISIONS_CONSOLGOV16_2026-10-23.md,
+  CONSOL-GOV-16, 2026-10-23) — sub-choice (iii-B) of the canonical intake
+  scope. The config side is NOT modified; both sides of the divergence are
+  pinned by tests (fail-closed direction preserved on both paths).
+- ``governed_acceptance`` consults the record's outcome ``status``: only a
+  COMPLETED run has acceptable outputs; every other status (LEDGERED,
+  DUPLICATE_FLAGGED, BUDGET_EXHAUSTED, INVALIDATED, GATED_NOT_EXECUTED,
+  FAILED) is refused with ``run_status_not_completed``. Owner-delegated
+  disposal (i) of D-16-3 — strictly stricter, fail-closed.
+- ``AI2RunRecord.approved_by`` binds a record-level APPROVED to a named
+  approver, mirroring the AI1-GC RunContext semantics
+  (``run_governance.py``: approved_state_requires_approver). Owner-delegated
+  disposal (ii) of D-16-3.
 """
 
 from __future__ import annotations
@@ -231,6 +249,10 @@ class AI2InvalidationRule(BaseModel):
 # _legacy_trust_level_from_state): live > mixed/stale/unavailable >
 # mock/synthetic. Reused here so a "downgrade" means exactly what the
 # repository's own trust semantics mean — no invented fine ordering.
+# Divergence note (canonical contract choice, D-16-3 sub-choice (iii-B)):
+# strings absent from this map rank −1 — BELOW mock/synthetic — whereas the
+# legacy config folding maps unknown states to "synthetic" (rank 0). The
+# contract layer is intentionally stricter; both sides are test-pinned.
 _TRUST_RANK: dict[str, int] = {
     "live": 2,
     "mixed": 1,
@@ -295,6 +317,7 @@ class AI2RunRecord(BaseModel):
     trust_state: str = Field(min_length=1, max_length=64)
     dataset_version: str | None = None
     approval_state: ApprovalState
+    approved_by: str | None = None
     status: AI2RunStatus
     artifact: AI2EvidenceArtifact | None = None
     recorded_at_utc: datetime
@@ -325,6 +348,17 @@ class AI2RunRecord(BaseModel):
             raise ValueError("completed_run_requires_evidence_artifact")
         if self.status in {"LEDGERED", "DUPLICATE_FLAGGED"} and self.artifact is not None:
             raise ValueError("non_terminal_status_cannot_carry_artifact")
+        return self
+
+    @model_validator(mode="after")
+    def _approved_requires_approver(self) -> "AI2RunRecord":
+        # Record-level approver binding, mirroring the AI1-GC RunContext
+        # semantics (run_governance.py approved_state_requires_approver).
+        # Owner-delegated disposal (ii) of D-16-3 — closes the residual where
+        # a record-level APPROVED was taken at face value with no approver
+        # (pydantic v2 extra=ignore silently dropped the test kwarg).
+        if self.approval_state == "APPROVED" and not self.approved_by:
+            raise ValueError("approved_state_requires_approver")
         return self
 
 
@@ -402,14 +436,22 @@ def governed_acceptance(
     - the record's run identity does not bind to the context;
     - required provenance (03 §Run provenance) is incomplete;
     - the run reached COMPLETED without a recorded approval state when the
-      context demanded one (APPROVED requires an approver — enforced by the
-      RunContext model itself).
+      context demanded one (APPROVED requires an approver — enforced on the
+      RunContext model itself AND, at record level, by
+      ``AI2RunRecord._approved_requires_approver``);
+    - the record's outcome status is not COMPLETED (owner-delegated disposal
+      (i) of D-16-3): only a completed run has acceptable outputs — a FAILED,
+      INVALIDATED, LEDGERED, BUDGET_EXHAUSTED, GATED_NOT_EXECUTED, or
+      DUPLICATE_FLAGGED record is refused even with clean identity and
+      NOT_REQUIRED acceptance.
     """
     blocking: list[str] = []
     if record.run_id != context.run_id:
         blocking.append("run_id_binding")
     if record.run_kind != context.run_kind:
         blocking.append("run_kind_binding")
+    if record.status != "COMPLETED":
+        blocking.append("run_status_not_completed")
     if not provenance_complete(
         context,
         _minimal_provenance(context, record),

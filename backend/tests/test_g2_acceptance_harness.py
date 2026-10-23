@@ -65,12 +65,20 @@ class TestApprovalBlock:
     def test_missing_fields_is_not_approved(self):
         assert g2.approval_block_filled("no block here at all") is False
 
-    def test_real_v02_file_block_is_empty(self):
-        # the live canonical candidate must remain unapproved until D-O1
+    def test_real_procedure_block_state_matches_delegated_decision(self):
+        # GOV-16 D-16-1: the live canonical procedure is APPROVED v1.0 via the
+        # delegated transcription path; the block is FILLED and the delegated
+        # decision record cites the pre-approval candidate hash.
         text = (REPO / "docs/active/"
                 "G2_REVIEW_PROCEDURE_PROPOSED_FINAL_v0.2_2026-10-22.md"
                 ).read_text(encoding="utf-8")
-        assert g2.approval_block_filled(text) is False
+        assert g2.approval_block_filled(text) is True
+        dec = (REPO / "docs/active/"
+               "OWNER_DELEGATED_DECISIONS_CONSOLGOV16_2026-10-23.md"
+               ).read_text(encoding="utf-8")
+        assert "0045febaa59a7baae0baf093c0bb6525b1a5ba138f648eed" \
+               "9b88a9b2cc65dafc" in dec
+        assert "D-16-1" in dec
 
 
 class TestCorpusIdentity:
@@ -221,6 +229,80 @@ class TestEvidenceFreshness:
         assert check["satisfied"] is False
 
 
+class TestImplementationBinding:
+    """GOV-16: implementation-evidence binding (docs-only delta honesty)."""
+
+    def _write_report(self, evidence_dir, name, payload):
+        import json
+        (evidence_dir / name).write_text(json.dumps(payload), encoding="utf-8")
+
+    def _current_head(self):
+        return g2.git("rev-parse", "HEAD")
+
+    def test_fresh_at_head(self, tmp_path):
+        head = self._current_head()
+        self._write_report(tmp_path, "g2_harness_report.json", {"commit": head})
+        state = g2.implementation_binding(tmp_path, head)
+        assert state["ok"] is True and state["reason"] == "FRESH_AT_HEAD"
+        assert state["tested_commit"] == head
+
+    def test_docs_only_since(self, tmp_path):
+        head = self._current_head()
+        docs_only_parent = None
+        parent = g2.git("rev-parse", "HEAD~1")
+        out = g2.git("diff", "--name-only", parent, head)
+        delta = [ln for ln in out.splitlines() if ln.strip()]
+        if delta and all(g2._is_docs_only(p) for p in delta):
+            docs_only_parent = parent
+        if docs_only_parent is None:
+            pytest.skip("no docs-only parent commit at this HEAD")
+        self._write_report(tmp_path, "g2_harness_report.json",
+                           {"commit": docs_only_parent})
+        state = g2.implementation_binding(tmp_path, head)
+        assert state["ok"] is True and state["reason"] == "DOCS_ONLY_SINCE"
+        assert state["tested_commit"] == docs_only_parent
+
+    def test_substantive_changes_since_rejected(self, tmp_path):
+        head = self._current_head()
+        parent = g2.git("rev-parse", "HEAD~1")
+        out = g2.git("diff", "--name-only", parent, head)
+        delta = [ln for ln in out.splitlines() if ln.strip()]
+        if delta and all(g2._is_docs_only(p) for p in delta):
+            pytest.skip("parent..HEAD delta is docs-only; use a synthetic case")
+        self._write_report(tmp_path, "g2_harness_report.json", {"commit": parent})
+        state = g2.implementation_binding(tmp_path, head)
+        assert state["ok"] is False
+        assert state["reason"] == "SUBSTANTIVE_CHANGES_SINCE"
+        assert state["substantive"]
+
+    def test_synthetic_substantive_classification(self):
+        # pure classification unit: code/config/test paths are never docs-only
+        assert g2._is_docs_only("backend/app/core/config.py") is False
+        assert g2._is_docs_only("backend/tests/test_x.py") is False
+        assert g2._is_docs_only("scripts/g2_acceptance_battery.py") is False
+        assert g2._is_docs_only("docs/governance/PROJECT_EXECUTION_STATE.md") is True
+        assert g2._is_docs_only("docs/active/SOME_RECORD.md") is True
+        assert g2._is_docs_only("README.md") is True
+        assert g2._is_docs_only("docs/evidence/raw/x.txt") is False
+
+    def test_inherits_honest_states(self, tmp_path):
+        head = self._current_head()
+        # NO_HARNESS_REPORT
+        state = g2.implementation_binding(tmp_path, head)
+        assert state["ok"] is False and state["reason"] == "NO_HARNESS_REPORT"
+        # NO_COMMIT_BINDING
+        self._write_report(tmp_path, "g2_harness_report.json", {"verdict": "x"})
+        state = g2.implementation_binding(tmp_path, head)
+        assert state["ok"] is False and state["reason"] == "NO_COMMIT_BINDING"
+
+    def test_harness_emits_impl_check_honestly_without_evidence_dir(self):
+        report = g2.collect(None, full_battery=False)
+        by_id = {c["id"]: c for c in report["checks"]}
+        check = by_id["G2-C-v-impl"]
+        assert check["observed"].startswith("NO_EVIDENCE_DIR_SELECTED")
+        assert check["satisfied"] is False
+
+
 class TestVerdictContract:
     def test_harness_never_passes_g2(self):
         # structural guarantee: the verdict literal in collect() is NOT_PASSED
@@ -236,7 +318,7 @@ class TestVerdictContract:
         ids = [c["id"] for c in report["checks"]]
         for expected in ("G2-C-i", "G2-C-ii", "G2-C-iii-1", "G2-C-iii-2",
                          "G2-C-iii-3", "G2-C-iv", "G2-C-v", "G2-C-v-fresh",
-                         "G2-E5", "G2-D-O1"):
+                         "G2-C-v-impl", "G2-E5", "G2-D-O1"):
             assert expected in ids
         assert report["g2_verdict"] == "NOT_PASSED"
 
@@ -248,10 +330,11 @@ class TestVerdictContract:
         assert by_id["G2-C-iii-2"]["satisfied"] is True
         assert by_id["G2-C-iii-3"]["satisfied"] is True
         assert by_id["G2-C-iv"]["satisfied"] is True
+        # procedure approval now holds via the delegated D-16-1 transcription
+        assert by_id["G2-D-O1"]["satisfied"] is True
         # and these must NOT be claimed satisfied by the implementer
         assert by_id["G2-C-ii"]["satisfied"] is False
         assert by_id["G2-E5"]["satisfied"] is False
-        assert by_id["G2-D-O1"]["satisfied"] is False
 
 
 if __name__ == "__main__":  # pragma: no cover

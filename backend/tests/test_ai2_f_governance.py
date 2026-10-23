@@ -21,6 +21,7 @@ from app.domain.ai2_governance import (
     AI2RunLedger,
     AI2RunRecord,
     BudgetUsage,
+    _TRUST_RANK,
     budget_verdict,
     classify_duplicate,
     governed_acceptance,
@@ -278,11 +279,12 @@ def test_invalidation_is_a_new_ledger_record_never_a_rewrite() -> None:
 
 
 def test_governed_acceptance_blocks_pending_and_rejected() -> None:
-    assert governed_acceptance(ctx(), record()) == ()
-    assert governed_acceptance(ctx(), record(approval_state="PENDING")) == (
+    completed = dict(status="COMPLETED", artifact=artifact())
+    assert governed_acceptance(ctx(), record(**completed)) == ()
+    assert governed_acceptance(ctx(), record(approval_state="PENDING", **completed)) == (
         "human_approval_outstanding",
     )
-    assert governed_acceptance(ctx(), record(approval_state="REJECTED")) == (
+    assert governed_acceptance(ctx(), record(approval_state="REJECTED", **completed)) == (
         "human_approval_rejected",
     )
 
@@ -297,10 +299,11 @@ def test_governed_acceptance_blocks_identity_and_provenance_gaps() -> None:
         ctx(), record(), additionally_required_provenance=("dataset_version",)
     )
     assert "provenance_incomplete" in missing
-    # Satisfying the extended requirement clears it:
+    # Satisfying the extended requirement clears it (a COMPLETED record is
+    # required for full acceptance since the D-16-3 status consultation):
     ok = governed_acceptance(
         ctx(),
-        record(dataset_version="ds-9"),
+        record(dataset_version="ds-9", status="COMPLETED", artifact=artifact()),
         additionally_required_provenance=("dataset_version",),
     )
     assert ok == ()
@@ -323,3 +326,75 @@ def test_composition_end_to_end_all_eight_required_items() -> None:
     assert invalidates("live", "unavailable", None, None) == ("TRUST_STATE_CHANGED", "TRUST_DOWNGRADED")
     # acceptance gate
     assert governed_acceptance(context, rec) == ()
+
+
+# ---------------------------------------------------------------------------
+# CONSOL-GOV-16 owner-delegated disposal (D-16-3):
+# (i) status consultation · (ii) record-level approver binding ·
+# (iii-B) trust-divergence pins. Scope authorized in
+# OWNER_DELEGATED_DECISIONS_CONSOLGOV16_2026-10-23.md before any edit.
+# ---------------------------------------------------------------------------
+
+
+def _completed(**over: object) -> AI2RunRecord:
+    return record(status="COMPLETED", artifact=artifact(), **over)
+
+
+def test_governed_acceptance_refuses_failed_record_even_with_clean_identity() -> None:
+    """D-16-3 (i) negative (canonical intake requirement): a FAILED record is
+    refused even with clean identity and NOT_REQUIRED acceptance. Every
+    non-COMPLETED status is refused (fail-closed for the whole class);
+    positive: a COMPLETED record with its binding artifact is accepted."""
+    assert "run_status_not_completed" in governed_acceptance(
+        ctx(), record(status="FAILED"))
+    for status in ("LEDGERED", "DUPLICATE_FLAGGED", "BUDGET_EXHAUSTED",
+                   "INVALIDATED", "GATED_NOT_EXECUTED", "FAILED"):
+        blocking = governed_acceptance(ctx(), record(status=status))
+        assert "run_status_not_completed" in blocking, status
+    assert governed_acceptance(ctx(), _completed()) == ()
+
+
+def test_governed_acceptance_status_blocker_combines_with_approval_blockers() -> None:
+    """D-16-3 (i): the status blocker composes with the approval blockers
+    (a refusal carries more information, never less)."""
+    blocking = governed_acceptance(
+        ctx(), record(status="FAILED", approval_state="REJECTED"))
+    assert set(blocking) >= {"run_status_not_completed", "human_approval_rejected"}
+
+
+def test_record_level_approved_requires_named_approver() -> None:
+    """D-16-3 (ii) negative: a record-level APPROVED without a named approver
+    is refused, mirroring the AI1-GC RunContext semantics
+    (run_governance.py: approved_state_requires_approver). Positive: binding
+    the approver makes the record valid (the previously silently-ignored
+    kwarg now actually binds)."""
+    with pytest.raises(ValidationError, match="approved_state_requires_approver"):
+        record(status="COMPLETED", artifact=artifact(), approval_state="APPROVED")
+    ok = record(status="COMPLETED", artifact=artifact(),
+                approval_state="APPROVED", approved_by="owner")
+    assert ok.approved_by == "owner"
+
+
+def test_unknown_trust_ranking_stricter_than_config_folding() -> None:
+    """D-16-3 (iii-B) divergence pin, BOTH sides: the contract layer ranks
+    unknown trust strings −1 (below mock/synthetic) while the legacy config
+    folding maps unknown to synthetic (rank 0). The divergence is the
+    documented canonical contract choice (stricter side kept) and must stay
+    test-pinned; the config side is intentionally NOT modified."""
+    from app.core.config import _legacy_trust_level_from_state
+
+    assert _TRUST_RANK.get("unknown", -1) == -1
+    assert _TRUST_RANK["synthetic"] == 0
+    assert _TRUST_RANK["mock"] == 0
+    assert _TRUST_RANK.get("unknown", -1) < _TRUST_RANK["synthetic"]
+    assert _legacy_trust_level_from_state("unknown") == "synthetic"
+
+
+def test_invalidation_treats_unknown_state_as_strict_downgrade() -> None:
+    """D-16-3 (iii-B) behavioral pin: an unknown current trust state ranks
+    below every mapped state, so any transition into it fires both
+    TRUST_STATE_CHANGED and TRUST_DOWNGRADED (fail-closed direction)."""
+    assert invalidates("live", "unknown-state", None, None) == (
+        "TRUST_STATE_CHANGED", "TRUST_DOWNGRADED")
+    assert invalidates("mock", "unknown-state", None, None) == (
+        "TRUST_STATE_CHANGED", "TRUST_DOWNGRADED")

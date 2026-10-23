@@ -13,6 +13,15 @@ commit-bind the CURRENT HEAD via its *harness_report*.json file(s) or the
 G2-C-v-fresh predicate reports STALE_EVIDENCE / NO_COMMIT_BINDING /
 PARSE_ERROR / NO_HARNESS_REPORT honestly (stale evidence is never accepted).
 
+Implementation binding (GOV-16): the additional G2-C-v-impl predicate
+distinguishes implementation evidence from later documentation-only commits:
+when the bundle binds a commit B != HEAD, it classifies `git diff --name-only
+B..HEAD` as DOCS_ONLY_SINCE (every changed file is a markdown document --
+evidence stays valid FOR THE TESTED COMMIT B, which is recorded verbatim;
+no claim is made that anything ran at HEAD) or SUBSTANTIVE_CHANGES_SINCE.
+This NEVER weakens G2-C-v-fresh: the two predicates are reported separately
+and the tested commit is always named exactly.
+
 Predicate sources (canonical):
   - T3 objective criteria: G2_REVIEW_PROCEDURE_PROPOSED_FINAL_v0.2_2026-10-22.md
     (i) full battery green; (ii) findings dispositioned; (iii) gate invariants
@@ -226,6 +235,83 @@ def evidence_freshness(evidence_dir: Path, current_commit: str) -> dict:
             "reports": [p.name for p in reports]}
 
 
+_DOC_ONLY_RE = re.compile(r"^(docs/|[^/]+\.md$)")
+
+
+def _is_docs_only(path: str) -> bool:
+    """A documentation-only change: markdown under docs/ or a root *.md.
+
+    Code, configuration, tests, scripts, and every non-markdown file are
+    SUBSTANTIVE by definition. Markdown documents (product docs and
+    governance records alike) carry no executable behavior; the COMPLETE
+    delta file list is recorded in the predicate output either way, so a
+    reviewer can re-classify any file independently.
+    """
+    return path.endswith(".md") and bool(_DOC_ONLY_RE.match(path))
+
+
+def implementation_binding(evidence_dir: Path, current_commit: str) -> dict:
+    """GOV-16 evidence-workflow predicate: implementation-evidence binding.
+
+    Establishes the rigorous relationship between the tested implementation
+    commit B (the commit bound by the bundle's harness reports) and the
+    current HEAD. Self-contained (does NOT inherit G2-C-v-fresh's verdict):
+      - FRESH_AT_HEAD              every report binds HEAD
+      - DOCS_ONLY_SINCE            all reports bind ONE commit B != HEAD and
+                                   every file in `git diff --name-only B..HEAD`
+                                   is documentation; the tested implementation
+                                   commit is recorded verbatim and remains the
+                                   valid evidence anchor (NO claim that
+                                   anything ran at HEAD)
+      - SUBSTANTIVE_CHANGES_SINCE  a non-documentation file changed in
+                                   B..HEAD -- the bundle can no longer stand
+                                   for the current tree
+      - MIXED_BINDING              reports bind differing commits
+      - NO_COMMIT_BINDING / PARSE_ERROR / NO_HARNESS_REPORT
+                                   honest structural states
+    This predicate is ADDITIVE data for the reviewer; it never flips a gate
+    and never relaxes G2-C-v-fresh (which still reports STALE_EVIDENCE for
+    any bundle not bound to HEAD -- the two predicates answer DIFFERENT
+    questions and are reported side by side).
+    """
+    reports = sorted(evidence_dir.glob("*harness_report*.json"))
+    if not reports:
+        return {"ok": False, "reason": "NO_HARNESS_REPORT",
+                "tested_commit": None, "delta_files": []}
+    bound = []
+    for path in reports:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return {"ok": False, "reason": "PARSE_ERROR",
+                    "tested_commit": None, "delta_files": [],
+                    "reports": [path.name]}
+        commit = data.get("commit") if isinstance(data, dict) else None
+        if not commit:
+            return {"ok": False, "reason": "NO_COMMIT_BINDING",
+                    "tested_commit": None, "delta_files": [],
+                    "reports": [path.name]}
+        bound.append(commit)
+    distinct = sorted(set(bound))
+    if distinct == [current_commit]:
+        return {"ok": True, "reason": "FRESH_AT_HEAD",
+                "tested_commit": current_commit, "delta_files": []}
+    if len(distinct) > 1:
+        return {"ok": False, "reason": "MIXED_BINDING",
+                "tested_commit": None, "delta_files": [],
+                "bound": distinct, "current": current_commit}
+    tested = distinct[0]
+    out = git("diff", "--name-only", tested, current_commit)
+    delta = [ln for ln in out.splitlines() if ln.strip()]
+    non_docs = [p for p in delta if not _is_docs_only(p)]
+    if non_docs:
+        return {"ok": False, "reason": "SUBSTANTIVE_CHANGES_SINCE",
+                "tested_commit": tested, "delta_files": delta,
+                "substantive": non_docs}
+    return {"ok": True, "reason": "DOCS_ONLY_SINCE",
+            "tested_commit": tested, "delta_files": delta}
+
+
 # --------------------------------------------------------------------------
 # harness assembly
 # --------------------------------------------------------------------------
@@ -308,6 +394,19 @@ def collect(evidence_dir: Path | None, full_battery: bool) -> dict:
         fresh_state.get("ok", False),
         str(evidence_dir) if evidence_dir else "not provided")
 
+    # ---- implementation binding (GOV-16: docs-only delta honesty) --------
+    impl_state = {"ok": False, "reason": "NO_EVIDENCE_DIR_SELECTED"}
+    if evidence_dir is not None:
+        impl_state = implementation_binding(evidence_dir, head)
+    add("G2-C-v-impl",
+        "implementation evidence binds the tested commit; HEAD delta is "
+        "docs-only or empty",
+        "EVIDENCE_IMPLEMENTATION_BINDING",
+        f"{impl_state.get('reason')}; tested={impl_state.get('tested_commit')}",
+        "FRESH_AT_HEAD or DOCS_ONLY_SINCE (tested commit recorded)",
+        impl_state.get("ok", False),
+        str(evidence_dir) if evidence_dir else "not provided")
+
     # ---- T3(i) full battery ---------------------------------------------
     if full_battery:
         battery = run_full_pytest()
@@ -362,10 +461,25 @@ def collect(evidence_dir: Path | None, full_battery: bool) -> dict:
     # ---- procedure approval state (D-O1) ---------------------------------
     proc_text = (REPO / PROCEDURE_V02).read_text(encoding="utf-8")
     filled = approval_block_filled(proc_text)
-    add("G2-D-O1", "R2 review procedure approved (v0.2 by version + SHA-256)",
-        "DOC_STATE", "approval block EMPTY" if not filled else "approval block FILLED",
-        "owner-recorded approval (D-O1)", False,
-        "READY_FOR_OWNER_DECISION; a filled block alone is not a verified approval")
+    decision_record = REPO / "docs/active/OWNER_DELEGATED_DECISIONS_CONSOLGOV16_2026-10-23.md"
+    pre_approval_hash = ("0045febaa59a7baae0baf093c0bb6525b1a5ba138f648eed"
+                         "9b88a9b2cc65dafc")
+    dec_ok = False
+    if decision_record.is_file():
+        dec_text = decision_record.read_text(encoding="utf-8")
+        dec_ok = (pre_approval_hash in dec_text
+                  and "D-16-1" in dec_text
+                  and "APPROVE" in dec_text)
+    add("G2-D-O1", "R2 review procedure approved (v1.0; delegated D-16-1)",
+        "DOC_STATE+CROSSREF",
+        f"approval block {'FILLED' if filled else 'EMPTY'}; "
+        f"delegated decision record {'PRESENT' if dec_ok else 'ABSENT'}",
+        "block filled AND delegated decision record cites the pre-approval "
+        "candidate hash (verbatim-transcription path of the procedure's own "
+        "approval clause)",
+        filled and dec_ok,
+        "delegated approval per CONSOL-GOV-16 §1/§4 — NOT an owner personal "
+        "signature; the G2 verdict remains owner-only (T6)")
 
     harness_green = all(c["satisfied"] for c in checks)
     return {
