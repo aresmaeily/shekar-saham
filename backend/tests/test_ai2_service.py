@@ -1019,4 +1019,3 @@ async def test_ai2_provider_attempts_recorded_or_none(monkeypatch, _openai_env):
     monkeypatch.setattr(ai2_module, "invoke_ai_provider", lambda p, **k: _seam(p))
     res_missing = await AI2Service().run(AIRequest2(), DummyMarketService(), transport=_valid_transport)
     assert res_missing.provenance.provider_attempts is None
-
