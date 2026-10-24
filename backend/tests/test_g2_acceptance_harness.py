@@ -303,6 +303,99 @@ class TestImplementationBinding:
         assert check["satisfied"] is False
 
 
+class TestManifestExitCoverage:
+    """Addendum A1 (G18-1): .exit sidecar coverage checks (D-19-1)."""
+
+    def _write_manifest(self, bundle: Path, names: list[str]) -> None:
+        import hashlib
+        lines = []
+        for n in names:
+            digest = hashlib.sha256((bundle / n).read_bytes()).hexdigest()
+            lines.append(f"{digest}  {n}")
+        (bundle / "SHA256SUMS.manifest").write_text("\n".join(lines) + "\n")
+
+    def test_compliant_bundle_all_exit_listed(self, tmp_path):
+        (tmp_path / "cmd.txt").write_text("out\n")
+        (tmp_path / "cmd.exit").write_text("0\n")
+        self._write_manifest(tmp_path, ["cmd.txt", "cmd.exit"])
+        result = g2.manifest_exit_coverage(tmp_path)
+        assert result["ok"] is True
+        assert result["reason"] == "COMPLIANT"
+        assert result["covered"] == 1
+
+    def test_mixed_bundle_exit_present_but_unlisted_rejected(self, tmp_path):
+        (tmp_path / "cmd.txt").write_text("out\n")
+        (tmp_path / "cmd.exit").write_text("0\n")
+        (tmp_path / "other.exit").write_text("0\n")
+        self._write_manifest(tmp_path, ["cmd.txt", "cmd.exit"])
+        result = g2.manifest_exit_coverage(tmp_path)
+        assert result["ok"] is False
+        assert result["reason"] == "NONCOMPLIANT_MIXED"
+        assert result["unlisted"] == ["other.exit"]
+
+    def test_phantom_listed_exit_rejected(self, tmp_path):
+        (tmp_path / "cmd.txt").write_text("out\n")
+        # write the manifest by hand: the listed ghost.exit does not exist,
+        # so the hash-helper cannot be used for that entry
+        import hashlib
+        digest = hashlib.sha256(b"out\n").hexdigest()
+        (tmp_path / "SHA256SUMS.manifest").write_text(
+            f"{digest}  cmd.txt\n"
+            f"{'0' * 64}  ghost.exit\n")
+        result = g2.manifest_exit_coverage(tmp_path)
+        assert result["ok"] is False
+        assert result["reason"] == "LISTED_EXIT_MISSING"
+        assert result["phantom"] == ["ghost.exit"]
+
+    def test_bundle_without_exit_files_is_vacuously_ok(self, tmp_path):
+        (tmp_path / "report.json").write_text("{}\n")
+        self._write_manifest(tmp_path, ["report.json"])
+        result = g2.manifest_exit_coverage(tmp_path)
+        assert result["ok"] is True
+        assert result["reason"] == "NO_EXIT_FILES"
+
+    def test_missing_manifest_reports_honestly(self, tmp_path):
+        result = g2.manifest_exit_coverage(tmp_path)
+        assert result["ok"] is False
+        assert result["reason"] == "NO_MANIFEST"
+
+    def test_gov19_era_bundle_is_compliant(self):
+        # the real GOV-19 precommit bundle lists all 28 .exit sidecars
+        bundle = REPO / ("docs/governance/evidence/raw/"
+                         "2026-10-24_consolgov19_battery_precommit")
+        if not bundle.is_dir():
+            pytest.skip("GOV-19 bundle not present in this checkout")
+        result = g2.manifest_exit_coverage(bundle)
+        assert result["ok"] is True
+        assert result["reason"] == "COMPLIANT"
+
+
+class TestParsePytestSummary:
+    """G18-2 fix (D-19-2): summary parsing tolerates ', N skipped'."""
+
+    def test_full_modern_shape(self):
+        parsed = g2.parse_pytest_summary(
+            "658 passed, 1 skipped, 2 warnings in 78.14s (0:01:18)")
+        assert parsed == {"passed": 658, "skipped": 1, "warnings": 2,
+                          "seconds": 78.14}
+
+    def test_legacy_shape_without_skips(self):
+        parsed = g2.parse_pytest_summary("512 passed, 2 warnings in 78.24s")
+        assert parsed["passed"] == 512
+        assert parsed["skipped"] == 0
+        assert parsed["warnings"] == 2
+        assert parsed["seconds"] == 78.24
+
+    def test_bare_passed_shape(self):
+        parsed = g2.parse_pytest_summary("27 passed in 0.22s")
+        assert parsed == {"passed": 27, "skipped": 0, "warnings": 0,
+                          "seconds": 0.22}
+
+    def test_no_match_reports_none(self):
+        parsed = g2.parse_pytest_summary("no tests ran")
+        assert parsed["passed"] is None
+
+
 class TestVerdictContract:
     def test_harness_never_passes_g2(self):
         # structural guarantee: the verdict literal in collect() is NOT_PASSED
@@ -317,8 +410,8 @@ class TestVerdictContract:
         assert required.issubset(report.keys())
         ids = [c["id"] for c in report["checks"]]
         for expected in ("G2-C-i", "G2-C-ii", "G2-C-iii-1", "G2-C-iii-2",
-                         "G2-C-iii-3", "G2-C-iv", "G2-C-v", "G2-C-v-fresh",
-                         "G2-C-v-impl", "G2-E5", "G2-D-O1"):
+                         "G2-C-iii-3", "G2-C-iv", "G2-C-v", "G2-C-v-exit",
+                         "G2-C-v-fresh", "G2-C-v-impl", "G2-E5", "G2-D-O1"):
             assert expected in ids
         assert report["g2_verdict"] == "NOT_PASSED"
 

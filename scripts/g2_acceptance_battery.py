@@ -180,7 +180,15 @@ def ai2_api_surface(api_dir: Path) -> list[str]:
 
 
 def verify_manifest(evidence_dir: Path) -> dict:
-    """Verify a SHA256SUMS.manifest (self + .exit excluded by convention)."""
+    """Verify every entry listed in a bundle's SHA256SUMS.manifest.
+
+    The manifest itself is never listed in its own manifest (fixed-point
+    convention, T2). Whether `.exit` sidecars are listed is governed by
+    addendum A1 (G18-1 resolution): bundles created on/after 2026-10-24
+    MUST list every `.exit` file present -- see manifest_exit_coverage()
+    / check G2-C-v-exit. This function is listing-agnostic: it verifies
+    exactly the entries the manifest declares.
+    """
     manifest = evidence_dir / "SHA256SUMS.manifest"
     if not manifest.is_file():
         return {"ok": False, "reason": "MANIFEST_MISSING"}
@@ -194,6 +202,49 @@ def verify_manifest(evidence_dir: Path) -> dict:
         if not target.is_file() or sha256_of(target) != digest:
             bad.append(name)
     return {"ok": not bad, "checked": checked, "mismatched": bad}
+
+
+def manifest_exit_coverage(evidence_dir: Path) -> dict:
+    """A1 (G18-1) coverage check: is every .exit sidecar hash-protected?
+
+    States (data for the reviewer; never flips a gate):
+      - COMPLIANT           every .exit file present is listed in the manifest
+      - NONCOMPLIANT_MIXED  some .exit file(s) present but not listed (an
+                            A1-era bundle must regenerate; a pre-A1 bundle
+                            reports this honestly under its era's convention)
+      - LISTED_EXIT_MISSING the manifest lists an .exit file absent from
+                            the directory (ambiguous bundle)
+      - NO_EXIT_FILES       no .exit sidecars in the bundle (vacuously OK)
+      - NO_MANIFEST         no manifest to check coverage against
+    """
+    manifest = evidence_dir / "SHA256SUMS.manifest"
+    if not manifest.is_file():
+        return {"ok": False, "reason": "NO_MANIFEST",
+                "exit_in_dir": [], "exit_in_manifest": []}
+    listed = set()
+    for line in manifest.read_text().splitlines():
+        if not line.strip():
+            continue
+        listed.add(line.split(maxsplit=1)[1].strip())
+    in_dir = sorted(p.name for p in evidence_dir.glob("*.exit"))
+    listed_exit = sorted(n for n in listed if n.endswith(".exit"))
+    unlisted = [n for n in in_dir if n not in listed]
+    phantom = [n for n in listed_exit
+               if not (evidence_dir / n).is_file()]
+    if phantom:
+        return {"ok": False, "reason": "LISTED_EXIT_MISSING",
+                "phantom": phantom, "exit_in_dir": in_dir,
+                "exit_in_manifest": listed_exit}
+    if unlisted:
+        return {"ok": False, "reason": "NONCOMPLIANT_MIXED",
+                "unlisted": unlisted, "exit_in_dir": in_dir,
+                "exit_in_manifest": listed_exit}
+    if not in_dir:
+        return {"ok": True, "reason": "NO_EXIT_FILES",
+                "exit_in_dir": [], "exit_in_manifest": listed_exit}
+    return {"ok": True, "reason": "COMPLIANT",
+            "covered": len(in_dir), "exit_in_dir": in_dir,
+            "exit_in_manifest": listed_exit}
 
 
 def evidence_freshness(evidence_dir: Path, current_commit: str) -> dict:
@@ -316,19 +367,46 @@ def implementation_binding(evidence_dir: Path, current_commit: str) -> dict:
 # harness assembly
 # --------------------------------------------------------------------------
 
+def parse_pytest_summary(line: str) -> dict:
+    """Parse a pytest summary line (G18-2 fix: tolerate ', N skipped').
+
+    Real summary shapes seen across GOV-14..19:
+      '658 passed, 1 skipped, 2 warnings in 78.14s (0:01:18)'
+      '512 passed, 2 warnings in 78.24s'
+    The v1.0-era regex captured warnings/seconds only when no skipped
+    group intervened; this parser handles both orders and additionally
+    surfaces the skip count (skips stay explicitly visible, never
+    relabelled as passes).
+    """
+    m = re.search(
+        r"(\d+) passed"
+        r"(?:, (\d+) skipped)?"
+        r"(?:, (\d+) warnings?)?"
+        r"(?: in ([\d.]+)s)?",
+        line,
+    )
+    return {
+        "passed": int(m.group(1)) if m else None,
+        "skipped": int(m.group(2)) if m and m.group(2) else 0,
+        "warnings": int(m.group(3)) if m and m.group(3) else 0,
+        "seconds": float(m.group(4)) if m and m.group(4) else None,
+    }
+
+
 def run_full_pytest() -> dict:
     proc = subprocess.run(
         [str(REPO / ".venv" / "bin" / "python"), "-m", "pytest", "-q", "tests"],
         cwd=REPO / "backend", capture_output=True, text=True,
     )
     tail = (proc.stdout or "").strip().splitlines()[-1:] or [""]
-    m = re.search(r"(\d+) passed(?:, (\d+) warnings?)?(?: in ([\d.]+)s)?", tail[0])
+    parsed = parse_pytest_summary(tail[0])
     return {
         "exit_code": proc.returncode,
         "summary_line": tail[0],
-        "passed": int(m.group(1)) if m else None,
-        "warnings": int(m.group(2)) if m and m.group(2) else 0,
-        "seconds": float(m.group(3)) if m and m.group(3) else None,
+        "passed": parsed["passed"],
+        "skipped": parsed["skipped"],
+        "warnings": parsed["warnings"],
+        "seconds": parsed["seconds"],
     }
 
 
@@ -380,6 +458,18 @@ def collect(evidence_dir: Path | None, full_battery: bool) -> dict:
         "MANIFEST_VERIFY",
         manifest_state.get("reason") or f"checked={manifest_state.get('checked')}, mismatches={len(manifest_state.get('mismatched', []))}",
         "ok", manifest_state.get("ok", False),
+        str(evidence_dir) if evidence_dir else "not provided")
+
+    # ---- A1 (G18-1) .exit manifest coverage ------------------------------
+    exit_cov = {"ok": False, "reason": "NO_EVIDENCE_DIR_SELECTED"}
+    if evidence_dir is not None:
+        exit_cov = manifest_exit_coverage(evidence_dir)
+    add("G2-C-v-exit",
+        "every .exit sidecar in the bundle is hash-protected (addendum A1)",
+        "MANIFEST_EXIT_COVERAGE",
+        exit_cov.get("reason"),
+        "COMPLIANT (or NO_EXIT_FILES for sidecar-free bundles)",
+        exit_cov.get("ok", False),
         str(evidence_dir) if evidence_dir else "not provided")
 
     # ---- evidence freshness / commit binding (anti-stale) ----------------
