@@ -1,5 +1,14 @@
 # Changelog — RADAR BOURSE
 
+## 2026-10-27 — GOV-24: audit-loop break — engineering remediation executed (G2 stays NOT_PASSED; AI2_ENABLED stays 0; no push)
+
+- CONSOL-GOV-24 directive (execution-first, evidence-driven): baseline delta UNCHANGED at `b2f5e6e`; blocker-to-action matrix built (`docs/active/GOV24_BLOCKER_ACTION_MATRIX_2026-10-27.md`, deduplicated B1–B17); charter with delegated decisions D-24-1..4 recorded BEFORE edits (`docs/active/GOV24_EXECUTION_CHARTER_2026-10-27.md`).
+- **WP-1 (`78aafc0c`)** symbol page legacy-link residue fixed: 7 hrefs retired `?legacy=1#tab-*` → modern `/#/<tab>` routes; NEW additive `stale_legacy_links` validator check; 5 regression tests.
+- **WP-2 (`35e0cf85`)** desktop shell aligned: `electron/package.json` 0.9.0 → `3.0.0` (settings.version single source); stale `v0.9 Ultimate` title literal removed; invalid SVG Windows icon → generated `electron/icon.ico` (valid header, 7 layers 16–256) from committed `icon-512.png`; menu target normalized `/#/forex`; 6 contract tests.
+- **WP-3 (`d5f4ab30`)** NEW `e2e/` Playwright suite (7 user-visible contracts; honest skip when app unreachable) — **first real run (chromium 1.57.0) caught a genuine defect: hash deep links were write-only** (click path wrote `#/<id>`; nothing read `location.hash`; `core/router.js` was dead code never imported — pre-deletion hash `7e6cc6ce…`). Fixed at the live path (hash→tab bridge in `bindNav`: hashchange listener + initial activation, CSS.escape, safe unknown-id no-op); `router.js` retired; WP-1 contract test migrated to live contract; SW `CACHE_NAME` v3-0-3→v3-0-4 (`test_p3_80` pin updated, intent preserved). E2E **7/7 passed** post-fix (6/7 before). Linux-container run recorded honestly as test-of-the-suite — the P3.43-2 Windows-target condition stays EXTERNALLY_BLOCKED.
+- Verification: E2E 7/7 (real chromium against a live uvicorn instance); focused 11/11 + p3_80 7/7; frontend static validator 0 (new check active); `node --check` all JS 0; pyflakes 0; staged diff --check 0; secret scan 0 candidates; gates/pins zero-drift; bootstrap 4 paths / 2,103 files untouched; battery at final HEAD recorded in the evidence capture.
+- Governance unchanged: G2 NOT_PASSED (owner-only at convened review; package v3 preserved; GOV-24 candidate SHA proposed for the review-target decision); AI2_ENABLED=0; verified=False; live_verified=false; D1–D7 + D-O2 open; NO push; NO amend/rebase/reset/force. Report: `docs/active/GOV24_EXECUTION_REPORT_2026-10-27.md`.
+
 ## 2026-10-27 — WS-HARDEN-1: owner-ordered hardening workstream W1–W4 (G2 stays NOT_PASSED; AI2_ENABLED stays 0; no push)
 
 - Owner directive (2026-10-27) converted the four EXTAUDIT-1-verified findings into a numbered workstream — distinct namespace **WS-HARDEN-1** (P3.92/93 taken; P3.94 avoided per the REM-1/AI2-A foreign-workspace rule) — and executed under full change control; charter recorded BEFORE edits: `docs/active/WS_HARDEN_1_CHARTER_2026-10-27.md`.
