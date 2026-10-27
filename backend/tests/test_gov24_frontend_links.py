@@ -14,7 +14,6 @@ ROOT = Path(__file__).resolve().parents[2]
 FRONTEND = ROOT / "frontend"
 SYMBOL_JS = FRONTEND / "js" / "symbol.js"
 INDEX_HTML = FRONTEND / "index.html"
-ROUTER_JS = FRONTEND / "js" / "core" / "router.js"
 
 import sys
 
@@ -40,11 +39,15 @@ def test_symbol_js_uses_modern_router_hashes():
     assert not missing, f"symbol.js links target unknown tabs: {sorted(missing)}"
 
 
-def test_router_hash_contract_is_hash_slash_form():
-    """The router contract the links rely on: location.hash = '#/<id>' and the
-    parser strips '#/' tolerantly."""
-    text = ROUTER_JS.read_text(encoding="utf-8")
-    assert 'location.hash = `#/${id}`' in text
+def test_main_js_hash_bridge_contract():
+    """The live hash contract the links rely on (GOV-24/WP-3): the click path
+    writes '#/<id>' via replaceState, and bindNav installs the reverse bridge —
+    a hashchange listener plus an initial deep-link activation. (The former
+    dead module frontend/js/core/router.js was retired in WP-3; hash 7e6cc6ce….)"""
+    text = (ROOT / "frontend" / "js" / "main.js").read_text(encoding="utf-8")
+    assert 'history.replaceState(null, "", "#/" + btn.dataset.tab)' in text
+    assert 'window.addEventListener("hashchange", activateFromHash)' in text
+    assert "activateFromHash();" in text
     assert 'replace(/^#\\/?/, "")' in text
 
 

@@ -270,6 +270,17 @@ function bindNav() {
     // فعال‌سازی تاخیری فارکس (چارت سنگین است)
     history.replaceState(null, "", "#/" + btn.dataset.tab);
   });
+  // GOV-24/WP-3 (D-24-3): پل hash → تب. تا پیش از این، هش فقط «نوشته» می‌شد (replaceState
+  // در کلیک) و هیچ‌گاه «خوانده» نمی‌شد — دیپ‌لینک‌های /#/<tab> (لینک‌های صفحه نماد، منوی
+  // دسکتاپ، بوکمارک‌ها) روی تب پیش‌فرض می‌ماندند. روتر.js هم هرگز import نشده بود (کد مرده).
+  const activateFromHash = () => {
+    const id = (location.hash || "").replace(/^#\/?/, "");
+    if (!id) return;
+    const btn = nav.querySelector('.tab[data-tab="' + CSS.escape(id) + '"]');
+    if (btn && !btn.classList.contains("active")) btn.click();
+  };
+  window.addEventListener("hashchange", activateFromHash);
+  activateFromHash(); // دیپ‌لینک اولیه (باز شدن مستقیم /#/forex و مانند آن)
 }
 
 function bindGlobalDelegation() {
