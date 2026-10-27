@@ -444,9 +444,9 @@
       <div class="muted" style="padding:1rem">
         برای نماد بورس تهران (${esc(symbol)}) امبد مستقیم TradingView محدود است.
         نمودار داخلی با MA/EMA/RSI/باند/حجم و ولیو پرفایل معیار اصلی است.
-        لینک‌های مرتبط: <a href="/?legacy=1" style="color:#22d3ee">دیده‌بان</a> ·
-        <a href="/?legacy=1#tab-hot" style="color:#22d3ee">پول داغ</a> ·
-        <a href="/?legacy=1#tab-forex" style="color:#22d3ee">فارکس/طلا</a>
+        لینک‌های مرتبط: <a href="/#/watch" style="color:#22d3ee">دیده‌بان</a> ·
+        <a href="/#/hot" style="color:#22d3ee">پول داغ</a> ·
+        <a href="/#/forex" style="color:#22d3ee">فارکس/طلا</a>
       </div>`;
   }
 
@@ -457,10 +457,10 @@
     const tvSym = TV_MAP[symbol.toUpperCase()];
     const links = [
       { label: "📈 نمودار اصلی", href: "/symbol?s=" + encodeURIComponent(symbol) },
-      { label: "🕐 تایم‌فریم‌های فارکس", href: "/?legacy=1#tab-forex" },
-      { label: "🔥 پول داغ", href: "/?legacy=1#tab-hot" },
-      { label: "👁 دیده‌بان", href: "/?legacy=1#tab-watch" },
-      { label: "🏭 صنعت", href: "/?legacy=1#tab-industry" },
+      { label: "🕐 تایم‌فریم‌های فارکس", href: "/#/forex" },
+      { label: "🔥 پول داغ", href: "/#/hot" },
+      { label: "👁 دیده‌بان", href: "/#/watch" },
+      { label: "🏭 صنعت", href: "/#/industry" },
     ];
     if (tvSym) {
       links.unshift({ label: "🌐 TradingView باز", href: "https://www.tradingview.com/chart/?symbol=" + encodeURIComponent(tvSym) });

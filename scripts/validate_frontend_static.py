@@ -24,6 +24,11 @@ LEGACY_VERSION_RE = re.compile(r"\bv0\.[0-7](?:\.[0-9]+)?\b")
 VERSION_SCAN_EXCLUDE = ("vendor",)
 VERSION_SCAN_FILES_EXCLUDE = ("sw.js",)
 
+# GOV-24/WP-1 (D-24-1): the ?legacy=1 loader was retired in WS-HARDEN-1/W3 and the modern
+# hash router (core/router.js) expects "#/<tab-id>" anchors. Retired-scheme links must not
+# return: they silently fall back to the first tab instead of the intended tab.
+LEGACY_LINK_RE = re.compile(r"legacy=1|href=\"[^\"]*#tab-")
+
 
 def duplicate_ids(html: str) -> list[str]:
     ids = re.findall(r'id="([^"]+)"', html)
@@ -62,6 +67,23 @@ def check_version_labels() -> list[dict[str, str]]:
     return hits
 
 
+def check_stale_legacy_links() -> list[dict[str, str]]:
+    """GOV-24/WP-1: no retired ?legacy=1 / #tab-* href scheme may return (router expects #/<id>)."""
+    hits: list[dict[str, str]] = []
+    scan_targets = [FRONTEND / "index.html", FRONTEND / "symbol.html", FRONTEND / "manifest.json"]
+    scan_targets += [f for f in (FRONTEND / "js").rglob("*.js")]
+    for f in scan_targets:
+        if not f.exists() or f.name in VERSION_SCAN_FILES_EXCLUDE:
+            continue
+        if any(part in VERSION_SCAN_EXCLUDE for part in f.parts):
+            continue
+        text = f.read_text(encoding="utf-8", errors="ignore")
+        for m in LEGACY_LINK_RE.finditer(text):
+            line_no = text.count("\n", 0, m.start()) + 1
+            hits.append({"file": str(f.relative_to(ROOT)), "line": str(line_no), "literal": m.group(0)})
+    return hits
+
+
 def main() -> int:
     index = FRONTEND / "index.html"
     symbol = FRONTEND / "symbol.html"
@@ -78,6 +100,7 @@ def main() -> int:
         "duplicate_ids": {},
         "missing_js_imports": [],
         "stale_version_literals": [],
+        "stale_legacy_links": [],
     }
     if not all(result["files"].values()):
         result["ok"] = False
@@ -103,6 +126,9 @@ def main() -> int:
         result["ok"] = False
     result["stale_version_literals"] = check_version_labels()
     if result["stale_version_literals"]:
+        result["ok"] = False
+    result["stale_legacy_links"] = check_stale_legacy_links()
+    if result["stale_legacy_links"]:
         result["ok"] = False
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0 if result["ok"] else 1
