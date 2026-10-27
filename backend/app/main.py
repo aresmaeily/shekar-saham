@@ -28,7 +28,7 @@ from app.core.security import (
     validate_security_configuration,
 )
 from app.core.rate_limiter import RateLimitMiddleware
-from app.core.request_id import RequestIdMiddleware
+from app.core.request_id import RequestIdMiddleware, get_current_request_id
 from app.core.metrics_prom import metrics
 from app.domain.events import event_bus, DomainEvent
 from app.services.market_service import market_service
@@ -40,11 +40,14 @@ logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s | request_id=%(request_id)s",
 )
 # Add request_id to log record if available
+# WS-HARDEN-1/W2: مقدار از contextvar پل‌شده توسط RequestIdMiddleware خوانده می‌شود
+# (قبلاً این کامنت «contextvar» را ادعا می‌کرد ولی هیچ contextvari وجود نداشت و
+#  همه خطوط لاگ request_id=- چاپ می‌کردند).
 class RequestIdFilter(logging.Filter):
     def filter(self, record):
         try:
-            # Try to get from contextvar if set, else default
-            record.request_id = getattr(record, "request_id", "-")
+            current = get_current_request_id()
+            record.request_id = current or getattr(record, "request_id", "-") or "-"
         except Exception:
             record.request_id = "-"
         return True
@@ -123,7 +126,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.app_name,
         version=settings.version,
-        description="پلتفرم تابلوخوانی و تحلیل هوشمند بورس ایران — Excellent Edition v0.7.0 - با AI، مدیریت ریسک، کیفیت داده، تشخیص آنومالی، معماری رویداد-محور، متریکس پرومتئوس",
+        description="پلتفرم تابلوخوانی و تحلیل هوشمند بورس ایران — Excellent Edition - با AI، مدیریت ریسک، کیفیت داده، تشخیص آنومالی، معماری رویداد-محور، متریکس پرومتئوس",
         lifespan=lifespan,
         docs_url=None if is_production else "/docs",
         redoc_url=None if is_production else "/redoc",
@@ -155,7 +158,9 @@ def create_app() -> FastAPI:
         return JSONResponse(status_code=422, content={"detail": safe})
 
     # Excellent: Add middlewares in correct order - outermost first
-    app.add_middleware(RequestIdMiddleware)
+    # WS-HARDEN-1/W2: RequestIdMiddleware در انتهای create_app اضافه می‌شود تا OUTERMOST باشد؛
+    # در غیر این صورت پاسخ‌های short-circuit (مثل 401 مهمان ناخواجه) بدون X-Request-ID و
+    # لاگ‌های middleware های بیرونی بدون contextvar می‌مانند.
     app.add_middleware(SecurityHeadersMiddleware)
     
     if settings.rate_limit_enabled:
@@ -350,6 +355,10 @@ def create_app() -> FastAPI:
             if ico.exists():
                 return FileResponse(ico)
             return FileResponse(assets / "index.html")
+
+    # WS-HARDEN-1/W2: آخرین add_middleware = بیرونی‌ترین لایه؛ پل request_id همه‌ی
+    # middleware ها (auth/CORS/audit/rate-limit) و همه پاسخ‌ها را پوشش می‌دهد.
+    app.add_middleware(RequestIdMiddleware)
 
     return app
 

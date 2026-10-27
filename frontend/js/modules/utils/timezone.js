@@ -1,5 +1,5 @@
 /**
- * timezone.js - v0.6.2 - P2-8 Fix: Asia/Tehran handling
+ * timezone.js - P2-8 Fix: Asia/Tehran handling
  */
 
 export const TEHRAN_TZ = "Asia/Tehran";

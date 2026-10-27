@@ -49,7 +49,9 @@ def test_service_worker_does_not_cache_api():
 def test_service_worker_cache_name_bumped_to_drop_old_api_entries():
     sw = (ROOT / "frontend/sw.js").read_text(encoding="utf-8")
     assert "shekar-v3-0-1" not in sw
-    assert "radar-bourse-static-v3-0-2" in sw
+    # WS-HARDEN-1/W3: cache list changed (legacy-loader entry dropped) -> bump to v3-0-3
+    assert "radar-bourse-static-v3-0-3" in sw
+    assert "radar-bourse-static-v3-0-2" not in sw
 
 
 def test_production_disables_openapi_docs(monkeypatch):

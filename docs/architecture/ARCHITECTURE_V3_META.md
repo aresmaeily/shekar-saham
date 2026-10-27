@@ -119,7 +119,7 @@ backend/app/
 | `js/components/` (data-table اسکیمامحور, kpi-cards, thermometer, heat-tiles) | ✅ پیاده‌سازی شد |
 | `js/tabs/` (data, forms, actions) | ✅ پیاده‌سازی شد — ۲۳ تب |
 | `js/main.js` (بوت‌استرپ تمیز) | ✅ جایگزین god-file ۲۰۵۴ خطی |
-| `js/legacy/app.js` | 📦 بایگانی شد (فقط با `?legacy=1`) |
+| `js/legacy/app.js` | ✂️ حذف شد (WS-HARDEN-1/W3 — ماژولارسازی کامل شد؛ مسیر `?legacy` بازنشسته شد) |
 | بک‌اند: pyflakes تمیز | ✅ **صفر** ایمپورت مرده |
 | دپندنسی‌ها: پین‌شده + اسکن‌شده | ✅ `No known vulnerabilities` |
 | تست‌ها | ✅ ۴۹ پاس |

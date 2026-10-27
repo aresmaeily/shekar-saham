@@ -222,15 +222,30 @@ async def require_api_key(
     raise HTTPException(status_code=401, detail="برای این عملیات احراز هویت لازم است")
 
 
+def _is_insecure_placeholder_secret(value: str) -> bool:
+    """WS-HARDEN-1/W1: insecure compose-style placeholders must never act as real credentials."""
+    normalized = (value or "").strip().lower()
+    return normalized.startswith("change-me")
+
+
 def validate_security_configuration(settings=None) -> None:
     """Fail closed for unsafe production/security configurations."""
     settings = settings or get_settings()
     env = (os.getenv("ENV") or os.getenv("APP_ENV") or os.getenv("SHEKAR_ENV") or "").strip().lower()
     is_production = env in {"prod", "production"}
 
-    has_owner_secret = bool((getattr(settings, "private_password", "") or getattr(settings, "api_key", "")).strip())
+    private_password = (getattr(settings, "private_password", "") or "").strip()
+    api_key = (getattr(settings, "api_key", "") or "").strip()
+    has_owner_secret = bool(private_password or api_key)
     if getattr(settings, "private_mode", False) and not has_owner_secret:
         raise RuntimeError("PRIVATE_MODE requires PRIVATE_PASSWORD or API_KEY")
+    if getattr(settings, "private_mode", False):
+        for secret_name, secret_value in (("PRIVATE_PASSWORD", private_password), ("API_KEY", api_key)):
+            if secret_value and _is_insecure_placeholder_secret(secret_value):
+                raise RuntimeError(
+                    f"PRIVATE_MODE owner secret {secret_name} is an insecure placeholder "
+                    "(change-me*); set a strong PRIVATE_PASSWORD or API_KEY"
+                )
 
     if is_production:
         if not (getattr(settings, "auth_required", False) or getattr(settings, "private_mode", False) or getattr(settings, "api_key", "")):

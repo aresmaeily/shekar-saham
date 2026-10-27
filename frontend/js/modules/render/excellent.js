@@ -1,5 +1,5 @@
 /**
- * excellent.js - v0.7.0 - Creative features rendering
+ * excellent.js - Creative features rendering (Excellent Edition)
  */
 import { Api } from "../api.js";
 import { escapeHtml } from "../security.js";

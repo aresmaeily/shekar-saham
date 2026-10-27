@@ -4,12 +4,18 @@ services:
     container_name: radar-bourse
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      # WS-HARDEN-1/W1: port از env می‌آید؛ پیش‌فرض 8000 (هم‌راستا با config.py و entrypoint.sh)
+      - "${PORT:-8000}:${PORT:-8000}"
     environment:
       DATA_SOURCE: ${DATA_SOURCE:-auto}
       PRIVATE_MODE: ${PRIVATE_MODE:-1}
-      PRIVATE_PASSWORD: ${PRIVATE_PASSWORD:-change-me-strong-password}
-      API_KEY: ${API_KEY:-change-me-api-key}
+      # WS-HARDEN-1/W1: هیچ پیش‌فرض امنیتیِ جعلی اینجا نیست.
+      # PRIVATE_MODE=1 بدون PRIVATE_PASSWORD/API_KEY واقعی → کانتینر در startup fail-closed متوقف می‌شود
+      # (validate_security_configuration در app/core/security.py).
+      PRIVATE_PASSWORD: ${PRIVATE_PASSWORD:-}
+      API_KEY: ${API_KEY:-}
+      # FERNET_KEY خالی = کلید رمزنگاری موقت (ephemeral) با هشدار critical در startup؛
+      # در production حضور FERNET_KEY/API_KEY الزاماً fail-closed بررسی می‌شود.
       FERNET_KEY: ${FERNET_KEY:-}
       TRUST_PROXY: ${TRUST_PROXY:-0}
       COOKIE_SECURE: ${COOKIE_SECURE:-0}

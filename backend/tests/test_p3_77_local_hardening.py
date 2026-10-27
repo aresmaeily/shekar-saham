@@ -106,17 +106,15 @@ def test_frontend_live_requires_triple_gate():
         ROOT / "frontend/js/modules/render/trust.js",
         ROOT / "frontend/js/tabs/data.js",
         ROOT / "frontend/js/tabs/forms.js",
-        ROOT / "frontend/js/legacy/app.js",
         ROOT / "frontend/js/modules/forex.js",
     ]
+    # WS-HARDEN-1/W3: frontend/js/legacy/app.js retired (modularization completed);
+    # the live-verified triple-gate scan now covers the remaining modular files only.
     for path in files:
         js = path.read_text(encoding="utf-8")
         assert "live_verified === true" in js or "liveVerified === true" in js, path.name
     forex = (ROOT / "frontend/js/modules/forex.js").read_text(encoding="utf-8")
     assert "زنده ✅" not in forex
-    legacy = (ROOT / "frontend/js/legacy/app.js").read_text(encoding="utf-8")
-    assert "زنده · " not in legacy
-    assert "isVerifiedLive" in legacy
     main = (ROOT / "frontend/js/main.js").read_text(encoding="utf-8")
     assert "isVerifiedLive" in main
     assert "خودکار" in main

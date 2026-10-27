@@ -1,5 +1,5 @@
 /**
- * modules/security.js - v0.6.2 Professional
+ * modules/security.js - Professional
  * XSS protection, input sanitization
  */
 export function escapeHtml(s) {

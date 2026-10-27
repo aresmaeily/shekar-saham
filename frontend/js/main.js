@@ -9,6 +9,7 @@ import { esc, fmtNum } from "./core/format.js";
 import { events } from "./core/events.js";
 import { renderThermometer } from "./components/thermometer.js";
 import { renderTrustBanner } from "./modules/render/trust.js";
+import { updateVersionFromApi } from "./modules/utils/version.js";
 
 /* ماژول‌های تخصصی (اثر جانبی: بایند خودکار) */
 import "./modules/theme.js";
@@ -358,6 +359,7 @@ window.api = api;
 window.store = store;
 
 if (!isLegacyMode) {
+  updateVersionFromApi(); // WS-HARDEN-1/W4: نسخه UI از API همگام می‌شود (تک‌منبع حقیقت: settings.version)
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 }
