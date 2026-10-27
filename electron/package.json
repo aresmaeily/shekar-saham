@@ -1,6 +1,6 @@
 {
   "name": "radar-bourse-desktop",
-  "version": "0.9.0",
+  "version": "3.0.0",
   "description": "رادار بورس - نسخه دسکتاپ ویندوز - بهتر از فراز",
   "main": "main.js",
   "author": "RADAR BOURSE Team",
@@ -21,7 +21,7 @@
     "files": ["main.js"],
     "win": {
       "target": "nsis",
-      "icon": "../frontend/favicon.svg"
+      "icon": "icon.ico"
     },
     "directories": {
       "output": "dist"

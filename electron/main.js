@@ -16,7 +16,7 @@ function createWindow() {
       contextIsolation: true,
       enableRemoteModule: false
     },
-    title: "رادار بورس v0.9 Ultimate - بهتر از فراز و نوآوران"
+    title: "رادار بورس - نسخه دسکتاپ"
   });
 
   // For personal use - load local server
@@ -77,7 +77,7 @@ function createWindow() {
         { role: 'toggleDevTools', label: 'ابزار توسعه' },
         { role: 'togglefullscreen', label: 'تمام صفحه' },
         { type: 'separator' },
-        { label: 'چارت فارکس', click: () => mainWindow.loadURL(startUrl + '/#forex') },
+        { label: 'چارت فارکس', click: () => mainWindow.loadURL(startUrl + '/#/forex') },
         { label: 'اندیکاتور شخصی', click: () => mainWindow.webContents.executeJavaScript('document.querySelector(\'[data-tab="excellent"]\')?.click()') }
       ]
     },
