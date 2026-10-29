@@ -1,5 +1,14 @@
 # Changelog — RADAR BOURSE
 
+## 2026-10-29 — GOV-32 review response: independent delta review executed (fresh-context reviewer, CONDITIONAL PASS) — all locally actionable findings fixed (MAJOR PowerShell $pid defect in windows.yml + version-consistency and log-posture hardening + exact-verdict and extra=forbid gate hardening); gates unchanged; battery re-run at final HEAD
+
+- **Independent delta review executed and preserved byte-unchanged** (`download/GOV32_INDEPENDENT_REVIEW_ADDENDUM_BY_REVIEWER.md`): fresh-context reviewer (separate AI agent session, no access to the implementing conversation, read-only scope + own re-executions, COI/provenance statement inside its report) reviewed the GOV-32 delta (commits `3404f77` + `f1cb82d`) at the exact code state and issued its own verdict **CONDITIONAL PASS** with findings F-RV1 (MAJOR) / F-RV2, F-RV3 (MINOR) / F-RV4–F-RV7 (INFO).
+- **F-RV1 (MAJOR) fixed:** `windows.yml` Shutdown step assigned PowerShell's read-only automatic variable `$pid` — the step would have errored on every run; renamed `$uvicornPid`.
+- **F-RV2/F-RV3 (MINOR) fixed:** W2 now enforces version CONSISTENCY (health version == committed config version); W7 now asserts the fail-closed log posture (ephemeral-key warning observed; `live_verified` must be false) instead of only absence of Traceback.
+- **F-RV4/F-RV5 (INFO) fixed with regression tests:** owner-decision document requires an EXACT `PASSED` verdict value (caveat-prefixed values rejected); `G2GateState`/`G2OwnerDecision` now `extra=forbid` (unknown state-document fields are malformed, not silently ignored).
+- **F-RV6 (INFO) dispositioned:** the reviewer's adversarial probe (fully self-consistent forged PASSED state) is accepted by the pure evaluator BY DESIGN — anti-self-approval is process/audit-based (every state transition is a Git-committed, attributable change requiring a committed owner decision document); recorded in the findings register for the owner's risk model. F-RV7 (INFO, corpus untracked) recorded as an owner-scope standing item.
+- 41/41 runtime-gate tests + focused suites green; protected pins zero-drift; gates unchanged: G2 NOT_PASSED (owner-only), AI2_ENABLED=0, verified=False; NO push; NO amend/rebase/reset/force.
+
 ## 2026-10-29 — GOV-32: execution mandate — runtime G2 enforcement implemented (fail-closed), seven review findings dispositioned, Windows CI workflow added, provider validation scoped out of G2 with sources, battery re-run at final HEAD (G2 stays NOT_PASSED; AI2_ENABLED stays 0; no push)
 
 - **Reported baseline verified fresh:** HEAD `6d6886e818f4c9316e4aa68cf0e407fdc2c2a502` (tree `861a404d…`) == the directive-reported CONSOL-GOV-31 target; `cfd277f2…` (GOV-30 review target) and `b2f5e6e…` (GOV-24 start) proven ancestors; GOV-29/30/31 package digests recomputed == ledgers (`9365836d…` / `8c704762…` / `beda4200…`); GOV-31 independent review report (CONDITIONAL PASS, findings F-R1..F-R7) preserved unchanged.
