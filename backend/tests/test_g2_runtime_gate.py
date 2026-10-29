@@ -12,7 +12,10 @@ service-level entry point (``AI2Service.run``) — positive AND negative:
 - the synthetic/paper entry point stays explicitly labeled SYNTHETIC_OR_PAPER
   and never LIVE;
 - retry determinism (repeated runs refuse identically);
-- the tracked honest state document parses and denies at the default path;
+- the tracked state document parses and is mechanically verified at the default
+  path (post-transition: allowance ONLY via the full verifying chain — committed
+  owner-decision document, exact hash binding, matching running commit; any
+  unknown/mismatched running commit still denies as stale);
 - protected governance pins are untouched by the runtime gate (hash checks).
 """
 
@@ -559,29 +562,59 @@ async def test_retry_determinism_refusal_is_stable(monkeypatch, tmp_path):
 class TestTrackedStateDocument:
     REPO_ROOT = Path(__file__).resolve().parents[2]
 
-    def test_tracked_state_document_parses_and_denies(self):
+    def test_tracked_state_document_parses_and_allows_only_via_valid_chain(self):
+        # Post-transition (CONSOL-GOV-37 owner decision record): the tracked
+        # state is PASSED and the evaluator allows ONLY via the full verifying
+        # chain — the referenced owner-decision document must exist, hash-match
+        # its recorded SHA-256, and the running commit must bind the convened
+        # commit. Fail-closed behavior is asserted in the same test.
         from app.services.ai2_service import _DEFAULT_G2_GATE_STATE_PATH
 
         assert _DEFAULT_G2_GATE_STATE_PATH.name == "G2_GATE_STATE.json"
         text = _DEFAULT_G2_GATE_STATE_PATH.read_text(encoding="utf-8")
         state = G2GateState.model_validate(json.loads(text))
-        assert state.verdict == "NOT_PASSED"
-        assert state.owner_decision is None
-        allowed, tags = evaluate_g2_gate(state, current_commit=state.convened_review_commit)
-        assert allowed is False
-        assert tags == ("g2_gate_not_passed",)
+        assert state.verdict == "PASSED"
+        assert state.owner_decision is not None
+        assert state.owner_decision.decision == "G2_PASSED"
+        decision_text = (self.REPO_ROOT / state.owner_decision.decision_document).read_text(
+            encoding="utf-8"
+        )
+        assert sha256_text(decision_text) == state.owner_decision.decision_document_sha256
+        allowed, tags = evaluate_g2_gate(
+            state,
+            current_commit=state.convened_review_commit,
+            owner_decision_text=decision_text,
+        )
+        assert allowed is True
+        assert tags == ()
+        allowed_stale, tags_stale = evaluate_g2_gate(
+            state, current_commit=None, owner_decision_text=decision_text
+        )
+        assert allowed_stale is False
+        assert tags_stale == ("gate_state_stale",)
 
-    def test_tracked_state_binds_go31_terminal_target(self):
+    def test_tracked_state_binds_reviewed_target_and_decision_document(self):
         text = (self.REPO_ROOT / "docs/active/G2_GATE_STATE.json").read_text(
             encoding="utf-8"
         )
         state = json.loads(text)
-        # The state binds the GOV-31 terminal verification target and a
-        # 64-hex harness-report reference (the report itself lives in the
-        # cycle evidence package, outside the tracked tree).
-        assert state["convened_review_commit"] == "6d6886e818f4c9316e4aa68cf0e407fdc2c2a502"
+        # The state binds the reviewed final target (GOV-32/33 terminal target
+        # 9e7c6a2…, convened by the recorded owner decision) and a 64-hex
+        # harness-report reference (the report itself lives in the cycle
+        # evidence package, outside the tracked tree).
+        assert state["convened_review_commit"] == "9e7c6a21b8b61e2ccb4dc5f1d2249e6af8773242"
         assert len(state["evidence_harness_report_sha256"]) == 64
         assert all(c in "0123456789abcdef" for c in state["evidence_harness_report_sha256"])
+        # Integration-level anti-tamper check: the referenced owner-decision
+        # document exists in the tracked tree and its committed content
+        # hash-matches the reference recorded in the state document.
+        doc = (self.REPO_ROOT / state["owner_decision"]["decision_document"]).read_text(
+            encoding="utf-8"
+        )
+        assert (
+            hashlib.sha256(doc.encode("utf-8")).hexdigest()
+            == state["owner_decision"]["decision_document_sha256"]
+        )
 
     def test_default_path_resolution_from_docs_active(self):
         from app.services.ai2_service import _DEFAULT_G2_GATE_STATE_PATH

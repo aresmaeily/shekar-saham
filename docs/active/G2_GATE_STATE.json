@@ -1,17 +1,24 @@
 {
   "schema_version": "1.0.0",
   "gate": "G2",
-  "verdict": "NOT_PASSED",
-  "recorded_at_utc": "2026-10-29T12:00:00Z",
-  "recorded_by": "CONSOL-GOV-32 execution lead (delegated engineering authority, GOV-32 Phase 3C)",
+  "verdict": "PASSED",
+  "recorded_at_utc": "2026-10-29T19:58:32Z",
+  "recorded_by": "owner instruction via authorized execution channel (CONSOL-GOV-37); recorded by execution lead",
   "procedure_identity": "G2_REVIEW_PROCEDURE_PROPOSED_FINAL_v0.2_2026-10-22.md",
   "procedure_version": "1.0",
-  "reviewer_identity": null,
-  "reviewer_acknowledgement_utc": null,
-  "coi_adjudication": null,
-  "convened_review_commit": "6d6886e818f4c9316e4aa68cf0e407fdc2c2a502",
-  "evidence_harness_report_sha256": "a58fec7cecc5d3a1f878d9a449772443b1ae9e48721c95d54bddd08561ee61f1",
-  "owner_decision": null,
-  "previous_state_sha256": null,
-  "notes": "Honest current formal state of the G2 gate (GOV-32 Phase 3A/3C). verdict=NOT_PASSED: the G2 verdict authority is the owner alone (charter 04:72 Role 1 A; register 05:148-150; D-AI-26; review procedure v1.0 T6) and no owner-recorded verdict exists. convened_review_commit binds the GOV-31 terminal verification target (6d6886e818f4c9316e4aa68cf0e407fdc2c2a502) whose harness report (g2_verdict=NOT_PASSED, commit-bound) is referenced by evidence_harness_report_sha256. evidence_harness_report_sha256 = SHA-256 of GOV31_TERMINAL_harness_report_6d6886e.json. owner_decision=null: no owner-recorded G2 verdict document exists; per the runtime gate contract a PASSED transition requires a future owner decision document whose exact SHA-256 is referenced here, containing a complete approval block (G2 verdict: PASSED / Approving authority: / Approval date (UTC): / Approval evidence / locus:), with the transition committed to Git for auditability. reviewer_identity/reviewer_acknowledgement_utc/coi_adjudication are null pending the owner D-O2/D-O3 determinations (GOV-31 independent review executed but owner ratification not recorded). This state is read-only evidence: the runtime gate (app.domain.g2_gate) denies real-data AI-2 execution while verdict is NOT_PASSED; synthetic/paper execution remains explicitly labeled SYNTHETIC_OR_PAPER. AI2_ENABLED stays 0 and verified stays False until the formal pass conditions are genuinely satisfied through the approved state-transition mechanism (a new committed version of this document plus the verifying owner decision document)."
+  "reviewer_identity": "fresh-context independent reviewer x2 (GOV-31 full scope at 6d6886e…; GOV-32 delta at f1cb82d…) — identities per preserved byte-unchanged reviewer reports (Roles 6/14)",
+  "reviewer_acknowledgement_utc": "2026-10-29T19:58:32Z",
+  "coi_adjudication": "D-O3 accepted by owner (CONSOL-GOV-37 instruction): disclosed same-family COI adjudicated as disclosed/mitigated — see decision document",
+  "convened_review_commit": "9e7c6a21b8b61e2ccb4dc5f1d2249e6af8773242",
+  "evidence_harness_report_sha256": "86c18225d799abcf594ab6839372387652f89ede2f8e467c1c2e1708439c772e",
+  "owner_decision": {
+    "schema_version": "1.0.0",
+    "decision": "G2_PASSED",
+    "authority": "Project Owner (Role 1)",
+    "decided_at_utc": "2026-10-29T19:58:32Z",
+    "decision_document": "docs/active/OWNER_DECISION_G2_T6_RECORDED_2026-10-29.md",
+    "decision_document_sha256": "1f5da5c080b45a62d56efc15fb219bb62a582af7fbe09030de83a5cedfcb677f"
+  },
+  "previous_state_sha256": "16c130e3ba428d8a7bcf5986fba9a8e3b1e9fb1439660225b12a53a252143613",
+  "notes": "Owner-recorded G2 transition (CONSOL-GOV-37). The project owner explicitly selected the decision to close G2 through the official GOV32_G2_FINAL_DECISION packet and the official acceptance matrix; the instruction message (trace 1a1893c314664191) is the decision source, recorded here at the actual timestamp without backdating. The adopted packet closure text bundles D-O2 (reviewer arrangement RATIFIED — the two executed fresh-context reviews are the review of record) and D-O3 (disclosed reviewer COI adjudication accepted). convened_review_commit binds the fully reviewed and verified final target 9e7c6a21b8b61e2ccb4dc5f1d2249e6af8773242 (tree d479e63b…); evidence_harness_report_sha256 = SHA-256 of gov32_evidence/32_harness_report_terminal.json, which machine-binds that exact commit (battery 819/1s/2W EXIT=0, g2 checks green). previous_state_sha256 = SHA-256 of the prior tracked state document (honest NOT_PASSED at 6d6886e…). Scope rulings preserved: live-provider validation NOT APPLICABLE TO G2; Windows CI is not a G2 criterion and remains NOT EXECUTED — EXTERNALLY BLOCKED (program blockers B5/B6; no run exists; none claimed) pending the single authorized push of main. This transition does NOT enable real-data AI-2: AI2_ENABLED stays 0 and verified stays False; R3 (live-credential provisioning) and R4 (AI2_ENABLED=1 outside tests) remain separate future owner acts, and execution_mode remains SYNTHETIC_OR_PAPER until independently verified live data is in use. The runtime gate evaluates this state fail-closed; positive/negative tests re-run after the transition per the test-pinned procedure."
 }
