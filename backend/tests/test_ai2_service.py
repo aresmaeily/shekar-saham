@@ -119,6 +119,71 @@ def _settings(ai2_enabled: bool):
     return SimpleNamespace(ai2_enabled=ai2_enabled)
 
 
+# ---------------------------------------------------------------------------
+# Runtime G2 gate fixture (GOV-32 Phase 3C).
+#
+# The runtime G2 gate now guards the production seam: a real-data run
+# requires the formal gate state to ALLOW. The future-path tests below
+# install a fully valid PASSED gate-state fixture (matching running commit,
+# approved procedure, reviewer acknowledgement, COI adjudication, and a
+# verifying owner-decision document) so they continue to exercise the seam
+# mapping and provenance mechanics of the future state. The denial direction
+# (honest NOT_PASSED / missing / malformed / stale / contradictory /
+# unverifiable, for every entry point) is covered exhaustively in
+# test_g2_runtime_gate.py.
+# ---------------------------------------------------------------------------
+
+_GATE_COMMIT = "a" * 40
+
+_VALID_OWNER_DECISION_TEXT = (
+    "# OWNER G2 DECISION (fixture)\n\n"
+    "G2 verdict: PASSED\n"
+    "Approving authority: Project Owner (Role 1)\n"
+    "Approval date (UTC): 2026-10-29\n"
+    "Approval evidence / locus: convened review record\n"
+)
+
+
+def _gate_fixture_settings(monkeypatch, tmp_path, ai2_enabled: bool = True):
+    """Install a fully valid PASSED gate-state fixture and matching settings."""
+    from app.domain.g2_gate import PROCEDURE_IDENTITY, PROCEDURE_VERSION_APPROVED, sha256_text
+
+    owner_doc = tmp_path / "OWNER_G2_DECISION_fixture.md"
+    owner_doc.write_text(_VALID_OWNER_DECISION_TEXT, encoding="utf-8")
+    state_doc = {
+        "schema_version": "1.0.0",
+        "gate": "G2",
+        "verdict": "PASSED",
+        "recorded_at_utc": "2026-10-29T12:00:00Z",
+        "recorded_by": "owner-recorded state transition (test fixture)",
+        "procedure_identity": PROCEDURE_IDENTITY,
+        "procedure_version": PROCEDURE_VERSION_APPROVED,
+        "reviewer_identity": "independent reviewer (fixture)",
+        "reviewer_acknowledgement_utc": "2026-10-29T12:00:00Z",
+        "coi_adjudication": "D-O3 recorded (fixture)",
+        "convened_review_commit": _GATE_COMMIT,
+        "evidence_harness_report_sha256": "1" * 64,
+        "owner_decision": {
+            "decision": "G2_PASSED",
+            "authority": "Project Owner (Role 1)",
+            "decided_at_utc": "2026-10-29T12:00:00Z",
+            "decision_document": str(owner_doc),
+            "decision_document_sha256": sha256_text(_VALID_OWNER_DECISION_TEXT),
+        },
+        "previous_state_sha256": None,
+        "notes": "",
+    }
+    state_path = tmp_path / "G2_GATE_STATE.json"
+    state_path.write_text(json.dumps(state_doc, indent=2), encoding="utf-8")
+    settings = SimpleNamespace(
+        ai2_enabled=ai2_enabled,
+        g2_gate_state_path=str(state_path),
+        runtime_commit=_GATE_COMMIT,
+    )
+    monkeypatch.setattr(ai2_module, "get_settings", lambda: settings)
+    return settings
+
+
 def _valid_transport(payload):
     return {"text": json.dumps(VALID_OUTPUT)}
 
@@ -321,13 +386,15 @@ async def test_ai2_no_secret_material_in_result_or_logs(monkeypatch, caplog):
 
 
 @pytest.mark.asyncio
-async def test_ai2_future_live_gated_path_maps_executed(monkeypatch):
-    """Unit test for the future path: verified LIVE + gates open + seam ok.
+async def test_ai2_future_live_gated_path_maps_executed(monkeypatch, tmp_path):
+    """Unit test for the future path: verified LIVE + G2 gate ALLOWING + seam ok.
 
     The trust fixture is crafted (see LiveCapableMarketService); the provider
     seam is mocked, so no network call occurs and no live data is minted.
+    The runtime G2 gate (GOV-32 Phase 3C) must allow: the fixture installs a
+    fully valid PASSED gate state bound to the fixture's running commit.
     """
-    monkeypatch.setattr(ai2_module, "get_settings", lambda: _settings(True))
+    _gate_fixture_settings(monkeypatch, tmp_path, ai2_enabled=True)
 
     def _seam_ok(payload, **kwargs):
         return {
@@ -867,7 +934,7 @@ async def test_ai2_whitespace_only_output_maps_empty_output(monkeypatch, _openai
 
 
 @pytest.mark.asyncio
-async def test_ai2_provenance_complete_on_every_outcome(monkeypatch, _openai_env):
+async def test_ai2_provenance_complete_on_every_outcome(monkeypatch, _openai_env, tmp_path):
     """Every outcome path carries complete provenance: input hash, timestamp,
     trust state, provider identity, gate report; prompt hash is recorded iff the
     provider prompt was actually constructed; attempts recorded on seam-reached
@@ -913,6 +980,10 @@ async def test_ai2_provenance_complete_on_every_outcome(monkeypatch, _openai_env
         }
 
     monkeypatch.setattr(ai2_module, "invoke_ai_provider", _seam_attempts)
+    # future_executed exercises the future production seam; the runtime G2
+    # gate must be ALLOWING for that (valid PASSED gate-state fixture bound
+    # to the fixture running commit — GOV-32 Phase 3C).
+    _gate_fixture_settings(monkeypatch, tmp_path, ai2_enabled=True)
     outcomes.append(("future_executed", await AI2Service().run(
         AIRequest2(), LiveCapableMarketService(), transport=None)))
 

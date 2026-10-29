@@ -49,12 +49,14 @@ import hashlib
 import json
 import logging
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Annotated, Any, Callable, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from app.core.config import Settings, get_settings, is_verified_live
+from app.core.config import ROOT, Settings, get_settings, is_verified_live
 from app.domain.ai_provider import invoke_ai_provider, resolve_ai_provider
+from app.domain.g2_gate import G2GateState, evaluate_g2_gate, execution_mode
 from app.services.ai_service import (
     AIContextBuilder,
     AIRequest,
@@ -183,6 +185,56 @@ class AI2Result(BaseModel):
     provenance: AI2Provenance | None = None
     warnings: list[str] = Field(default_factory=list)
     safety: dict[str, Any] = Field(default_factory=dict)
+
+
+# Default location of the tracked formal G2 gate-state document (GOV-32
+# Phase 3C). Overridable via the G2_GATE_STATE_PATH setting for deployments;
+# the override changes WHERE the state is read from, never WHAT it says.
+_DEFAULT_G2_GATE_STATE_PATH = ROOT / "docs" / "active" / "G2_GATE_STATE.json"
+
+
+def _load_g2_gate_state(
+    settings: Settings,
+) -> tuple[G2GateState | None, str | None, "Path"]:
+    """Read-only G2 gate-state load — fail-closed (GOV-32 §3C).
+
+    Returns ``(state, load_error_tag, state_path)``. Any read/parse/schema
+    failure yields ``(None, tag, path)``; the evaluator then denies with the
+    corresponding tag (``gate_state_missing`` / ``gate_state_malformed``).
+    Never raises.
+    """
+    raw = (getattr(settings, "g2_gate_state_path", "") or "").strip()
+    path = Path(raw) if raw else _DEFAULT_G2_GATE_STATE_PATH
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return None, "gate_state_missing", path
+    try:
+        state = G2GateState.model_validate(json.loads(text))
+    except (json.JSONDecodeError, ValueError, ValidationError):
+        return None, "gate_state_malformed", path
+    return state, None, path
+
+
+def _load_owner_decision_document(state: G2GateState | None, state_path: "Path") -> str | None:
+    """Read the owner-decision document referenced by a gate state.
+
+    Repo-relative references resolve against the repository root implied by the
+    state-document location (``docs/active/x.json`` -> ``parents[2]``).
+    Absolute references are used verbatim. Any read failure returns ``None``
+    (the evaluator then denies with ``owner_decision_unverifiable``).
+    """
+    if state is None or state.owner_decision is None:
+        return None
+    ref = state.owner_decision.decision_document
+    candidate = Path(ref)
+    if not candidate.is_absolute():
+        base = state_path.parents[2] if len(state_path.parents) >= 3 else state_path.parent
+        candidate = base / ref
+    try:
+        return candidate.read_text(encoding="utf-8")
+    except OSError:
+        return None
 
 
 class AI2Service:
@@ -314,6 +366,25 @@ class AI2Service:
         ctx_dump = ctx.model_dump(mode="json")
         deterministic_context = {**ctx_dump, "stage1": stage1}
         gates = self.gate_report(ctx.data_trust, s)
+
+        # Runtime G2 gate evaluation (GOV-32 Phase 3C; 02:37 "Runtime G2 is
+        # not yet implemented" closed; 02:201-202; D-AI-26). Read-only,
+        # fail-closed: missing/malformed/stale/contradictory/unverifiable
+        # state denies real-data execution. Synthetic/paper execution stays
+        # explicitly labeled and is never represented as LIVE.
+        g2_state, g2_load_tag, g2_state_path = _load_g2_gate_state(s)
+        owner_decision_text = _load_owner_decision_document(g2_state, g2_state_path)
+        g2_allowed, g2_refusals = evaluate_g2_gate(
+            g2_state,
+            current_commit=(getattr(s, "runtime_commit", "") or None),
+            owner_decision_text=owner_decision_text,
+            load_error=g2_load_tag,
+        )
+        gates["g2_gate_verdict"] = g2_state.verdict if g2_state is not None else None
+        gates["g2_gate_refusals"] = list(g2_refusals)
+        gates["g2_gate_load_error"] = g2_load_tag
+        gates["execution_mode"] = execution_mode(bool(gates["live_verified"]))
+
         warnings = list(ctx.warnings)
         if not stage1.get("available"):
             warnings.append(
@@ -380,11 +451,22 @@ class AI2Service:
             _log(result.status, result.error_code)
             return result
 
-        # Gate 3 — G2 / owner acceptance for real-data execution.
-        # The production path (no injected transport) requires an independently
-        # verified LIVE trust context, which cannot be produced in this
-        # repository today. AI-2 therefore never reaches the provider seam here.
-        if transport is None and not gates["live_verified"]:
+        # Gate 3 — G2 / owner acceptance for real-data execution (runtime
+        # gate, GOV-32 Phase 3C). A run is REAL-DATA when it uses the
+        # production provider seam (no injected transport) or when the trust
+        # context is independently verified LIVE — the synthetic-transport
+        # labeling can never launder real verified-live data into a test
+        # execution. The formal recorded gate state must ALLOW and the
+        # production path additionally requires verified LIVE trust; the
+        # refusal keeps the reviewed error code with the gate refusals
+        # recorded for audit.
+        real_data_run = transport is None or gates["live_verified"]
+        if real_data_run and (not g2_allowed or not gates["live_verified"]):
+            if g2_refusals:
+                warnings.append(
+                    "Runtime G2 gate refused real-data AI-2 execution "
+                    f"({', '.join(g2_refusals)}); nothing was executed."
+                )
             warnings.append(
                 "AI-2 execution on real data requires G2 independent validation and "
                 "owner acceptance (NOT_PASSED); nothing was executed."

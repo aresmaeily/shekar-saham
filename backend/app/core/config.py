@@ -108,6 +108,18 @@ class Settings(BaseSettings):
     # validation and owner acceptance (governance gate, NOT_PASSED).
     ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
 
+    # Runtime G2 gate (GOV-32 Phase 3C): location of the tracked formal
+    # gate-state document. Empty = repository default
+    # (docs/active/G2_GATE_STATE.json). The override changes WHERE the state
+    # is read from, never the verdict; missing/malformed state denies.
+    g2_gate_state_path: str = os.getenv("G2_GATE_STATE_PATH", "")
+    # Commit of the running source, injected at build/deploy time for the
+    # gate's staleness binding (convened review commit must match). Empty at
+    # runtimes that cannot bind their commit — the gate then denies any
+    # PASSED state as stale (fail-closed), while the honest NOT_PASSED state
+    # denies by verdict regardless.
+    runtime_commit: str = os.getenv("RADAR_RUNTIME_COMMIT", "")
+
     # کش بنیادی (ثانیه)
     fundamental_cache_ttl_sec: int = int(os.getenv("FUND_CACHE_TTL", "300"))
 

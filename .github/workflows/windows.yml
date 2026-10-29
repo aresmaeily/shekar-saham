@@ -1,0 +1,116 @@
+name: Windows validation
+
+# GOV-32 Phase 4 — durable automated Windows validation.
+#
+# Executes the machine-checkable core of the canonical Windows runbook
+# (docs/active package: WINDOWS_VALIDATION_OR_HANDOFF — checks W1, W2, W6,
+# W7) on a real hosted Windows runner: backend install, application boot,
+# /api/health version consistency, the 7-contract browser E2E suite against
+# the locally booted server, and runtime-log capture (fail-closed posture).
+#
+# The Electron shell portion (W2 icon rendering, W3-W5 shell navigation)
+# requires the interactive runbook on the Windows owner machine and is not
+# automatable here; the workflow proves the application layer end-to-end.
+#
+# NOTE: this workflow runs when code reaches GitHub (push / pull_request).
+# Until push authorization is recorded (blocker B8), it exists as the ready
+# durable solution and has not yet executed on the remote.
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows-validation:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Record provenance (commit / runner)
+        shell: pwsh
+        run: |
+          git rev-parse HEAD
+          git status --porcelain
+          "runner OS: $(Get-ComputerInfo -Property OsName,OsVersion | Out-String)" | Out-File -Append windows_run_provenance.txt
+          git rev-parse HEAD | Out-File -Append windows_run_provenance.txt
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Boot backend (W1 startup)
+        working-directory: backend
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath python -ArgumentList "-m","uvicorn","app.main:app","--host","127.0.0.1","--port","8000" -PassThru -RedirectStandardOutput ..\windows_uvicorn_stdout.log -RedirectStandardError ..\windows_uvicorn_stderr.log -NoNewWindow
+          $p.Id | Out-File ..\windows_uvicorn_pid.txt
+          $ok = $false
+          foreach ($i in 1..60) {
+            Start-Sleep -Seconds 2
+            try {
+              $h = Invoke-WebRequest -Uri "http://127.0.0.1:8000/api/health" -UseBasicParsing -TimeoutSec 5
+              if ($h.StatusCode -eq 200) { $ok = $true; break }
+            } catch { }
+          }
+          if (-not $ok) { Get-Content ..\windows_uvicorn_stderr.log; exit 1 }
+
+      - name: Health + version consistency (W2)
+        shell: pwsh
+        run: |
+          $h = Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/health"
+          $h | ConvertTo-Json -Depth 5 | Out-File windows_health.json
+          $version = $h.version
+          if (-not $version) { Write-Error "health response carries no version field"; exit 1 }
+          "health version: $version" | Out-File -Append windows_run_provenance.txt
+
+      - name: Browser E2E suite (W6 — 7/7 expected)
+        shell: pwsh
+        run: |
+          pip install playwright==1.57.0
+          playwright install chromium
+          $env:RADAR_E2E_BASE_URL = "http://127.0.0.1:8000"
+          python -m pytest e2e -q --junitxml=windows_e2e_junit.xml 2>&1 | Tee-Object -FilePath windows_e2e_stdout.log
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: Runtime log posture (W7 — fail-closed evidence)
+        shell: pwsh
+        run: |
+          "=== uvicorn stdout ==="  | Out-File -Append windows_run_provenance.txt
+          Get-Content windows_uvicorn_stdout.log -ErrorAction SilentlyContinue | Select-Object -First 80 | Out-File -Append windows_run_provenance.txt
+          "=== uvicorn stderr ==="  | Out-File -Append windows_run_provenance.txt
+          Get-Content windows_uvicorn_stderr.log -ErrorAction SilentlyContinue | Select-Object -First 80 | Out-File -Append windows_run_provenance.txt
+          # Fail-closed posture: without FERNET_KEY the boot must warn, not crash.
+          $stderr = Get-Content windows_uvicorn_stderr.log -ErrorAction SilentlyContinue | Out-String
+          if ($stderr -match "Traceback") { Write-Error "startup traceback detected"; exit 1 }
+
+      - name: Shutdown
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path windows_uvicorn_pid.txt) {
+            $pid = Get-Content windows_uvicorn_pid.txt
+            try { Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue } catch { }
+          }
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-validation-evidence
+          path: |
+            windows_run_provenance.txt
+            windows_health.json
+            windows_uvicorn_stdout.log
+            windows_uvicorn_stderr.log
+            windows_e2e_stdout.log
+            windows_e2e_junit.xml
+          if-no-files-found: warn
