@@ -88,7 +88,7 @@ class G2OwnerDecision(BaseModel):
     verifying document is denied by :func:`evaluate_g2_gate`.
     """
 
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
     schema_version: str = SCHEMA_VERSION
     decision: OwnerDecisionLabel
@@ -121,7 +121,7 @@ class G2GateState(BaseModel):
     :func:`evaluate_g2_gate` so defect classes stay distinguishable.
     """
 
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, extra="forbid")
 
     schema_version: str = SCHEMA_VERSION
     gate: Literal["G2"] = "G2"
@@ -194,8 +194,11 @@ def owner_decision_document_complete(text: str) -> bool:
                 break
         stripped = line.strip()
         if stripped.lower().startswith("g2 verdict:"):
+            # Exact match only: a verdict value of "PASSED" (case-insensitive,
+            # no extra words) — "PASSED_WITH_CAVEATS"-style prefixes are NOT a
+            # recorded PASSED verdict (independent-review finding F-RV4).
             value = stripped[len("G2 verdict:"):].strip().upper()
-            if value.startswith("PASSED") and "NOT" not in value:
+            if value == "PASSED":
                 verdict_passed = True
     return verdict_passed and filled == len(required)
 

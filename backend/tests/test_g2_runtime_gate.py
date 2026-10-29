@@ -228,6 +228,14 @@ class TestPositivePath:
         text = VALID_OWNER_DECISION_TEXT.replace("G2 verdict: PASSED", "G2 verdict: NOT PASSED")
         assert owner_decision_document_complete(text) is False
 
+    def test_owner_document_complete_rejects_caveat_prefixed_verdict(self):
+        # F-RV4 regression: only an exact "PASSED" verdict records a pass —
+        # caveat-prefixed values are not a recorded G2 pass.
+        text = VALID_OWNER_DECISION_TEXT.replace(
+            "G2 verdict: PASSED", "G2 verdict: PASSED_WITH_CAVEATS"
+        )
+        assert owner_decision_document_complete(text) is False
+
 
 # ---------------------------------------------------------------------------
 # Model-level structural validation (malformed class)
@@ -265,6 +273,12 @@ class TestSchemaStrictness:
         # every recorded instant is unambiguous.
         with pytest.raises(ValidationError):
             gate_state(recorded_at_utc=datetime(2026, 10, 29, 12, 0, 0))
+
+    def test_unknown_state_fields_rejected(self):
+        # F-RV5 regression: unknown fields are malformed (extra=forbid), not
+        # silently ignored — a doctored state cannot smuggle semantics in.
+        with pytest.raises(ValidationError):
+            G2GateState(**{**gate_state().model_dump(), "verdict_override": "PASSED"})
 
 
 # ---------------------------------------------------------------------------

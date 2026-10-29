@@ -70,7 +70,11 @@ jobs:
           $h | ConvertTo-Json -Depth 5 | Out-File windows_health.json
           $version = $h.version
           if (-not $version) { Write-Error "health response carries no version field"; exit 1 }
-          "health version: $version" | Out-File -Append windows_run_provenance.txt
+          # W2: version consistency — the displayed API version must equal the
+          # committed application version (runbook acceptance criterion).
+          $committed = (Get-Content backend/app/core/config.py | Select-String -Pattern 'version: str = "(.+)"').Matches.Groups[1].Value
+          if ($version -ne $committed) { Write-Error "version mismatch: health=$version committed=$committed"; exit 1 }
+          "health version: $version (== committed)" | Out-File -Append windows_run_provenance.txt
 
       - name: Browser E2E suite (W6 — 7/7 expected)
         shell: pwsh
@@ -88,17 +92,28 @@ jobs:
           Get-Content windows_uvicorn_stdout.log -ErrorAction SilentlyContinue | Select-Object -First 80 | Out-File -Append windows_run_provenance.txt
           "=== uvicorn stderr ==="  | Out-File -Append windows_run_provenance.txt
           Get-Content windows_uvicorn_stderr.log -ErrorAction SilentlyContinue | Select-Object -First 80 | Out-File -Append windows_run_provenance.txt
-          # Fail-closed posture: without FERNET_KEY the boot must warn, not crash.
+          # Fail-closed posture assertions (runbook W7): without FERNET_KEY the
+          # boot must WARN (ephemeral key) and must not crash; without provider
+          # credentials the health trust stays synthetic and NOT live-verified.
           $stderr = Get-Content windows_uvicorn_stderr.log -ErrorAction SilentlyContinue | Out-String
-          if ($stderr -match "Traceback") { Write-Error "startup traceback detected"; exit 1 }
+          $stdout = Get-Content windows_uvicorn_stdout.log -ErrorAction SilentlyContinue | Out-String
+          $combined = $stdout + $stderr
+          if ($combined -match "Traceback") { Write-Error "startup traceback detected"; exit 1 }
+          if ($combined -notmatch "ephemeral" -and $combined -notmatch "FERNET") {
+            Write-Error "fail-closed ephemeral-key warning not observed in boot logs"; exit 1
+          }
+          $health = Get-Content windows_health.json -Raw | ConvertFrom-Json
+          if ($health.data_trust -and $health.data_trust.live_verified -eq $true) {
+            Write-Error "live_verified must be false without owner-supplied credentials"; exit 1
+          }
 
       - name: Shutdown
         if: always()
         shell: pwsh
         run: |
           if (Test-Path windows_uvicorn_pid.txt) {
-            $pid = Get-Content windows_uvicorn_pid.txt
-            try { Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue } catch { }
+            $uvicornPid = Get-Content windows_uvicorn_pid.txt
+            try { Stop-Process -Id $uvicornPid -Force -ErrorAction SilentlyContinue } catch { }
           }
 
       - name: Upload validation artifacts
