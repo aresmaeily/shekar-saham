@@ -1,5 +1,7 @@
 # AI-2 Real-Data Transition — Evidence-Based Prerequisite Checklist (prepared, NOT executed)
 
+> **🔒 CLOSED FOR THE CURRENT RELEASE — CONSOL-GOV-41 (2026-10-30):** `OA-AI2-LIVE-CREDENTIALS` = **DENIED FOR CURRENT RELEASE — CLOSED AS NOT GRANTED**; `OA-AI2-ENABLEMENT` = **DENIED FOR CURRENT RELEASE — CLOSED** (both explicit closed decisions, not PENDING). No live credential may be requested/read/handled; `AI2_ENABLED=0`, `verified=False`, `execution_mode=SYNTHETIC_OR_PAPER` remain intact. Items A1/A2 are therefore CLOSED-DENIED for this release; the checklist below is preserved byte-unchanged as the future-transition checklist (it authorizes nothing and changes no gate). Authoritative record: `GOV41_OWNER_DECISION_AMENDMENT_2026-10-30.md` (A3/A4).
+
 **Date:** 2026-10-30 (Asia/Tehran) · **Directive:** CONSOL-GOV-40 Phase 5 · **Prepared for:** a FUTURE owner-authorized AI-2 transition only
 
 **Status of every item below today: UNSATISFIED or OWNER-GATED. This checklist authorizes nothing and changes no gate.**
