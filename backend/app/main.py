@@ -17,6 +17,7 @@ from app.api.chart import router as chart_router
 from app.api.forex import router as forex_router
 from app.api.excellent import router as excellent_router
 from app.api.auth import router as auth_router
+from app.api.alert_ops import router as alert_ops_router  # GOV-41 D-AI-30 (in-product alert operations)
 from app.core.config import ROOT, get_settings
 from app.core.security import (
     is_public_path,
@@ -113,7 +114,22 @@ async def lifespan(app: FastAPI):
         metrics.inc("shekar_refresh_total", {"status": "failed"})
     
     await market_service.start_background()
+    # GOV-41 D-AI-30: explicit, observable alert-operations heartbeat. The
+    # 30-minute freshness cadence lives in OwnerBudgets + recorded last-success
+    # state; every tick stays gated by the fail-closed kill switches and budgets.
+    try:
+        from app.services import alert_operations as _alert_ops
+
+        await _alert_ops.start_background_loop(interval_seconds=60)
+    except Exception as exc:  # loop must never block product startup
+        logger.warning(f"alert_ops background loop not started: {exc}")
     yield
+    try:
+        from app.services import alert_operations as _alert_ops
+
+        await _alert_ops.stop_background_loop()
+    except Exception:
+        pass
     await market_service.stop_background()
     await event_bus.publish(DomainEvent("system.shutdown", {"version": settings.version}))
     logger.info("shutdown complete")
@@ -269,6 +285,7 @@ def create_app() -> FastAPI:
     app.include_router(chart_router)  # v0.8
     app.include_router(forex_router)  # v0.9 Forex like faraz.io Chart Excellent Excellent features
     app.include_router(auth_router)  # v1.5 حالت خصوصی (فقط مالک)
+    app.include_router(alert_ops_router)  # GOV-41 D-AI-30 — Synthetic/Paper in-product alert inbox (no external egress)
 
     @app.websocket("/ws/live")
     async def ws_live(ws: WebSocket):

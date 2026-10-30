@@ -736,6 +736,26 @@
           <tbody></tbody>
         </table>
       </div>
+
+      <div class="panel-head" style="margin-top:1.25rem">
+        <div>
+          <h2>صندوق هشدارهای عملیاتی</h2>
+          <p class="muted">D-AI-30 — فقط Synthetic/Paper · تحویل درون‌محصولی · بدون ارسال خارجی
+            <span id="alertOpsChip" class="muted">—</span></p>
+        </div>
+        <div class="filters">
+          <button class="btn ghost" id="btnAlertOpsRefresh">🔄 بازخوانی</button>
+        </div>
+      </div>
+      <div class="muted" id="alertOpsStatus" style="margin:.25rem 0 .5rem">—</div>
+      <div class="table-wrap">
+        <table class="data-table" id="alertOpsInboxTable">
+          <thead>
+            <tr><th>زمان</th><th>نوع</th><th>موضوع</th><th>خلاصه</th><th>برچسب اجباری</th></tr>
+          </thead>
+          <tbody id="alertOpsInboxBody"></tbody>
+        </table>
+      </div>
     </section>
 
     <section class="panel" id="tab-settings">

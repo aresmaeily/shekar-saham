@@ -41,6 +41,7 @@ SENSITIVE_PREFIXES = (
     "/api/filter/saved",
     "/api/confluence/notify-now",
     "/api/backtest",
+    "/api/alerts/ops",  # GOV-41 D-AI-30: kill-switch/dispatch/dead-letter are owner-gated operations
 )
 
 

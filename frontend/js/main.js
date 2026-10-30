@@ -13,6 +13,7 @@ import { updateVersionFromApi } from "./modules/utils/version.js";
 
 /* ماژول‌های تخصصی (اثر جانبی: بایند خودکار) */
 import "./modules/theme.js";
+import { initAlertInbox } from "./modules/alert_inbox.js"; // GOV-41 D-AI-30 in-product inbox
 import "./modules/auth.js";
 import "./modules/forex.js";
 import "./modules/render/watchlist_excellent.js";
@@ -371,6 +372,7 @@ window.store = store;
 
 if (!isLegacyMode) {
   updateVersionFromApi(); // WS-HARDEN-1/W4: نسخه UI از API همگام می‌شود (تک‌منبع حقیقت: settings.version)
+  initAlertInbox(); // GOV-41 D-AI-30: صندوق هشدارهای عملیاتی (درون‌محصولی)
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
   else boot();
 }
