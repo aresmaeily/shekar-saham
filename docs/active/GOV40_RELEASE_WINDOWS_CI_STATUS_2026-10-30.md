@@ -1,6 +1,8 @@
 # CONSOL-GOV-40 — Release and Windows CI Status Record
 
-**Date:** 2026-10-30 (Asia/Tehran) · **Verified HEAD:** `dec77f25072439c07bd255ec132936f482c3a892` (tree `e35a5932…`) · **Blocker IDs:** B5/B6 (unchanged namespace) · **No push attempted, none authorized**
+**Date:** 2026-10-30 (Asia/Tehran) · **Blocker IDs:** B5/B6 (unchanged namespace) · **No push attempted, none authorized**
+
+**Repository identity — AUTHORITATIVE RECORD:** the exact final delivery HEAD/tree/remote/ahead-behind values are sealed in `gov40_evidence/40_identity.txt` (regenerated and hash-manifested after the final GOV-40R docs commit, per CONSOL-GOV-40R §5). Values verified as of each recorded point: GOV-39 end `dec77f25…`/tree `e35a5932…` (70 ahead) → GOV-40 docs commit `7be2518…`/tree `b2794161…` (71 ahead) → GOV-40 correction commit `9eb17c15c873185fb2dbbdc70db873a2cf5fb43b`/tree `520b77a3b7342e21aeadc7111a3bf3b6a35e4281` (**re-verified fresh at GOV-40R open: 72 ahead / 0 behind**, FF-ancestor true) → final GOV-40R docs commit (identity sealed post-commit). Remote `origin/main` = `c1984e7979f89f2d727b471deb602953ec62fad5` throughout.
 
 ## 1. Barrier re-probe (this cycle, no secrets exposed)
 
@@ -15,10 +17,9 @@ No token, credential file, or secret was read, hashed, printed, or copied. The p
 
 ## 2. Exact fast-forward range prepared (for the authorized credential holder)
 
-- Verified local `main` HEAD (final, after the GOV-40 docs commits): `7be2518c997ac401970dc5c67f74d71dd992e2eb` (tree `b2794161…`; parent `dec77f25072439c07bd255ec132936f482c3a892`)
-- Verified remote `origin/main`: `c1984e7979f89f2d727b471deb602953ec62fad5`
-- Ancestry check: `git merge-base --is-ancestor c1984e79… HEAD` → **true** (a plain fast-forward is possible; no merge, no force, no rewrite needed)
-- Range size: `git rev-list --count c1984e79..HEAD` = **71 commits** (initially recorded as 70 against the pre-commit verified HEAD `dec77f2…`; the two GOV-40 docs-only commits — main `7be2518…` — add exactly 1; correction recorded per the CG15-02 no-amend precedent; oldest in range: `6ff6b07` P3.93; full linear chain, no rewrite actions per prior reflog audits)
+- **Push target: local `main` HEAD itself** (HEAD-relative; the operator sequence below pushes whatever the verified HEAD is at execution time). Ancestry re-verified fresh at GOV-40R open against `9eb17c15c873185fb2dbbdc70db873a2cf5fb43b`: `git merge-base --is-ancestor c1984e79… HEAD` → **true** (a plain fast-forward is possible; no merge, no force, no rewrite needed).
+- Verified remote `origin/main`: `c1984e7979f89f2d727b471deb602953ec62fad5` (unchanged across the whole correction chain)
+- Range size correction chain (each value true as of its own verification point, preserved for provenance): 70 commits at `dec77f2…` (GOV-40 pre-commit) → 71 at `7be2518…` → **72 at `9eb17c1…`** (re-verified fresh at GOV-40R open with two independent commands: `git rev-list --left-right --count c1984e79…HEAD` = `0 72` (left=remote-only, right=local-only) and `git rev-list --count c1984e79..HEAD` = 72) → the final GOV-40R docs commit adds +1; **the authoritative final count is sealed in `gov40_evidence/40_identity.txt`**. Oldest in range: `6ff6b07` P3.93; full linear chain, no rewrite actions per prior reflog audits.
 - Exact operator sequence once an authorized holder performs it (to be run BY the holder, in their authenticated environment):
   1. `git fetch origin`
   2. verify: `git rev-parse origin/main` == `c1984e7979f89f2d727b471deb602953ec62fad5` (if it moved, STOP and re-run the release-readiness check — do not force)

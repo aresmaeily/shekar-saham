@@ -1,6 +1,6 @@
 # CONSOL-GOV-40 — Decision and Blocker Register (OA-* namespace, canonical forward-looking copy)
 
-**Date:** 2026-10-30 (Asia/Tehran) · **Verified HEAD this cycle:** `dec77f25072439c07bd255ec132936f482c3a892` (tree `e35a5932…`) · 70 ahead / 0 behind · NO push
+**Date:** 2026-10-30 (Asia/Tehran) · **Verified HEAD this cycle:** `dec77f25072439c07bd255ec132936f482c3a892` (tree `e35a5932…`) at cycle start — **currency GOV-40R: correction commit `9eb17c15c873185fb2dbbdc70db873a2cf5fb43b` (tree `520b77a3…`) re-verified fresh = 72 ahead / 0 behind; the authoritative final delivery HEAD/count is sealed in `gov40_evidence/40_identity.txt`** · NO push
 
 **Namespace note:** owner actions and operational blockers now use self-describing `OA-*` identifiers (per `docs/active/GOV40_IDENTIFIER_NAMESPACE_MAPPING.md`). Bare "R3/R4" historically meant two different things; the legacy mapping table is the permanent cross-reference. P5/P6 requirement IDs R1–R12 are unchanged.
 
@@ -23,7 +23,7 @@
 | `OA-AI2-LIVE-CREDENTIALS` (legacy: blocker "R3") | Live-provider validation (TSETMC/BRSAPI) | live credentials + a live-validation authorization, owner-side | owner provisioning; until then `verified=False` and `execution_mode` stay fail-closed |
 | `OA-AI2-ENABLEMENT` (legacy: blocker "R4") | Real-data AI-2 execution | `AI2_ENABLED=1` outside tests + runtime-gate satisfaction at the running commit (gate binds convened `9e7c6a21…`; a later commit needs a fresh owner-recorded gate-state transition) | owner acts only; prerequisite checklist prepared: `docs/active/GOV40_AI2_PREREQUISITE_CHECKLIST.md` |
 | `OA-ALERT-OPERATIONS` (decision register ID: D-AI-30, unchanged) | Operational alert cadence/budget/delivery (P5/P6 R11) | owner selection across the ten decision items of the packet | owner decision packet ready and marked `PENDING OWNER DECISION`: `docs/active/GOV40_DAI30_OWNER_DECISION_PACKET.md`; notifier/ws_hub integration is the follow-on authorized implementation task ONLY after the decision is recorded — not started |
-| B5/B6 | Release of local `main` (71 commits at the GOV-40 final HEAD) to `origin` | a credential holder with write access to `aresmaeily/shekar-saham` (this environment: no `gh`, no credential helper, no tokens — read-only `ls-remote` works) | authorized fast-forward push `c1984e79… → 7be2518…` (range + operator sequence prepared: `docs/active/GOV40_RELEASE_WINDOWS_CI_STATUS_2026-10-30.md`); `windows.yml` executes automatically on push; Windows CI evidence then captured from the actual run |
+| B5/B6 | Release of local `main` (HEAD-relative fast-forward; 72 commits as of correction commit `9eb17c1…`, +1 per subsequent docs commit — final count sealed in `gov40_evidence/40_identity.txt`) to `origin` | a credential holder with write access to `aresmaeily/shekar-saham` (this environment: no `gh`, no credential helper, no tokens — read-only `ls-remote` works) | authorized fast-forward push `c1984e79… → current local main HEAD` (range + operator sequence prepared: `docs/active/GOV40_RELEASE_WINDOWS_CI_STATUS_2026-10-30.md`); `windows.yml` executes automatically on push; Windows CI evidence then captured from the actual run |
 
 ## 3. Register entries this cycle (GOV-40)
 
