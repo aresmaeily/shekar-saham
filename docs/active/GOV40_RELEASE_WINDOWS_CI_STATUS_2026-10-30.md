@@ -15,10 +15,10 @@ No token, credential file, or secret was read, hashed, printed, or copied. The p
 
 ## 2. Exact fast-forward range prepared (for the authorized credential holder)
 
-- Verified local `main` HEAD: `dec77f25072439c07bd255ec132936f482c3a892`
+- Verified local `main` HEAD (final, after the GOV-40 docs commits): `7be2518c997ac401970dc5c67f74d71dd992e2eb` (tree `b2794161…`; parent `dec77f25072439c07bd255ec132936f482c3a892`)
 - Verified remote `origin/main`: `c1984e7979f89f2d727b471deb602953ec62fad5`
 - Ancestry check: `git merge-base --is-ancestor c1984e79… HEAD` → **true** (a plain fast-forward is possible; no merge, no force, no rewrite needed)
-- Range size: `git rev-list --count c1984e79..HEAD` = **70 commits** (oldest in range: `6ff6b07` P3.93 … newest: the GOV-40 docs commit; full linear chain, no rewrite actions per prior reflog audits)
+- Range size: `git rev-list --count c1984e79..HEAD` = **71 commits** (initially recorded as 70 against the pre-commit verified HEAD `dec77f2…`; the two GOV-40 docs-only commits — main `7be2518…` — add exactly 1; correction recorded per the CG15-02 no-amend precedent; oldest in range: `6ff6b07` P3.93; full linear chain, no rewrite actions per prior reflog audits)
 - Exact operator sequence once an authorized holder performs it (to be run BY the holder, in their authenticated environment):
   1. `git fetch origin`
   2. verify: `git rev-parse origin/main` == `c1984e7979f89f2d727b471deb602953ec62fad5` (if it moved, STOP and re-run the release-readiness check — do not force)
