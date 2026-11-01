@@ -1,0 +1,3043 @@
+{
+  "cases": [
+    {
+      "bars": {
+        "GSAAA": [
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 100,
+            "symbol": "GSAAA",
+            "ts": 1,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 101,
+            "symbol": "GSAAA",
+            "ts": 2,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 80,
+            "pl": 103,
+            "symbol": "GSAAA",
+            "ts": 3,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 102,
+            "symbol": "GSAAA",
+            "ts": 4,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 104,
+            "symbol": "GSAAA",
+            "ts": 5,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 106,
+            "symbol": "GSAAA",
+            "ts": 6,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 105,
+            "symbol": "GSAAA",
+            "ts": 7,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 107,
+            "symbol": "GSAAA",
+            "ts": 8,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 109,
+            "symbol": "GSAAA",
+            "ts": 9,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 108,
+            "symbol": "GSAAA",
+            "ts": 10,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 110,
+            "symbol": "GSAAA",
+            "ts": 11,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 112,
+            "symbol": "GSAAA",
+            "ts": 12,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 80,
+            "pl": 111,
+            "symbol": "GSAAA",
+            "ts": 13,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 113,
+            "symbol": "GSAAA",
+            "ts": 14,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 115,
+            "symbol": "GSAAA",
+            "ts": 15,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 114,
+            "symbol": "GSAAA",
+            "ts": 16,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 116,
+            "symbol": "GSAAA",
+            "ts": 17,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 118,
+            "symbol": "GSAAA",
+            "ts": 18,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 117,
+            "symbol": "GSAAA",
+            "ts": 19,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 119,
+            "symbol": "GSAAA",
+            "ts": 20,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 121,
+            "symbol": "GSAAA",
+            "ts": 21,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 120,
+            "symbol": "GSAAA",
+            "ts": 22,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 80,
+            "pl": 122,
+            "symbol": "GSAAA",
+            "ts": 23,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 124,
+            "symbol": "GSAAA",
+            "ts": 24,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 123,
+            "symbol": "GSAAA",
+            "ts": 25,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 125,
+            "symbol": "GSAAA",
+            "ts": 26,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 127,
+            "symbol": "GSAAA",
+            "ts": 27,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 126,
+            "symbol": "GSAAA",
+            "ts": 28,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 128,
+            "symbol": "GSAAA",
+            "ts": 29,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 130,
+            "symbol": "GSAAA",
+            "ts": 30,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 129,
+            "symbol": "GSAAA",
+            "ts": 31,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 131,
+            "symbol": "GSAAA",
+            "ts": 32,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 80,
+            "pl": 133,
+            "symbol": "GSAAA",
+            "ts": 33,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 132,
+            "symbol": "GSAAA",
+            "ts": 34,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 134,
+            "symbol": "GSAAA",
+            "ts": 35,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 136,
+            "symbol": "GSAAA",
+            "ts": 36,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 135,
+            "symbol": "GSAAA",
+            "ts": 37,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 137,
+            "symbol": "GSAAA",
+            "ts": 38,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 139,
+            "symbol": "GSAAA",
+            "ts": 39,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 140,
+            "symbol": "GSAAA",
+            "ts": 40,
+            "volume_ratio": 1.0
+          }
+        ],
+        "GSBBB": [
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 200,
+            "symbol": "GSBBB",
+            "ts": 1,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 198,
+            "symbol": "GSBBB",
+            "ts": 2,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 196,
+            "symbol": "GSBBB",
+            "ts": 3,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 197,
+            "symbol": "GSBBB",
+            "ts": 4,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 75,
+            "pl": 195,
+            "symbol": "GSBBB",
+            "ts": 5,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 193,
+            "symbol": "GSBBB",
+            "ts": 6,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 194,
+            "symbol": "GSBBB",
+            "ts": 7,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 192,
+            "symbol": "GSBBB",
+            "ts": 8,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 190,
+            "symbol": "GSBBB",
+            "ts": 9,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 191,
+            "symbol": "GSBBB",
+            "ts": 10,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 189,
+            "symbol": "GSBBB",
+            "ts": 11,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 187,
+            "symbol": "GSBBB",
+            "ts": 12,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 188,
+            "symbol": "GSBBB",
+            "ts": 13,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 186,
+            "symbol": "GSBBB",
+            "ts": 14,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 184,
+            "symbol": "GSBBB",
+            "ts": 15,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 185,
+            "symbol": "GSBBB",
+            "ts": 16,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 183,
+            "symbol": "GSBBB",
+            "ts": 17,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 75,
+            "pl": 181,
+            "symbol": "GSBBB",
+            "ts": 18,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 182,
+            "symbol": "GSBBB",
+            "ts": 19,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 180,
+            "symbol": "GSBBB",
+            "ts": 20,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 178,
+            "symbol": "GSBBB",
+            "ts": 21,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 179,
+            "symbol": "GSBBB",
+            "ts": 22,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 177,
+            "symbol": "GSBBB",
+            "ts": 23,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 175,
+            "symbol": "GSBBB",
+            "ts": 24,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 176,
+            "symbol": "GSBBB",
+            "ts": 25,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 174,
+            "symbol": "GSBBB",
+            "ts": 26,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 172,
+            "symbol": "GSBBB",
+            "ts": 27,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 173,
+            "symbol": "GSBBB",
+            "ts": 28,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 171,
+            "symbol": "GSBBB",
+            "ts": 29,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 75,
+            "pl": 169,
+            "symbol": "GSBBB",
+            "ts": 30,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 170,
+            "symbol": "GSBBB",
+            "ts": 31,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 168,
+            "symbol": "GSBBB",
+            "ts": 32,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 166,
+            "symbol": "GSBBB",
+            "ts": 33,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 167,
+            "symbol": "GSBBB",
+            "ts": 34,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 165,
+            "symbol": "GSBBB",
+            "ts": 35,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 163,
+            "symbol": "GSBBB",
+            "ts": 36,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 164,
+            "symbol": "GSBBB",
+            "ts": 37,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 162,
+            "symbol": "GSBBB",
+            "ts": 38,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 160,
+            "symbol": "GSBBB",
+            "ts": 39,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 158,
+            "symbol": "GSBBB",
+            "ts": 40,
+            "volume_ratio": 1.0
+          }
+        ],
+        "GSCCC": [
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 1,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 2,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 49,
+            "symbol": "GSCCC",
+            "ts": 3,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 53,
+            "symbol": "GSCCC",
+            "ts": 4,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 51,
+            "symbol": "GSCCC",
+            "ts": 5,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 70,
+            "pl": 55,
+            "symbol": "GSCCC",
+            "ts": 6,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 7,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 56,
+            "symbol": "GSCCC",
+            "ts": 8,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 9,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 54,
+            "symbol": "GSCCC",
+            "ts": 10,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 58,
+            "symbol": "GSCCC",
+            "ts": 11,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 53,
+            "symbol": "GSCCC",
+            "ts": 12,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 49,
+            "symbol": "GSCCC",
+            "ts": 13,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 55,
+            "symbol": "GSCCC",
+            "ts": 14,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 70,
+            "pl": 60,
+            "symbol": "GSCCC",
+            "ts": 15,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 54,
+            "symbol": "GSCCC",
+            "ts": 16,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 17,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 57,
+            "symbol": "GSCCC",
+            "ts": 18,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 19,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 48,
+            "symbol": "GSCCC",
+            "ts": 20,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 53,
+            "symbol": "GSCCC",
+            "ts": 21,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 59,
+            "symbol": "GSCCC",
+            "ts": 22,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 51,
+            "symbol": "GSCCC",
+            "ts": 23,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 47,
+            "symbol": "GSCCC",
+            "ts": 24,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 25,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 58,
+            "symbol": "GSCCC",
+            "ts": 26,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 70,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 27,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 45,
+            "symbol": "GSCCC",
+            "ts": 28,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 51,
+            "symbol": "GSCCC",
+            "ts": 29,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 56,
+            "symbol": "GSCCC",
+            "ts": 30,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 49,
+            "symbol": "GSCCC",
+            "ts": 31,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 54,
+            "symbol": "GSCCC",
+            "ts": 32,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 60,
+            "symbol": "GSCCC",
+            "ts": 33,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 70,
+            "pl": 55,
+            "symbol": "GSCCC",
+            "ts": 34,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 35,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 46,
+            "symbol": "GSCCC",
+            "ts": 36,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 37,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 58,
+            "symbol": "GSCCC",
+            "ts": 38,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 53,
+            "symbol": "GSCCC",
+            "ts": 39,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 49,
+            "symbol": "GSCCC",
+            "ts": 40,
+            "volume_ratio": 1.0
+          }
+        ]
+      },
+      "bars_sha256": "2b668b1ce8613251cfca0ac1d8502386d8a342e7b66df6c706954af0392bdd1c",
+      "case_id": "GS-2026-11-02-BACKTEST-3PATHS",
+      "description": "Filter strategy over three hand-written paths (uptrend GSAAA, downtrend GSBBB, volatile range GSCCC); next-bar execution; TP/SL/max-hold exits; 0.5% commission.",
+      "expected": {
+        "counts": {
+          "trades": 11
+        },
+        "flags": {
+          "mode": "strategy"
+        },
+        "metrics": {
+          "average_return": 0.268,
+          "maximum_drawdown": 1.388,
+          "median_return": 3.403,
+          "profit_factor": 1.094,
+          "sharpe_ratio": 0.039,
+          "total_return": 0.294,
+          "win_rate": 54.55
+        }
+      },
+      "kind": "BACKTEST"
+    },
+    {
+      "bars": {
+        "GSAAA": [
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 100,
+            "symbol": "GSAAA",
+            "ts": 1,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 101,
+            "symbol": "GSAAA",
+            "ts": 2,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 80,
+            "pl": 103,
+            "symbol": "GSAAA",
+            "ts": 3,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 102,
+            "symbol": "GSAAA",
+            "ts": 4,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 104,
+            "symbol": "GSAAA",
+            "ts": 5,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 106,
+            "symbol": "GSAAA",
+            "ts": 6,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 105,
+            "symbol": "GSAAA",
+            "ts": 7,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 107,
+            "symbol": "GSAAA",
+            "ts": 8,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 109,
+            "symbol": "GSAAA",
+            "ts": 9,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 108,
+            "symbol": "GSAAA",
+            "ts": 10,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 110,
+            "symbol": "GSAAA",
+            "ts": 11,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 112,
+            "symbol": "GSAAA",
+            "ts": 12,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 80,
+            "pl": 111,
+            "symbol": "GSAAA",
+            "ts": 13,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 113,
+            "symbol": "GSAAA",
+            "ts": 14,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 115,
+            "symbol": "GSAAA",
+            "ts": 15,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 114,
+            "symbol": "GSAAA",
+            "ts": 16,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 116,
+            "symbol": "GSAAA",
+            "ts": 17,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 118,
+            "symbol": "GSAAA",
+            "ts": 18,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 117,
+            "symbol": "GSAAA",
+            "ts": 19,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 119,
+            "symbol": "GSAAA",
+            "ts": 20,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 121,
+            "symbol": "GSAAA",
+            "ts": 21,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 120,
+            "symbol": "GSAAA",
+            "ts": 22,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 80,
+            "pl": 122,
+            "symbol": "GSAAA",
+            "ts": 23,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 124,
+            "symbol": "GSAAA",
+            "ts": 24,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 123,
+            "symbol": "GSAAA",
+            "ts": 25,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 125,
+            "symbol": "GSAAA",
+            "ts": 26,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 127,
+            "symbol": "GSAAA",
+            "ts": 27,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 126,
+            "symbol": "GSAAA",
+            "ts": 28,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 128,
+            "symbol": "GSAAA",
+            "ts": 29,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 130,
+            "symbol": "GSAAA",
+            "ts": 30,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 129,
+            "symbol": "GSAAA",
+            "ts": 31,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 131,
+            "symbol": "GSAAA",
+            "ts": 32,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 80,
+            "pl": 133,
+            "symbol": "GSAAA",
+            "ts": 33,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 132,
+            "symbol": "GSAAA",
+            "ts": 34,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 134,
+            "symbol": "GSAAA",
+            "ts": 35,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 136,
+            "symbol": "GSAAA",
+            "ts": 36,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 135,
+            "symbol": "GSAAA",
+            "ts": 37,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 137,
+            "symbol": "GSAAA",
+            "ts": 38,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 139,
+            "symbol": "GSAAA",
+            "ts": 39,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 140,
+            "symbol": "GSAAA",
+            "ts": 40,
+            "volume_ratio": 1.0
+          }
+        ],
+        "GSBBB": [
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 200,
+            "symbol": "GSBBB",
+            "ts": 1,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 198,
+            "symbol": "GSBBB",
+            "ts": 2,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 196,
+            "symbol": "GSBBB",
+            "ts": 3,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 197,
+            "symbol": "GSBBB",
+            "ts": 4,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 75,
+            "pl": 195,
+            "symbol": "GSBBB",
+            "ts": 5,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 193,
+            "symbol": "GSBBB",
+            "ts": 6,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 194,
+            "symbol": "GSBBB",
+            "ts": 7,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 192,
+            "symbol": "GSBBB",
+            "ts": 8,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 190,
+            "symbol": "GSBBB",
+            "ts": 9,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 191,
+            "symbol": "GSBBB",
+            "ts": 10,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 189,
+            "symbol": "GSBBB",
+            "ts": 11,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 187,
+            "symbol": "GSBBB",
+            "ts": 12,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 188,
+            "symbol": "GSBBB",
+            "ts": 13,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 186,
+            "symbol": "GSBBB",
+            "ts": 14,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 184,
+            "symbol": "GSBBB",
+            "ts": 15,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 185,
+            "symbol": "GSBBB",
+            "ts": 16,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 183,
+            "symbol": "GSBBB",
+            "ts": 17,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 75,
+            "pl": 181,
+            "symbol": "GSBBB",
+            "ts": 18,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 182,
+            "symbol": "GSBBB",
+            "ts": 19,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 180,
+            "symbol": "GSBBB",
+            "ts": 20,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 178,
+            "symbol": "GSBBB",
+            "ts": 21,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 179,
+            "symbol": "GSBBB",
+            "ts": 22,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 177,
+            "symbol": "GSBBB",
+            "ts": 23,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 175,
+            "symbol": "GSBBB",
+            "ts": 24,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 176,
+            "symbol": "GSBBB",
+            "ts": 25,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 174,
+            "symbol": "GSBBB",
+            "ts": 26,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 172,
+            "symbol": "GSBBB",
+            "ts": 27,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 173,
+            "symbol": "GSBBB",
+            "ts": 28,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 171,
+            "symbol": "GSBBB",
+            "ts": 29,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 75,
+            "pl": 169,
+            "symbol": "GSBBB",
+            "ts": 30,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 170,
+            "symbol": "GSBBB",
+            "ts": 31,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 168,
+            "symbol": "GSBBB",
+            "ts": 32,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 166,
+            "symbol": "GSBBB",
+            "ts": 33,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 167,
+            "symbol": "GSBBB",
+            "ts": 34,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 165,
+            "symbol": "GSBBB",
+            "ts": 35,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 163,
+            "symbol": "GSBBB",
+            "ts": 36,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 164,
+            "symbol": "GSBBB",
+            "ts": 37,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 162,
+            "symbol": "GSBBB",
+            "ts": 38,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 160,
+            "symbol": "GSBBB",
+            "ts": 39,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 158,
+            "symbol": "GSBBB",
+            "ts": 40,
+            "volume_ratio": 1.0
+          }
+        ],
+        "GSCCC": [
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 1,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 2,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 49,
+            "symbol": "GSCCC",
+            "ts": 3,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 53,
+            "symbol": "GSCCC",
+            "ts": 4,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 51,
+            "symbol": "GSCCC",
+            "ts": 5,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 70,
+            "pl": 55,
+            "symbol": "GSCCC",
+            "ts": 6,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 7,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 56,
+            "symbol": "GSCCC",
+            "ts": 8,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 9,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 54,
+            "symbol": "GSCCC",
+            "ts": 10,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 58,
+            "symbol": "GSCCC",
+            "ts": 11,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 53,
+            "symbol": "GSCCC",
+            "ts": 12,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 49,
+            "symbol": "GSCCC",
+            "ts": 13,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 55,
+            "symbol": "GSCCC",
+            "ts": 14,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 70,
+            "pl": 60,
+            "symbol": "GSCCC",
+            "ts": 15,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 54,
+            "symbol": "GSCCC",
+            "ts": 16,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 17,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 57,
+            "symbol": "GSCCC",
+            "ts": 18,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 19,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 48,
+            "symbol": "GSCCC",
+            "ts": 20,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 53,
+            "symbol": "GSCCC",
+            "ts": 21,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 59,
+            "symbol": "GSCCC",
+            "ts": 22,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 51,
+            "symbol": "GSCCC",
+            "ts": 23,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 47,
+            "symbol": "GSCCC",
+            "ts": 24,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 25,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 58,
+            "symbol": "GSCCC",
+            "ts": 26,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 70,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 27,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 45,
+            "symbol": "GSCCC",
+            "ts": 28,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 51,
+            "symbol": "GSCCC",
+            "ts": 29,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 56,
+            "symbol": "GSCCC",
+            "ts": 30,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 49,
+            "symbol": "GSCCC",
+            "ts": 31,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 54,
+            "symbol": "GSCCC",
+            "ts": 32,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 60,
+            "symbol": "GSCCC",
+            "ts": 33,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 70,
+            "pl": 55,
+            "symbol": "GSCCC",
+            "ts": 34,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 35,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 46,
+            "symbol": "GSCCC",
+            "ts": 36,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 37,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 58,
+            "symbol": "GSCCC",
+            "ts": 38,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 53,
+            "symbol": "GSCCC",
+            "ts": 39,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 49,
+            "symbol": "GSCCC",
+            "ts": 40,
+            "volume_ratio": 1.0
+          }
+        ]
+      },
+      "bars_sha256": "2b668b1ce8613251cfca0ac1d8502386d8a342e7b66df6c706954af0392bdd1c",
+      "case_id": "GS-2026-11-02-WFO-3PATHS",
+      "description": "Walk-forward out-of-sample windows (train 15 / test 8 / step 8) over the three hand-written paths; fixed filter, no parameter optimization.",
+      "expected": {
+        "counts": {
+          "total_oos_trades": 5,
+          "windows": 3
+        },
+        "flags": {
+          "mode": "walk_forward"
+        },
+        "metrics": {
+          "avg_window_total_return": 0.095
+        },
+        "windows": [
+          {
+            "counts": {
+              "trades": 1
+            },
+            "metrics": {
+              "average_return": -3.733,
+              "maximum_drawdown": 0.373,
+              "median_return": -3.733,
+              "profit_factor": 0.0,
+              "sharpe_ratio": 0.0,
+              "total_return": -0.373,
+              "win_rate": 0.0
+            }
+          },
+          {
+            "counts": {
+              "trades": 2
+            },
+            "metrics": {
+              "average_return": 5.633,
+              "maximum_drawdown": 0.099,
+              "median_return": 5.633,
+              "profit_factor": 12.267,
+              "sharpe_ratio": 0.601,
+              "total_return": 1.127,
+              "win_rate": 50.0
+            }
+          },
+          {
+            "counts": {
+              "trades": 2
+            },
+            "metrics": {
+              "average_return": -2.342,
+              "maximum_drawdown": 0.896,
+              "median_return": -2.342,
+              "profit_factor": 0.477,
+              "sharpe_ratio": -0.25,
+              "total_return": -0.468,
+              "win_rate": 50.0
+            }
+          }
+        ]
+      },
+      "kind": "WALK_FORWARD"
+    },
+    {
+      "bars": {
+        "GSAAA": [
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 100,
+            "symbol": "GSAAA",
+            "ts": 1,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 101,
+            "symbol": "GSAAA",
+            "ts": 2,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 80,
+            "pl": 103,
+            "symbol": "GSAAA",
+            "ts": 3,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 102,
+            "symbol": "GSAAA",
+            "ts": 4,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 104,
+            "symbol": "GSAAA",
+            "ts": 5,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 106,
+            "symbol": "GSAAA",
+            "ts": 6,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 105,
+            "symbol": "GSAAA",
+            "ts": 7,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 107,
+            "symbol": "GSAAA",
+            "ts": 8,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 109,
+            "symbol": "GSAAA",
+            "ts": 9,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 108,
+            "symbol": "GSAAA",
+            "ts": 10,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 110,
+            "symbol": "GSAAA",
+            "ts": 11,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 112,
+            "symbol": "GSAAA",
+            "ts": 12,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 80,
+            "pl": 111,
+            "symbol": "GSAAA",
+            "ts": 13,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 113,
+            "symbol": "GSAAA",
+            "ts": 14,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 115,
+            "symbol": "GSAAA",
+            "ts": 15,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 114,
+            "symbol": "GSAAA",
+            "ts": 16,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 116,
+            "symbol": "GSAAA",
+            "ts": 17,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 118,
+            "symbol": "GSAAA",
+            "ts": 18,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 117,
+            "symbol": "GSAAA",
+            "ts": 19,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 119,
+            "symbol": "GSAAA",
+            "ts": 20,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 121,
+            "symbol": "GSAAA",
+            "ts": 21,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 120,
+            "symbol": "GSAAA",
+            "ts": 22,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 80,
+            "pl": 122,
+            "symbol": "GSAAA",
+            "ts": 23,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 124,
+            "symbol": "GSAAA",
+            "ts": 24,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 123,
+            "symbol": "GSAAA",
+            "ts": 25,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 125,
+            "symbol": "GSAAA",
+            "ts": 26,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 127,
+            "symbol": "GSAAA",
+            "ts": 27,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 126,
+            "symbol": "GSAAA",
+            "ts": 28,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 128,
+            "symbol": "GSAAA",
+            "ts": 29,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 130,
+            "symbol": "GSAAA",
+            "ts": 30,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 129,
+            "symbol": "GSAAA",
+            "ts": 31,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 131,
+            "symbol": "GSAAA",
+            "ts": 32,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 80,
+            "pl": 133,
+            "symbol": "GSAAA",
+            "ts": 33,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 132,
+            "symbol": "GSAAA",
+            "ts": 34,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 134,
+            "symbol": "GSAAA",
+            "ts": 35,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 136,
+            "symbol": "GSAAA",
+            "ts": 36,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 135,
+            "symbol": "GSAAA",
+            "ts": 37,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 137,
+            "symbol": "GSAAA",
+            "ts": 38,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 139,
+            "symbol": "GSAAA",
+            "ts": 39,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 140,
+            "symbol": "GSAAA",
+            "ts": 40,
+            "volume_ratio": 1.0
+          }
+        ],
+        "GSBBB": [
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 200,
+            "symbol": "GSBBB",
+            "ts": 1,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 198,
+            "symbol": "GSBBB",
+            "ts": 2,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 196,
+            "symbol": "GSBBB",
+            "ts": 3,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 197,
+            "symbol": "GSBBB",
+            "ts": 4,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 75,
+            "pl": 195,
+            "symbol": "GSBBB",
+            "ts": 5,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 193,
+            "symbol": "GSBBB",
+            "ts": 6,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 194,
+            "symbol": "GSBBB",
+            "ts": 7,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 192,
+            "symbol": "GSBBB",
+            "ts": 8,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 190,
+            "symbol": "GSBBB",
+            "ts": 9,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 191,
+            "symbol": "GSBBB",
+            "ts": 10,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 189,
+            "symbol": "GSBBB",
+            "ts": 11,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 187,
+            "symbol": "GSBBB",
+            "ts": 12,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 188,
+            "symbol": "GSBBB",
+            "ts": 13,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 186,
+            "symbol": "GSBBB",
+            "ts": 14,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 184,
+            "symbol": "GSBBB",
+            "ts": 15,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 185,
+            "symbol": "GSBBB",
+            "ts": 16,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 183,
+            "symbol": "GSBBB",
+            "ts": 17,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 75,
+            "pl": 181,
+            "symbol": "GSBBB",
+            "ts": 18,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 182,
+            "symbol": "GSBBB",
+            "ts": 19,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 180,
+            "symbol": "GSBBB",
+            "ts": 20,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 178,
+            "symbol": "GSBBB",
+            "ts": 21,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 179,
+            "symbol": "GSBBB",
+            "ts": 22,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 177,
+            "symbol": "GSBBB",
+            "ts": 23,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 175,
+            "symbol": "GSBBB",
+            "ts": 24,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 176,
+            "symbol": "GSBBB",
+            "ts": 25,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 174,
+            "symbol": "GSBBB",
+            "ts": 26,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 172,
+            "symbol": "GSBBB",
+            "ts": 27,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 173,
+            "symbol": "GSBBB",
+            "ts": 28,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 171,
+            "symbol": "GSBBB",
+            "ts": 29,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 75,
+            "pl": 169,
+            "symbol": "GSBBB",
+            "ts": 30,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 170,
+            "symbol": "GSBBB",
+            "ts": 31,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 168,
+            "symbol": "GSBBB",
+            "ts": 32,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 166,
+            "symbol": "GSBBB",
+            "ts": 33,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 167,
+            "symbol": "GSBBB",
+            "ts": 34,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 165,
+            "symbol": "GSBBB",
+            "ts": 35,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 163,
+            "symbol": "GSBBB",
+            "ts": 36,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 164,
+            "symbol": "GSBBB",
+            "ts": 37,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 162,
+            "symbol": "GSBBB",
+            "ts": 38,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 160,
+            "symbol": "GSBBB",
+            "ts": 39,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 158,
+            "symbol": "GSBBB",
+            "ts": 40,
+            "volume_ratio": 1.0
+          }
+        ],
+        "GSCCC": [
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 1,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 2,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 49,
+            "symbol": "GSCCC",
+            "ts": 3,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 53,
+            "symbol": "GSCCC",
+            "ts": 4,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 51,
+            "symbol": "GSCCC",
+            "ts": 5,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 70,
+            "pl": 55,
+            "symbol": "GSCCC",
+            "ts": 6,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 7,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 56,
+            "symbol": "GSCCC",
+            "ts": 8,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 9,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 54,
+            "symbol": "GSCCC",
+            "ts": 10,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 58,
+            "symbol": "GSCCC",
+            "ts": 11,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 53,
+            "symbol": "GSCCC",
+            "ts": 12,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 49,
+            "symbol": "GSCCC",
+            "ts": 13,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 55,
+            "symbol": "GSCCC",
+            "ts": 14,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 70,
+            "pl": 60,
+            "symbol": "GSCCC",
+            "ts": 15,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 54,
+            "symbol": "GSCCC",
+            "ts": 16,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 17,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 57,
+            "symbol": "GSCCC",
+            "ts": 18,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 19,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 48,
+            "symbol": "GSCCC",
+            "ts": 20,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 53,
+            "symbol": "GSCCC",
+            "ts": 21,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 59,
+            "symbol": "GSCCC",
+            "ts": 22,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 51,
+            "symbol": "GSCCC",
+            "ts": 23,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 47,
+            "symbol": "GSCCC",
+            "ts": 24,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 25,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 58,
+            "symbol": "GSCCC",
+            "ts": 26,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 70,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 27,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 45,
+            "symbol": "GSCCC",
+            "ts": 28,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 51,
+            "symbol": "GSCCC",
+            "ts": 29,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 56,
+            "symbol": "GSCCC",
+            "ts": 30,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 49,
+            "symbol": "GSCCC",
+            "ts": 31,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 54,
+            "symbol": "GSCCC",
+            "ts": 32,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 60,
+            "symbol": "GSCCC",
+            "ts": 33,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 2.0,
+            "entry_score": 70,
+            "pl": 55,
+            "symbol": "GSCCC",
+            "ts": 34,
+            "volume_ratio": 3.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 50,
+            "symbol": "GSCCC",
+            "ts": 35,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 46,
+            "symbol": "GSCCC",
+            "ts": 36,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 52,
+            "symbol": "GSCCC",
+            "ts": 37,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 58,
+            "symbol": "GSCCC",
+            "ts": 38,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 53,
+            "symbol": "GSCCC",
+            "ts": 39,
+            "volume_ratio": 1.0
+          },
+          {
+            "buy_power": 1.0,
+            "entry_score": 0,
+            "pl": 49,
+            "symbol": "GSCCC",
+            "ts": 40,
+            "volume_ratio": 1.0
+          }
+        ]
+      },
+      "bars_sha256": "2b668b1ce8613251cfca0ac1d8502386d8a342e7b66df6c706954af0392bdd1c",
+      "case_id": "GS-2026-11-02-FWD-3PATHS",
+      "description": "Forward out-of-sample segment of all three hand-written paths from explicit timestamp boundary start_ts=28.0.",
+      "expected": {
+        "counts": {
+          "trades": 3
+        },
+        "flags": {
+          "forward_boundary_type": "timestamp",
+          "mode": "forward_test"
+        },
+        "metrics": {
+          "average_return": -3.26,
+          "maximum_drawdown": 1.406,
+          "median_return": -5.097,
+          "profit_factor": 0.304,
+          "sharpe_ratio": -0.479,
+          "total_return": -0.978,
+          "win_rate": 33.33
+        }
+      },
+      "kind": "FORWARD_TEST"
+    }
+  ],
+  "created_at_utc": "2026-11-02T00:00:00+00:00",
+  "engine": {
+    "data_trust_state": "mock",
+    "entry_filter": "entry_score >= 70",
+    "execution": {
+      "commission_pct": 0.5,
+      "initial_capital": 100000000.0,
+      "max_hold_bars": 6,
+      "position_size_pct": 10.0,
+      "slippage_pct": 0.0,
+      "stop_loss_pct": -3.0,
+      "take_profit_pct": 4.0
+    },
+    "exit_filter": null,
+    "forward_start_ts": 28.0,
+    "walk_forward_config": {
+      "min_train_bars": 10,
+      "step_bars": 8,
+      "test_bars": 8,
+      "train_bars": 15
+    }
+  },
+  "notes": "Hand-written deterministic price paths; expected values pinned from one deterministic engine run (double-run equality verified). No superiority claim over any external system is made or implied.",
+  "schema": "golden_set_v1",
+  "version_id": "GS-2026-11-02",
+  "version_sha256": "acefd2e7baf47d55050cb1c7f8496745847fcb10a91d71b0f4d38d14231d7850"
+}
