@@ -44,7 +44,7 @@ from __future__ import annotations
 import math
 from typing import Literal, Sequence
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 MultipleTestingMethod = Literal["NONE", "BONFERRONI", "BENJAMIN_HOCHBERG"]
 

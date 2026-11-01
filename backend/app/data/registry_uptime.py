@@ -44,8 +44,6 @@ from collections.abc import Mapping, Sequence
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel
-
 from app.domain.evidence import ensure_utc
 from app.domain.source_registry import CoverageReport, SourceDescriptor
 

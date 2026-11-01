@@ -42,7 +42,7 @@ import math
 from fractions import Fraction
 from typing import Any, Literal, Mapping, Sequence
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.domain.evidence import SCHEMA_VERSION
 from app.domain.governed_generation import (
@@ -50,7 +50,6 @@ from app.domain.governed_generation import (
     DeterministicEvaluatorBinding,
     EvaluationMetric,
     EvaluatorRegistry,
-    GeneratedCandidateKind,
 )
 from app.engines.filter_dsl import FilterError, run_filter
 
