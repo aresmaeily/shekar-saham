@@ -58,6 +58,10 @@ class MarketService:
         self._trust_level: str = "mixed"
         self._source: str = "none"
         self._flow_meta: dict[str, Any] = {}
+        # WS-1 false-fresh guard: a refresh cycle that fell back to recycled
+        # symbols after a provider.fetch() exception must NOT re-stamp them
+        # as freshly fetched (one-cycle flag; see refresh()).
+        self._fetch_degraded: bool = False
         # P1-2: کش fundamental با LRU + TTL + size limit
         self._fund_cache: dict[str, tuple[float, dict[str, Any]]] = {}
         self._fund_cache_max = 200
@@ -368,6 +372,8 @@ class MarketService:
         self.provider.settings = get_settings()
         try:
             symbols = await self.provider.fetch()
+            async with self._lock:
+                self._fetch_degraded = False  # fresh fetch succeeded
         except Exception as exc:
             err_id = uuid.uuid4().hex[:8]
             logger.error(f"[{err_id}] provider fetch failed: {exc}", exc_info=False)
@@ -375,6 +381,12 @@ class MarketService:
             async with self._lock:
                 if self._last_symbols:
                     symbols = self._last_symbols
+                    # P2 data-trust honesty (WS-1 audit finding): recycled
+                    # data from a failed fetch must not be re-stamped as
+                    # fresh in Phase 3 — flag the cycle as degraded so the
+                    # previous fetch timestamp is preserved and the trust
+                    # context reports the true age (stale/unavailable).
+                    self._fetch_degraded = True
                 else:
                     raise
         source = self.provider.last_source
@@ -457,7 +469,14 @@ class MarketService:
         async with self._lock:
             self._last_symbols = symbols
             self._last_analysis = analysis
-            self._last_fetch_ts = time.time()
+            if self._fetch_degraded:
+                # False-fresh guard: keep the PREVIOUS fetch timestamp so the
+                # trust context reflects the real data age instead of masking
+                # the failure with a fresh stamp. One-cycle flag.
+                self._last_fetch_ts = self._last_fetch_ts or time.time()
+                self._fetch_degraded = False
+            else:
+                self._last_fetch_ts = time.time()
             self._source = source
             self._trust_level = trust_level
             self._last_big_moves = moves
