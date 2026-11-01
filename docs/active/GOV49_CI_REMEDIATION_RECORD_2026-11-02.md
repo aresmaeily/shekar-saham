@@ -73,8 +73,14 @@ mismatch or missing-version failure would have produced the artifact).
   canonical files is the only non-weakening fix (a conditional skip would delete a real
   governance assertion and was rejected).
 - **RC3 (windows):** W2 performed a single unguarded HTTP request immediately after a
-  step boundary. Any transient transport failure at that boundary fails the whole
-  validation with no diagnostics (raw log sign-in-gated ⇒ undebuggable post-hoc).
+  step boundary. First remediation added a bounded retry (15 × (5 s + 2 s)) — **run
+  41335202370 (job 124933446176) falsified the transient hypothesis: W2 failed again
+  after ~100 s of retries with the server unreachable the whole step** (job 2 m 36 s ≈
+  44 s W1 + ~105 s retry window + overhead), i.e. the W1-started uvicorn process does
+  NOT survive the W1→W2 step boundary on Windows runners (deterministic per-step
+  process cleanup on the hosted runner). The design defect is a step consuming a
+  server owned by a PREVIOUS step — with no diagnostics when it fails (raw log
+  sign-in-gated ⇒ undebuggable post-hoc).
 
 ## 4. Changes (smallest justified correction; no test modified, no assertion weakened)
 
@@ -91,14 +97,19 @@ mismatch or missing-version failure would have produced the artifact).
    remaining bootstrap untracked set (`PROJECT_EXECUTION_STATE.md`,
    `docs/governance/evidence/`, `.claude/`, `CLAUDE.md`, `scripts/r13_owner_repo_setup.sh`,
    `scripts/validate_bootstrap_config.py`) is unchanged and stays untracked.
-3. `.github/workflows/windows.yml` — W2 step hardened (RC3): bounded health
-   re-verification (15 × (5 s timeout + 2 s sleep), same 200-gate pattern W1 uses;
-   zero added latency when healthy), defensive committed-version extraction (explicit
-   error if the pattern is not found instead of an obscure null dereference), and full
-   failure diagnostics into the step log and `windows_run_provenance.txt` (exception
-   message + uvicorn stderr tail). ALL original assertions preserved verbatim
-   (no-version-field error, version-mismatch error, provenance line, artifact writes);
-   the step name is unchanged.
+3. `.github/workflows/windows.yml` — W2 step made SELF-SUFFICIENT (RC3, revised after
+   run 41335202370): bounded health re-verification (5 × (5 s + 2 s); zero added
+   latency when healthy); **if unreachable, boots the same app the same way W1 does**
+   (`Start-Process python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+   -WorkingDirectory backend`, absolute-path redirects, pid file updated) and polls up
+   to 60 × 2 s before asserting; defensive committed-version extraction (explicit
+   not-found error instead of an obscure null dereference); full failure diagnostics
+   into the step log and `windows_run_provenance.txt` (exception message + both
+   uvicorn stderr tails). W6 likewise ensures the server is reachable (boots if
+   needed) before the E2E suite. The boot event is recorded in the provenance file —
+   honest evidence, not masking: a genuinely dead app still fails the step. ALL
+   original assertions preserved verbatim (no-version-field error, version-mismatch
+   error, provenance line, artifact writes); all step names unchanged.
 
 Not changed (recorded as observations): the pre-existing `pytest>=9.0.3` float pin and
 the `on.push.branches` lines are byte-unchanged; no gate file touched
@@ -110,9 +121,13 @@ the `on.push.branches` lines are byte-unchanged; no gate file touched
 - Full backend suite, Python 3.13 + exact requirement pins, full-history checkout:
   938 passed / 1 skipped (green) — pre-commit at `1a160ce` and re-run at the GOV-49 HEAD.
 - Focused G2 harness suite green at the GOV-49 HEAD.
-- W2 exact step body extracted from the committed `windows.yml` and executed under
-  PowerShell 7.4.6 against a locally booted app: exit 0, `windows_health.json` written,
-  `health version: 3.0.0 (== committed)`.
+- W2 exact step body (revised, self-sufficient version) executed under PowerShell
+  7.4.6 against a locally booted app — BOTH paths: server-dead → boots its own server
+  via Start-Process (provenance records "existing server unreachable … booting the app
+  in this step"), assertions pass (`3.0.0 == committed`, `windows_health.json`
+  written); server-alive → immediate pass, no second boot. The first version
+  (retry-only) was validated the same way and then falsified in CI by run
+  41335202370 — recorded, not discarded.
 - Fresh shallow-clone spot check at the GOV-49 HEAD: corpus present from the clone ⇒
   corpus-identity test green even without history; the remaining shallow-clone failures
   are exactly the history-dependent ones, which `fetch-depth: 0` removes in CI (the

@@ -66,13 +66,16 @@ jobs:
       - name: Health + version consistency (W2)
         shell: pwsh
         run: |
-          # GOV-49 hardening: the W1-started server is re-verified with the same
-          # bounded 200-gate pattern W1 uses before the W2 assertions run, and
-          # every failure path prints its diagnostics into the step log. All
-          # original W2 assertions are unchanged and remain fail-closed.
+          # GOV-49 (revised after run 41335202370): the W1-started server does
+          # not survive the W1->W2 step boundary on Windows runners (100 s of
+          # bounded retries all failed — deterministic, not transient), so this
+          # step is SELF-SUFFICIENT: re-verify the existing server first; if
+          # unreachable, boot the same app the same way W1 does, then run the
+          # unchanged W2 assertions. Every path prints diagnostics; every
+          # original W2 assertion is preserved and fail-closed.
           $h = $null
           $lastErr = ""
-          for ($i = 1; $i -le 15; $i++) {
+          for ($i = 1; $i -le 5; $i++) {
             try {
               $h = Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/health" -TimeoutSec 5
               break
@@ -83,10 +86,27 @@ jobs:
             }
           }
           if ($null -eq $h) {
-            "W2 DIAGNOSTIC: health endpoint unreachable after bounded retry; last error: $lastErr" | Out-File -Append windows_run_provenance.txt
-            "=== W2 DIAGNOSTIC: uvicorn stderr (last 60 lines) ==="
+            "W2: existing server unreachable ($lastErr) — booting the app in this step" | Out-File -Append windows_run_provenance.txt
+            $outLog = Join-Path (Get-Location) "windows_uvicorn_w2_stdout.log"
+            $errLog = Join-Path (Get-Location) "windows_uvicorn_w2_stderr.log"
+            $pidFile = Join-Path (Get-Location) "windows_uvicorn_pid.txt"
+            $p = Start-Process -FilePath python -ArgumentList "-m","uvicorn","app.main:app","--host","127.0.0.1","--port","8000" -WorkingDirectory "backend" -PassThru -RedirectStandardOutput $outLog -RedirectStandardError $errLog -NoNewWindow
+            $p.Id | Out-File -FilePath $pidFile
+            foreach ($i in 1..60) {
+              Start-Sleep -Seconds 2
+              try {
+                $h = Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/health" -TimeoutSec 5
+                break
+              } catch { $lastErr = $_.Exception.Message; $h = $null }
+            }
+          }
+          if ($null -eq $h) {
+            "W2 DIAGNOSTIC: health endpoint unreachable after bounded re-verify/boot; last error: $lastErr" | Out-File -Append windows_run_provenance.txt
+            "=== W2 DIAGNOSTIC: W2-boot uvicorn stderr (last 60 lines) ==="
+            Get-Content windows_uvicorn_w2_stderr.log -ErrorAction SilentlyContinue | Select-Object -Last 60
+            "=== W2 DIAGNOSTIC: W1 uvicorn stderr (last 60 lines) ==="
             Get-Content windows_uvicorn_stderr.log -ErrorAction SilentlyContinue | Select-Object -Last 60
-            Write-Error "health endpoint unreachable after bounded retry: $lastErr"
+            Write-Error "health endpoint unreachable after bounded re-verify/boot: $lastErr"
             exit 1
           }
           $h | ConvertTo-Json -Depth 5 | Out-File windows_health.json
@@ -103,6 +123,31 @@ jobs:
       - name: Browser E2E suite (W6 — 7/7 expected)
         shell: pwsh
         run: |
+          # GOV-49: the server does not survive step boundaries on Windows
+          # runners — ensure it is reachable (booting it if needed, exactly as
+          # W1 does) before the E2E suite runs.
+          $h = $null
+          for ($i = 1; $i -le 5; $i++) {
+            try {
+              $h = Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/health" -TimeoutSec 5
+              break
+            } catch { $h = $null; Start-Sleep -Seconds 2 }
+          }
+          if ($null -eq $h) {
+            $outLog = Join-Path (Get-Location) "windows_uvicorn_stdout.log"
+            $errLog = Join-Path (Get-Location) "windows_uvicorn_stderr.log"
+            $pidFile = Join-Path (Get-Location) "windows_uvicorn_pid.txt"
+            $p = Start-Process -FilePath python -ArgumentList "-m","uvicorn","app.main:app","--host","127.0.0.1","--port","8000" -WorkingDirectory "backend" -PassThru -RedirectStandardOutput $outLog -RedirectStandardError $errLog -NoNewWindow
+            $p.Id | Out-File -FilePath $pidFile
+            foreach ($i in 1..60) {
+              Start-Sleep -Seconds 2
+              try {
+                $h = Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/health" -TimeoutSec 5
+                break
+              } catch { $h = $null }
+            }
+            if ($null -eq $h) { Write-Error "server unreachable in W6 after fresh boot"; exit 1 }
+          }
           pip install playwright==1.57.0
           playwright install chromium
           $env:RADAR_E2E_BASE_URL = "http://127.0.0.1:8000"
