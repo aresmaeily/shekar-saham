@@ -8,6 +8,22 @@ NOT_PASSED. Pre-G2 authorized work class: "bounded design, schema work,
 source-registry design, synthetic/paper tests and safe dry-run work"
 (`02:202`). P3.60 "no unauthorized feature" gate remains binding.
 
+> **Currency note — 2026-11-02 (additive; original text preserved verbatim).**
+> Two header statements are superseded by later owner actions and are kept
+> above only as the 2026-10-18 record: (1) G2 is formally PASSED
+> (owner-recorded 2026-10-29T19:58:32Z, CONSOL-GOV-37; convened review commit
+> `9e7c6a21b8b61e2ccb4dc5f1d2249e6af8773242`; state
+> `docs/active/G2_GATE_STATE.json`) — with `AI2_ENABLED=0`, `verified=False`,
+> `execution_mode=SYNTHETIC_OR_PAPER` unchanged and real-provider
+> credentials/enablement DENIED for the current release (GOV-41 Phase 2).
+> (2) GitHub publication is no longer pending: main was published via the
+> authorized deploy-key path (GOV-48, 2026-11-01) and the post-publication CI
+> remediation completed with all three required jobs green on
+> `7c72f3d59d47435b53d83dad40a759d69377bca8` (GOV-49). The P3.43 Controlled
+> Alpha Launch gates that remain owner-side are unchanged in kind: Windows
+> target validation, browser E2E, Electron runtime, live-provider
+> verification, and an explicit owner `INSTALL` instruction.
+
 ## AI-4 — Governed Generation (`02:87-90`, `02:158-159`, D-AI-11)
 
 - **Exact official scope:** "AI-generated filters/indicators/strategy

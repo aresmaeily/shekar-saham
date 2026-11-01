@@ -5,6 +5,21 @@ technology. It separates (A) source-backed constraints, (B) engineering
 analysis of viable options against those constraints, (C) unknowns, and
 (D) owner decisions that are missing. Labels are explicit per claim.
 
+> **Currency note — 2026-11-02 (additive; text above and below preserved
+> verbatim as recorded 2026-10-18).** Governance state has moved since this
+> brief was written: G2 is formally PASSED (owner-recorded 2026-10-29T19:58:32Z,
+> CONSOL-GOV-37; convened review commit `9e7c6a21b8b61e2ccb4dc5f1d2249e6af8773242`;
+> tracked state `docs/active/G2_GATE_STATE.json`). The binding AI-2
+> restrictions are unchanged: `AI2_ENABLED=0`, `verified=False`,
+> `execution_mode=SYNTHETIC_OR_PAPER`; real provider credentials and AI-2
+> enablement were DENIED for the current release (GOV-41 Phase 2,
+> `OA-AI2-LIVE-CREDENTIALS` / `OA-AI2-ENABLEMENT` — CLOSED AS NOT GRANTED).
+> Constraint A9's "G2 blocks real-data research runtime" therefore describes
+> the pre-2026-10-29 gate state, not the current blocker set: real-data
+> AI-2/research runtime remains unavailable today by explicit owner denial,
+> not by G2. D1–D7 remain PENDING — no owner decision has been recorded for
+> any of them, and none is assumed by the 2026-11-02 reconciliation.
+
 ## A. Source-backed constraints (verbatim loci in the imported corpus)
 
 | # | Constraint | Source |

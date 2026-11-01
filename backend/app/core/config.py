@@ -104,8 +104,10 @@ class Settings(BaseSettings):
 
     # AI-2 second-stage analysis (Category A offline scaffold).
     # Real-data AI-2 additionally requires is_verified_live(data_trust) —
-    # which cannot be minted in this repository today — plus G2 independent
-    # validation and owner acceptance (governance gate, NOT_PASSED).
+    # which cannot be minted in this repository today — plus explicit owner
+    # enablement. G2 is PASSED (owner-recorded 2026-10-29, CONSOL-GOV-37;
+    # state: docs/active/G2_GATE_STATE.json) — AI-2 enablement is NOT granted
+    # for the current release (GOV-41) and stays a separate future owner act.
     ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
 
     # Runtime G2 gate (GOV-32 Phase 3C): location of the tracked formal
