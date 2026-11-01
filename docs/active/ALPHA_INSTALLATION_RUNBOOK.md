@@ -16,6 +16,19 @@ Current known blocker:
 GitHub remote is behind local by 21 commits. If GitHub sync is not fixed, use verified P3.44 archive or newer handoff archive.
 ```
 
+> **Currency note — 2026-11-02 (additive; original text above preserved
+> verbatim as the historical record).** The "behind by 21 commits" blocker is
+> SUPERSEDED: `main` was published through the authorized deploy-key path
+> (GOV-48, 2026-11-01) and post-publication CI remediation completed with all
+> three required jobs green on `7c72f3d59d47435b53d83dad40a759d69377bca8`
+> (GOV-49). The current publication chain is verified by remote read-back
+> (see `docs/STATUS.md` MA-1/WS-0 row and current `git ls-remote origin main`).
+> Installation from the synchronized GitHub remote is the expected path; the
+> verified-archive alternative above remains valid as a fallback procedure
+> only. The owner-side P3.43 gates (INSTALL instruction, Windows target
+> validation, browser E2E, Electron runtime, live-provider verification) are
+> unchanged — see `docs/active/P343_INSTALL_CHECKLIST.md`.
+
 ## 2. Target prerequisites
 
 Open PowerShell as a normal user unless administrator is required by your environment.
