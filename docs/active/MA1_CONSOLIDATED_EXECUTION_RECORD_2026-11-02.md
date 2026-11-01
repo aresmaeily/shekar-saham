@@ -150,6 +150,17 @@ source-class admission + Two-Key parameters; AI-7 autonomy expansion
 (D-AI-31, evidence-gated); README/frontend "better than tablokhani" phrasing
 (03:111 evidence rule) — flagged for owner, not changed.
 
+## 8. Publication & CI evidence (exact-SHA rule, GOV-41 A6)
+
+| SHA | Content | CI outcome |
+|---|---|---|
+| `4215ed4` | WS-0 docs currency | test-backend SUCCESS (1m47s; build-docker/windows anonymous render incomplete at poll time; superseded by later full-green SHAs carrying identical code) |
+| `b7b954c` | WS-1..WS-11 implementation + records | **test-backend FAILED at the Lint (pyflakes) step (exit 1, 27s)** — the sandbox venv lacked pyflakes so the lint gate could not run pre-push; recorded honestly, not disguised. Failure = import hygiene only (4 undefined `Any`, 4 unused imports). |
+| `1832b75` | lint fix (import lines only, zero behavior change) | **ALL THREE REQUIRED JOBS SUCCESS** — test-backend SUCCESS (51s, 21:48:36→21:49:27Z); build-docker SUCCESS (21:49:51Z); windows-validation SUCCESS completed 21:52:51Z with ALL 14 steps success (W1 boot, W2 self-sufficient health+version, W6 browser E2E 7/7, W7 log posture, artifacts) — runs 41353897849 / 41353897802; jobs API verified (check-runs UI cache initially lagged; jobs endpoint used as authority) |
+
+pyflakes is now installed in the sandbox venv and `pyflakes app/` is exit-0 —
+future cycles run the lint gate pre-push.
+
 ## 7. Honesty registers
 
 - `e2e/` suite not re-run in this cycle against a live app (CI W6 covers it on
@@ -157,4 +168,14 @@ source-class admission + Two-Key parameters; AI-7 autonomy expansion
 - TabloKhani capability matrix document NOT created this cycle (Golden Set
   schema + fixture ARE delivered; the matrix doc is the next authorized docs
   task and requires no owner decision).
-- pyflakes/pip-audit not run in-sandbox (module absent); CI runs both on push.
+- pyflakes was ABSENT in-sandbox at push time — CI caught the lint failure on
+  `b7b954c` (§8); fixed forward-only in `1832b75` and verified green.
+- Independent QA (WS-12, separate agent) verdict on the range: **ACCEPT** —
+  all 10 claims independently reproduced (battery ×2, 355-test node-count
+  arithmetic, assertion-weakening sweep via baseline-tree diff, AI-2/gate
+  diffs empty, no-purge enumeration, network/LLM scan, decision-packet
+  neutrality, golden-set digest, secret scan, honesty-register cross-check)
+  plus adversarial probes (determinism ×3 byte-identical; hand-computed
+  conflict scenarios; runtime fail-fast). Non-blocking findings queued:
+  per-cycle degraded token for `market_service.refresh` concurrency
+  (LOW), defensive-comment nits (INFO).
