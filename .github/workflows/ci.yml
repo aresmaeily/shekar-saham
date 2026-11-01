@@ -10,6 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        # GOV-49: full history is required — the G2 acceptance-harness tests
+        # (test_g2_acceptance_harness.py) run `git rev-parse HEAD~1` and
+        # parent-diff checks that fail in a default depth-1 checkout.
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5

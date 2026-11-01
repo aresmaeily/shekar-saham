@@ -66,13 +66,37 @@ jobs:
       - name: Health + version consistency (W2)
         shell: pwsh
         run: |
-          $h = Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/health"
+          # GOV-49 hardening: the W1-started server is re-verified with the same
+          # bounded 200-gate pattern W1 uses before the W2 assertions run, and
+          # every failure path prints its diagnostics into the step log. All
+          # original W2 assertions are unchanged and remain fail-closed.
+          $h = $null
+          $lastErr = ""
+          for ($i = 1; $i -le 15; $i++) {
+            try {
+              $h = Invoke-RestMethod -Uri "http://127.0.0.1:8000/api/health" -TimeoutSec 5
+              break
+            } catch {
+              $lastErr = $_.Exception.Message
+              $h = $null
+              Start-Sleep -Seconds 2
+            }
+          }
+          if ($null -eq $h) {
+            "W2 DIAGNOSTIC: health endpoint unreachable after bounded retry; last error: $lastErr" | Out-File -Append windows_run_provenance.txt
+            "=== W2 DIAGNOSTIC: uvicorn stderr (last 60 lines) ==="
+            Get-Content windows_uvicorn_stderr.log -ErrorAction SilentlyContinue | Select-Object -Last 60
+            Write-Error "health endpoint unreachable after bounded retry: $lastErr"
+            exit 1
+          }
           $h | ConvertTo-Json -Depth 5 | Out-File windows_health.json
           $version = $h.version
           if (-not $version) { Write-Error "health response carries no version field"; exit 1 }
           # W2: version consistency — the displayed API version must equal the
           # committed application version (runbook acceptance criterion).
-          $committed = (Get-Content backend/app/core/config.py | Select-String -Pattern 'version: str = "(.+)"').Matches.Groups[1].Value
+          $match = Get-Content backend/app/core/config.py | Select-String -Pattern 'version: str = "(.+)"'
+          if (-not $match) { Write-Error "committed version pattern not found in backend/app/core/config.py"; exit 1 }
+          $committed = $match.Matches.Groups[1].Value
           if ($version -ne $committed) { Write-Error "version mismatch: health=$version committed=$committed"; exit 1 }
           "health version: $version (== committed)" | Out-File -Append windows_run_provenance.txt
 
