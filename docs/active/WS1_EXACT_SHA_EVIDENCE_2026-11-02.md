@@ -246,3 +246,39 @@ is traceback-free; left unchanged, out of wave scope).
 No gate changed; no test weakened/skipped/deleted; no behavior change beyond
 log formatting on handled-fault paths; D1–D7 remain recorded per
 `OWNER_DECISIONS_RECORDED_2026-11-02.md`; INSTALL NOT ISSUED.
+
+**§7.2 — RECURRENCE (2026-11-02, same day, later cycle): windows run #16 on
+`4972746…` failed at W7 again — the flake is NOT isolated (supersedes the
+"isolated" classification of §7.1; history above preserved verbatim).**
+
+- ci.yml on `4972746`: run 41493220286 — **test-backend SUCCESS,
+  build-docker SUCCESS**.
+- windows.yml run `41493220452` (`#16`, created 17:39:28Z): **FAILURE
+  isolated to step 10 "Runtime log posture (W7 — fail-closed evidence)"**
+  (jobs API, per-step): steps 1–9 ALL success — PS1 syntax gate, Setup
+  Python, deps, W1 boot, W2 health+version, **W6 Browser E2E success**;
+  steps 11–12 (Shutdown, Upload artifacts) success; step 10 failure.
+- Classification UPDATE: with two W7 occurrences (#14 on `a7da35d`, #16 on
+  `4972746`) vs one green (#15 on `814418b`) on identical tested code, the
+  sensitivity is a RECURRING low-frequency flake exactly matching §7's
+  mechanism (rare handled-fault traceback printed into the runtime log
+  under per-30s-bucket mock-input variance). No assertion weakened, no gate
+  changed either way; the artifact with the exact traceback locus again
+  requires the owner's authenticated download.
+- **Resolution: the evidence-stream hygiene wave (§8 below) removes the
+  mechanism structurally** on `f42ad27…` (implementation) — no wait-and-see.
+
+**§8 CI evidence (2026-11-02, exact-SHA rule R-10): the hygiene wave is
+validated by real CI execution on its exact published SHA `574ff14…`.**
+
+- ci.yml run `41496606213` (`#24`): **test-backend SUCCESS + build-docker
+  SUCCESS** (check-runs API on the exact SHA).
+- windows.yml run `41496606114` (`#17`, 18:01:29→18:05:38Z, 4m09s):
+  **SUCCESS — ALL steps success** (jobs API, per-step): checkout/provenance,
+  **PS1 syntax gate**, Setup Python 3.13, deps, **W1 boot**, **W2
+  health+version**, **W6 Browser E2E success**, **W7 Runtime log posture
+  SUCCESS on the hygiene-fixed code** (first CI execution after the
+  traceback-capable handled-fault sites were removed), Shutdown, artifacts.
+- ⇒ **3/3 required jobs SUCCESS on the exact published SHA `574ff14…`;**
+  the structural fix for the recorded W7 flake mechanism is proven by
+  execution, not by argument.
