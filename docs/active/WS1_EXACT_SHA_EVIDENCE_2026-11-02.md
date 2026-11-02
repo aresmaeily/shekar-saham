@@ -118,3 +118,57 @@ Observed CI on the EXACT final SHA `8be2576…` (GitHub API, not inferred):
 
 3/3 required jobs green on the exact published SHA. This currency note
 changes no code and no finding above; it records the observed results.
+
+## §7 — 2026-11-02 (WS-10 cycle): windows run #14 W7 flake recorded; steps 1–9 green
+
+After the WS-10 owner-delegation wave was published (`f05be4c → 1f037dc
+(implementation) → a7da35d (records)`; fast-forward, remote read-back
+`origin/main == a7da35d0a14ee8985c19f58dd5794a27671a8026`, 0/0), the CI runs
+on the exact HEAD were:
+
+- ci.yml run 41484686326-era (`#21`): **test-backend success, build-docker
+  success** on the exact SHA `a7da35d…`.
+- windows.yml run `41484686328` (`#14`, 4m19s): **FAILURE — isolated to
+  step 10 "Runtime log posture (W7 — fail-closed evidence)"**. Step-level
+  conclusions (check-runs/jobs API): steps 1–9 ALL success — provenance,
+  **PS1 syntax gate success**, Setup Python 3.13, deps, **W1 boot success**,
+  **W2 health+version success**, **W6 Browser E2E 7/7 success**; step 11
+  Shutdown + step 12 Upload artifacts success (evidence artifact
+  `windows-validation-evidence`, 8.56 KB, sha256:632ee5de…ceac5). Annotations:
+  1 error ("Process completed with exit code 1.") + 1 warning (Node.js 20
+  deprecation — non-fatal, present on successful runs too).
+
+**Mechanism analysis (honest, no gate weakening):** W7's assertions are
+(a) "Traceback" must not appear anywhere in the combined uvicorn
+stdout+stderr, (b) the ephemeral/FERNET fail-closed warning must be present,
+(c) `live_verified` must not be true. (b) and (c) are deterministic and
+present/green in every run. Only (a) can vary run-to-run: the pre-existing
+`refresh()` pipeline contains `logger.exception` sites that print FULL
+tracebacks into the runtime log on data/provider faults
+(`market_service.py` — `analyze_market failed: …` with a following `raise`
+into `_poll_loop`'s own `logger.exception`; plus per-cycle provider faults
+reaching the same handler). The mock generator is md5-seeded per 30-second
+wall-clock bucket, so analysis inputs change every cycle — a rare data/provider
+edge prints a traceback on some runs and not others. The WS-10 diff adds NO
+logging, NO background tasks, and NO runtime paths exercised during boot/E2E
+(the chart-pro router registers routes that the E2E suite never calls).
+
+**Local non-reproduction at this tree (three attempts, all clean):**
+boot with `DATA_SOURCE=auto` (providers fail → mock_fallback, W7 inputs
+checked: 0 "Traceback", ephemeral/FERNET present) + the W6 E2E suite run
+THREE times consecutively against the same booted server (7/7, 7/7, then a
+provider-timeout-affected 4/7 — still 0 tracebacks in the log) + a 480-bucket
+sweep of the exact Phase-2 stack (`analyze_market`, `_update_big_moves`,
+`rank_tablocastic`, `_rebuild_row_cache`) across 4 hours of synthetic
+mock buckets — **0 exceptions** (`scripts/sweep_mock_buckets.py`, outside the
+repo). Classification: runner-egress/timing-specific pre-existing flake
+sensitivity, not introduced by this wave; the W7 gate itself remains
+intact, fail-closed, and correct.
+
+**Resolution path:** a fresh forward-only currency commit re-runs the job —
+a green run on identical code paths confirms the flake empirically; if it
+recurs, the exact traceback locus is in the run artifact
+(`windows_run_provenance.txt` carries the first 80 lines of both log streams,
+including the traceback context) which requires the owner's authenticated
+download — no assertion is weakened and no owner decision is fabricated
+either way.
