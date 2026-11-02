@@ -95,3 +95,26 @@ the product deploys through Vercel.
 - `SYNTHETIC_OR_PAPER` fallback — `backend/app/domain/g2_gate.py:287`
 - AI-5 kill switch default `ENGAGED` — `backend/app/domain/proactive_research.py:102`
 - zero `ai2` references under `backend/app/api/` (case-insensitive grep: 0)
+
+## 6. Post-publication CI verification of the WS wave (currency note, 2026-11-02)
+
+The WS reconciliation wave was published forward-only:
+`47183c0..8be2576  main -> main` (fast-forward via the authorized deploy-key
+path, no force; remote read-back `8be25762ce904987ed44256c91b92084cfcef619`
+== local HEAD, 0/0 after fetch). Commits: `3cb126e2a056dc0a2af4c864000161a584b9d60f`
+(implementation wave, +64 tests) then `8be25762ce904987ed44256c91b92084cfcef619`
+(records wave incl. the in-repo Persian final report).
+
+Observed CI on the EXACT final SHA `8be2576…` (GitHub API, not inferred):
+
+- ci.yml run `41465447835`: `test-backend` completed/**success**
+  (14:48:28→14:49:14Z, 46s); `build-docker` completed/**success**
+  (14:49:16→14:49:40Z, 24s).
+- windows.yml run `41465447817`: `windows-validation` completed/**success**
+  (14:48:27→14:52:59Z, 4m32s) with EVERY step green — including
+  **step 4 "PowerShell script syntax gate (W2-INST F3)": success** on its
+  first real execution (all four shipped `scripts/windows/*.ps1` parse clean
+  on a real pwsh host) — and W6 Browser E2E 7/7 green.
+
+3/3 required jobs green on the exact published SHA. This currency note
+changes no code and no finding above; it records the observed results.
