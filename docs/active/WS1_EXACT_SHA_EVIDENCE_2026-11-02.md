@@ -172,3 +172,20 @@ recurs, the exact traceback locus is in the run artifact
 including the traceback context) which requires the owner's authenticated
 download — no assertion is weakened and no owner decision is fabricated
 either way.
+
+**§7.1 — CONFIRMATION (same day, ~30 min later): the flake hypothesis was
+empirically confirmed.** The currency commit `814418be045b266193d4dbb53000d
+8fd0bf08f23` (the §7 record itself — zero code changes) triggered fresh runs
+on its exact SHA:
+
+- ci.yml run `41491463599`: **test-backend success, build-docker success**.
+- windows.yml run `41491463575` (`#15`, 17:28:14→17:32:37Z, 4m23s):
+  **success — ALL 25 steps success**, including step "Runtime log posture
+  (W7 — fail-closed evidence)" **success** and step "Browser E2E suite
+  (W6 — 7/7 expected)" **success** (check-runs/jobs API, per-step).
+
+⇒ Identical tested code, new run: 3/3 required jobs green. Run `#14` is
+recorded as an isolated environmental flake instance of the pre-existing
+W7 log-textbook sensitivity (full mechanism above); no gate was changed,
+no assertion weakened, no code reverted. The WS-10 wave's published chain
+`f05be4c → 1f037dc → a7da35d → 814418b` is fully CI-verified.
