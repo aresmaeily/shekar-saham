@@ -117,3 +117,15 @@ TARGET-MACHINE-ONLY (1.3 owner secrets, 3.1/3.6 canonical execution,
 OWNER-GATED). Nothing here flips without the dated owner acts: R-1 INSTALL
 instruction + R-2 access (or owner-executed run + returned bundle). Until
 then: **INSTALL NOT ISSUED; installation completeness = NOT CLAIMED.**
+
+## Dated addendum — 2026-11-02 (decisions recorded; thresholds now pinned)
+
+Per `OWNER_DECISIONS_RECORDED_2026-11-02.md` (owner chat delegation, subject
+to dated veto): **D7 acceptance thresholds for the recovery drill (phase 5.3)
+are RPO ≤ 24h / RTO ≤ 15 minutes**; D5 pins the research-memory backup
+destination to local `data/backups/research-memory/` with keep=14 and a
+sha256 sidecar (offsite remains owner-provided infrastructure); D4 pins the
+at-rest encryption to AES-256-GCM with the OS keyring as the default key
+source (fail-closed without a key). The research-memory restore drill now has
+repo-side mechanical support (`SqliteWalResearchMemoryStore.verify_backup`,
++17 adapter tests) — the drill itself remains TARGET-MACHINE-ONLY.

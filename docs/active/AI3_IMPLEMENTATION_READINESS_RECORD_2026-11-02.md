@@ -65,3 +65,23 @@ Cross-cutting guarantees for ANY chosen option (repo-side, decision-free):
    scaled to the D5 answer, recovery drill against the D7 RPO/RTO numbers.
 4. Everything remains inside the standing controls: no live data, no
    production mutation, no purge path, no owner decision fabricated.
+
+## SUPERSEDING CURRENCY — 2026-11-02 (later the same day)
+
+D1–D7 were recorded via the owner's chat delegation
+(`OWNER_DECISIONS_RECORDED_2026-11-02.md`, subject to dated veto). Item 1–4 of
+§"What starts automatically" have been EXECUTED in the same cycle:
+
+- Production adapter `backend/app/data/research_memory_sqlite.py`
+  (D1 SQLite-WAL + content-addressed blobs; D3 PERMANENT_NO_PURGE retention
+  exported; D4 AES-256-GCM with keyring/env fail-closed key providers —
+  option E-B selected with E-A/E-C rejected for the recorded reasons; D5
+  backup local + keep=14 + sha256 sidecar; D7 `verify_backup` drill support
+  for RPO≤24h/RTO≤15m; D6 single-user posture recorded).
+- Factory #3 `sqlite_wal_encrypted_reference` added to the acceptance
+  scaffold registry (56→82 = exact ×3/2; +17 dedicated adapter tests) — the
+  acceptance gate now runs over all three factories, green.
+- NOT done (still gated): runtime auto-wiring into the application startup
+  and any AI-3 engine activation — a separate owner act on the owner machine;
+  offsite backup destination (needs owner infrastructure); target-machine
+  recovery drill (R-1/R-2 path).

@@ -197,3 +197,27 @@ check — the repo's three required Actions jobs are green on the exact HEAD).
 Owner may configure the Vercel project or disconnect the integration; no
 repository-side action exists or is needed. Evidence:
 `WS1_EXACT_SHA_EVIDENCE_2026-11-02.md` §4.
+
+## ADDENDUM-2 — 2026-11-02 (owner chat delegation executed; supersedes PENDING statuses below)
+
+On 2026-11-02 the owner issued a chat directive enumerating the gate set and
+**explicitly delegating the selection** ("به دقت بهترین تصمیم رو با دلیل بگو
+به نحوی که همین الان انجام بشه…"). The full decision set with per-row
+reasoning is recorded in **`OWNER_DECISIONS_RECORDED_2026-11-02.md`** — each
+decision subject to owner veto by a dated reply. Answer key:
+`D1=A(SQLite-WAL+blobs), D2=DEFER-2026-11-02, D3=PERMANENT-TABLE, D4=KEYRING+AESGCM,
+D5=LOCAL-DAILY-KEEP14, D6=SINGLE-USER, D7=RPO24h-RTO15m, R-1=OWNER-ISSUED-INSTALL,
+R-2=OWNER-EXECUTES-BUNDLE, R-3=KEEP-DENIED, R-4=REWORD, R-5=ACCEPT-PROPOSAL,
+R-6=DORMANT-MANUAL-ONLY, R-7=NO-EXTERNAL-CLASS+TWO-KEY-REQUIRED,
+R-8=NO-EXPANSION, R-9=INBOX-ONLY-E6-DISCONNECTED, R-10=STANDING-GRANT-FORWARD-ONLY,
+R-11=READY-FOR-ACT`.
+
+Executed consequences in the same cycle: D1–D7 → production adapter
+`backend/app/data/research_memory_sqlite.py` (factory #3 in the acceptance
+scaffold; not auto-wired — engine activation remains a separate gate);
+R-4 → the three live loci reworded (`README.md:3`,
+`frontend/js/modules/render/watchlist_excellent.js:2,53`; archived docs
+untouched); R-5 → accepted verbatim for the future runtime integration; WS-10
+chart-pro wave delivered per `WS10_CHART_PRO_DIRECTIVE_2026-11-02.md`.
+Rows above marked PENDING reflect the pre-delegation state and are preserved
+verbatim for history; this addendum is the dated superseding record.
