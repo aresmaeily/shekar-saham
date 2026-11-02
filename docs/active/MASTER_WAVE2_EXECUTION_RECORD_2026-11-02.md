@@ -11,9 +11,16 @@ environment); the product's internal AI agents were not involved.
   `7c225cb1ce2771473f1f646be9c4282348ea7657` (tree `e98a0bac…`) — WS-C Q-1
   fix + WS-D AI-3 test-layer JSONL reference adapter (+32 tests = 1436/1s);
   pushed via the authorized deploy-key path; remote read-back verified;
-  CI re-verified on the exact SHA (`test-backend` SUCCESS observed via the
-  checks page; windows-validation/build-docker completion re-confirmed in
-  this wave's final CI check).
+  **CI re-verified on the exact SHA via the GitHub check-runs API:
+  test-backend SUCCESS, build-docker SUCCESS, windows-validation SUCCESS
+  (3/3 required jobs green on `7c225cb`).**
+- Wave-2 publication `2229bd2e82c7f59d1a8229df1a23289187372e85` (tree
+  `aa4c0d27…`): pushed forward-only; remote read-back verified;
+  **CI re-verified on the exact SHA via the GitHub check-runs API:
+  test-backend SUCCESS, build-docker SUCCESS, windows-validation SUCCESS
+  (3/3 required jobs green on `2229bd2`).** Currency note (this commit):
+  the §1/§5 text was written before the runs completed; the conclusions
+  above are the authoritative observed results for both SHAs.
 - Wave-2 operated on that HEAD: seven bounded parallel audits (all
   READ-ONLY on the repo; every agent confirmed byte-identical
   `git status` before/after), then an orchestrator integration wave
