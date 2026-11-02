@@ -40,3 +40,79 @@ input to the owner's single Role-1 acceptance act; it does NOT replace it.
   the owner's Role-1 acceptance (this audit's acceptance act), and — only if
   the owner ever wants a single number — an approved weighting scheme
   (none exists; percentage honestly NOT_CALCULATED).
+
+---
+
+## SUPERSEDING CORRECTIONS — 2026-11-02 (final reconciliation wave, WS-2/WS-3/WS-4)
+
+The section above is the audit as written at baseline `7c225cb…` (committed
+`2229bd2`, currency-noted `47183c0`). It is preserved verbatim — historical
+findings are never rewritten. The dated corrections below reconcile it with
+the actual final remote HEAD and with the wave-2 audit registers. Authority:
+MASTER directive "FINAL EVIDENCE RECONCILIATION AND REMAINING ROADMAP
+COMPLETION" (2026-11-02), WS-1–WS-4.
+
+### SC-1 — Evidence-baseline currency (WS-2)
+
+- The audit's stated baseline `7c225cb…` was correct when written (the
+  records commit `2229bd2` and currency commit `47183c0` followed it and
+  changed only documentation). The **actual final remote `main` HEAD,
+  verified by `git ls-remote` during this reconciliation, is exactly
+  `47183c0913518be1297f50c77bca0fdb3dddd9d1`** (tree
+  `18c2316cff99d08a9b19b0cb305b19e8f429ce2e`); the remote had NOT advanced.
+  Exact-SHA CI on that HEAD: test-backend, build-docker,
+  windows-validation — all SUCCESS (check-runs API; record:
+  `WS1_EXACT_SHA_EVIDENCE_2026-11-02.md`). Role rows that cite cycle
+  evidence at `7c225cb` remain accurate; every verdict below survives
+  re-verification at `47183c0` (docs-only delta between the two trees;
+  gates re-verified byte-exact).
+- Additional evidence baseline of THIS wave (implementation + records
+  committed on top of `47183c0`): see `MASTER_WS_RECONCILIATION_WAVE_2026-11-02.md`.
+
+### SC-2 — Role #10 quantitative sample counts (WS-3)
+
+The role #10 verdict says "BH/Bonferroni 100% agreement vs independent
+implementation (700 seeded grids + procedure equivalence)". That parenthetical
+collapses two distinct seeded populations into one number and then
+double-describes the second as if separate. The authoritative decomposition
+(W2-QUANT §1.3 + probe `d1_mtp_audit.py`, **re-executed at this HEAD:
+ALL PASS, 43/43 checks**) is:
+
+| Check | Grids / comparisons | Seed |
+|---|---|---|
+| BH + Bonferroni exact float equality vs reference + order invariance | **400 grids** (m=1..48, 4 distributions; 3 comparisons per grid) | 20261102 |
+| repr-identical IEEE-double identity | **200 grids** | 777 |
+| Procedure equivalence (adjusted-p acceptance == BH step-up rejection set) | **300 grids × 4 q-levels = 1200 threshold comparisons** | 42 |
+| Rejection set closed under smaller p (monotone boundary) | **100 grids** | 43 |
+
+Corrected statement: **700 distinct seeded grids across the two headline
+checks (400 agreement + 300 equivalence×4q) — i.e. the Wave-2 record's
+"400 seeded grids + procedure equivalence on 300 grids × 4 q-levels" was the
+precise form and stands; the 17-role audit's "700" is the same evidence with
+the two populations summed. No factual disagreement in the results (100%
+agreement, zero mismatches, reproduction EXACT) — only in the presentation
+of the sample counts.** Supporting checks add 200 (repr) + 100 (boundary)
+grids; 1000 seeded p-grids in total across all randomized checks.
+
+### SC-3 — Aggregate HIGH-finding line (WS-4)
+
+The Aggregate section states "Zero CRITICAL/HIGH findings remain open". That
+line conflates severity with disposition and is corrected as follows
+(severity and disposition are SEPARATE fields; severity is not downgraded):
+
+- **W2-DATA F-1 — severity: HIGH (unchanged). Disposition: OWNER-GATED
+  (open owner decision; technically unresolved in the shipped product:
+  `DATA_SOURCE` still defaults to `auto`). NOT remediated repo-side
+  (changing shipped behavior needs owner ratification), NOT accepted by the
+  owner (no owner answer recorded), NOT a mislabel.** Full two-field record
+  with the exact loci: `W2_DATA_MARKET_INTEGRATION_AUDIT.md` findings
+  register row F-1 (HIGH / OWNER-GATED) + owner packet R-3 note.
+- Corrected aggregate statement: **zero CRITICAL findings; one HIGH finding
+  (W2-DATA F-1) exists and remains OPEN AS AN OWNER DECISION — it requires
+  no engineering work and cannot be closed repo-side; zero HIGH findings
+  require engineering action.** The role #9 row already pointed to F-1 as an
+  owner decision (R-3 note) and needed no correction; only the Aggregate
+  prose was imprecise.
+- The two MEDIUM classes stand as originally dispositioned (supply-chain
+  remediated in `1b9d461`; 0.0.0.0 launcher default = owner-gated product
+  posture, C-2).

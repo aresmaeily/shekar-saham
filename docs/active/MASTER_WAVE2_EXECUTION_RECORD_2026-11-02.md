@@ -137,3 +137,56 @@ W2-INST F5 window icon reference (cosmetic divergence recorded).
 - `docs/active/MASTER_FINAL_17ROLE_AUDIT_2026-11-02.md`
 - `docs/active/MASTER_WAVE2_EXECUTION_RECORD_2026-11-02.md` (this file)
 - STATUS / CHANGELOG / INDEX currency rows bound to the publication SHA.
+
+---
+
+## 6. SUPERSEDING CURRENCY NOTES — 2026-11-02 final reconciliation wave (additive; history preserved)
+
+### 6.1 Final HEAD and CI currency (WS-1)
+
+The final HEAD of the MASTER program through the Wave-2 publication is
+`47183c0913518be1297f50c77bca0fdb3dddd9d1` (tree
+`18c2316cff99d08a9b19b0cb305b19e8f429ce2e`). Verified during the final
+reconciliation wave: remote `main` == that exact SHA (not advanced); the
+three required check runs on the EXACT SHA are all SUCCESS (test-backend,
+build-docker, windows-validation). The Vercel Production deployment for the
+same SHA is FAILURE (owner-connected pipeline, recurring since before this
+program, classified as an optional non-gating pipeline; full record:
+`WS1_EXACT_SHA_EVIDENCE_2026-11-02.md`).
+
+### 6.2 Quantitative sample-count reconciliation (WS-3)
+
+§2.6 above ("400 seeded grids + procedure equivalence on 300 grids × 4
+q-levels") is CONFIRMED as the precise decomposition by re-executing the
+probe at the final HEAD: ALL PASS 43/43. The 17-role audit's "700 seeded
+grids" is the same evidence with 400+300 summed into one number (double-
+describing the 300 as "procedure equivalence" a second time). Corrected
+everywhere via dated superseding corrections in
+`MASTER_FINAL_17ROLE_AUDIT_2026-11-02.md` §SC-2; the historical sentences in
+both documents are preserved verbatim. Full decomposition table + seeds:
+`MASTER_WS_RECONCILIATION_WAVE_2026-11-02.md` §WS-3.
+
+### 6.3 W2-DATA F-1 — severity/disposition two-field record (WS-4)
+
+- severity: **HIGH** (unchanged, not downgraded)
+- disposition: **OWNER-GATED** — open owner decision tracked as the R-3
+  note in `OWNER_DECISION_PACKET_CONSOLIDATED_2026-11-02.md`; technically
+  unresolved in the shipped product (`DATA_SOURCE=auto` default stands);
+  NOT remediated (behavior change needs owner ratification); NOT accepted.
+- The 17-role audit's "zero CRITICAL/HIGH open" aggregate prose is corrected
+  (§SC-3 there) to: one HIGH finding open as an owner decision; zero HIGH
+  findings requiring engineering action.
+
+### 6.4 Dispositions settled in the final wave (WS-6; details in the reconciliation record)
+
+- F-7 in-flight refresh dedupe: RETAINED AS EXPLICIT DESIGN DECISION — a
+  single-flight implementation would change the exact concurrency semantics
+  pinned by `test_refresh_degraded_token_concurrency.py`
+  (`len(provider.calls) == 2` for two concurrent forced refreshes; the
+  interleaving orchestration REQUIRES two independent in-flight cycles), and
+  the no-test-weakening control forbids that. The Q-1/F-2 per-cycle token
+  architecture already makes concurrent cycles individually correct.
+- F-8 (`load_cache()` dead path) / F-9 (`history_path` declared-unused):
+  RETAINED — removal based on apparent lack of callers is excluded by the
+  directive; wiring either one changes startup/product behavior (owner
+  class). Recorded as explicit design decisions, not silent leftovers.

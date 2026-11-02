@@ -143,3 +143,57 @@ R-9 channel/E6=
 R-10 publication=
 R-11 acceptance=
 ```
+
+---
+
+## ADDENDUM — 2026-11-02 final reconciliation wave (WS-9; nothing below is a decision)
+
+Status after the WS reconciliation wave (exact remote HEAD verified
+`47183c0913518be1297f50c77bca0fdb3dddd9d1`; WS-5/WS-6 authorized
+implementations committed; records: `MASTER_WS_RECONCILIATION_WAVE_2026-11-02.md`,
+`AI_RUNTIME_CONNECTIVITY_MATRIX_2026-11-02.md`, `WS1_EXACT_SHA_EVIDENCE_2026-11-02.md`,
+`AI3_IMPLEMENTATION_READINESS_RECORD_2026-11-02.md`,
+`TARGET_MACHINE_EVIDENCE_CHECKLIST_2026-11-02.md`).
+
+### Exact current blockers (unchanged in kind; sharpened in evidence)
+
+| ID | Blocker (distinct) | Consequence of continued silence | Independently executable meanwhile? |
+|---|---|---|---|
+| D1 | AI-3 persistence backend | adapter stays blocked; nothing else blocked | YES — readiness record + 56-test scaffold complete |
+| D2 | Windows target access (AI-3 axis) | target-machine validation for AI runtime | YES — repo-side only work proceeds |
+| D3 | Retention policy by data class | storage sizing only; NO purge path will be built for episodic evidence regardless | YES |
+| D4 | Encryption + key management | at-rest encryption layer | YES — options designed (readiness record §2) |
+| D5 | Backup destination + cadence | automated research-memory backup schedule | YES — product-DB backup exists |
+| D6 | Access-control model | shared-machine posture | YES |
+| D7 | RPO/RTO numbers | recovery drill thresholds | YES |
+| R-1 | INSTALL instruction (hard gate, NOT ISSUED) | no installation on the owner machine | YES — Phase-0 prereqs and checklist prep only |
+| R-2 | Target-machine validation access | W2/W3–W5 + P3.43-2 evidence stays TARGET-MACHINE-ONLY | YES — checklist Phase-8 bundle spec ready |
+| R-3 | Live provider posture (includes F-1 HIGH display-layer nuance) | verified-live evidence impossible; F-1 stays HIGH/OWNER-GATED/technically-unresolved | YES — everything synthetic/paper proceeds |
+| R-4 | C1–C8 comparative phrasing rulings | phrases stay owner-gated findings; matrix honestly reports 31/32 NOT_COMPARED_WITH_EVIDENCE | YES |
+| R-5 | AI-4 sandbox numeric budgets | budgets stay proposal-class | YES — evaluator coverage extended (WS-5) |
+| R-6 | AI-5 proactive-research scheduler runtime | scheduler stays absent; kill switch ENGAGED | YES |
+| R-7 | AI-6 source classes + Two-Key params | ingestion stays absent | YES |
+| R-8 | AI-7 autonomy expansion (D-AI-31) | evidence-gated; deferred posture in force | YES — evidence cannot exist yet |
+| R-9 | Governed-alert delivery channel + E6 wiring | notifier/ws_hub edges stay absent by construction | YES |
+| R-10 | Publication authority (standing vs per-cycle) | per-cycle authorization remains the working practice | YES — forward-only + exact-SHA CI each cycle |
+| R-11 | Final acceptance (owner Role-1 act) | "implementation-complete up to owner gates" ≠ "100% accepted"; percentage honestly NOT_CALCULATED | YES — all evidence packages ready for the act |
+
+### Independently executable now (no owner input required)
+
+All repo-side synthetic/paper work: battery-verified implementation, records
+currency, Windows workflow gates, AI-3 readiness (not implementation), E2E
+maintenance, docs. The queue of authorized repo-side items from the W2 audits
+is EMPTY after this wave (WS-5/WS-6 executed; dispositions recorded for
+F-7/F-8/F-9; C-3 completed with the upload-artifact SHA pin; W2-INST F3
+PowerShell gate added). Next progress on the blocked classes requires dated
+owner answers to the IDs above — partial answers are valid and unblock only
+their own row.
+
+### Vercel (new housekeeping item, owner-side, non-blocking)
+
+The owner-connected Vercel GitHub App fails its Production deployment on
+every push (recurring since before this program; NOT a repository-policy
+check — the repo's three required Actions jobs are green on the exact HEAD).
+Owner may configure the Vercel project or disconnect the integration; no
+repository-side action exists or is needed. Evidence:
+`WS1_EXACT_SHA_EVIDENCE_2026-11-02.md` §4.
