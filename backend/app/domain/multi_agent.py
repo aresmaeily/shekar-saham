@@ -30,14 +30,20 @@ by the corpus text, documented per the AI1-GC ambiguity-note precedent):
   system this is a validator-enforced convention, not a transport guarantee;
 - capability/trace-prefix lowercase patterns are engineering choices (the
   corpus is silent on naming);
-- FAILURE-MODEL MAPPING IS PARTIAL (02-product §Failure model enumerates
-  nine failure kinds): this layer represents failures generically —
+- FAILURE-MODEL MAPPING (02-product §Failure model enumerates nine failure
+  kinds): this layer represents failures generically —
   BranchResult.status/failure_code, SpecialistContract.failure_behavior,
   deterministic containment via ``isolate_failure`` — and enforces
-  idempotency on registry/trace/ledger appends. There is no kind→behavior
-  taxonomy table and no BranchResult duplicate-operation detection yet; a
-  future additive iteration may introduce one. Nothing silently swallows a
-  failure: every failure stays a visible, frozen record.
+  idempotency on registry/trace/ledger appends. The kind→behavior taxonomy
+  table and the BranchResult duplicate-operation detection now EXIST as the
+  additive sibling module ``app.domain.multi_agent_failure_model`` (closed
+  nine-kind ``FailureKind`` with total kind→behavior and kind→containment
+  tables plus ``detect_duplicate_branch_results``; 16 tests), built exactly
+  as this note anticipated. CURRENCY CORRECTION (WS-5 wave, 2026-11-02):
+  this docstring originally said "no taxonomy table ... yet" — true when
+  written, closed by the sibling module without modifying this file; the
+  historical wording is preserved in that module's header quote. Nothing
+  silently swallows a failure: every failure stays a visible, frozen record.
 """
 
 from __future__ import annotations

@@ -50,6 +50,7 @@ from app.domain.governed_generation import (
     DeterministicEvaluatorBinding,
     EvaluationMetric,
     EvaluatorRegistry,
+    GeneratedCandidate,
 )
 from app.engines.filter_dsl import FilterError, run_filter
 
@@ -58,12 +59,15 @@ __all__ = [
     "REFERENCE_FILTER_DSL_EVALUATOR_ID",
     "REFERENCE_SIGNAL_PAIRS_EVALUATOR_ID",
     "REFERENCE_PASS_RATE_EVALUATOR_ID",
+    "REFERENCE_SOFTWARE_CHANGE_EVALUATOR_ID",
     "FilterDslEvaluation",
     "SignalPairEvaluation",
     "PassRateEvaluation",
+    "SoftwareChangeEvaluation",
     "evaluate_filter_dsl",
     "evaluate_signal_pairs",
     "evaluate_pass_rate",
+    "evaluate_software_change_proposal",
     "reference_evaluator_registry",
 ]
 
@@ -72,6 +76,7 @@ REFERENCE_EVALUATOR_VERSION = "1.0.0"
 REFERENCE_FILTER_DSL_EVALUATOR_ID = "reference.filter_dsl"
 REFERENCE_SIGNAL_PAIRS_EVALUATOR_ID = "reference.signal_pairs"
 REFERENCE_PASS_RATE_EVALUATOR_ID = "reference.pass_rate"
+REFERENCE_SOFTWARE_CHANGE_EVALUATOR_ID = "reference.software_change_proposal"
 
 #: Pre-G2 dataset closure (02:202): SYNTHETIC/PAPER only, LIVE excluded.
 _ACCEPTED_DATASET_ORIGINS: tuple[DatasetOrigin, ...] = ("SYNTHETIC", "PAPER")
@@ -131,6 +136,25 @@ class PassRateEvaluation(BaseModel):
     accepted: Literal[True] = True
     passed: int = Field(ge=0)
     total: int = Field(ge=1)
+    metrics: tuple[EvaluationMetric, ...] = ()
+
+
+class SoftwareChangeEvaluation(BaseModel):
+    """Outcome of one SOFTWARE_CHANGE_PROPOSAL structural evaluation.
+
+    ``accepted=False`` records a malformed-candidate refusal verbatim
+    (``refusal_code`` + detail) — surfaced, never scored and never silently
+    dropped (same honesty discipline as ``FilterDslEvaluation``). A wrong-kind
+    input is a caller contract error and raises instead (see the evaluator).
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    schema_version: str = SCHEMA_VERSION
+    accepted: bool
+    refusal_code: str | None = None
+    refusal_detail: str | None = None
+    candidate_id: str = Field(min_length=1)
     metrics: tuple[EvaluationMetric, ...] = ()
 
 
@@ -271,6 +295,107 @@ def evaluate_pass_rate(passed: int, total: int) -> PassRateEvaluation:
 
 
 # ---------------------------------------------------------------------------
+# Reference evaluator 4: SOFTWARE_CHANGE_PROPOSAL structural completeness
+# ---------------------------------------------------------------------------
+
+
+_SOFTWARE_CHANGE_MANDATORY_FIELDS: tuple[str, ...] = (
+    "baseline",
+    "expected_benefit",
+    "evidence_summary",
+    "uncertainty",
+    "cost",
+    "risks",
+    "rollback_plan",
+    "evaluation_design",
+)
+
+
+def evaluate_software_change_proposal(
+    candidate: GeneratedCandidate,
+) -> SoftwareChangeEvaluation:
+    """Structural completeness evaluation of a SOFTWARE_CHANGE_PROPOSAL.
+
+    DETERMINISTIC service class; no semantic quality judgment, no candidate
+    execution, no network, no I/O, no clock reads (02:179 defines the eight
+    mandatory proposal fields; D-AI-12/13 no-production-mutation discipline
+    makes the rollback plan the load-bearing field).
+
+    Refusals:
+    - a candidate of any other kind raises ``ValueError("kind_must_be_"
+      "software_change_proposal")`` — a caller contract error, exactly like
+      ``evaluate_pass_rate``'s out-of-range refusals;
+    - a candidate that reaches this evaluator with ``proposal=None`` (only
+      possible through a validation-bypassing constructor such as
+      ``model_construct``, because the GeneratedCandidate kind↔proposal
+      model_validator refuses the pairing) is surfaced as an honest refusal
+      record ``accepted=False`` with ``refusal_code="proposal_fields_required"
+      — never scored, never silently dropped.
+
+    Metrics (exact rational arithmetic, one float conversion each):
+    - ``mandatory_fields_present`` / ``mandatory_fields_total`` (8) and
+      ``completeness_ratio = present / total`` — fields are strip-checked
+      from the actual values, never assumed from the schema ``min_length``;
+    - ``rollback_plan_present`` / ``evaluation_design_present`` (0.0/1.0).
+
+    ``accepted=True`` iff all eight fields are non-empty. This measures
+    STRUCTURAL admissibility only: the semantic quality of the proposal text
+    is not scored — no invented thresholds, no placeholder semantics.
+
+    Registry note: the canonical ``reference_evaluator_registry()`` does NOT
+    bind this evaluator (existing tests pin the three-binding registry and
+    the honest ``None`` gap for this kind); the binding is a recorded
+    follow-up for the next registry revision. The evaluator is fully
+    callable and bindable via ``DeterministicEvaluatorBinding`` with
+    ``evaluation_contract="app.engines.evaluators_reference."
+    "evaluate_software_change_proposal"``.
+    """
+    if candidate.kind != "SOFTWARE_CHANGE_PROPOSAL":
+        raise ValueError("kind_must_be_software_change_proposal")
+    proposal = candidate.proposal
+    if proposal is None:
+        return SoftwareChangeEvaluation(
+            accepted=False,
+            refusal_code="proposal_fields_required",
+            refusal_detail=(
+                "SOFTWARE_CHANGE_PROPOSAL candidate carries no proposal fields"
+            ),
+            candidate_id=candidate.candidate_id,
+            metrics=(),
+        )
+    values = [getattr(proposal, name) for name in _SOFTWARE_CHANGE_MANDATORY_FIELDS]
+    present = sum(1 for value in values if isinstance(value, str) and value.strip())
+    total = len(_SOFTWARE_CHANGE_MANDATORY_FIELDS)
+    accepted = present == total
+    metrics = _metrics(
+        ("mandatory_fields_present", float(present)),
+        ("mandatory_fields_total", float(total)),
+        ("completeness_ratio", _exact_ratio(present, total)),
+        (
+            "rollback_plan_present",
+            1.0 if isinstance(proposal.rollback_plan, str) and proposal.rollback_plan.strip() else 0.0,
+        ),
+        (
+            "evaluation_design_present",
+            1.0 if isinstance(proposal.evaluation_design, str) and proposal.evaluation_design.strip() else 0.0,
+        ),
+    )
+    return SoftwareChangeEvaluation(
+        accepted=accepted,
+        refusal_code=None if accepted else "mandatory_fields_incomplete",
+        refusal_detail=None
+        if accepted
+        else "completed "
+        + str(present)
+        + "/"
+        + str(total)
+        + " mandatory proposal fields",
+        candidate_id=candidate.candidate_id,
+        metrics=metrics,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Registry factory (canonical bindings, DETERMINISTIC service class only)
 # ---------------------------------------------------------------------------
 
@@ -281,8 +406,15 @@ def reference_evaluator_registry() -> EvaluatorRegistry:
     Bindings are deterministic in kind coverage; every binding declares
     ``service_class=DETERMINISTIC`` (the only value the schema admits) and
     accepts only the pre-G2 dataset origins (SYNTHETIC/PAPER). Kinds with
-    NO reference evaluator (e.g. SOFTWARE_CHANGE_PROPOSAL) resolve to
-    ``None`` — an honest gap, never a placeholder evaluator.
+    NO binding here resolve to ``None`` — an honest gap, never a placeholder
+    evaluator. Unbound-kind honesty at this registry revision (WS-5 wave,
+    2026-11-02): SOFTWARE_CHANGE_PROPOSAL has a callable deterministic
+    reference evaluator (``evaluate_software_change_proposal``) that is
+    deliberately NOT bound here — existing tests pin the three-binding
+    registry shape and the ``None`` resolution for this kind, and the
+    additive-only discipline forbids amending them in this wave (binding =
+    recorded follow-up); FUNDAMENTAL_FEATURE has no evaluator at all and
+    also resolves to ``None``.
     """
     bindings = (
         DeterministicEvaluatorBinding(

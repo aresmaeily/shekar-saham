@@ -75,6 +75,7 @@ from helpers_research_memory_fixtures import (
     T1,
     T2,
     T3,
+    UTC,
     make_episodic_entry,
     make_lesson,
     make_seeded_lesson_store,
@@ -973,3 +974,419 @@ def test_acc24_reference_adapter_composes_contracts_by_delegation() -> None:
     report = store.integrity_report()
     assert isinstance(report, ResearchMemoryIntegrityReport)
     assert [entry_id for entry_id, _ in report.entry_digests] == ["ra-1", "ra-2"]
+
+
+# ---------------------------------------------------------------------------
+# Tier A enrichment (WS5-T2) — additional parameterized negative/edge cases
+# (acc25..acc30). Same registry, same discipline: every case runs once per
+# registered store factory, so any future production adapter must pass them
+# too. Each docstring names the AC id(s) it pins and any honest adaptation
+# to the contracts' ACTUAL behavior. Decision-free: D1–D7 remain ALL
+# PENDING; nothing here assumes or exercises an owner decision.
+# ---------------------------------------------------------------------------
+
+#: Fixed far-future instant on the fixture timeline (deterministic; strictly
+#: after T3) — used to prove clock-free timestamp discipline (acc29).
+_T_FUTURE = datetime(2026, 10, 18, 23, 0, 0, tzinfo=UTC)
+
+
+@_for_each_registered_store
+def test_acc25_duplicate_identity_conflicts_all_views_unchanged(
+    store_factory: Callable[[], ResearchMemoryStore],
+) -> None:
+    """AC-3 (WS5-T2 enrichment, beyond acc03/acc14): duplicate-identity
+    appends are refused whenever ANY canonical field differs — including a
+    field outside every index/PIT surface (``notes``) and the PIT-relevant
+    ``recorded_at_utc`` itself — while a VALUE-EQUAL record freshly
+    constructed (independent object, identical content) stays an idempotent
+    no-op: identity is by content, never object identity. Every refusal
+    leaves ALL views unchanged — digest ledger, run/hypothesis indexes, and
+    the PIT view (a refused timestamp-shift cannot migrate a record's PIT
+    position)."""
+    store = store_factory()
+    entry = make_episodic_entry("ra-1")
+    store.append_episodic(entry)
+    before = store.integrity_report()
+    # Value-equal fresh construction: idempotent, no duplication, no refusal.
+    store.append_episodic(make_episodic_entry("ra-1"))
+    assert store.integrity_report() == before
+    # Conflict on a non-indexed field (notes): refused.
+    with pytest.raises(ValueError, match="episodic_archive_conflict"):
+        store.append_episodic(
+            make_episodic_entry("ra-1", notes="late annotation attempt")
+        )
+    # Conflict on the PIT-relevant recording timestamp: refused.
+    with pytest.raises(ValueError, match="episodic_archive_conflict"):
+        store.append_episodic(make_episodic_entry("ra-1", recorded_at_utc=T2))
+    # Refused attempts rewrote NOTHING — the original record stands in
+    # every view.
+    assert store.integrity_report() == before
+    got = store.get_episodic("ra-1")
+    assert got is not None and got == entry and got.notes == ""
+    assert store.episodic_available_at(T1) == (entry,)  # PIT position unmoved
+    assert store.episodic_available_at(T2) == (entry,)  # exactly one record
+    assert store.episodic_for_run("run-r1") == (entry,)
+    assert store.episodic_for_hypothesis("hyp-7") == (entry,)
+
+
+@_for_each_registered_store
+def test_acc26_promotion_gate_pit_invisible_source_refused_stable_reason(
+    store_factory: Callable[[], ResearchMemoryStore],
+) -> None:
+    """AC-7 + AC-6 (WS5-T2 enrichment): the promotion/citation gate refuses
+    a source artifact that is PIT-INVISIBLE at the derivation instant — a
+    record already appended but RECORDED after the cutoff is as unavailable
+    as a missing one (lookahead-proof promotion; mirrors acc10's episodic
+    guard at the semantic gate). The refusal names EXACTLY the invisible id
+    (stable machine-readable reason) and leaves no partial semantic state;
+    once both sources are visible the same citation set derives and
+    registers cleanly. HONEST ADAPTATION: the gate lives in the contract
+    curation factory (``derive_lesson``) over the store's own PIT view, and
+    episodic sources have NO retirement lifecycle (append-only, acc01/acc02
+    structural proof) — so the source-refusal classes at promotion are
+    exactly unknown-id (acc12) and PIT-invisible (pinned here)."""
+    store = store_factory()
+    early = make_episodic_entry("ra-early", recorded_at_utc=T1)
+    late = make_episodic_entry(
+        "ra-late", run_id="run-r2", information_cutoff_utc=T0,
+        recorded_at_utc=T2,
+    )
+    store.append_episodic(early)
+    store.append_episodic(late)
+    # At T1 the store's honest PIT view holds ONLY ra-early: even though
+    # ra-late's information cutoff (T0) precedes T1, it was RECORDED later.
+    assert store.episodic_available_at(T1) == (early,)
+    with pytest.raises(
+        ValueError, match="lesson_cites_unknown_artifacts:ra-late"
+    ):
+        derive_lesson(
+            EpisodicRunArchive(store.episodic_available_at(T1)),
+            lesson_id="l1",
+            statement="Never derived early.",
+            source_artifact_ids=("ra-early", "ra-late"),
+            curated_by="deterministic-rule:x",
+            curation_basis="DETERMINISTIC_RULE",
+            at_utc=T1,
+        )
+    # Refusal left no partial semantic state.
+    assert store.latest_lesson("l1") is None
+    assert store.integrity_report().lesson_version_counts == ()
+    # At T3 both sources are visible: the same citation set derives and
+    # registers cleanly (the earlier refusal was purely temporal).
+    lesson = derive_lesson(
+        EpisodicRunArchive(store.episodic_available_at(T3)),
+        lesson_id="l1",
+        statement="Derived only after both sources were recorded.",
+        source_artifact_ids=("ra-early", "ra-late"),
+        curated_by="deterministic-rule:x",
+        curation_basis="DETERMINISTIC_RULE",
+        at_utc=T3,
+    )
+    store.register_lesson(lesson)
+    latest = store.latest_lesson("l1")
+    assert latest is not None and latest.status == "ACTIVE"
+    assert latest.source_artifact_ids == ("ra-early", "ra-late")
+    assert store.integrity_report().lesson_version_counts == (("l1", 1),)
+
+
+@_for_each_registered_store
+def test_acc27_insertion_order_honesty_and_cross_order_verification(
+    store_factory: Callable[[], ResearchMemoryStore],
+) -> None:
+    """AC-4/AC-5/AC-13 (WS5-T2 enrichment): per-record digests are
+    insertion-order-INDEPENDENT as a mapping (cross-order verification
+    succeeds in both directions), while the report's ``entry_digests``
+    SEQUENCE and the PIT views are honestly insertion-order-DEPENDENT —
+    each store reflects ITS OWN append order and is never silently
+    re-sorted (complements acc06, which pins one store's insertion order).
+    ``lesson_version_counts`` and ``lessons_active_at`` are sorted and
+    therefore identical across orders."""
+    entries = (
+        make_episodic_entry("ra-1", recorded_at_utc=T1),
+        make_episodic_entry("ra-2", run_id="run-r2", recorded_at_utc=T2),
+        make_episodic_entry("ra-3", run_id="run-r3", hypothesis_id=None,
+                            recorded_at_utc=T3),
+    )
+    store_a = store_factory()
+    store_a.append_episodic(entries[0])
+    store_a.append_episodic(entries[1])
+    store_a.append_episodic(entries[2])
+    store_a.register_lesson(make_lesson(lesson_id="l1", created_at_utc=T2))
+    store_a.register_lesson(make_lesson(lesson_id="l0", created_at_utc=T1))
+
+    store_b = store_factory()
+    store_b.append_episodic(entries[2])
+    store_b.append_episodic(entries[1])
+    store_b.append_episodic(entries[0])
+    store_b.register_lesson(make_lesson(lesson_id="l0", created_at_utc=T1))
+    store_b.register_lesson(make_lesson(lesson_id="l1", created_at_utc=T2))
+
+    report_a = store_a.integrity_report()
+    report_b = store_b.integrity_report()
+    # Mapping equality: digests are content-derived, order-independent.
+    assert dict(report_a.entry_digests) == dict(report_b.entry_digests)
+    # Sequence honesty: each report lists ITS OWN insertion order.
+    assert [eid for eid, _ in report_a.entry_digests] == ["ra-1", "ra-2", "ra-3"]
+    assert [eid for eid, _ in report_b.entry_digests] == ["ra-3", "ra-2", "ra-1"]
+    # Cross-order verification succeeds both ways; the returned digest
+    # sequence is the STORE's order, never the expectation's.
+    cross = verify_integrity(store_a, dict(report_b.entry_digests))
+    assert cross.verify_ok is True
+    assert [eid for eid, _ in cross.entry_digests] == ["ra-1", "ra-2", "ra-3"]
+    assert verify_integrity(store_b, dict(report_a.entry_digests)).verify_ok
+    # Sorted views are order-independent.
+    assert report_a.lesson_version_counts == report_b.lesson_version_counts == (
+        ("l0", 1),
+        ("l1", 1),
+    )
+    assert [(l.lesson_id, l.version) for l in store_a.lessons_active_at(T3)] == [
+        (l.lesson_id, l.version) for l in store_b.lessons_active_at(T3)
+    ] == [("l0", 1), ("l1", 1)]
+    # PIT views are pure cutoff FILTERS over insertion order — not re-sorted
+    # by recorded time (deterministic per store, honestly order-dependent).
+    assert [e.entry_id for e in store_a.episodic_available_at(T2)] == [
+        "ra-1",
+        "ra-2",
+    ]
+    assert [e.entry_id for e in store_b.episodic_available_at(T2)] == [
+        "ra-2",
+        "ra-1",
+    ]
+    assert [e.entry_id for e in store_a.episodic_available_at(T3)] == [
+        "ra-1",
+        "ra-2",
+        "ra-3",
+    ]
+    assert [e.entry_id for e in store_b.episodic_available_at(T3)] == [
+        "ra-3",
+        "ra-2",
+        "ra-1",
+    ]
+
+
+class _SemanticCrashProbe:
+    """Protocol-conformant adapter probe mirroring ``_CrashProbe`` for the
+    SEMANTIC half (AC-8): delegates every operation to an inner store and
+    injects a simulated crash (``RuntimeError``) around the registration of
+    ONE designated lesson id — before the commit or after it."""
+
+    def __init__(
+        self,
+        inner: ResearchMemoryStore,
+        *,
+        crash_on_lesson_id: str,
+        after_commit: bool,
+    ) -> None:
+        self._inner = inner
+        self._crash_on_lesson_id = crash_on_lesson_id
+        self._after_commit = after_commit
+
+    def append_episodic(self, entry: EpisodicRunArtifact) -> None:
+        self._inner.append_episodic(entry)
+
+    def get_episodic(self, entry_id: str) -> EpisodicRunArtifact | None:
+        return self._inner.get_episodic(entry_id)
+
+    def episodic_for_run(self, run_id: str) -> tuple[EpisodicRunArtifact, ...]:
+        return self._inner.episodic_for_run(run_id)
+
+    def episodic_for_hypothesis(
+        self, hypothesis_id: str
+    ) -> tuple[EpisodicRunArtifact, ...]:
+        return self._inner.episodic_for_hypothesis(hypothesis_id)
+
+    def episodic_available_at(
+        self, cutoff: datetime
+    ) -> tuple[EpisodicRunArtifact, ...]:
+        return self._inner.episodic_available_at(cutoff)
+
+    def register_lesson(self, lesson: SemanticLesson) -> None:
+        if not self._after_commit and lesson.lesson_id == self._crash_on_lesson_id:
+            raise RuntimeError("simulated_crash_during_register")
+        self._inner.register_lesson(lesson)
+        if self._after_commit and lesson.lesson_id == self._crash_on_lesson_id:
+            raise RuntimeError("simulated_crash_after_commit")
+
+    def latest_lesson(self, lesson_id: str) -> SemanticLesson | None:
+        return self._inner.latest_lesson(lesson_id)
+
+    def lesson_history(self, lesson_id: str) -> tuple[SemanticLesson, ...]:
+        return self._inner.lesson_history(lesson_id)
+
+    def lessons_active_at(self, cutoff: datetime) -> tuple[SemanticLesson, ...]:
+        return self._inner.lessons_active_at(cutoff)
+
+    def integrity_report(self) -> ResearchMemoryIntegrityReport:
+        return self._inner.integrity_report()
+
+
+@_for_each_registered_store
+def test_acc28_semantic_mutation_failure_all_or_nothing(
+    store_factory: Callable[[], ResearchMemoryStore],
+) -> None:
+    """AC-8 (WS5-T2 enrichment — semantic half of acc15): whatever point a
+    crash injects around a lesson registration, the observable outcome is
+    ALL of the version (fully present, complete history, counts updated) or
+    NONE of it (absent, no partial trace) — and an interrupted SUPERSESSION
+    never leaves v1 marked SUPERSEDED with its successor absent (no torn
+    version chain); the retried registration succeeds cleanly."""
+    inner = store_factory()
+    inner.append_episodic(make_episodic_entry("ra-1"))
+    inner.register_lesson(make_lesson(lesson_id="l1"))
+    expected_digests = dict(inner.integrity_report().entry_digests)
+
+    # Crash BEFORE commit → version absent, nothing partial, ledger intact.
+    probe = _SemanticCrashProbe(
+        inner, crash_on_lesson_id="l2", after_commit=False
+    )
+    assert isinstance(probe, ResearchMemoryStore)
+    with pytest.raises(RuntimeError, match="simulated_crash_during_register"):
+        probe.register_lesson(make_lesson(lesson_id="l2", created_at_utc=T2))
+    assert probe.latest_lesson("l2") is None
+    assert probe.lesson_history("l2") == ()
+    assert probe.integrity_report().entry_digests == (
+        ("ra-1", expected_digests["ra-1"]),
+    )
+    assert probe.integrity_report().lesson_version_counts == (("l1", 1),)
+    assert verify_integrity(probe, expected_digests).verify_ok is True
+
+    # Crash AFTER commit → version FULLY present and history-complete.
+    probe2 = _SemanticCrashProbe(
+        store_factory(), crash_on_lesson_id="l2", after_commit=True
+    )
+    probe2.append_episodic(make_episodic_entry("ra-1"))
+    lesson_l2 = make_lesson(lesson_id="l2", created_at_utc=T2)
+    with pytest.raises(RuntimeError, match="simulated_crash_after_commit"):
+        probe2.register_lesson(lesson_l2)
+    assert probe2.latest_lesson("l2") == lesson_l2
+    assert probe2.lesson_history("l2") == (lesson_l2,)
+    assert probe2.integrity_report().lesson_version_counts == (("l2", 1),)
+
+    # Interrupted SUPERSESSION: v1 is NOT half-superseded; the retried
+    # registration (no injected failure) succeeds cleanly.
+    inner3 = store_factory()
+    inner3.append_episodic(make_episodic_entry("ra-1"))
+    inner3.register_lesson(make_lesson(lesson_id="l1"))
+    probe3 = _SemanticCrashProbe(
+        inner3, crash_on_lesson_id="l1", after_commit=False
+    )
+    v2 = make_lesson(
+        lesson_id="l1", version=2, curation_basis="HUMAN_REVIEW",
+        curated_by="reviewer-1", created_at_utc=T3,
+    )
+    with pytest.raises(RuntimeError, match="simulated_crash_during_register"):
+        probe3.register_lesson(v2)
+    latest = probe3.latest_lesson("l1")
+    assert latest is not None and latest.version == 1 and latest.status == "ACTIVE"
+    assert probe3.lesson_history("l1") == (latest,)
+    assert probe3.integrity_report().lesson_version_counts == (("l1", 1),)
+    # Retry with NO injected failure — directly on the store the probe
+    # wraps; the crashed attempt left no residue blocking it.
+    inner3.register_lesson(v2)
+    history = probe3.lesson_history("l1")
+    assert [l.version for l in history] == [1, 2]
+    assert history[0].status == "SUPERSEDED" and history[1].status == "ACTIVE"
+    assert probe3.integrity_report().lesson_version_counts == (("l1", 2),)
+
+
+@_for_each_registered_store
+def test_acc29_timestamp_discipline_boundary_future_no_expiry(
+    store_factory: Callable[[], ResearchMemoryStore],
+) -> None:
+    """AC-6 + A3/A11 (WS5-T2 enrichment): temporal discipline at the store
+    boundary. The ONLY temporal refusal at the record level is
+    cutoff-after-recording (acc13); the boundary cutoff == recording
+    instant is LEGAL. The store is clock-free: a record dated BEYOND every
+    cutoff used here is neither refused nor flagged by any wall-clock
+    comparison — accepting it at all is the proof that no clock is
+    consulted — and its only honest treatment is PIT invisibility before
+    its own recording instant. No retention window ages anything out: the
+    oldest record stays fully retrievable after later appends (behavioral
+    half of the no-expiry guarantee, alongside acc02's structural proof)."""
+    store = store_factory()
+    # Boundary-equal cutoffs are honest (knowing exactly up to the instant
+    # of recording) and legal.
+    boundary = make_episodic_entry(
+        "ra-boundary", information_cutoff_utc=T1, recorded_at_utc=T1
+    )
+    store.append_episodic(boundary)
+    # Far-future-dated record: legal; its cutoff (T3) precedes its recording.
+    future = make_episodic_entry(
+        "ra-future", information_cutoff_utc=T3, recorded_at_utc=_T_FUTURE
+    )
+    store.append_episodic(future)
+    store.append_episodic(make_episodic_entry("ra-late", recorded_at_utc=T2))
+    # The future-dated record is invisible at every earlier cutoff…
+    assert [e.entry_id for e in store.episodic_available_at(T3)] == [
+        "ra-boundary",
+        "ra-late",
+    ]
+    # …and fully visible at its own instant (boundary-inclusive, insertion
+    # order preserved).
+    assert [e.entry_id for e in store.episodic_available_at(_T_FUTURE)] == [
+        "ra-boundary",
+        "ra-future",
+        "ra-late",
+    ]
+    # No retention window: nothing ages out; every record — the oldest
+    # included — remains fully retrievable through get and index views.
+    for entry_id in ("ra-boundary", "ra-late", "ra-future"):
+        got = store.get_episodic(entry_id)
+        assert got is not None and got.entry_id == entry_id
+    assert len(store.episodic_for_run("run-r1")) == 3
+    # The ledger grew by appends only and verifies clean.
+    expected = dict(store.integrity_report().entry_digests)
+    assert verify_integrity(store, expected).verify_ok is True
+
+
+@_for_each_registered_store
+def test_acc30_empty_store_integrity_semantics_explicit(
+    store_factory: Callable[[], ResearchMemoryStore],
+) -> None:
+    """AC-5/AC-12 (WS5-T2 enrichment): empty-store verification is
+    EXPLICIT, not vacuous — an empty store's own report carries every field
+    at its honest empty default (never None/missing) and is byte-identical
+    across fresh empty stores; empty-vs-empty expectation verifies OK; an
+    expectation over an empty store refuses EVERY expected id as missing
+    (emptiness cannot hide a deletion); and an empty expectation over a
+    POPULATED store is not a refusal (acc07's later-appends principle at
+    the degenerate extreme — the report still honestly counts the store)."""
+    store = store_factory()
+    report = store.integrity_report()
+    assert report.verify_ok is True
+    assert report.entry_count == 0
+    assert report.entry_digests == ()
+    assert report.lesson_version_counts == ()
+    assert report.mismatched_entry_ids == ()
+    assert report.missing_entry_ids == ()
+    assert report.refusal_reasons == ()
+    # Empty vs empty: honestly OK, with the full explicit empty shape.
+    empty_ok = verify_integrity(store, {})
+    assert empty_ok.verify_ok is True
+    assert empty_ok.entry_count == 0 and empty_ok.refusal_reasons == ()
+    # Deterministic: two fresh empty stores report byte-identically.
+    other = store_factory()
+    assert canonical_research_memory_json(other.integrity_report()) == (
+        canonical_research_memory_json(report)
+    )
+    # Expectation over an empty store: every expected id is a refusal —
+    # emptiness never hides an append-only violation.
+    refused = verify_integrity(
+        store,
+        {
+            "ra-1": sha256_hex(
+                canonical_research_memory_json(make_episodic_entry("ra-1"))
+            )
+        },
+    )
+    assert refused.verify_ok is False
+    assert refused.missing_entry_ids == ("ra-1",)
+    assert refused.mismatched_entry_ids == ()
+    assert refused.refusal_reasons == ("expected_entry_missing_from_store",)
+    # Empty expectation over a POPULATED store: not a refusal; the report
+    # still honestly reflects the store's own records.
+    store.append_episodic(make_episodic_entry("ra-1"))
+    lax = verify_integrity(store, {})
+    assert lax.verify_ok is True
+    assert lax.entry_count == 1
+    assert lax.entry_digests == store.integrity_report().entry_digests

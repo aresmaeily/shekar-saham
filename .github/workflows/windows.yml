@@ -43,6 +43,39 @@ jobs:
           "runner OS: $(Get-ComputerInfo -Property OsName,OsVersion | Out-String)" | Out-File -Append windows_run_provenance.txt
           git rev-parse HEAD | Out-File -Append windows_run_provenance.txt
 
+      # WS-6 (W2-INST F3 authorized follow-up): PowerShell syntax gate — the
+      # four shipped .ps1 scripts are parsed with the real PowerShell language
+      # parser on a real pwsh host. Until this step existed, NO automation
+      # anywhere parsed the shipped scripts (W2-INST S2 honestly recorded
+      # NOT-RUN-HERE: pwsh is absent from the dev sandbox). A parse error in
+      # any shipped script now fails the job BEFORE any install step runs.
+      - name: PowerShell script syntax gate (W2-INST F3)
+        shell: pwsh
+        run: |
+          $scripts = @(
+            'scripts/windows/install.ps1',
+            'scripts/windows/start.ps1',
+            'scripts/windows/validate_install.ps1',
+            'scripts/windows/validate_alpha.ps1'
+          )
+          $failures = @()
+          foreach ($s in $scripts) {
+            if (-not (Test-Path $s)) { $failures += "$s MISSING"; continue }
+            $tokens = $null; $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $s), [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) {
+              $detail = ($errors | ForEach-Object { "$($_.Extent.StartLineNumber): $($_.Message)" }) -join '; '
+              $failures += "$s PARSE_ERRORS: $detail"
+            }
+          }
+          if ($failures.Count -gt 0) {
+            Write-Host 'PS1 SYNTAX GATE FAILED:'
+            $failures | ForEach-Object { Write-Host "  $_" }
+            exit 1
+          }
+          Write-Host "PS1 SYNTAX GATE: all $($scripts.Count) shipped scripts parse clean"
+
       # MASTER-WAVE-2 (W2-SEC C-12): aligned to 3.13 — the same version the
       # ci.yml battery job and the Docker image (python:3.13-slim) already use,
       # removing the 3.12/3.13 runner drift recorded by the W2 audits.
@@ -196,7 +229,12 @@ jobs:
 
       - name: Upload validation artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        # WS-6 (W2-SEC C-3 completion): the last tag-pinned action is now
+        # pinned by its immutable commit SHA (authoritative SHA verified via
+        # git ls-remote of actions/upload-artifact on 2026-11-02: v4.6.2 =
+        # ea165f8d65b6e75b540449e92b4886f43607fa02; cross-checked against the
+        # release page. Lightweight tag -> the SHA is the release commit).
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: windows-validation-evidence
           path: |
