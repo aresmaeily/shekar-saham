@@ -116,7 +116,15 @@ class MarketService:
                 await self.refresh(force=True)
             except Exception as exc:
                 err_id = uuid.uuid4().hex[:8]
-                logger.exception(f"[{err_id}] poll error: {exc}")
+                # Evidence-stream hygiene (WS-10 CI cycle, 2026-11-02): handled
+                # background faults must not print full multi-line tracebacks
+                # into the runtime log — the W7 posture gate fail-closes on the
+                # literal "Traceback" in the log, and a poll-cycle fault is a
+                # logged+counted non-fatal event, not a crash. The error text,
+                # err_id and uptime metrics fully preserve the evidence; real
+                # unhandled ASGI crashes are still tracebacked by uvicorn
+                # itself, so W7's crash-detection power is unchanged.
+                logger.error(f"[{err_id}] poll error: {exc}")
 
     def _build_tick(self, s: SymbolSnapshot) -> dict[str, Any]:
         cfg = self.cfg()
@@ -426,7 +434,10 @@ class MarketService:
             )
         except Exception as exc:
             err_id = uuid.uuid4().hex[:8]
-            logger.exception(f"[{err_id}] analyze_market failed: {exc}")
+            # Evidence-stream hygiene (see _poll_loop): error text + err_id are
+            # kept; no multi-line traceback in the evidence stream. The raise
+            # below is unchanged — the fault still propagates fail-loud.
+            logger.error(f"[{err_id}] analyze_market failed: {exc}")
             raise
 
         # Phase 2b: big moves + flow + tablocastic + row_cache + confluence OUTSIDE lock
@@ -434,7 +445,7 @@ class MarketService:
             moves, flow_meta = self._update_big_moves(symbols, source)
         except Exception as exc:
             err_id = uuid.uuid4().hex[:8]
-            logger.exception(f"[{err_id}] big_moves failed: {exc}")
+            logger.error(f"[{err_id}] big_moves failed: {exc}")
             moves, flow_meta = [], {"coverage_sec": 0, "sufficient": False}
 
         try:
@@ -487,7 +498,7 @@ class MarketService:
                     board["summary"]["flow_insufficient"] = True
         except Exception as exc:
             err_id = uuid.uuid4().hex[:8]
-            logger.exception(f"[{err_id}] confluence build failed: {exc}")
+            logger.error(f"[{err_id}] confluence build failed: {exc}")
             board = {}
 
         # Phase 3: Quick state update UNDER lock
@@ -515,7 +526,7 @@ class MarketService:
                 self._persist_snapshot(symbols, analysis)
             except Exception as exc:
                 err_id = uuid.uuid4().hex[:8]
-                logger.exception(f"[{err_id}] persist failed: {exc}")
+                logger.error(f"[{err_id}] persist failed: {exc}")
 
             analysis_ref = analysis
             conf_ref = dict(board or {})
@@ -924,7 +935,7 @@ class MarketService:
                 self._last_confluence = self._build_confluence()
             except Exception as exc:
                 err_id = uuid.uuid4().hex[:8]
-                logger.exception(f"[{err_id}] confluence rebuild: {exc}")
+                logger.error(f"[{err_id}] confluence rebuild: {exc}")
                 return {
                     "summary": {},
                     "board": [],
