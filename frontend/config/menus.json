@@ -129,6 +129,12 @@
       "original": "فارکس"
     },
     {
+      "id": "chartpro",
+      "label": "چارت حرفه‌ای",
+      "icon": "📈",
+      "original": "چارت حرفه‌ای"
+    },
+    {
       "id": "excellent",
       "label": "عالی v0.7",
       "icon": "✨",

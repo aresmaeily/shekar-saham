@@ -16,6 +16,7 @@ import "./modules/theme.js";
 import { initAlertInbox } from "./modules/alert_inbox.js"; // GOV-41 D-AI-30 in-product inbox
 import "./modules/auth.js";
 import "./modules/forex.js";
+import "./modules/render/chart_pro.js"; // WS-10 CH-3: چارت حرفه‌ای — بایند-on-demand مثل forex
 import "./modules/render/watchlist_excellent.js";
 
 /* لایه تب‌ها */

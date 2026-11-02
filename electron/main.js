@@ -78,6 +78,7 @@ function createWindow() {
         { role: 'togglefullscreen', label: 'تمام صفحه' },
         { type: 'separator' },
         { label: 'چارت فارکس', click: () => mainWindow.loadURL(startUrl + '/#/forex') },
+        { label: '📈 چارت حرفه‌ای', click: () => mainWindow.loadURL(startUrl + '/#/chartpro') },
         { label: 'اندیکاتور شخصی', click: () => mainWindow.webContents.executeJavaScript('document.querySelector(\'[data-tab="excellent"]\')?.click()') }
       ]
     },

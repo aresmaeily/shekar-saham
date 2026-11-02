@@ -17,8 +17,11 @@ def test_frontend_static_validator_contract():
     assert result.returncode == 0, result.stderr
     data = json.loads(result.stdout)
     assert data["ok"] is True
-    assert data["tabs"]["tabs_count"] == 24
-    assert data["tabs"]["panels_count"] == 24
+    # WS-10 (2026-11-02, owner directive): the "chartpro" pro-chart tab was
+    # added -> 25 tabs/panels. Counter pin updated with the feature; every
+    # structural check (matching panel, no orphans/duplicates) unchanged.
+    assert data["tabs"]["tabs_count"] == 25
+    assert data["tabs"]["panels_count"] == 25
     assert data["tabs"]["missing_panels"] == []
     assert data["tabs"]["orphan_panels"] == []
     assert data["duplicate_ids"]["index"] == []

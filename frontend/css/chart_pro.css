@@ -1,0 +1,177 @@
+/* ============================================================
+   chart_pro.css — WS-10 «چارت حرفه‌ای» (#tab-chartpro)
+   توکن‌ها از app.css (var(--*) ) — هم تم تیره هم روشن خودکار سازگار است
+   RTL: دیده‌بان سمت راست (اولین ستون گرید در جهت rtl)
+   ============================================================ */
+
+/* ---------- نوار ابزار فشرده ---------- */
+.cp-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .55rem .75rem;
+  margin-bottom: .75rem;
+}
+.cp-row {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.cp-vsep {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  display: inline-block;
+}
+.cp-symbol-input { width: 170px; }
+.cp-alert-input { width: 120px; }
+
+/* دکمه‌های ابزار رسم در حالت فعال */
+#cpDrawSeg button.active {
+  background: linear-gradient(135deg, rgba(41, 98, 255, .35), rgba(156, 39, 176, .35));
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------- برچسب منبع داده (صداقت: هرگز SYNTHETIC را لایو نشان نمی‌دهیم) ---------- */
+.cp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .74rem;
+  font-weight: 600;
+  padding: .3rem .65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, .45);
+  background: rgba(251, 191, 36, .12);
+  color: #fbbf24;
+  white-space: nowrap;
+}
+[data-theme="light"] .cp-badge {
+  border-color: rgba(217, 119, 6, .4);
+  background: rgba(217, 119, 6, .1);
+  color: #b45309;
+}
+.cp-badge.live {
+  border-color: rgba(34, 197, 94, .45);
+  background: rgba(34, 197, 94, .12);
+  color: #22c55e;
+}
+
+/* ---------- چیدمان اصلی: دیده‌بان راست + چارت ---------- */
+.cp-layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: .75rem;
+  align-items: stretch;
+}
+
+.cp-chart-wrap {
+  position: relative;
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .35rem;
+  min-width: 0;
+}
+.cp-chart {
+  height: 440px;
+  width: 100%;
+}
+
+/* اورلی رسم — فقط وقتی ابزاری فعال است رویداد می‌گیرد */
+.cp-canvas {
+  position: absolute;
+  inset: .35rem;
+  width: calc(100% - .7rem);
+  height: calc(100% - .7rem);
+  pointer-events: none;
+  z-index: 5;
+}
+.cp-canvas.armed {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+/* ---------- پنل اسیلاتور (RSI/MACD) ---------- */
+.cp-osc {
+  height: 150px;
+  margin-top: .75rem;
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .35rem;
+}
+
+/* ---------- دیده‌بان سمت راست ---------- */
+.cp-watchlist {
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+.cp-watch-head {
+  padding: .55rem .8rem;
+  font-size: .85rem;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.cp-watch-body {
+  overflow-y: auto;
+  max-height: 500px;
+  padding: .3rem;
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+.cp-watch-empty { padding: .8rem; text-align: center; }
+.cp-watch-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: .4rem;
+  align-items: center;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 10px;
+  padding: .4rem .55rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: .8rem;
+  color: var(--text);
+  text-align: right;
+}
+.cp-watch-row:hover { background: var(--surface2); border-color: var(--border); }
+.cp-watch-row.active {
+  background: linear-gradient(135deg, rgba(34, 211, 238, .14), rgba(129, 140, 248, .2));
+  border-color: var(--border);
+  font-weight: 700;
+}
+.cp-w-sym { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cp-w-price { color: var(--muted); font-size: .76rem; }
+.cp-w-chg { font-size: .76rem; font-weight: 700; min-width: 56px; text-align: left; }
+.cp-w-chg.up { color: var(--up); }
+.cp-w-chg.down { color: var(--down); }
+.cp-w-chg.flat { color: var(--muted); }
+
+/* ---------- پابرگ وضعیت ---------- */
+#cpStatus {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-inline-start: auto;
+}
+
+/* ---------- واکنش‌گرا ---------- */
+@media (max-width: 900px) {
+  .cp-layout { grid-template-columns: 1fr; }
+  .cp-watchlist { order: 2; }
+  .cp-watch-body { max-height: 220px; }
+  .cp-chart { height: 340px; }
+}

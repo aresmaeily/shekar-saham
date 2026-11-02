@@ -9,6 +9,7 @@
   <link rel="manifest" href="/static/manifest.json" />
   <link rel="stylesheet" href="/static/css/app.css" />
   <link rel="stylesheet" href="/static/css/symbol.css" />
+  <link rel="stylesheet" href="/static/css/chart_pro.css" />
 </head>
 <body>
   <div class="bg-grid"></div>
@@ -89,6 +90,7 @@
     <button class="tab" data-tab="settings">⚙️ تنظیمات</button>
     <button class="tab" data-tab="watch">👁 دیده‌بان</button>
     <button class="tab" data-tab="forex">💱 فارکس</button>
+    <button class="tab" data-tab="chartpro">📈 چارت حرفه‌ای</button>
     <button class="tab" data-tab="excellent">✨ عالی</button>
     <button class="tab" data-tab="guide">📖 راهنما</button>
   </nav>
@@ -860,6 +862,73 @@
       <div class="cards" id="forexInfo" style="margin-top:1rem"></div>
       <div class="panel-head" style="margin-top:1.5rem"><h3>🎨 اندیکاتور شخصی (قابلیتی که فراز نداره)</h3></div>
       <div id="forexCustomIndicator"></div>
+    </section>
+
+    <section class="panel" id="tab-chartpro">
+      <div class="panel-head">
+        <div>
+          <h2>📈 چارت حرفه‌ای — کلاس فرازچارت/تریدینگ‌ویو</h2>
+          <p class="muted">کندل و حجم، اندیکاتورها (MA20/MA50/EMA20/BB/RSI/MACD)، ابزار رسم (خط روند، خط افقی، فیبوناچی)، هشدار قیمتی محلی، دیده‌بان و ذخیره تحلیل — داده شبیه‌سازی‌شده با برچسب صادقانه</p>
+        </div>
+        <div class="filters">
+          <span class="cp-badge" id="cpSourceBadge" title="سطح اعتماد داده — هرگز داده شبیه‌سازی‌شده لایو نمایش داده نمی‌شود">منبع: —</span>
+        </div>
+      </div>
+
+      <div class="cp-toolbar">
+        <div class="cp-row">
+          <input class="text-input cp-symbol-input" id="cpSymbolInput" list="cpSymbolList" placeholder="نماد… مثلاً فملی" autocomplete="off" />
+          <datalist id="cpSymbolList"></datalist>
+          <div class="seg" id="cpTfSeg">
+            <button class="active" data-tf="1m">1m</button>
+            <button data-tf="5m">5m</button>
+            <button data-tf="15m">15m</button>
+            <button data-tf="1h">1h</button>
+            <button data-tf="1D">1D</button>
+          </div>
+          <span class="cp-vsep"></span>
+          <span class="muted">اندیکاتور:</span>
+          <div class="seg" id="cpIndSeg">
+            <button class="active" data-ind="ma20">MA20</button>
+            <button class="active" data-ind="ma50">MA50</button>
+            <button data-ind="ema20">EMA20</button>
+            <button data-ind="bb">BB</button>
+            <button data-ind="rsi">RSI</button>
+            <button data-ind="macd">MACD</button>
+          </div>
+        </div>
+        <div class="cp-row">
+          <span class="muted">ابزار رسم:</span>
+          <div class="seg" id="cpDrawSeg">
+            <button data-draw="trend">خط روند</button>
+            <button data-draw="hline">خط افقی</button>
+            <button data-draw="fib">فیبوناچی</button>
+            <button data-draw="delete" title="حذف رسم: روی خط کلیک کنید">حذف</button>
+          </div>
+          <button class="btn tiny" id="cpClearDraw" title="پاک‌سازی همه رسم‌های این نماد">پاک‌سازی</button>
+          <span class="cp-vsep"></span>
+          <input class="text-input cp-alert-input" id="cpAlertPrice" type="number" step="any" min="0" placeholder="قیمت هشدار…" />
+          <button class="btn tiny" id="cpAddAlert" title="هشدار قیمتی محلی (فقط درون‌محصولی)">هشدار</button>
+          <span class="cp-vsep"></span>
+          <button class="btn tiny" id="cpSaveLayout" title="ذخیره تحلیل فعلی">💾 ذخیره تحلیل</button>
+          <button class="btn tiny" id="cpLoadLayout" title="بازیابی تحلیل ذخیره‌شده">📂 بارگذاری</button>
+          <button class="btn tiny" id="cpExportLayouts" title="دانلود JSON همه تحلیل‌ها">⬇ خروجی JSON</button>
+          <span id="cpStatus">—</span>
+        </div>
+      </div>
+
+      <div class="cp-layout">
+        <aside class="cp-watchlist" id="cpWatchlist" aria-label="دیده‌بان نمادها">
+          <div class="cp-watch-head">👁 دیده‌بان</div>
+          <div class="cp-watch-body" id="cpWatchBody">
+            <div class="cp-watch-empty muted">در حال بارگذاری فهرست نمادها…</div>
+          </div>
+        </aside>
+        <div class="cp-chart-wrap">
+          <div id="cpChart" class="cp-chart" aria-label="چارت حرفه‌ای کندل‌استیک"></div>
+        </div>
+      </div>
+      <div id="cpOscChart" class="cp-osc" style="display:none" aria-label="پنل اسیلاتور RSI/MACD"></div>
     </section>
 
     <section class="panel" id="tab-excellent">

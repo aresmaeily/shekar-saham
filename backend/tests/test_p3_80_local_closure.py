@@ -50,8 +50,9 @@ def test_service_worker_cache_name_bumped_to_drop_old_api_entries():
     sw = (ROOT / "frontend/sw.js").read_text(encoding="utf-8")
     assert "shekar-v3-0-1" not in sw
     # WS-HARDEN-1/W3: cache list changed (legacy-loader entry dropped) -> bump to v3-0-3
-    assert "radar-bourse-static-v3-0-4" in sw  # GOV-24: main.js/symbol.js content changed -> bump
-    assert "radar-bourse-static-v3-0-3" not in sw
+    # WS-10 (2026-11-02): precache list extended with chart_pro.css/js -> bump to v3-0-5
+    assert "radar-bourse-static-v3-0-5" in sw  # WS-10: chart_pro assets precached -> bump
+    assert "radar-bourse-static-v3-0-4" not in sw
 
 
 def test_production_disables_openapi_docs(monkeypatch):

@@ -1,5 +1,5 @@
 /**
- * watchlist_excellent.js - بهتر از tablokhani.com/stock-watchlist
+ * watchlist_excellent.js - دیده‌بان حرفه‌ای نمادها (الگوگرفته از tablokhani.com/stock-watchlist)
  * - خلاصه: تعداد کل، مثبت، منفی، ارزش کل (از overview واقعی)
  * - جدول با فیلدهای واقعی دیده‌بان (SignalCard): نماد، صنعت، ٪، قدرت، حجم×، خالص حقیقی، تگ‌ها، دلایل
  * - فیلتر صنعت + جستجو + ذخیره CSV
@@ -50,7 +50,7 @@ export function renderWatchlistExcellent(data) {
   const headerHtml = `
     <div class="panel-head watchlist-header">
       <div>
-        <h2>👁 دیده‌بان بورس — بهتر از تابلوخوانی</h2>
+        <h2>👁 دیده‌بان بورس — تابلوی شفاف لحظه‌ای</h2>
         <p class="muted">نمادهای در حال شکل‌گیری قبل از آستانه هشدار · هر رفرش به‌روز می‌شود</p>
       </div>
       <div class="filters">

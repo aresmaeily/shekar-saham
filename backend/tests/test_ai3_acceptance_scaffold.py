@@ -81,6 +81,9 @@ from helpers_research_memory_fixtures import (
     make_seeded_lesson_store,
 )
 from research_memory_jsonl_reference import _jsonl_file_reference_factory
+from test_research_memory_sqlite_adapter import (
+    _sqlite_wal_encrypted_reference_factory,
+)
 
 # ---------------------------------------------------------------------------
 # Store-factory registry — THE plug-in point for any future adapter.
@@ -101,6 +104,10 @@ def _in_memory_reference_factory() -> ResearchMemoryStore:
 STORE_FACTORIES: tuple[tuple[str, Callable[[], ResearchMemoryStore]], ...] = (
     ("in_memory_reference", _in_memory_reference_factory),
     ("jsonl_file_reference", _jsonl_file_reference_factory),
+    # D1 production adapter (OWNER_DECISIONS_RECORDED_2026-11-02.md rows
+    # D1/D3/D4/D5/D6/D7): SQLite-WAL + AES-256-GCM carrier; TEST-ONLY static
+    # key injected here (never a real secret — see the test module).
+    ("sqlite_wal_encrypted_reference", _sqlite_wal_encrypted_reference_factory),
 )
 
 _FACTORY_IDS: tuple[str, ...] = tuple(name for name, _ in STORE_FACTORIES)
