@@ -189,3 +189,60 @@ recorded as an isolated environmental flake instance of the pre-existing
 W7 log-textbook sensitivity (full mechanism above); no gate was changed,
 no assertion weakened, no code reverted. The WS-10 wave's published chain
 `f05be4c → 1f037dc → a7da35d → 814418b` is fully CI-verified.
+
+## §8 — 2026-11-02 (same cycle, continued): evidence-stream hygiene — the §7 flake MECHANISM structurally removed (forward-only, no gate change)
+
+§7/§7.1 recorded the W7 flake instance and its empirical confirmation. This
+section records the structural resolution of the recorded mechanism itself,
+implemented as the next forward-only wave on top of `4972746…`:
+
+**Change (6 handled-fault sites, `backend/app/services/market_service.py`):**
+`logger.exception(...)` printed FULL multi-line tracebacks into the uvicorn
+runtime log on handled, non-fatal fault paths (poll cycle, analyze_market,
+big_moves, confluence build, persist, confluence rebuild). All six sites now
+log a single line via plain `logger.error(f"[{err_id}] ...: {exc}")` with NO
+exc_info argument — stdlib logging never attaches exception info implicitly,
+so the evidence stream keeps the error text, the `[err_id]` correlation
+prefix and the uptime metrics, and can no longer contain a traceback from a
+HANDLED fault. The `raise` after the analyze_market site is UNCHANGED — the
+fault still propagates fail-loud. Real UNHANDLED ASGI crashes are still
+tracebacked by uvicorn itself, so W7's crash-detection power is unchanged;
+W7 and every other gate step are byte-unchanged.
+
+**Tests (+3, `backend/tests/test_runtime_log_hygiene.py`):**
+1. `test_phase2_fault_propagates_fail_loud_without_traceback_in_log` —
+   a faulted Phase-2 analysis still raises (fail-loud) AND the captured log
+   contains only the single-line error with the `[err_id]` prefix; no
+   "Traceback" text; every record `exc_info is None`.
+2. `test_poll_loop_swallows_refresh_fault_without_traceback` — a failing
+   refresh cycle inside `_poll_loop` is logged and swallowed (loop keeps
+   running) under the same no-traceback/no-exc_info contract.
+3. `test_poll_path_has_no_traceback_logging_sites` — source guard:
+   `market_service.py` contains zero `logger.exception` sites (regression
+   guard for the evidence stream).
+
+**Verification:** battery **1594 passed / 1 skipped = 1591 + 3 EXACT**;
+focused neighbors `test_refresh_false_fresh.py` + 
+`test_refresh_degraded_token_concurrency.py` 6/6; pyflakes clean on
+`app/` + the new test module; `git diff --check` clean; one stdlib-logging
+semantics subtlety was caught and fixed BEFORE publication: the first draft
+called `logger.error(..., exc_info=False)`, which makes the record carry
+`exc_info=False` (not `None`) — the stricter authored assertion
+(`r.exc_info is None`) failed, so the kwarg was dropped at the six wave
+sites (the pre-existing site at line 405 already used `exc_info=False` and
+is traceback-free; left unchanged, out of wave scope).
+
+**Honest residual traceback-capable surfaces (NOT changed, recorded):**
+- `app/services/alert_operations.py` (2 sites) — dispatcher self-failure
+  logging is a PINNED design ("dispatcher self-failure visible in health",
+  D-AI-30 / decision 6): the traceback is deliberate visibility evidence,
+  the loop is deterministic in-product logic (SYNTHETIC_OR_PAPER, no
+  external egress) and has never faulted in any recorded CI window;
+  reformatting it is an owner-class behavior change and was NOT done
+  unilaterally.
+- `app/core/errors.py` — has ZERO importers (unwired module); not on the
+  boot/poll/E2E evidence stream.
+
+No gate changed; no test weakened/skipped/deleted; no behavior change beyond
+log formatting on handled-fault paths; D1–D7 remain recorded per
+`OWNER_DECISIONS_RECORDED_2026-11-02.md`; INSTALL NOT ISSUED.
