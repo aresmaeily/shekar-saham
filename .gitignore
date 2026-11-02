@@ -29,6 +29,14 @@ Thumbs.db
 # Environment
 .env
 
+# MASTER-WAVE-2 hardening (W2-SEC C-5): secret-material patterns — never
+# tracked, defense-in-depth beyond the explicit .env above.
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+
 # Python
 .venv/
 __pycache__/

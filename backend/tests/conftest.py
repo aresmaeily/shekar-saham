@@ -34,5 +34,23 @@ import os
 
 # Must run before any test module imports the app (pytest imports conftest.py
 # first within the tests package).
+#
+# MASTER-WAVE-2 hardening (W2-DATA F-4): the previous `setdefault` pin FAILED
+# OPEN — a host-exported DATA_SOURCE (e.g. DATA_SOURCE=auto in the shell that
+# launched pytest) silently survived and up to 14 TestClient suites could
+# reach the live TSETMC provider. The guard below is FAIL-CLOSED: any
+# pre-set DATA_SOURCE other than "mock" aborts the session before any test
+# imports, unless the operator sets RADAR_ALLOW_LIVE_TESTS=1 (deliberate,
+# explicit opt-in for live-provider tests — none exist today).
+_data_source = os.environ.get("DATA_SOURCE")
+if _data_source is not None and _data_source != "mock":
+    if os.environ.get("RADAR_ALLOW_LIVE_TESTS") != "1":
+        raise RuntimeError(
+            "TEST-ISOLATION GUARD (fail-closed): DATA_SOURCE="
+            f"{_data_source!r} would let tests reach live providers. "
+            "Unset DATA_SOURCE (the suite pins mock), set it to 'mock', or "
+            "export RADAR_ALLOW_LIVE_TESTS=1 for deliberate live-provider "
+            "tests."
+        )
 os.environ.setdefault("DATA_SOURCE", "mock")
 os.environ.setdefault("BRSAPI_KEY", "")

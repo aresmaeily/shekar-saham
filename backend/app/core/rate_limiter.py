@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import time
 from collections import defaultdict, deque
+from itertools import islice
 from typing import Dict
 
 from fastapi import Request
@@ -19,9 +20,24 @@ logger = logging.getLogger("shekar.ratelimit")
 
 
 class InMemoryRateLimiter:
+    # MASTER-WAVE-2 hardening (W2-SEC C-6): the per-IP/per-path buckets are
+    # keyed by attacker-controlled strings (client IP), so the two stores need
+    # a hard bound on DISTINCT keys — without one, unbounded unique-IP traffic
+    # grows memory without limit. Cap + oldest-eviction (dicts preserve
+    # insertion order; evicted keys are stale windows by construction — a
+    # re-appearing client simply starts a fresh window).
+    _MAX_DISTINCT_KEYS = 10_000
+
     def __init__(self):
         self.general: Dict[str, deque] = defaultdict(deque)
         self.path_specific: Dict[str, deque] = defaultdict(deque)
+
+    def _bound_keys(self, store: Dict[str, deque]) -> None:
+        excess = len(store) - self._MAX_DISTINCT_KEYS
+        if excess <= 0:
+            return
+        for key in list(islice(store.keys(), excess)):
+            del store[key]
 
     def _clean(self, bucket: deque, window_sec: int):
         now = time.time()
@@ -50,6 +66,7 @@ class InMemoryRateLimiter:
         # Check general
         g_key = f"gen:{ip}"
         self._clean(self.general[g_key], 60)
+        self._bound_keys(self.general)
         if len(self.general[g_key]) >= 150:  # Increased from 120 to 150 for better UX
             return True, "درخواست زیاد است (150/min). لطفا 1 دقیقه صبر کنید", 60
 
@@ -83,6 +100,7 @@ class InMemoryRateLimiter:
     def record(self, ip: str, path: str):
         now = time.time()
         self.general[f"gen:{ip}"].append(now)
+        self._bound_keys(self.general)
         heavy_paths = ("/api/analyze", "/api/confluence", "/api/backtest", "/api/filter/run", "/api/market-map", "/api/fundamentals", "/api/big-moves", "/api/tablocastic")
         sensitive_paths = ("/api/notify", "/api/config", "/api/portfolio", "/api/filter/saved")
         auth_paths = ("/api/auth/login",)
@@ -96,6 +114,7 @@ class InMemoryRateLimiter:
         if is_auth:
             self.path_specific[f"auth:{path}:{ip}"].append(now)
             self.path_specific[f"auth_hour:{path}:{ip}"].append(now)
+        self._bound_keys(self.path_specific)
 
     def get_client_ip(self, request: Request) -> str:
         """

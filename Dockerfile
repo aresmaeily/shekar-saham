@@ -1,6 +1,9 @@
 # ===== Dockerfile — رادار بورس v4 =====
 # تک‌مرحله‌ای: Python + اجرای مستقیم (بدون بیلد جدا)
-FROM python:3.13-slim
+# MASTER-WAVE-2 hardening (W2-SEC C-4): base pinned by the authoritative
+# multi-arch manifest digest of python:3.13-slim (registry read-back
+# 2026-11-02; docker-content-digest header, token-gated anonymous pull scope).
+FROM python:3.13-slim@sha256:ae14d4ce8771606477a81446e7ef429edd6762305fc50c84507c1041fa8285d1
 
 # جلوگیری از فایل‌های .pyc و خروجی‌های غیرتعاملی
 ENV PYTHONDONTWRITEBYTECODE=1 \

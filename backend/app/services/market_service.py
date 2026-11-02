@@ -379,13 +379,28 @@ class MarketService:
         # below is retained only as an observability mirror with identical
         # sequential semantics.
         cycle_degraded = False
+        cycle_source: str = "unknown"  # per-cycle capture (W2-DATA F-2)
         try:
             symbols = await self.provider.fetch()
+            # F-2 hardening: capture the cycle's source label SYNCHRONOUSLY,
+            # before the lock acquisition below can suspend this task — a
+            # concurrent cycle's fetch completing during that suspension can
+            # overwrite the SHARED provider.last_source, so the old post-lock
+            # read could commit another cycle's label (incl. an upward
+            # mislabel). The per-cycle local is immutable for the rest of the
+            # cycle; sequential (single-cycle) value is byte-identical.
+            cycle_source = self.provider.last_source
             async with self._lock:
                 self._fetch_degraded = False  # fresh fetch succeeded (mirror)
         except Exception as exc:
             err_id = uuid.uuid4().hex[:8]
             logger.error(f"[{err_id}] provider fetch failed: {exc}", exc_info=False)
+            # Degraded path: capture the shared label SYNCHRONOUSLY at the
+            # top of the except — exception propagation runs without yielding,
+            # so this read cannot interleave with another cycle's fetch. The
+            # lock acquisition below CAN suspend, so the capture must precede
+            # it (same reasoning as the success path above).
+            cycle_source = self.provider.last_source
             # Fallback to last known symbols if available
             async with self._lock:
                 if self._last_symbols:
@@ -399,7 +414,7 @@ class MarketService:
                     self._fetch_degraded = True  # observability mirror
                 else:
                     raise
-        source = self.provider.last_source
+        source = cycle_source  # per-cycle label — immune to cross-cycle overwrite
         # Legacy source classification only. Display/WS/notify must use
         # data_trust_context() which never mints verified LIVE from a label.
         trust_level = resolve_trust_level(source, get_settings())

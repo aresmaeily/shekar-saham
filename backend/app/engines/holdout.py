@@ -168,6 +168,15 @@ class HoldoutAttestation(BaseModel):
 
     ``isolated`` is typed ``Literal[True]``: this record exists only on the
     all-checks-passed path; violations raise instead of emitting a record.
+
+    MASTER-WAVE-2 hardening (P3 finding F1, W2-QUANT confirmed): the
+    attestation is now cross-field-consistent AT THE TYPE LEVEL. The only
+    legitimate emitting path (``assert_no_selection_on_holdout``) already
+    enforces every invariant below by construction; the validator closes the
+    DIRECT-construction forgery path (a hand-built record whose fields
+    contradict each other) so a forged attestation can never round-trip the
+    type. Refusals raise ``ValueError`` with stable reason codes (pydantic
+    wraps them as ``ValidationError``); legitimate records validate freely.
     """
 
     model_config = ConfigDict(frozen=True, allow_inf_nan=False)
@@ -181,6 +190,25 @@ class HoldoutAttestation(BaseModel):
     insample_bar_count: int
     holdout_bar_count: int
     isolated: Literal[True] = True
+
+    @model_validator(mode="after")
+    def _cross_field_consistency(self) -> "HoldoutAttestation":
+        if self.insample_bar_count < 1:
+            raise ValueError("attestation_insample_bar_count_below_one")
+        if self.holdout_bar_count < 1:
+            raise ValueError("attestation_holdout_bar_count_below_one")
+        if self.insample_first_ts > self.insample_last_ts:
+            raise ValueError("attestation_insample_window_inverted")
+        if self.holdout_first_ts > self.holdout_last_ts:
+            raise ValueError("attestation_holdout_window_inverted")
+        if self.insample_last_ts >= self.holdout_boundary_ts:
+            # mirrors INSAMPLE_CROSSES_HOLDOUT_BOUNDARY (strict inequality)
+            raise ValueError("attestation_insample_crosses_holdout_boundary")
+        if self.holdout_first_ts < self.holdout_boundary_ts:
+            # mirrors HOLDOUT_SEGMENT_BEFORE_BOUNDARY (first holdout bar at
+            # or after the declared boundary)
+            raise ValueError("attestation_holdout_before_boundary")
+        return self
 
 
 def assert_no_selection_on_holdout(

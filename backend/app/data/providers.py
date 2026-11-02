@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,20 +35,30 @@ def _headers() -> dict[str, str]:
 
 
 def _safe_float(v: Any, default: float = 0.0) -> float:
+    # MASTER-WAVE-2 hardening (W2-DATA F-3): non-finite floats (NaN/±inf) are
+    # refused to the default — a NaN price/volume must never enter the
+    # analysis pipeline through a provider payload.
     try:
         if v is None or v == "":
             return default
-        return float(v)
+        x = float(v)
+        return x if math.isfinite(x) else default
     except (TypeError, ValueError):
         return default
 
 
 def _safe_int(v: Any, default: int = 0) -> int:
+    # MASTER-WAVE-2 hardening (W2-DATA F-3): non-finite input (NaN/±inf)
+    # refused to the default; OverflowError (int(inf)) was NOT caught before
+    # and could raise out of the provider boundary.
     try:
         if v is None or v == "":
             return default
-        return int(float(v))
-    except (TypeError, ValueError):
+        x = float(v)
+        if not math.isfinite(x):
+            return default
+        return int(x)
+    except (TypeError, ValueError, OverflowError):
         return default
 
 
@@ -139,6 +150,11 @@ def tsetmc_mw_to_snapshot(item: dict[str, Any]) -> Optional[SymbolSnapshot]:
         if not l18:
             return None
         pl = _safe_float(item.get("pl") or item.get("last") or item.get("pDrCotVal"))
+        # MASTER-WAVE-2 hardening (W2-DATA F-3): parity with the legacy
+        # CSV path, which already drops rows with pl <= 0 — a row without a
+        # positive last price is a halted/absent quote, not a tradeable row.
+        if pl <= 0:
+            return None
         pc = _safe_float(item.get("pc") or item.get("pClosing"))
         py = _safe_float(item.get("py") or item.get("priceYesterday") or item.get("yval"))
         if py <= 0:
