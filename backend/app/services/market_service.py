@@ -370,10 +370,19 @@ class MarketService:
 
         # Phase 1: Network I/O OUTSIDE lock (biggest win)
         self.provider.settings = get_settings()
+        # Q-1 hardening (MASTER-WAVE 2026-11-02): the degraded marker is a
+        # PER-CYCLE local token, not the shared instance attribute. Two
+        # concurrent refresh cycles each carry their own outcome, so a fresh
+        # cycle completing inside this cycle's Phase-1→Phase-3 span can never
+        # clobber this cycle's degraded state (reproduction:
+        # tests/test_refresh_degraded_token_concurrency.py). The attribute
+        # below is retained only as an observability mirror with identical
+        # sequential semantics.
+        cycle_degraded = False
         try:
             symbols = await self.provider.fetch()
             async with self._lock:
-                self._fetch_degraded = False  # fresh fetch succeeded
+                self._fetch_degraded = False  # fresh fetch succeeded (mirror)
         except Exception as exc:
             err_id = uuid.uuid4().hex[:8]
             logger.error(f"[{err_id}] provider fetch failed: {exc}", exc_info=False)
@@ -386,7 +395,8 @@ class MarketService:
                     # fresh in Phase 3 — flag the cycle as degraded so the
                     # previous fetch timestamp is preserved and the trust
                     # context reports the true age (stale/unavailable).
-                    self._fetch_degraded = True
+                    cycle_degraded = True  # per-cycle token (Q-1 hardening)
+                    self._fetch_degraded = True  # observability mirror
                 else:
                     raise
         source = self.provider.last_source
@@ -469,12 +479,12 @@ class MarketService:
         async with self._lock:
             self._last_symbols = symbols
             self._last_analysis = analysis
-            if self._fetch_degraded:
+            if cycle_degraded:  # per-cycle token — immune to cross-cycle clobber
                 # False-fresh guard: keep the PREVIOUS fetch timestamp so the
                 # trust context reflects the real data age instead of masking
                 # the failure with a fresh stamp. One-cycle flag.
                 self._last_fetch_ts = self._last_fetch_ts or time.time()
-                self._fetch_degraded = False
+                self._fetch_degraded = False  # consume the mirror
             else:
                 self._last_fetch_ts = time.time()
             self._source = source

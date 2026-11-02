@@ -79,6 +79,7 @@ from helpers_research_memory_fixtures import (
     make_lesson,
     make_seeded_lesson_store,
 )
+from research_memory_jsonl_reference import _jsonl_file_reference_factory
 
 # ---------------------------------------------------------------------------
 # Store-factory registry — THE plug-in point for any future adapter.
@@ -90,12 +91,15 @@ def _in_memory_reference_factory() -> ResearchMemoryStore:
     return InMemoryResearchMemoryStore()
 
 
-#: Registry of store factories under acceptance test. TODAY: exactly one
-#: entry (the in-memory reference adapter). A future persistence adapter is
-#: accepted by adding ONE entry here (see module docstring); every Tier A
-#: test parameterizes over this registry unchanged.
+#: Registry of store factories under acceptance test. The second entry is a
+#: TEST-LAYER-ONLY pluggability proof (``research_memory_jsonl_reference``):
+#: it is NOT a persistence-backend decision — D1–D7 remain ALL PENDING
+#: (packet lines 3–6) and the §11 execution gate still binds. A future
+#: production adapter is accepted by adding ONE entry here (see module
+#: docstring); every Tier A test parameterizes over this registry unchanged.
 STORE_FACTORIES: tuple[tuple[str, Callable[[], ResearchMemoryStore]], ...] = (
     ("in_memory_reference", _in_memory_reference_factory),
+    ("jsonl_file_reference", _jsonl_file_reference_factory),
 )
 
 _FACTORY_IDS: tuple[str, ...] = tuple(name for name, _ in STORE_FACTORIES)
