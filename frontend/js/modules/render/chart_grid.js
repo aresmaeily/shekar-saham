@@ -208,6 +208,42 @@ function gridSameTime(a, b) {
 
 /* <<< WAVE-3 PURE LOGIC END */
 
+/* >>> WAVE-B PURE LOGIC BEGIN — جداسازی popup (MR-B2-01 residual) — مرز پین ایستا */
+
+const DETACH_HASH_PREFIX = "#cpGridDetach=";
+const DETACH_CHANNEL = "radar.grid.sync.v1";
+const DETACH_WINDOW_FEATURES = "width=560,height=460";
+
+/** هش پنجرهٔ جدا برای یک پنل فرعی (0..2) — نامعتبر → null (fail-closed) */
+function gridDetachHash(paneIndex) {
+  const n = Number(paneIndex);
+  if (!Number.isInteger(n) || n < 0 || n >= GRID_MAX_PANES) return null;
+  return DETACH_HASH_PREFIX + n;
+}
+
+/** تجزیهٔ هش جداسازی — فقط 0..GRID_MAX_PANES-1؛ هر چیز دیگر → null */
+function parseDetachHash(hash) {
+  if (typeof hash !== "string" || !hash.startsWith(DETACH_HASH_PREFIX)) return null;
+  const n = Number(hash.slice(DETACH_HASH_PREFIX.length));
+  if (!Number.isInteger(n) || n < 0 || n >= GRID_MAX_PANES) return null;
+  return n;
+}
+
+/** پیام همگام‌سازی نماد/تایم‌فریم — fail-closed: هر فیلد نامعتبر → false */
+function validDetachSyncMsg(msg) {
+  if (!msg || typeof msg !== "object" || msg.type !== "pane_state") return false;
+  const n = Number(msg.pane);
+  if (!Number.isInteger(n) || n < 0 || n >= GRID_MAX_PANES) return false;
+  const hasSymbol = msg.symbol !== undefined;
+  const hasTf = msg.timeframe !== undefined;
+  if (!hasSymbol && !hasTf) return false;
+  if (hasSymbol && (typeof msg.symbol !== "string" || !msg.symbol.trim() || msg.symbol.length > GRID_SYMBOL_MAX_LEN)) return false;
+  if (hasTf && !GRID_TIMEFRAMES.includes(msg.timeframe)) return false;
+  return true;
+}
+
+/* <<< WAVE-B PURE LOGIC END */
+
 export class ChartGrid {
   constructor(opts = {}) {
     this.rootId = opts.rootId || "cpGridRoot";
@@ -218,18 +254,120 @@ export class ChartGrid {
     this._gridSyncing = false; // فلگ بازگشت (re-entrancy) — الگوی _syncScales
     this._primaryRangeBound = false;
     this._primaryCrosshairBound = false;
+    /* WAVE-B: جداسازی popup + همگام‌سازی نماد/تایم‌فریم بین پنجره‌ها */
+    this._channel = null;
+    this._applyingRemote = false; // گارد پژواک برای پیام‌های همگام‌سازی
+    try {
+      if (typeof BroadcastChannel === "function") this._channel = new BroadcastChannel(DETACH_CHANNEL);
+    } catch (e) { /* بدون کانال: همگام‌سازی بین‌پنجره‌ای صادقانه غیرفعال می‌ماند */ }
+    try {
+      this._detachedPane = parseDetachHash(typeof location !== "undefined" ? location.hash : "");
+    } catch (e) {
+      this._detachedPane = null;
+    }
   }
 
   /** راه‌اندازی — false یعنی کانتینر نیست و ماژول no-op می‌ماند (تدافعی) */
   init() {
     const root = document.getElementById(this.rootId);
     if (!root) return false;
+    if (this._detachedPane !== null) {
+      this._enterDetachedMode(this._detachedPane);
+      return true;
+    }
     this.state = this._loadState().state;
     this._injectStyle();
     this._renderBar();
     this._applyLayout(this.state.layout);
+    this._setupChannel();
     window.addEventListener("resize", () => this._resizeCharts());
     return true;
+  }
+
+  /* ---------------- WAVE-B: جداسازی popup (چندنمایشگر) ----------------
+   * صادقانه: «جداسازی» یعنی پنجرهٔ همان‌مبدأ مرورگر — کاربر می‌تواند آن را
+   * به نمایشگر دیگر بکاند؛ جای‌گذاری OS ادعا نمی‌شود. همگام‌سازی v1 فقط
+   * نماد/تایم‌فریم (دوسویه، رویدادمحور، بدون تایمر) — کراس‌هیر/بازه
+   * بین پنجره‌های جدا همگام نمی‌شود و همین صادقانه مستند است. */
+
+  _detachPane(paneIndex) {
+    const h = gridDetachHash(paneIndex);
+    if (!h) return;
+    try {
+      window.open(location.pathname + location.search + h, "_blank", DETACH_WINDOW_FEATURES);
+    } catch (e) { /* مسدودشده توسط مرورگر — هیچ ادعایی نمی‌شود */ }
+  }
+
+  _enterDetachedMode(paneIndex) {
+    document.body.classList.add("cp-grid-detached");
+    const st = document.createElement("style");
+    st.id = "cp-grid-detached-style";
+    st.textContent = [
+      "body.cp-grid-detached > header.topbar, body.cp-grid-detached > nav.tabs, body.cp-grid-detached > footer { display: none !important; }",
+      "body.cp-grid-detached > main { padding: .4rem !important; max-width: none !important; }",
+      "body.cp-grid-detached .cp-grid-chart { height: 60vh; }",
+    ].join("\n");
+    document.head.appendChild(st);
+    // وضعیت اولیه: آخرین پیکربندی ذخیره‌شدهٔ همان پنل (همان‌مبدأ)؛ بی‌نام
+    // یعنی ورودی خالی — هیچ نماد ساختگی‌ای لود نمی‌شود
+    const saved = this._loadState().state;
+    const cfg = Array.isArray(saved.panes) ? saved.panes[paneIndex] : null;
+    this.state.layout = 2; // فقط برای سازگاری درونی؛ UI چیدمان در حالت جدا رندر نمی‌شود
+    this.state.sync = { ...saved.sync };
+    const root = document.getElementById(this.rootId);
+    const wrap = document.createElement("div");
+    wrap.className = "cp-grid-panes cp-grid-cols-1";
+    root.textContent = "";
+    root.appendChild(wrap);
+    const sym = cfg && typeof cfg.symbol === "string" ? cfg.symbol : "";
+    const tf = cfg && GRID_TIMEFRAMES.includes(cfg.timeframe) ? cfg.timeframe : "1m";
+    this._buildPane(wrap, paneIndex, sym, tf);
+    const note = document.createElement("span");
+    note.className = "muted cp-grid-note";
+    note.textContent = "پنجرهٔ جدا (قابل کشیدن به نمایشگر دیگر) — همگام‌سازی نماد/تایم‌فریم دوسویه؛ بدون ادعای جای‌گذاری OS";
+    wrap.appendChild(note);
+    this._setupChannel();
+    this._resizeCharts();
+  }
+
+  _setupChannel() {
+    if (!this._channel) return;
+    try {
+      this._channel.onmessage = (ev) => {
+        const msg = ev && ev.data;
+        if (!validDetachSyncMsg(msg)) return; // fail-closed: پیام نامعتبر نادیده
+        this._applyPaneStateMsg(msg);
+      };
+    } catch (e) { /* ignore */ }
+  }
+
+  _applyPaneStateMsg(msg) {
+    const rec = this.panes.find((p) => p.index === Number(msg.pane));
+    if (!rec) return;
+    const sym = typeof msg.symbol === "string" ? msg.symbol.trim() : null;
+    const tf = GRID_TIMEFRAMES.includes(msg.timeframe) ? msg.timeframe : null;
+    /* حلقهٔ پژواک: اگر وضعیت از قبل همان است، هیچ بارگذاری/انتشاری */
+    const sameSym = !sym || sym === rec.symbol;
+    const sameTf = !tf || tf === rec.timeframe;
+    if (sameSym && sameTf) return;
+    if (sym && rec.input && rec.input.value !== sym) rec.input.value = sym;
+    if (tf && rec.tfSel && rec.tfSel.value !== tf) rec.tfSel.value = tf;
+    /* بارگذاریِ ناشی از پیام دور: منتشر نمی‌شود (فشارشده — نه بازتاب) */
+    this._applyingRemote = true;
+    try {
+      const p = this._loadPane(rec, sym || rec.symbol);
+      if (p && typeof p.finally === "function") p.finally(() => { this._applyingRemote = false; });
+      else this._applyingRemote = false;
+    } catch (e) {
+      this._applyingRemote = false;
+    }
+  }
+
+  _broadcastPaneState(rec) {
+    if (!this._channel || !rec || this._applyingRemote) return;
+    try {
+      this._channel.postMessage({ type: "pane_state", pane: rec.index, symbol: rec.symbol, timeframe: rec.timeframe });
+    } catch (e) { /* ignore */ }
   }
 
   /* ---------------- ماندگاری (fail-closed) ---------------- */
@@ -401,9 +539,16 @@ export class ChartGrid {
     const trust = document.createElement("span");
     trust.className = "cp-badge cp-grid-trust";
     trust.textContent = "منبع: —"; // تا پاسخ سرور برسد — هیچ برچسبی ساخته نمی‌شود
+    const detachBtn = document.createElement("button");
+    detachBtn.type = "button";
+    detachBtn.className = "btn tiny";
+    detachBtn.textContent = "⧉";
+    detachBtn.title = "جدا کردن این پنل در پنجرهٔ جدید (قابل کشیدن به نمایشگر دیگر)";
+    detachBtn.setAttribute("aria-label", "جدا کردن پنل فرعی در پنجرهٔ جدید");
     head.appendChild(input);
     head.appendChild(sel);
     head.appendChild(trust);
+    head.appendChild(detachBtn);
 
     const note = document.createElement("div");
     note.className = "cp-grid-note muted";
@@ -447,6 +592,7 @@ export class ChartGrid {
     input.addEventListener("change", go);
     input.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); go(); } });
     sel.addEventListener("change", () => this._loadPane(rec, rec.symbol));
+    detachBtn.addEventListener("click", () => this._detachPane(rec.index));
 
     this.panes.push(rec);
     this._bindPaneSync(rec);
@@ -474,6 +620,8 @@ export class ChartGrid {
       this._setPaneTrust(rec, res?.data_trust, res?.source, res?.trust_level);
       this.state.panes = this.panes.map((p) => ({ symbol: p.symbol, timeframe: p.timeframe }));
       this._queueSave();
+      /* WAVE-B: انتشار وضعیت پنل به پنجره‌های جدا (رویدادمحور، بدون تایمر) */
+      this._broadcastPaneState(rec);
     } catch (e) {
       /* خطا صادقانه فقط در خود پنل — بدون هیچ داده یا برچسب ساختگی */
       rec.data = [];

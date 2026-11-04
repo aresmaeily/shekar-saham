@@ -705,6 +705,129 @@ def _num(value: float | bool, what: str) -> float:
     return float(value)
 
 
+def _value_at(prepared: PreparedProgram, node: Expr, i: int) -> float | bool:
+    """Per-bar value of one expression node against a prepared program.
+
+    Module-level (extracted verbatim from the former ``evaluate_at`` closure)
+    so the UIDL-1 indicator layer (§B4) shares the EXACT same per-bar
+    semantics as RSL-1 decisions — one single source of truth for arithmetic
+    (including the documented ``x/0 -> 0.0`` rule), caching and type
+    behaviour. No behavioural change; the full battery pins equivalence.
+    """
+    series_map = prepared.series_map
+
+    if isinstance(node, A.Num):
+        return node.v
+    if isinstance(node, (A.SeriesBase, A.MtfRef, A.SymbolRef)):
+        cached = series_map.get(id(node))
+        if cached is None:
+            raise DSLRuntimeError(
+                "series node was not prepared", code="RUN_TYPE_ERROR"
+            )
+        return cached[i]
+    if isinstance(node, A.InputRef):
+        if node.name not in prepared.inputs:
+            raise DSLRuntimeError(
+                f"undeclared INPUT {node.name!r}", code="RUN_UNKNOWN_INPUT"
+            )
+        return prepared.inputs[node.name]
+    if isinstance(node, A.Call):
+        cached = series_map.get(id(node))
+        if cached is not None:
+            return cached[i]
+        if node.fn in _BOOL_FNS:
+            return _cross_at(prepared, node, i)
+        if node.fn == "abs":
+            return abs(_num(_value_at(prepared, node.args[0], i), "abs()"))
+        if node.fn == "min":
+            return min(_num(_value_at(prepared, a, i), "min()") for a in node.args)
+        if node.fn == "max":
+            return max(_num(_value_at(prepared, a, i), "max()") for a in node.args)
+        raise DSLRuntimeError(
+            f"function {node.fn!r} cannot be evaluated", code="RUN_TYPE_ERROR"
+        )
+    if isinstance(node, A.UnaryOp):
+        return -_num(_value_at(prepared, node.x, i), "unary '-'")
+    if isinstance(node, A.BinOp):
+        lv = _num(_value_at(prepared, node.l, i), node.op)
+        rv = _num(_value_at(prepared, node.r, i), node.op)
+        if node.op == "/":
+            return 0.0 if rv == 0.0 else lv / rv
+        if node.op == "+":
+            return lv + rv
+        if node.op == "-":
+            return lv - rv
+        return lv * rv
+    if isinstance(node, A.Cmp):
+        lv = _num(_value_at(prepared, node.l, i), node.op)
+        rv = _num(_value_at(prepared, node.r, i), node.op)
+        op = node.op
+        if op == ">":
+            return lv > rv
+        if op == "<":
+            return lv < rv
+        if op == ">=":
+            return lv >= rv
+        if op == "<=":
+            return lv <= rv
+        if op == "==":
+            return lv == rv
+        return lv != rv
+    if isinstance(node, A.Not):
+        inner = _value_at(prepared, node.x, i)
+        if not isinstance(inner, bool):
+            raise DSLRuntimeError(
+                "NOT applied to a non-boolean", code="RUN_TYPE_ERROR"
+            )
+        return not inner
+    if isinstance(node, (A.And, A.Or)):
+        lv = _value_at(prepared, node.l, i)
+        rv = _value_at(prepared, node.r, i)
+        if not isinstance(lv, bool) or not isinstance(rv, bool):
+            raise DSLRuntimeError(
+                "boolean operator applied to a non-boolean", code="RUN_TYPE_ERROR"
+            )
+        return (lv and rv) if isinstance(node, A.And) else (lv or rv)
+    raise DSLRuntimeError(
+        f"cannot evaluate node {type(node).__name__}", code="RUN_TYPE_ERROR"
+    )
+
+
+def _cross_at(prepared: PreparedProgram, call: A.Call, i: int) -> bool:
+    """Documented cross semantics at bar ``i`` (module-level; see _value_at)."""
+    if i == 0:
+        return False  # documented: no previous bar, never a cross
+    a, b = call.args
+    a_prev = _num(_value_at(prepared, a, i - 1), "crossover")
+    b_prev = _num(_value_at(prepared, b, i - 1), "crossover")
+    a_now = _num(_value_at(prepared, a, i), "crossover")
+    b_now = _num(_value_at(prepared, b, i), "crossover")
+    if call.fn == "crossover":
+        return a_prev <= b_prev and a_now > b_now
+    return a_prev >= b_prev and a_now < b_now
+
+
+def expression_series(prepared: PreparedProgram, expr: Expr) -> list[float]:
+    """Deterministic whole-series value of one series-valued expression.
+
+    UIDL-1 (§B4) evaluation path: every PLOT of a user indicator is computed
+    through the SAME per-bar semantics as RSL-1 decisions (``_value_at``),
+    after :func:`prepare` pre-computed every cached sub-series. Booleans are
+    rejected at runtime as defence in depth (the static type checker already
+    refuses boolean PLOT expressions at compile time).
+    """
+    out: list[float] = []
+    for i in range(prepared.n_bars):
+        v = _value_at(prepared, expr, i)
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            raise DSLRuntimeError(
+                "PLOT expression does not evaluate to a numeric series",
+                code="RUN_TYPE_ERROR",
+            )
+        out.append(float(v))
+    return out
+
+
 def evaluate_at(prepared: PreparedProgram, index: int) -> Decision:
     """Evaluate the prepared program at exactly one bar index."""
     if (
@@ -718,100 +841,10 @@ def evaluate_at(prepared: PreparedProgram, index: int) -> Decision:
             code="RUN_INDEX_OUT_OF_RANGE",
         )
     program = prepared.program
-    series_map = prepared.series_map
 
-    def value_at(node: Expr, i: int) -> float | bool:
-        if isinstance(node, A.Num):
-            return node.v
-        if isinstance(node, (A.SeriesBase, A.MtfRef, A.SymbolRef)):
-            cached = series_map.get(id(node))
-            if cached is None:
-                raise DSLRuntimeError(
-                    "series node was not prepared", code="RUN_TYPE_ERROR"
-                )
-            return cached[i]
-        if isinstance(node, A.InputRef):
-            if node.name not in prepared.inputs:
-                raise DSLRuntimeError(
-                    f"undeclared INPUT {node.name!r}", code="RUN_UNKNOWN_INPUT"
-                )
-            return prepared.inputs[node.name]
-        if isinstance(node, A.Call):
-            cached = series_map.get(id(node))
-            if cached is not None:
-                return cached[i]
-            if node.fn in _BOOL_FNS:
-                return _cross(node, i)
-            if node.fn == "abs":
-                return abs(_num(value_at(node.args[0], i), "abs()"))
-            if node.fn == "min":
-                return min(_num(value_at(a, i), "min()") for a in node.args)
-            if node.fn == "max":
-                return max(_num(value_at(a, i), "max()") for a in node.args)
-            raise DSLRuntimeError(
-                f"function {node.fn!r} cannot be evaluated", code="RUN_TYPE_ERROR"
-            )
-        if isinstance(node, A.UnaryOp):
-            return -_num(value_at(node.x, i), "unary '-'")
-        if isinstance(node, A.BinOp):
-            lv = _num(value_at(node.l, i), node.op)
-            rv = _num(value_at(node.r, i), node.op)
-            if node.op == "/":
-                return 0.0 if rv == 0.0 else lv / rv
-            if node.op == "+":
-                return lv + rv
-            if node.op == "-":
-                return lv - rv
-            return lv * rv
-        if isinstance(node, A.Cmp):
-            lv = _num(value_at(node.l, i), node.op)
-            rv = _num(value_at(node.r, i), node.op)
-            op = node.op
-            if op == ">":
-                return lv > rv
-            if op == "<":
-                return lv < rv
-            if op == ">=":
-                return lv >= rv
-            if op == "<=":
-                return lv <= rv
-            if op == "==":
-                return lv == rv
-            return lv != rv
-        if isinstance(node, A.Not):
-            inner = value_at(node.x, i)
-            if not isinstance(inner, bool):
-                raise DSLRuntimeError(
-                    "NOT applied to a non-boolean", code="RUN_TYPE_ERROR"
-                )
-            return not inner
-        if isinstance(node, (A.And, A.Or)):
-            lv = value_at(node.l, i)
-            rv = value_at(node.r, i)
-            if not isinstance(lv, bool) or not isinstance(rv, bool):
-                raise DSLRuntimeError(
-                    "boolean operator applied to a non-boolean", code="RUN_TYPE_ERROR"
-                )
-            return (lv and rv) if isinstance(node, A.And) else (lv or rv)
-        raise DSLRuntimeError(
-            f"cannot evaluate node {type(node).__name__}", code="RUN_TYPE_ERROR"
-        )
-
-    def _cross(call: A.Call, i: int) -> bool:
-        if i == 0:
-            return False  # documented: no previous bar, never a cross
-        a, b = call.args
-        a_prev = _num(value_at(a, i - 1), "crossover")
-        b_prev = _num(value_at(b, i - 1), "crossover")
-        a_now = _num(value_at(a, i), "crossover")
-        b_now = _num(value_at(b, i), "crossover")
-        if call.fn == "crossover":
-            return a_prev <= b_prev and a_now > b_now
-        return a_prev >= b_prev and a_now < b_now
-
-    entry_value = value_at(program.entry, index)
-    exit_value = value_at(program.exit, index)
-    alert_value = value_at(program.alert, index)
+    entry_value = _value_at(prepared, program.entry, index)
+    exit_value = _value_at(prepared, program.exit, index)
+    alert_value = _value_at(prepared, program.alert, index)
     return Decision(
         index=index,
         entry=_truthy(entry_value),

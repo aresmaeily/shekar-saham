@@ -43,6 +43,22 @@ from .errors import (
     DSLTypeError,
 )
 from .lexer import Token, tokenize
+from .indicator_program import (
+    IndicatorEvaluation,
+    IndicatorProgram,
+    MAX_INDICATOR_NAME,
+    MAX_PLOTS,
+    MAX_PLOT_NAME,
+    PlotSpec,
+    UIDL_VERSION,
+    compile_indicator_source,
+    evaluate_indicator,
+    evaluation_digest,
+    structural_warmup,
+    validate_indicator_program,
+    validation_advisories,
+)
+from .runtime import expression_series
 from .parser import compile_source, parse
 from .runtime import (
     Decision,
@@ -66,6 +82,11 @@ from .versioning import (
 )
 
 __all__ = [
+    # UIDL-1 user indicator layer (§B4 WAVE-B)
+    "UIDL_VERSION", "IndicatorProgram", "IndicatorEvaluation", "PlotSpec",
+    "compile_indicator_source", "evaluate_indicator", "evaluation_digest",
+    "structural_warmup", "validate_indicator_program", "validation_advisories",
+    "MAX_PLOTS", "MAX_PLOT_NAME", "MAX_INDICATOR_NAME", "expression_series",
     # versioning / contract
     "DSL_VERSION",
     "CONTRACT",

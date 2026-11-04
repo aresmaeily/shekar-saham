@@ -23,6 +23,7 @@ import "./modules/render/forward_center.js"; // MASTER-RADAR WAVE-2 (2026-11-04)
 import "./modules/render/data_quality_center.js"; // MASTER-RADAR WAVE-2 (2026-11-04): مرکز کیفیت داده — بایند-on-demand
 import "./modules/render/chart_grid.js"; // MASTER-RADAR WAVE-3 (2026-11-04): شبکه چندچارتی با همگام‌سازی پیکربندی‌پذیر — بایند-on-demand
 import "./modules/command_palette.js"; // MASTER-RADAR WAVE-3 (2026-11-04): پالت فرمان (Ctrl+K) — فقط اجرای صریح کاربر
+import "./modules/render/user_indicator_ui.js"; // MASTER-RADAR WAVE-B (2026-11-04): اندیکاتور شخصی UIDL-1 — بایند-on-demand، اجرا فقط سمت سرور
 import "./modules/render/watchlist_excellent.js";
 import { renderAnalyticsFlow } from "./modules/render/analytics_flow.js"; // WDA-3 (2026-11-02): پنل افزودنی جمع‌بندی جریان در تب تحرکات بزرگان
 
