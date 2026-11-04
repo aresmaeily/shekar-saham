@@ -899,3 +899,340 @@ async def promote_version(version_id: str, body: PromoteBody) -> Dict[str, Any]:
         ),
         "trust_envelope": _trust_envelope(),
     }
+
+
+# ---------------------------------------------------------------------------
+# W3-3C (2026-11-05): POST /walkforward — walk-forward analysis (additive).
+# Pure orchestration lives in app.engines.walk_forward (window math, per-fold
+# seed derivation fold_seed(i) = seed + i, fold loop, aggregation); this
+# section only validates the body, wires the SAME seeded-series data path as
+# /backtest + /optimize, and assembles the honest response envelope.
+# ---------------------------------------------------------------------------
+
+#: Server-side per-fold budget guard (same discipline as _MAX_EVALS_LIMIT).
+_MAX_EVALS_PER_FOLD_LIMIT = 100
+
+
+class WalkForwardFoldSpec(BaseModel):
+    """Fold geometry (required, explicit). Window math is pinned in
+    app.engines.walk_forward.fold_windows: fold i trains on bars
+    [i*test_bars, i*test_bars + train_bars) and tests on the following
+    test_bars bars; end indexes are EXCLUSIVE."""
+
+    n: int = Field(ge=2, le=12)
+    train_bars: int = Field(ge=30)
+    test_bars: int = Field(ge=10)
+
+
+class WalkForwardBudgetBody(BaseModel):
+    """Per-fold optimizer budget. ``seed`` is REQUIRED (absent -> 422) — the
+    same discipline as /optimize; the per-fold derivation is pinned as
+    fold_seed = budget.seed + fold_index."""
+
+    max_evals_per_fold: int = Field(ge=1)
+    seed: int
+
+
+class WalkForwardBody(SourceBody):
+    """W3-3C /walkforward body. Data-path/execution fields mirror BacktestBody
+    exactly (same defaults, same seeded-series path); ``folds``/``space``/
+    ``budget`` are required (explicit honesty)."""
+
+    symbol: str = Field(default="FOLAD", max_length=32)
+    timeframe: str = Field(default="1D", pattern="^(1m|5m|15m|1h|1D)$")
+    count: int = Field(default=200, ge=50, le=1000)
+    end_bar_index: Optional[int] = Field(default=None, ge=0)
+    execution: svc.ExecutionOverrides = Field(default_factory=svc.ExecutionOverrides)
+    folds: WalkForwardFoldSpec
+    space: Dict[str, Any]
+    budget: WalkForwardBudgetBody
+    objective: str = Field(default="SHARPE")
+
+
+def _wf_objective_on_bars(
+    program: Any,
+    bars_window: List[Dict[str, Any]],
+    symbol: str,
+    execution: svc.ExecutionOverrides,
+    objective: Objective,
+) -> float:
+    """W3-3C: one candidate evaluation over ONE fold window of the SAME seeded
+    series loaded by strategy_lab_service.load_seeded_bars (the /backtest data
+    path). Mirrors _objective_on_bars exactly EXCEPT:
+    - the internal run label is 'strategylab-walkforward-...' (never echoed in
+      any response), and
+    - DataPolicy.min_bars = len(window): fold windows are EXPLICITLY sized by
+      the caller (train_bars >= 30, test_bars >= 10 enforced in the body
+      model), so pinning min_bars to the declared window length makes the
+      engine refuse any shorter-than-declared slice (structural guard) instead
+      of the generic 50-bar default, which would dishonestly refuse legitimate
+      small test windows. No other policy field differs.
+    A missing objective metric (e.g. no trades) raises — recorded as a
+    refusal by the optimizer, never silent.
+    """
+    exec_cfg = (execution or svc.ExecutionOverrides()).to_config()
+    risk_view = program.risk
+    risk = RiskModel(
+        stop_loss_pct=risk_view.stop_loss_pct if risk_view else None,
+        take_profit_pct=risk_view.take_profit_pct if risk_view else None,
+        trailing_pct=risk_view.trailing_pct if risk_view else None,
+        max_position_pct=(risk_view.max_position_pct if risk_view and risk_view.max_position_pct else 100.0),
+    )
+    config = BacktestRunConfig(
+        run_id=f"strategylab-walkforward-{program.source_digest[:12]}",
+        execution=exec_cfg,
+        risk=risk,
+        portfolio=PortfolioLimits(),
+        data_policy=DataPolicy(min_bars=len(bars_window)),
+        data_trust_label="SYNTHETIC_OR_PAPER",
+        notes="strategy-lab walk-forward fold-window evaluation over the seeded /backtest series",
+    )
+    adapter = svc.DslBacktestAdapter(program, strategy_id=f"dsl:{program.source_digest[:12]}")
+    result = run_backtest({symbol: bars_window}, {symbol: adapter}, config)
+    value = getattr(result.report, _OBJECTIVE_METRIC_ATTR[objective])
+    if value is None:
+        raise ValueError(f"objective_{objective.value.lower()}_unavailable (no trades / degenerate run)")
+    return float(value)
+
+
+@router.post("/walkforward")
+async def walkforward_strategy(body: WalkForwardBody) -> Dict[str, Any]:
+    """W3-3C walk-forward analysis over the SAME seeded series path as
+    /backtest, with per-fold IS-selection + OOS-confirmed-once discipline.
+
+    PINNED window math (0-indexed bars over the seeded series; end indexes
+    EXCLUSIVE): fold i (0..n-1) trains on bars
+    [i*test_bars, i*test_bars + train_bars) and is confirmed on bars
+    [i*test_bars + train_bars, i*test_bars + train_bars + test_bars).
+    Fit rule (fail-closed 422, available-vs-required named honestly):
+    train_bars + n * test_bars <= available.
+
+    PINNED per-fold seed derivation: fold_seed = budget.seed + fold_index.
+
+    Honesty scope:
+    - Selection is IN-SAMPLE per fold (``selection_basis`` is always
+      "IN_SAMPLE_PER_FOLD"): grid_search runs ONLY on that fold's train
+      window; the winner is frozen on IS alone.
+    - Each fold's test window is then evaluated EXACTLY ONCE with the
+      already-frozen best params via the optimizer engine's
+      ``select_then_confirm`` and can never influence selection: the optimizer
+      ranks only the IS EvaluationRecords and the OOS closure is invoked a
+      single time AFTER the winner is fixed (structural, by that API's shape;
+      the engine records ``oos_eval_count`` per fold, never counted inside
+      ``evaluated_count``).
+    - Test windows are rolling and non-overlapping; no fold ever sees data
+      beyond its own windows for selection.
+    - ``objective`` must be an IS metric (SHARPE/CALMAR/PROFIT_FACTOR);
+      OOS_SHARPE is not reachable here either.
+    - Server-side budget guard: max_evals_per_fold > 100 -> 422 honest
+      Persian+English note; seed REQUIRED; space must be an explicit
+      non-empty grid (per-fold selection is grid enumeration only; bounds are
+      refused honestly, never silently ignored).
+    - Deterministic: no wall clock anywhere in the walk-forward engine; the
+      reproducibility digest covers the body echo + the fold table (never the
+      trust envelope, whose checked_at is a wall-clock instant by design).
+    """
+    from app.engines import walk_forward as wf
+
+    outcome = svc.compile_or_errors(body.source)
+    if not outcome.ok:
+        raise HTTPException(422, {"error": "DSL_ERROR", "errors": [e.model_dump() for e in outcome.errors]})
+    from app.engines.strategy_dsl import compile_source
+
+    try:
+        program = compile_source(body.source)
+    except Exception as exc:  # pragma: no cover - compile_or_errors already gated
+        raise _dsl_http_error(exc) from exc
+
+    try:
+        objective = Objective(body.objective)
+    except ValueError as exc:
+        raise HTTPException(
+            422,
+            {
+                "error": "INVALID_OBJECTIVE",
+                "message_en": "objective must be one of: SHARPE, CALMAR, PROFIT_FACTOR",
+                "valid": sorted(m.value for m in _OBJECTIVE_METRIC_ATTR),
+            },
+        ) from exc
+    if objective not in _OBJECTIVE_METRIC_ATTR:
+        raise HTTPException(
+            422,
+            {
+                "error": "INVALID_OBJECTIVE",
+                "message_en": (
+                    "OOS_SHARPE is not reachable from this endpoint; walk-forward "
+                    "folds select on IS metrics only"
+                ),
+                "valid": sorted(m.value for m in _OBJECTIVE_METRIC_ATTR),
+            },
+        )
+
+    if body.budget.max_evals_per_fold > _MAX_EVALS_PER_FOLD_LIMIT:
+        raise HTTPException(
+            422,
+            {
+                "error": "BUDGET_LIMIT",
+                "message_fa": "بودجه هر فولد محدود است؛ حداکثر تعداد ارزیابی مجاز در هر فولد ۱۰۰ است",
+                "message_en": "Walk-forward budget is limited: max_evals_per_fold must be <= 100",
+                "limit": _MAX_EVALS_PER_FOLD_LIMIT,
+                "requested": body.budget.max_evals_per_fold,
+            },
+        )
+
+    space, space_echo = _build_space(body.space)
+    if space.bounds:
+        raise HTTPException(
+            422,
+            {
+                "error": "BOUNDS_UNSUPPORTED",
+                "message_en": (
+                    "walk-forward per-fold selection is grid-only; "
+                    "space.bounds is not accepted here"
+                ),
+                "message_fa": (
+                    "انتخاب پارامتر در هر فولد فقط شبکه‌ای است؛"
+                    " space.bounds اینجا پذیرفته نمی‌شود"
+                ),
+            },
+        )
+    if not space.grid:
+        raise HTTPException(
+            422,
+            {
+                "error": "GRID_REQUIRED",
+                "message_en": (
+                    "walk-forward requires a non-empty explicit space.grid "
+                    "(per-fold selection is grid enumeration only)"
+                ),
+                "message_fa": (
+                    "تحلیل walk-forward به یک space.grid غیرخالی نیاز دارد؛"
+                    " انتخاب پارامتر در هر فولد فقط شمارش شبکه‌ای است"
+                ),
+            },
+        )
+    space_names = set(space.grid) | set(space.bounds or {})
+    unknown_params = sorted(space_names - set(program.inputs))
+    if unknown_params:
+        raise HTTPException(
+            422,
+            {
+                "error": "UNKNOWN_OPTIMIZATION_PARAM",
+                "message_en": "space parameters must reference declared INPUT names of the strategy",
+                "message_fa": "پارامترهای فضای جست‌وجو باید نام INPUT اعلام‌شده در استراتژی باشند",
+                "unknown_params": unknown_params,
+                "declared_inputs": sorted(program.inputs),
+            },
+        )
+
+    try:
+        bars = svc.load_seeded_bars(body.symbol, body.timeframe, body.count, body.end_bar_index)
+    except ValueError as exc:
+        raise HTTPException(422, {"error": "SERIES_INPUT_ERROR", "message": str(exc)}) from exc
+
+    available = len(bars)
+    required = body.folds.train_bars + body.folds.n * body.folds.test_bars
+    _fa_digits = str.maketrans("0123456789", "۰۱۲۳۴۵۶۷۸۹")  # native fa numerals
+    try:
+        wf.fold_windows(available, body.folds.n, body.folds.train_bars, body.folds.test_bars)
+    except ValueError as exc:
+        raise HTTPException(
+            422,
+            {
+                "error": "UNFIT_FOLD_WINDOWS",
+                "message_en": (
+                    f"fold windows do not fit the available series: required "
+                    f"train_bars + n*test_bars = {required} bars > available {available} bars"
+                ),
+                "message_fa": (
+                    f"پنجره‌های فولد در سری موجود جا نمی‌شوند: نیاز {required} کندل است"
+                    f" ولی فقط {available} کندل موجود است"
+                ).translate(_fa_digits),
+                "available": available,
+                "required": required,
+            },
+        ) from exc
+
+    def evaluate(params: Mapping[str, float | int], window_bars: List[Dict[str, Any]]) -> float:
+        return _wf_objective_on_bars(
+            _program_with_inputs(program, params), window_bars, body.symbol, body.execution, objective
+        )
+
+    digest_body: Dict[str, Any] = {
+        "endpoint": "walkforward",
+        "source_digest": program.source_digest,
+        "symbol": body.symbol,
+        "timeframe": body.timeframe,
+        "count": body.count,
+        "end_bar_index": body.end_bar_index,
+        "objective": objective.value,
+        "folds": body.folds.model_dump(mode="json"),
+        "space": space_echo,
+        "budget": {
+            "max_evals_per_fold": body.budget.max_evals_per_fold,
+            "seed": body.budget.seed,
+        },
+        "execution": body.execution.model_dump(mode="json"),
+    }
+
+    try:
+        result = wf.run_walk_forward(
+            bars,
+            n=body.folds.n,
+            train_bars=body.folds.train_bars,
+            test_bars=body.folds.test_bars,
+            space=space,
+            objective=objective,
+            seed=body.budget.seed,
+            max_evals_per_fold=body.budget.max_evals_per_fold,
+            evaluate=evaluate,
+            digest_body=digest_body,
+            strategy_id=f"dsl:{program.source_digest[:12]}",
+        )
+    except Exception as exc:  # honesty: engine failures are surfaced, never silent
+        raise HTTPException(
+            500,
+            {
+                "error": "WALK_FORWARD_FAILED",
+                "message_en": "walk-forward failed; nothing was silently dropped",
+                "message_fa": "تحلیل walk-forward با خطا متوقف شد؛ هیچ خطایی بی‌صدا نادیده گرفته نشد",
+                "detail": str(exc),
+            },
+        ) from exc
+
+    notes: List[str] = [
+        _SYNTHETIC_NOTE,
+        "selection is IN-SAMPLE per fold: grid_search runs only on that fold's train window and the winner is frozen on IS alone",
+        "each fold's test window is evaluated EXACTLY ONCE with the already-frozen best params (select_then_confirm) and can never influence selection",
+        f"per-fold seed derivation is pinned: fold_seed = budget.seed + fold_index (base seed {body.budget.seed})",
+    ]
+    if any(row.get("budget_exhausted") for row in result.folds):
+        notes.append(
+            "at least one fold stopped at the per-fold evaluation budget; its winner is "
+            "over the evaluated subset only (partial — recorded per fold, not silent)"
+        )
+
+    return {
+        "ok": True,
+        "engine_version": wf.WALK_FORWARD_ENGINE_VERSION,
+        "symbol": body.symbol,
+        "timeframe": body.timeframe,
+        "count": body.count,
+        "bars_used": available,
+        "objective": objective.value,
+        "search_method": "grid",
+        "folds": result.folds,
+        "aggregate": result.aggregate,
+        "bonferroni_note": result.bonferroni_note,
+        "reproducibility_digest": result.reproducibility_digest,
+        "notes": notes,
+        "space_echo": space_echo,
+        "budget_echo": {
+            "max_evals_per_fold": body.budget.max_evals_per_fold,
+            "seed": body.budget.seed,
+            "limit": _MAX_EVALS_PER_FOLD_LIMIT,
+        },
+        "data_trust_label": "SYNTHETIC_OR_PAPER",
+        "synthetic_note": _SYNTHETIC_NOTE,
+        "trust_envelope": _trust_envelope(),
+    }

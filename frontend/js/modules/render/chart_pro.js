@@ -15,6 +15,19 @@
  * - ذخیره/بارگذاری/خروجی JSON تحلیل‌ها (localStorage)
  * - داده فقط از core/api.js — هیچ fetch دستی (قرارداد اجباری)
  * - برچسب صادقانه منبع داده: هرگز SYNTHETIC را «لایو» نشان نمی‌دهد
+ *
+ * MASTER-RADAR WAVE-3 (2026-11-04) — افزایشی‌های این موج (رفتار موجود دست‌نخورده):
+ * - انواع نمودار «مشتق» سرور-محور: renko / range / kagi / pnf / linebreak —
+ *   برخلاف line/area/ha که بازنمایی همان کندل‌های بومی‌اند، بار مشتق فقط از
+ *   POST /api/v10/chartpro/{symbol}/derived می‌آید و کلاینت هیچ باری خودش
+ *   نمی‌سازد. اورلی‌ها (MA/EMA/BB) و حجم روی بار بومی محاسبه شده‌اند و در نمای
+ *   مشتق عمداً خالی می‌شوند (تصمیم مستند بالای _hideNativeOverlays). خطا →
+ *   نوار وضعیت صادقانه؛ هیچ fallback خاموشی به کندل بومی نیست.
+ * - خط‌خوانی کراس‌هیر (#cpCrossReadout — کانتینرش را مرحله ادغام اضافه می‌کند):
+ *   O/H/L/C/V فقط از همان داده لودشده + فیلدهای labeling عین سرور؛ تدافعی —
+ *   کانتینر نبود → هیچ؛ بار پیدا نشد → هیچ مقدار ساختگی/میان‌یابی‌شده نیست.
+ * - ابزار رسم در نمای مشتق غیرفعال است (مختصات رسم روی داده بومی معنا دارد؛
+ *   پیام صادقانه: «ابزار رسم فقط در نمای کندل بومی فعال است»).
  */
 import { api, toast } from "../../core/api.js";
 import { esc } from "../../core/format.js";
@@ -42,6 +55,19 @@ const OSC_COLORS = {
   rsi: "#a78bfa",
   boll: "#818cf8",
   bollBasis: "#fbbf24",
+};
+
+/* MASTER-RADAR WAVE-3: انواع نمودار «مشتق» سرور-محور — بار مشتق فقط از سرور
+   (POST .../derived) می‌آید؛ کلاینت هرگز خودش بار مشتق تولید نمی‌کند.
+   (هایکین‌آشی این‌جا نیست چون فقط بازنمایی همان داده بومی است — مسیرش قدیمی) */
+const DERIVED_TYPES = ["renko", "range", "kagi", "pnf", "linebreak"];
+/* نام فارسی نوع مشتق — فقط نام نمایشی است، نه برچسب اعتماد */
+const DERIVED_TYPE_NAMES_FA = {
+  renko: "رنکو",
+  range: "رنج",
+  kagi: "کاگی",
+  pnf: "نقطه و عدد (PnF)",
+  linebreak: "لاین‌بریک",
 };
 
 const LS_LAYOUTS = "radar_chartpro_layouts";
@@ -88,9 +114,17 @@ export class ChartProChart {
     this.limit = 500;
 
     this.onIndicators = { ma20: true, ma50: true, ema20: false, bb: false, rsi: false, macd: false };
-    // MASTER-RADAR (2026-11-04): نوع نمایش — کندل پیش‌فرض؛ سایر انواع فقط
-    // بازنمایی همان داده‌اند (هیچ داده جدیدی تولید نمی‌شود).
+    // MASTER-RADAR (2026-11-04): نوع نمایش — کندل پیش‌فرض؛ انواع line/area/ha
+    // فقط بازنمایی همان داده‌اند (هیچ داده جدیدی تولید نمی‌شود). انواع مشتق
+    // WAVE-3 (renko/range/kagi/pnf/linebreak) سرور-محورند — بالا را ببینید.
     this.chartType = "candles";
+    /* MASTER-RADAR WAVE-3: وضعیت نمای مشتق — currentDerivedData برای خط‌خوانی
+       کراس‌هیر (OHLC بار مشتق از پاسخ /derived)؛ lastLabeling عین فیلد سرور از
+       آخرین پاسخ candles/derived. currentData همچنان آخرین «داده بومی» می‌ماند
+       (نگاشت مختصات ابزار رسم به داده بومی است، نه بار مشتق). */
+    this.currentDerivedData = [];
+    this.lastLabeling = null;
+    this._derivedActive = false;
 
     this.chart = null;
     this.candleSeries = null;
@@ -199,6 +233,12 @@ export class ChartProChart {
       this.chart.timeScale().subscribeVisibleLogicalRangeChange(() => this.redraw());
     } catch (e) { /* ignore */ }
 
+    /* WAVE-3: خط‌خوانی کراس‌هیر — O/H/L/C/V فقط از داده لودشده همان چارت +
+       فیلدهای labeling عین سرور؛ کانتینر #cpCrossReadout نبود → هیچ (تدافعی) */
+    try {
+      this.chart.subscribeCrosshairMove((param) => this._onCrosshairMove(param));
+    } catch (e) { /* ignore */ }
+
     this.bindUI();
     this.startPolling();
 
@@ -246,8 +286,23 @@ export class ChartProChart {
     try {
       if (!this.candleSeries || !this.chart) return;
       const t = this.chartType || "candles";
+      /* WAVE-3: انواع مشتق سرور-محور — رندر از پاسخ POST /derived می‌آید نه از
+         بازنمایی محلی همان کندل‌های بومی؛ مسیر loadAndRender خودش به
+         _loadDerived روت می‌شود (درخواست در همین‌جا فرستاده نمی‌شود تا
+         هم‌خوان با رفرش سبک/تغییر نماد بماند). خطا در همان مسیر صادقانه
+         نمایش داده می‌شود و نمای فعلی دست‌نخورده می‌ماند. */
+      if (DERIVED_TYPES.includes(t)) {
+        void this.loadAndRender(this.symbol, this.timeframe);
+        return;
+      }
       // کندل همیشه منبع داده است؛ فقط نمایان‌بودن و سری کمکی تغییر می‌کند
       this.candleSeries.applyOptions({ visible: t === "candles" || t === "ha" });
+      /* WAVE-3: خروج از نمای مشتق — حجم و اورلی‌های بومی که در نمای مشتق عمداً
+         خالی شده بودند با آخرین داده بومی بازسازی می‌شوند (بدون درخواست جدید) */
+      if (this._derivedActive) {
+        this._derivedActive = false;
+        this._restoreNativeOverlays();
+      }
       if (t === "candles" || t === "ha") {
         this.candleSeries.setData(t === "ha" ? this._heikinAshi(this.currentData || []) : (this.currentData || []));
         if (this._typeSeries) {
@@ -267,6 +322,128 @@ export class ChartProChart {
     } catch (e) {
       console.warn("chart type apply failed", e);
     }
+  }
+
+  /* ============================ WAVE-3: انواع مشتق سرور-محور ============================ */
+
+  /** آیا نوع فعلی از انواع مشتق سرور-محور است؟ (renko/range/kagi/pnf/linebreak) */
+  _isDerivedType() {
+    return DERIVED_TYPES.includes(this.chartType);
+  }
+
+  /**
+   * بارگذاری نمای مشتق — فقط از POST /api/v10/chartpro/{symbol}/derived.
+   * کلاینت هیچ بار مشتقی خودش تولید نمی‌کند؛ params خالی ارسال می‌شود و
+   * پیش‌فرض‌های سرور حاکم‌اند (kagi/pnf هم همین‌طور — سرور مرجع است).
+   * خطا → نوار وضعیت صادقانه؛ نمای قبلی معتبر حفظ می‌شود و هرگز به‌صورت
+   * خاموش به کندل بومی برنمی‌گردیم.
+   * @param {{fit?: boolean}} [opts] — fit=false در رفرش سبک (زوم کاربر حفظ می‌شود)
+   */
+  async _loadDerived(opts = {}) {
+    const fit = opts.fit !== false;
+    const type = this.chartType;
+    try {
+      const res = await api(
+        "/api/v10/chartpro/" + encodeURIComponent(this.symbol) + "/derived",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            type: String(type).toUpperCase(),
+            timeframe: this.timeframe,
+            limit: this.limit,
+            params: {}, // پیش‌فرض‌های سرور حاکم‌اند — کلاینت مقداری نمی‌سازد
+          }),
+        }
+      );
+
+      /* برچسب labeling سرور — همان مسیر چیپ موجود؛ عین مقدار سرور، بدون ساخت برچسب */
+      this.lastLabeling = res?.labeling ?? null;
+      this._renderLabelingChip(this.lastLabeling);
+
+      if (type === "kagi") {
+        /* کاگی: پاسخ نقاطی است (time/value) — سری خطی از سازوکار _typeSeries */
+        const points = (Array.isArray(res?.points) ? res.points : [])
+          .filter((p) => p && p.time != null && p.value != null && isFinite(+p.value))
+          .map((p) => ({ time: p.time, value: Number(p.value) }));
+        this.currentDerivedData = points;
+        this.candleSeries.applyOptions({ visible: false });
+        if (this._typeSeries) {
+          this.chart.removeSeries(this._typeSeries);
+          this._typeSeries = null;
+        }
+        this._typeSeries = this.chart.addLineSeries({ color: "rgba(34,211,238,0.9)", lineWidth: 2, priceLineVisible: false });
+        this._typeSeries.setData(points);
+      } else {
+        /* renko/range/pnf/linebreak: پاسخ بار OHLC است — روی سری کندل موجود */
+        const bars = (Array.isArray(res?.bars) ? res.bars : []).filter(
+          (b) => b && b.time != null && b.open != null && b.high != null && b.low != null && b.close != null
+        );
+        this.currentDerivedData = bars;
+        if (this._typeSeries) {
+          this.chart.removeSeries(this._typeSeries);
+          this._typeSeries = null;
+        }
+        this.candleSeries.applyOptions({ visible: true });
+        this.candleSeries.setData(bars);
+      }
+
+      /* تصمیم آگاهانه (WAVE-3): اورلی‌ها (MA/EMA/BB) و حجم روی بارهای «بومی»
+         محاسبه شده‌اند؛ روی بارهای مشتق هم‌معنا نیستند (زمان/قیمت هر آجر renko
+         با بار بومی فرق دارد) → نمایش‌شان گمراه‌کننده است. عمداً خالی می‌شوند
+         و هیچ محاسبه جدیدی روی بار مشتق انجام نمی‌شود. */
+      this._hideNativeOverlays();
+
+      /* نقطه‌های موقت رسم پاک — جمع‌آوری نقطه جدید در نمای مشتق مسدود است */
+      this.drawState.points = [];
+      this._derivedActive = true;
+
+      if (fit) {
+        try { this.chart.timeScale().fitContent(); } catch (e) { /* ignore */ }
+      }
+
+      this._setBadge(res?.data_trust, res?.source, res?.trust_level);
+      const t = new Date().toLocaleTimeString("fa-IR");
+      const n = Array.isArray(this.currentDerivedData) ? this.currentDerivedData.length : 0;
+      const faName = DERIVED_TYPE_NAMES_FA[type] || type;
+      this._setStatus(`${this.symbol} · ${this.timeframe} · نمودار مشتق ${faName} · ${n} بار · به‌روزرسانی ${t}`);
+      const input = document.getElementById("cpSymbolInput");
+      if (input && input.value !== this.symbol) input.value = this.symbol;
+      document.querySelectorAll("#cpWatchBody [data-cp-sym]").forEach((b) => {
+        b.classList.toggle("active", b.dataset.cpSym === this.symbol);
+      });
+      this._queueWorkspaceSave();
+    } catch (e) {
+      /* خطا صادقانه — نمای قبلی دست‌نخورده می‌ماند؛ هیچ fallback خاموشی به کندل بومی نیست */
+      this._setStatus(`خطای بارگذاری نمودار مشتق «${DERIVED_TYPE_NAMES_FA[type] || type}»: ${String(e && e.message ? e.message : e).slice(0, 80)} — نمای قبلی حفظ شد`);
+    }
+  }
+
+  /**
+   * خالی‌کردن اورلی‌ها و حجم در نمای مشتق — تصمیم مستندشده بالای این تابع:
+   * این سری‌ها فقط روی داده بومی معنا دارند؛ خالی‌کردن = مخفی‌سازی صادقانه،
+   * نه محاسبه مجدد روی داده مشتق (هیچ میان‌یابی/بازمحاسبه‌ای اینجا نیست).
+   */
+  _hideNativeOverlays() {
+    try { this.volumeSeries.setData([]); } catch (e) { /* ignore */ }
+    for (const k of ["ma20", "ma50", "ema20", "bbU", "bbM", "bbL"]) {
+      const s = this.lineSeries[k];
+      if (s) { try { s.setData([]); } catch (e) { /* ignore */ } }
+    }
+  }
+
+  /** WAVE-3: بازگرداندن حجم و اورلی‌های بومی پس از خروج از نمای مشتق —
+   *  منبع: همین indicators/currentData قبلی؛ هیچ درخواست شبکه‌ای جدیدی نیست. */
+  _restoreNativeOverlays() {
+    const pal = chartPalette();
+    const ind = this.indicators || {};
+    try {
+      this.volumeSeries.setData(
+        Array.isArray(ind.volume) && ind.volume.length
+          ? ind.volume
+          : (this.currentData || []).map((c) => ({ time: c.time, value: c.volume || 0, color: c.close >= c.open ? pal.volUp : pal.volDn }))
+      );
+    } catch (e) { /* ignore */ }
+    this._applyIndicators();
   }
 
   _buildCanvas(wrap) {
@@ -485,9 +662,13 @@ export class ChartProChart {
         "?timeframe=" + encodeURIComponent(this.timeframe) + "&limit=" + this.limit
       );
       this.currentData = Array.isArray(res?.ohlcv) ? res.ohlcv : [];
+      /* WAVE-3: داده بومی دوباره فعال شد — نمای مشتق پایان یافته است */
+      this._derivedActive = false;
+      /* WAVE-3: labeling سرور برای خط‌خوانی کراس‌هیر هم نگهداری می‌شود */
+      this.lastLabeling = res?.labeling ?? null;
       /* MR2-D: فیلد افزودنی labeling سرور — مصرف تدافعی؛
          نبود فیلد = بدون چیپ (هیچ متن جایگزین/ساختگی رندر نمی‌شود) */
-      this._renderLabelingChip(res?.labeling ?? null);
+      this._renderLabelingChip(this.lastLabeling);
       if (!this.currentData.length) {
         this._setStatus("برای این نماد/تایم‌فریم کندلی برگردانده نشد");
         return;
@@ -780,6 +961,13 @@ export class ChartProChart {
   }
 
   _onCanvasClick(e) {
+    /* WAVE-3: در نمای مشتق، مختصات رسم روی داده «بومی» نگاشت می‌شود و با آجرهای
+       مشتق (renko/range/...) هم‌خوان نیست → جمع‌آوری نقطه مسدود و پیام صادقانه؛
+       هیچ نقطه/رسم خرابی‌سازی روی وضعیت رسم رخ نمی‌دهد */
+    if (this._isDerivedType()) {
+      this._setStatus("ابزار رسم فقط در نمای کندل بومی فعال است");
+      return;
+    }
     const tool = this.drawState.tool;
     if (!tool) return;
     const pt = this._canvasPoint(e);
@@ -1281,6 +1469,53 @@ export class ChartProChart {
     }, 600);
   }
 
+  /* ============================ WAVE-3: خط‌خوانی کراس‌هیر ============================ */
+
+  /** مقایسه زمان بین بار و کراس‌هیر — عددی یا رشته (1D می‌تواند business-day باشد) */
+  _sameBarTime(a, b) {
+    if (a == null || b == null) return false;
+    const na = Number(a);
+    const nb = Number(b);
+    if (isFinite(na) && isFinite(nb)) return na === nb;
+    return String(a) === String(b);
+  }
+
+  /**
+   * خط‌خوانی کراس‌هیر — فقط مقادیر همان بارِ پیدا شده از داده لودشده:
+   * نمای بومی → currentData؛ نمای مشتق → currentDerivedData. فیلدهای labeling
+   * عین شیء سرور هستند (مثل _renderLabelingChip کاملاً تدافعی). بار پیدا نشد
+   * یا کراس‌هیر خالی شد → خط‌خوانی خالی؛ هیچ مقدار ساختگی/میان‌یابی نمی‌شود.
+   */
+  _onCrosshairMove(param) {
+    const el = document.getElementById("cpCrossReadout");
+    if (!el) return; // تدافعی: کانتینر نیست → هیچ (مرحله ادغام آن را اضافه می‌کند)
+    if (!param || param.time == null || !param.point) {
+      el.textContent = "";
+      return;
+    }
+    const data = this._isDerivedType() ? (this.currentDerivedData || []) : (this.currentData || []);
+    const bar = Array.isArray(data) ? data.find((c) => this._sameBarTime(c && c.time, param.time)) : null;
+    if (!bar) {
+      el.textContent = "";
+      return;
+    }
+    const parts = [];
+    if (bar.open != null) parts.push(`O: ${fmtPrice(bar.open)}`);
+    if (bar.high != null) parts.push(`H: ${fmtPrice(bar.high)}`);
+    if (bar.low != null) parts.push(`L: ${fmtPrice(bar.low)}`);
+    if (bar.close != null) parts.push(`C: ${fmtPrice(bar.close)}`);
+    if (bar.volume != null) parts.push(`V: ${fmtPrice(bar.volume)}`);
+    /* فیلدهای labeling — عین سرور، فقط اگر رشته معتبر باشند (بدون ساخت برچسب اعتماد) */
+    const lbl = (this.lastLabeling && typeof this.lastLabeling === "object") ? this.lastLabeling : null;
+    if (lbl) {
+      const bc = typeof lbl.bar_class === "string" ? lbl.bar_class.trim() : "";
+      const me = typeof lbl.method === "string" ? lbl.method.trim() : "";
+      if (bc) parts.push(`کلاس بار: ${bc}`);
+      if (me) parts.push(`روش: ${me}`);
+    }
+    el.textContent = parts.join(" · ");
+  }
+
   /* ============================ کمکی ============================ */
 
   _setStatus(text) {
@@ -1294,6 +1529,12 @@ window.ChartProChart = ChartProChart;
 /* ============================ بایند-on-demand (الگوی تب forex) ============================ */
 
 let singleton = null;
+
+/* WAVE-3: دسترسی فقط-خواندنی به نمونه فعال برای ماژول‌های هم‌تب (chart_grid) —
+   بدون هیچ تایمر/شنونده پس‌زمینه؛ فراخواننده فقط در لحظه تعامل کاربر می‌خواند. */
+export function getActiveChartPro() {
+  return singleton;
+}
 
 function ensureChartPro() {
   if (!singleton) {

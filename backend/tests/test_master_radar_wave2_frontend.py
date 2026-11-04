@@ -180,8 +180,11 @@ def test_wave2_endpoints_wired_via_core_api():
 
 def test_sw_precache_includes_wave2_modules_and_bumped():
     sw = _read(SW_JS)
-    assert "radar-bourse-static-v3-0-7" in sw
-    assert "radar-bourse-static-v3-0-6" not in sw
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-3 2026-11-04): v3-0-7 -> v3-0-8 —
+    # precache list extended with chart_grid.js + command_palette.js; the WAVE-2
+    # module-name assertions below are unchanged (see test_master_radar_wave3_integration.py).
+    assert "radar-bourse-static-v3-0-8" in sw
+    assert "radar-bourse-static-v3-0-7" not in sw
     for name in WAVE2_MODULE_NAMES:
         assert f"/static/js/modules/render/{name}" in sw
 

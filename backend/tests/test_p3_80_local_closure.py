@@ -55,8 +55,10 @@ def test_service_worker_cache_name_bumped_to_drop_old_api_entries():
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-2 2026-11-04): v3-0-6 -> v3-0-7 —
     # precache list extended with the three new render modules
     # (backtest_center.js / forward_center.js / data_quality_center.js)
-    assert "radar-bourse-static-v3-0-7" in sw
-    assert "radar-bourse-static-v3-0-6" not in sw
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-3 2026-11-04): v3-0-7 -> v3-0-8 —
+    # precache list extended with chart_grid.js + command_palette.js
+    assert "radar-bourse-static-v3-0-8" in sw
+    assert "radar-bourse-static-v3-0-7" not in sw
 
 
 def test_production_disables_openapi_docs(monkeypatch):

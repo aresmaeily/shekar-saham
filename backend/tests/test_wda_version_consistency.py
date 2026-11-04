@@ -68,7 +68,7 @@ def test_sw_cache_token_is_consistent_within_sw_js():
     asserted for it. What is pinned here: the token family/format is
     consistent between the CACHE_NAME literal and the sw.js header comment,
     and the pinned literal matches the one test_p3_80_local_closure.py
-    enforces (currently v3-0-7, MASTER-RADAR WAVE-2 2026-11-04 bump)."""
+    enforces (currently v3-0-8, MASTER-RADAR WAVE-3 2026-11-04 bump)."""
     m = re.search(r'const CACHE_NAME = "([^"]+)"', SW_JS)
     assert m, "CACHE_NAME not found in sw.js"
     token = m.group(1)
@@ -79,9 +79,12 @@ def test_sw_cache_token_is_consistent_within_sw_js():
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-2 2026-11-04): v3-0-6 -> v3-0-7 —
     # precache list extended with the three new render modules
     # (backtest_center.js / forward_center.js / data_quality_center.js).
-    assert token == "radar-bourse-static-v3-0-7"
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-3 2026-11-04): v3-0-7 -> v3-0-8 —
+    # precache list extended with chart_grid.js + command_palette.js (WAVE-3
+    # multi-chart grid + command palette modules).
+    assert token == "radar-bourse-static-v3-0-8"
     # Header comment must tell the same story (dots variant), no drift.
-    assert "Service Worker v3.0.7" in SW_JS
+    assert "Service Worker v3.0.8" in SW_JS
 
 
 def test_index_html_header_paint_shows_backend_version():

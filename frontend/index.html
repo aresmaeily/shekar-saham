@@ -56,6 +56,7 @@
         <span class="dot"></span>
         <span id="trustText">trust…</span>
       </div>
+      <button class="btn ghost" id="paletteBtn" title="پالت فرمان (Ctrl+K) — ناوبری و ابزارها، فقط با انتخاب صریح کاربر">⌘ فرمان</button>
       <button class="btn ghost" id="btnTheme" title="تغییر تم صفحه 🌓">🌓</button>
       <button class="btn ghost" id="btnLogout" title="خروج از حالت خصوصی" style="display:none">🚪 خروج</button>
       <button class="btn ghost" id="btnRefresh" title="به‌روزرسانی">
@@ -895,11 +896,16 @@
           </div>
           <span class="cp-vsep"></span>
           <span class="muted">نوع نمودار:</span>
-          <div class="seg" id="cpTypeSeg" title="نوع نمایش — هایکین‌آشی فقط بازنمایی بصری همان داده است، داده جدید نیست">
+          <div class="seg" id="cpTypeSeg" title="نوع نمایش — هایکین‌آشی بازنمایی بصری همان داده است؛ رنکو/رنج/کاگی/PnF/لاین‌بریک ساخت‌های تحلیلیِ مشتق (DERIVED) از همان داده seed-شده هستند — نه داده واقعی بازار و نه منبع داده مستقل">
             <button class="active" data-ctype="candles">کندل</button>
             <button data-ctype="line">خطی</button>
             <button data-ctype="area">ناحیه</button>
             <button data-ctype="ha">هایکین‌آشی</button>
+            <button data-ctype="renko" title="رنکو — ساخت مشتق (آجر ثابت یا ATR) — برچسب DERIVED">رنکو</button>
+            <button data-ctype="range" title="رنج — ساخت مشتق (بازه قیمتی ثابت) — برچسب DERIVED">رنج</button>
+            <button data-ctype="kagi" title="کاگی — ساخت مشتق (درصد برگشت) — برچسب DERIVED">کاگی</button>
+            <button data-ctype="pnf" title="نقطه‌وخط (PnF) — ساخت مشتق (اندازه خانه/برگشت) — برچسب DERIVED">PnF</button>
+            <button data-ctype="linebreak" title="لاین‌بریک — ساخت مشتق (شکست n خطی) — برچسب DERIVED">لاین‌بریک</button>
           </div>
           <span class="cp-vsep"></span>
           <span class="muted">اندیکاتور:</span>
@@ -941,9 +947,14 @@
         </aside>
         <div class="cp-chart-wrap">
           <div id="cpChart" class="cp-chart" aria-label="چارت حرفه‌ای کندل‌استیک"></div>
+          <div id="cpCrossReadout" class="cp-cross-readout" title="خط‌خوانی کراس‌هیر — فقط مقادیر همان داده بارگذاری‌شده؛ هیچ مقدار ساختگی نمایش داده نمی‌شود"></div>
         </div>
       </div>
       <div id="cpOscChart" class="cp-osc" style="display:none" aria-label="پنل اسیلاتور RSI/MACD"></div>
+      <!-- MASTER-RADAR WAVE-3 (2026-11-04): شبکه چندچارتی با همگام‌سازی پیکربندی‌پذیر (MR-B2-01) —
+           نوار کنترل + کانتینر پنل‌های فرعی؛ ماژول chart_grid.js تدافعی است و بدون این کانتینرها هیچ می‌ماند -->
+      <div id="cpGridBar" aria-label="نوار شبکه چندچارتی"></div>
+      <div id="cpGridRoot" aria-label="پنل‌های فرعی شبکه چندچارتی"></div>
     </section>
 
     <section class="panel" id="tab-strategylab">
@@ -1349,6 +1360,7 @@ GET  /api/history/فملی?hours=6</pre>
     <span id="lastUpdate">—</span>
   </footer>
 
+  <div id="paletteRoot"></div>
   <script src="/static/vendor/lightweight-charts.standalone.production.js"></script>
   <script type="module" src="/static/js/main.js"></script>
   <script src="/static/js/sw-register.js"></script>
