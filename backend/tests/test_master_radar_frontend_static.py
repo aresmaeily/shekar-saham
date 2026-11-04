@@ -92,10 +92,10 @@ def test_sw_precache_includes_strategy_lab_and_bumped():
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-3 2026-11-04): v3-0-7 -> v3-0-8 —
     # precache list extended with chart_grid.js + command_palette.js (see
     # test_master_radar_wave3_* for the WAVE-3 gates).
-    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-B 2026-11-04): v3-0-8 -> v3-0-9 —
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-B 2026-11-04): v3-0-8 -> v3-0-9 -> v3-0-10 (popup-detach-intent fix) —
     # precache extended with the UIDL-1 user-indicator modules (see
     # test_master_radar_waveb_frontend.py for the WAVE-B gates).
-    assert "radar-bourse-static-v3-0-9" in sw
+    assert "radar-bourse-static-v3-0-10" in sw
 
 
 def test_new_frontend_modules_pass_node_syntax_check():

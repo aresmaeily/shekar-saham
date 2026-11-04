@@ -137,6 +137,14 @@ class TestDetachPureLogic:
         assert "detachBtn" in text
         assert "this._detachPane(rec.index)" in text
 
+    def test_detach_intent_captured_at_module_load(self) -> None:
+        # the tab router rewrites the hash on first click; the detach intent
+        # must be read at module evaluation time and survive it
+        text = _read(CHART_GRID)
+        assert "const DETACH_INTENT = (() =>" in text
+        assert "this._detachedPane = DETACH_INTENT;" in text
+        assert "btn.click(), 200" in text  # popup auto-activation, one-shot
+
     def test_no_window_open_without_features(self) -> None:
         text = _read(CHART_GRID)
         assert 'window.open(location.pathname + location.search + h, "_blank", DETACH_WINDOW_FEATURES)' in text
@@ -156,10 +164,10 @@ class TestIntegrationPins:
         text = _read(MAIN_JS)
         assert 'import "./modules/render/user_indicator_ui.js"' in text
 
-    def test_sw_bumped_to_v3_0_9_with_precache(self) -> None:
+    def test_sw_bumped_to_v3_0_10_with_precache(self) -> None:
         sw = _read(SW_JS)
-        assert "radar-bourse-static-v3-0-9" in sw
-        assert "radar-bourse-static-v3-0-8" not in sw
+        assert "radar-bourse-static-v3-0-10" in sw
+        assert "radar-bourse-static-v3-0-9" not in sw
         assert "/static/js/modules/user_indicator.js" in sw
         assert "/static/js/modules/render/user_indicator_ui.js" in sw
 
@@ -175,7 +183,7 @@ class TestIntegrationPins:
     )
     def test_counter_pins_bumped(self, path: str) -> None:
         text = _read(ROOT / path)
-        assert "radar-bourse-static-v3-0-9" in text, path
+        assert "radar-bourse-static-v3-0-10" in text, path
         assert "radar-bourse-static-v3-0-8" not in re.sub(
             r"#.*COUNTER-PIN BUMP[^\n]*\n?", "", text
-        ) or "v3-0-8 -> v3-0-9" in text  # bump comment may name the old pin
+        ) or "v3-0-9 -> v3-0-10" in text or "v3-0-8 -> v3-0-9" in text  # bump comment may name the old pin

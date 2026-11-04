@@ -183,9 +183,9 @@ def test_sw_precache_includes_wave2_modules_and_bumped():
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-3 2026-11-04): v3-0-7 -> v3-0-8 —
     # precache list extended with chart_grid.js + command_palette.js; the WAVE-2
     # module-name assertions below are unchanged (see test_master_radar_wave3_integration.py).
-    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-B 2026-11-04): v3-0-8 -> v3-0-9
-    assert "radar-bourse-static-v3-0-9" in sw
-    assert "radar-bourse-static-v3-0-8" not in sw
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-B 2026-11-04): v3-0-8 -> v3-0-9 -> v3-0-10 (popup-detach-intent fix)
+    assert "radar-bourse-static-v3-0-10" in sw
+    assert "radar-bourse-static-v3-0-9" not in sw
     for name in WAVE2_MODULE_NAMES:
         assert f"/static/js/modules/render/{name}" in sw
 

@@ -244,6 +244,18 @@ function validDetachSyncMsg(msg) {
 
 /* <<< WAVE-B PURE LOGIC END */
 
+/* WAVE-B: capture the detach intent at MODULE LOAD — main.js's tab router
+ * rewrites the hash on the first tab click (history.replaceState("#/tab")),
+ * so a popup booting with #cpGridDetach=N must be read BEFORE any click.
+ * A popup auto-activates the Chart Pro tab once (explicit one-shot below). */
+const DETACH_INTENT = (() => {
+  try {
+    return parseDetachHash(typeof location !== "undefined" ? location.hash : "");
+  } catch (e) {
+    return null;
+  }
+})();
+
 export class ChartGrid {
   constructor(opts = {}) {
     this.rootId = opts.rootId || "cpGridRoot";
@@ -261,7 +273,7 @@ export class ChartGrid {
       if (typeof BroadcastChannel === "function") this._channel = new BroadcastChannel(DETACH_CHANNEL);
     } catch (e) { /* بدون کانال: همگام‌سازی بین‌پنجره‌ای صادقانه غیرفعال می‌ماند */ }
     try {
-      this._detachedPane = parseDetachHash(typeof location !== "undefined" ? location.hash : "");
+      this._detachedPane = DETACH_INTENT;
     } catch (e) {
       this._detachedPane = null;
     }
@@ -814,6 +826,12 @@ function bindChartGridTab() {
   document.querySelectorAll('[data-tab="chartpro"]').forEach((btn) => {
     btn.addEventListener("click", () => setTimeout(ensureChartGrid, 100));
   });
+  /* WAVE-B: پنجرهٔ جدا — فعال‌سازی یک‌بارهٔ خودکار تب چارت (نیت جداسازی در
+     بارگذاری ماژول خوانده شد؛ روتر بعداً هش را بازنویسی می‌کند و اشکالی ندارد) */
+  if (typeof DETACH_INTENT === "number" && DETACH_INTENT >= 0) {
+    const btn = document.querySelector('[data-tab="chartpro"]');
+    if (btn) setTimeout(() => btn.click(), 200);
+  }
 }
 
 if (typeof document !== "undefined") {
