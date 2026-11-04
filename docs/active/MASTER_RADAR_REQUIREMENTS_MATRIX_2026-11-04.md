@@ -113,3 +113,24 @@ Battery: **2499 passed / 2 skipped = 2400 + 99 exact** (skip drift vs the wave-1
 | MR-B2-01 (residual) | detach/multi-monitor: NOT-IMPLEMENTED (recorded honestly — unchanged) | this addendum |
 
 Battery: **2625 passed / 1 skipped / 0 failed = 2500 + 125 exact** (7 new test files: 32+23+38+12+12+8). Gates unchanged.
+
+---
+
+## WAVE-A ADDENDUM — 2026-11-04 (directive "COMPLETE REMAINING ROADMAP" §11 WAVE-A; execution record: `MASTER_RADAR_BOURSE_WAVE_A_EXECUTION_RECORD_2026-11-04.md`)
+
+Reconciliation statement (directive §2.5): every base row above was re-read TOGETHER WITH the WAVE-2 and WAVE-3 addenda; effective current status = base row as superseded by the latest addendum disposition. No base row was found treated as current where a later addendum supersedes it. Rows closed by addenda (MR-B1-02, MR-B2-01, MR-B3-01/02/03, MR-B4-02, MR-B5-01, MR-C2-01, MR-D3-01, MR-D4-01, MR-D5-01 partial, MR-G-01, MR-H-01, MR-H-02) carry their addendum status, not the base status. The directive's 13-field matrix layout maps onto the existing 10-column layout as documented in the WAVE-A record §5.
+
+| Req ID | WAVE-A disposition | Evidence |
+|---|---|---|
+| MR-B2-01 (operational) | FIRST in-browser operational evidence for the multi-chart/UI surface: real browser session on the running app — 29 tabs enumerated, Chart Pro golden path (فملی 1m) with canvas + crosshair readout + chartpro/indicators API 200s, RTL/fa verified, 0 console errors | WAVE-A record §3.2 + screenshot |
+| MR-H-01 (operational) | same-session evidence: full 29-tab navigation registry live-DOM verified through the right-side preview transport | WAVE-A record §3.2 |
+| MR-A2-01 | trust disclosure verified in the running UI (`source=mock_fallback`, `کلاس بازار: SYNTHETIC`, `trust_class: SYNTHETIC` in dataquality API) — synthetic-as-real misclassification absent; R-3 intact | WAVE-A record §3.2 |
+| MR-B4-01 | user-authored indicator DSL: still NOT-IMPLEMENTED → WAVE-B primary package | WAVE-A record §5 |
+| MR-B2-01 (residual) | detach/multi-monitor: still NOT-IMPLEMENTED → WAVE-B secondary package (popup-class detach; OS placement not claimable) | WAVE-A record §5 |
+| MR-D5-01 (residual) | PDF export: still NOT-IMPLEMENTED (CSV/JSON delivered wave-2) → WAVE-D | WAVE-A record §5 |
+| MR-B1-01 (residual) | session calendars: declared-calendar model with honest DECLARED trust class → WAVE-E; sourced holiday tables stay owner-gated (R-3/R-7) | WAVE-A record §5 |
+| MR-C1-02 | AI Studio steps 1–3 stay disconnected/owner-gated; WAVE-C = evidence package only, no runtime caller added | WAVE-A record §5 |
+| MR-I-01 (residual) | repository-side packaging readiness (electron-builder NSIS config exists at `electron/package.json`; no signing claims) → WAVE-G | WAVE-A record §5 |
+| NEW: SITE-PREVIEW | actual site startup + right-side preview DELIVERED and browser-verified (real FastAPI backend, verbatim preview transport outside the repo, 0 console errors); Vercel investigated separately = owner-credentials-required, remains FAILURE classification | WAVE-A record §3–§4 |
+
+Battery at WAVE-A baseline (re-run in the WAVE-A checkout): **2625 passed / 1 skipped / 0 failed in 26.59s** — exact match to the WAVE-3 record. Gates unchanged.

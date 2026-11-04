@@ -1,5 +1,7 @@
 # Active Documentation Index
 
+- `MASTER_RADAR_BOURSE_WAVE_A_EXECUTION_RECORD_2026-11-04.md` — WAVE-A record (directive "COMPLETE REMAINING ROADMAP" §11): repository reconciliation at `29a63cb…` (tree `60b723c…`, 0/0 divergence), baseline battery re-run 2625/1s exact, mandatory right-side site preview delivered + browser-verified (real FastAPI app via documented run config; verbatim preview transport outside the repo; 0 console errors; RTL/fa; 29 tabs; chartpro golden path; honest SYNTHETIC trust), Vercel failure investigated separately (owner-credentials wall recorded honestly), matrix reconciliation + effective gap list for WAVE-B..H.
+
 - `MASTER_RADAR_WAVE3_EXECUTION_RECORD_2026-11-04.md` — MASTER-RADAR WAVE-3 canonical execution record: 3 disjoint packages + integration (derived chart constructions + `/derived` API, walk-forward + `/walkforward`, crosshair readout, multi-chart grid, command palette, sw v3-0-8); two integration findings fixed pre-publication (rate-limit identity, settings-cache hygiene); battery 2625/1s = 2500+125 exact; gates unchanged.
 
 - `audits/2026-11-04-master-radar-wave3/AUDIT_MR3_REPORT.md` — independent read-only audit of WAVE-3: battery ×2 reproduced, derived fixtures hand-recomputed exact, walk-forward OOS-once instrumented (±1e9 flip proof), ~45 hostile probes zero 500s, frontend token scan clean, gates sweep clean — 7/7 PASS, 0 FAILs, 7 LOW/INFO observations with dispositions.
