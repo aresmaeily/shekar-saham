@@ -829,3 +829,82 @@ def _verify_one_with(
         refusals.append(f"{refusal_prefix}_identity_mismatch")
         return None
     return record
+
+
+# -- owner-activated backup trigger CLI (D5 manual path; R-6-compatible) ------
+
+def _cli(argv: list[str] | None = None) -> int:
+    """Owner-activated research-memory backup/verify trigger — DORMANT until
+    invoked.
+
+    R-6 keeps every in-app scheduler dormant and manual-trigger-only, and no
+    runtime caller exists for this adapter (verified: zero importers outside
+    tests). This CLI IS the manual trigger: the owner runs it (or an
+    owner-issued OS-level scheduled task on the OWNER machine runs it —
+    exactly the "separate dated owner act on the owner machine" R-6 names).
+    Nothing in the application runtime ever calls this; it cannot activate
+    itself; there is no plaintext fallback and no external transmission —
+    the snapshot lands in a local directory only (D5).
+
+    Usage:
+      python -m app.data.research_memory_sqlite backup \\
+          --directory <store dir> --dest <backup dir> [--keep 14]
+      python -m app.data.research_memory_sqlite verify-backup --path <snapshot>
+
+    The key is resolved exactly like the runtime (fail-closed): env override
+    ``RADAR_RESEARCH_MEMORY_KEY`` or the OS keyring; a missing/invalid key
+    refuses with exit code 2 and never falls back to plaintext (D4).
+    """
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(
+        prog="python -m app.data.research_memory_sqlite",
+        description=(
+            "AI-3 research-memory backup trigger (owner-activated; D5/D7; "
+            "dormant until invoked — R-6)"
+        ),
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
+    p_bak = sub.add_parser(
+        "backup", help="take a WAL-consistent local backup snapshot (keep=N)"
+    )
+    p_bak.add_argument("--directory", required=True,
+                       help="store directory containing the research-memory DB")
+    p_bak.add_argument("--dest", required=True,
+                       help="backup destination directory (local only)")
+    p_bak.add_argument("--keep", type=int, default=14,
+                       help="rotation count of backup FILES (D5 keep=14)")
+    p_ver = sub.add_parser(
+        "verify-backup", help="fail-closed verification of a snapshot (D7)"
+    )
+    p_ver.add_argument("--path", required=True, help="snapshot file path")
+    args = parser.parse_args(argv)
+    try:
+        key_provider = select_key_provider()
+        if args.command == "backup":
+            store = SqliteWalResearchMemoryStore(
+                directory=args.directory, key_provider=key_provider
+            )
+            out = store.backup(args.dest, keep=args.keep)
+            print(f"backup OK: {out}")
+            return 0
+        report = SqliteWalResearchMemoryStore.verify_backup(
+            args.path, key_provider=key_provider
+        )
+        refusals = tuple(getattr(report, "refusal_reasons", ()) or ())
+        if refusals:  # the report is fail-closed evidence — exit honestly
+            print(
+                f"FAILED: backup verification refusals: {refusals}",
+                file=sys.stderr,
+            )
+            return 2
+        print(f"verify-backup OK: {report}")
+        return 0
+    except Exception as exc:  # fail-closed refusal → honest non-zero exit
+        print(f"FAILED: {type(exc).__name__}: {exc}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":  # pragma: no cover — exercised via subprocess tests
+    raise SystemExit(_cli())

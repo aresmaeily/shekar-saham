@@ -18,6 +18,7 @@ import "./modules/auth.js";
 import "./modules/forex.js";
 import "./modules/render/chart_pro.js"; // WS-10 CH-3: چارت حرفه‌ای — بایند-on-demand مثل forex
 import "./modules/render/watchlist_excellent.js";
+import { renderAnalyticsFlow } from "./modules/render/analytics_flow.js"; // WDA-3 (2026-11-02): پنل افزودنی جمع‌بندی جریان در تب تحرکات بزرگان
 
 /* لایه تب‌ها */
 import * as T from "./tabs/data.js";
@@ -72,6 +73,7 @@ function renderAll() {
   });
   renderFormOutputs();
   renderStats();
+  renderAnalyticsFlow(); // WDA-3 (2026-11-02): پنل افزودنی جریان تحلیلی — fetch-once داخل ماژول
 }
 
 /* ----------------------------- stats bar ----------------------------- */

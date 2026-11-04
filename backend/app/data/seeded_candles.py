@@ -23,6 +23,10 @@ keeping each bar O(1) computable.
 
 Data class: SYNTHETIC only. This module NEVER returns live market data and
 must only be served behind an explicit "synthetic-seeded" source label.
+
+Price semantics (WDA-2): UNADJUSTED_SYNTHETIC — synthetic prices are
+unadjusted by construction (pure per-bar digest functions) and never
+represent corporate-action-adjusted history.
 """
 from __future__ import annotations
 
@@ -38,6 +42,11 @@ TIMEFRAMES: Dict[str, int] = {"1m": 60, "5m": 300, "15m": 900, "1h": 3600, "1D":
 
 _MIN_COUNT = 50
 _MAX_COUNT = 1000
+
+# Price semantics tag (WDA-2): synthetic prices are unadjusted by construction
+# — they never represent corporate-action (split/dividend/rights) adjusted
+# history. Pinned by tests/test_seeded_candles_integrity.py.
+PRICE_SEMANTICS = "UNADJUSTED_SYNTHETIC"
 
 # Step bounds (fixed computation constants — part of the determinism contract).
 _STEP_CLOSE = 0.012   # close step: open * (1 + inc1 * 0.012)

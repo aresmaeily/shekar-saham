@@ -104,5 +104,35 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
 });
 
+/* WDA-1 (2026-11-03): additive app-level error handling — statically pinned by
+   backend/tests/test_wda_electron_shell_gates.py. Renderer crashes are logged
+   and the window is reloaded at most once per 5 seconds (no reload loop);
+   main-process uncaught errors are logged and never silently fatal. */
+let _lastRendererReloadAt = 0;
+app.on('render-process-gone', (event, webContents, details) => {
+  console.error('[radar] renderer-process-gone:', details && details.reason, details && details.exitCode);
+  const now = Date.now();
+  if (
+    details && details.reason !== 'clean-exit' &&
+    mainWindow && !mainWindow.isDestroyed() &&
+    now - _lastRendererReloadAt > 5000
+  ) {
+    _lastRendererReloadAt = now;
+    try { mainWindow.reload(); } catch (e) { /* پنجره در دسترس نیست */ }
+  }
+});
+
+app.on('child-process-gone', (event, details) => {
+  console.error('[radar] child-process-gone:', details && details.type, details && details.reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('[radar] uncaughtException:', err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[radar] unhandledRejection:', reason);
+});
+
 // For auto-updater in future
 // require('update-electron-app')();

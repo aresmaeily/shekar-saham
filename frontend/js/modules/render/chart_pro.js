@@ -15,6 +15,7 @@
 import { api, toast } from "../../core/api.js";
 import { esc } from "../../core/format.js";
 import { chartPalette } from "../utils/chart_theme.js";
+import { loadWorkspace, saveWorkspace } from "../workspace.js"; // WDA-1: ماندگاری فضای کاری
 
 /* رنگ‌های ثابت ابزار رسم — طبق مشخصه WS-10 */
 const DRAW_COLORS = {
@@ -116,6 +117,25 @@ export class ChartProChart {
     if (!el || this.chart) return;
     const wrap = el.parentElement; // .cp-chart-wrap
     this._wrap = wrap || el;
+
+    /* WDA-1: بازیابی فضای کاری ذخیره‌شده (نماد/تایم‌فریم/اندیکاتورها) —
+       بازیابی هرگز شکست سخت ندارد؛ خروجی نامعتبر فقط به پیش‌فرض می‌رسد */
+    const _ws = loadWorkspace();
+    if (_ws && _ws.payload) {
+      if (_ws.payload.symbol) this.symbol = _ws.payload.symbol;
+      if (_ws.payload.timeframe) this.timeframe = _ws.payload.timeframe;
+      if (_ws.payload.indicators) this.onIndicators = { ...this.onIndicators, ..._ws.payload.indicators };
+      /* همگام‌سازی UI سگمنت‌ها با وضعیت بازیابی‌شده */
+      document.querySelectorAll("#cpTfSeg button[data-tf]").forEach((b) => {
+        b.classList.toggle("active", b.dataset.tf === this.timeframe);
+      });
+      document.querySelectorAll("#cpIndSeg button[data-ind]").forEach((b) => {
+        b.classList.toggle("active", !!this.onIndicators[b.dataset.ind]);
+      });
+    }
+    if (_ws && !_ws.ok && _ws.reason !== "storage_unavailable") {
+      console.warn("WDA-1 فضای کاری:", _ws.reason, (_ws.issues || []).join("؛ "));
+    }
 
     const pal = chartPalette();
     el.innerHTML = "";
@@ -225,6 +245,7 @@ export class ChartProChart {
           btn.classList.toggle("active", this.onIndicators[key]);
           if (key === "rsi" || key === "macd") this._renderOsc();
           else this._applyIndicators();
+          this._queueWorkspaceSave(); // WDA-1: وضعیت اندیکاتورها ذخیره شود
         });
       });
     }
@@ -381,6 +402,7 @@ export class ChartProChart {
       document.querySelectorAll("#cpWatchBody [data-cp-sym]").forEach((b) => {
         b.classList.toggle("active", b.dataset.cpSym === this.symbol);
       });
+      this._queueWorkspaceSave(); // WDA-1: نماد/تایم‌فریم فعال ذخیره شود
     } catch (e) {
       this._setStatus(`خطای بارگذاری ${this.symbol}: ${String(e && e.message ? e.message : e).slice(0, 80)}`);
     }
@@ -675,6 +697,7 @@ export class ChartProChart {
 
   _saveDrawings() {
     lsSet(lsKeyDrawings(this.symbol), this.drawState.drawings);
+    this._queueWorkspaceSave(); // WDA-1: رسم‌ها بخشی از فضای کاری‌اند
   }
 
   redraw() {
@@ -823,6 +846,7 @@ export class ChartProChart {
     }
     this.alerts.push({ price });
     lsSet(lsKeyAlerts(this.symbol), this.alerts);
+    this._queueWorkspaceSave(); // WDA-1: فهرست هشدارها ذخیره شود
     this._recreateAlertLines();
     input.value = "";
     toast(`هشدار قیمتی ${fmtPrice(price)} برای ${this.symbol} ثبت شد (فقط درون‌محصولی)`, "info");
@@ -944,6 +968,36 @@ export class ChartProChart {
 
   stopPolling() {
     if (this._poll) { clearInterval(this._poll); this._poll = null; }
+  }
+
+  /* ============================ WDA-1: ماندگاری فضای کاری ============================ */
+
+  /**
+   * ذخیرهٔ فضای کاری با تأخیر (debounce 600ms) — هر دنبالهٔ تغییر وضعیت
+   * فقط یک نوشتن به localStorage تولید می‌کند؛ ذخیره هرگز UI را نمی‌شکند.
+   */
+  _queueWorkspaceSave() {
+    if (this._wsTimer) clearTimeout(this._wsTimer);
+    this._wsTimer = setTimeout(() => {
+      this._wsTimer = null;
+      try {
+        saveWorkspace({
+          symbol: this.symbol,
+          timeframe: this.timeframe,
+          indicators: { ...this.onIndicators },
+          pane_layout: {
+            osc_visible: document.getElementById(this.oscContainerId)?.style.display !== "none",
+            osc_height: 150,
+          },
+          drawing_tools: {
+            active_tool: this.drawState.tool || null,
+            drawings: Array.isArray(this.drawState.drawings) ? this.drawState.drawings : [],
+          },
+          alerts: (this.alerts || []).map((a) => ({ price: +a.price })),
+          window_layout: { width: window.innerWidth, height: window.innerHeight, maximized: false },
+        });
+      } catch (e) { /* مسکوت — ماندگاری حیاتی نیست */ }
+    }, 600);
   }
 
   /* ============================ کمکی ============================ */

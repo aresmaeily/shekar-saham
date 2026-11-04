@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api.routes import router as main_router
 from app.api.chart import router as chart_router
 from app.api.chart_pro import router as chart_pro_router  # WS-10 CH-1/CH-2 chart-pro (SYNTHETIC seeded series)
+from app.api.analytics import router as analytics_router  # WDA-3 (2026-11-02): additive /api/v10/analytics — search/screener/market-map/flow/dossier, market_service trust envelope, SYNTHETIC-labeled only
 from app.api.forex import router as forex_router
 from app.api.excellent import router as excellent_router
 from app.api.auth import router as auth_router
@@ -285,6 +286,7 @@ def create_app() -> FastAPI:
     app.include_router(excellent_router)  # v0.7.0
     app.include_router(chart_router)  # v0.8
     app.include_router(chart_pro_router)  # v1.0 chart-pro (WS-10) — deterministic seeded series, SYNTHETIC/Paper only
+    app.include_router(analytics_router)  # WDA-3 (2026-11-02) — additive analytics router next to chart_pro; reuses market_service trust envelope, never "live"
     app.include_router(forex_router)  # v0.9 Forex like faraz.io Chart Excellent Excellent features
     app.include_router(auth_router)  # v1.5 حالت خصوصی (فقط مالک)
     app.include_router(alert_ops_router)  # GOV-41 D-AI-30 — Synthetic/Paper in-product alert inbox (no external egress)
