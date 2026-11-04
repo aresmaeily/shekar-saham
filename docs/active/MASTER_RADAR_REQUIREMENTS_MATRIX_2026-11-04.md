@@ -134,3 +134,17 @@ Reconciliation statement (directive §2.5): every base row above was re-read TOG
 | NEW: SITE-PREVIEW | actual site startup + right-side preview DELIVERED and browser-verified (real FastAPI backend, verbatim preview transport outside the repo, 0 console errors); Vercel investigated separately = owner-credentials-required, remains FAILURE classification | WAVE-A record §3–§4 |
 
 Battery at WAVE-A baseline (re-run in the WAVE-A checkout): **2625 passed / 1 skipped / 0 failed in 26.59s** — exact match to the WAVE-3 record. Gates unchanged.
+
+---
+
+## WAVE-B ADDENDUM — 2026-11-04 (directive §11 WAVE-B; execution record: `MASTER_RADAR_WAVEB_EXECUTION_RECORD_2026-11-04.md`; audit: `audits/2026-11-04-master-radar-waveb/AUDIT_MR4_REPORT.md`)
+
+| Req ID | WAVE-B disposition | Evidence |
+|---|---|---|
+| MR-B4-01 | user-authored indicator DSL: **INTEGRATION-VERIFIED** — UIDL-1 (INDICATOR/INPUT/PLOT) over the shared RSL-1 lexer/parser/typechecker/budgets/interpreter; numeric-series-only plots (bool channels refused); no-look-ahead enforced at compile; structural+evaluation-time warm-up (catalog parity); install/uninstall/enable/disable/semver-upgrade/export/import with checksums + fail-closed re-compiling import; `/api/v10/user-indicators` full surface with SYNTHETIC_SEEDED honesty + `valid_from_index`; governed frontend panel (api.js-only, no eval, server-field trust labels, warm-up-excluded drawing, package export/import) | 60 engine tests (incl. independent naive recomputation battery + 8 hostile payloads) + 29 API tests (lifecycle/tamper/boundaries) + 26 static pins; AUDIT-MR4: fresh-clone battery ×2, 43 live hostile probes 0×5xx, A/B runtime equivalence 2415 decisions + 18 error pairs 0 mismatches; owner target-machine acceptance remains R-1/R-2-gated |
+| MR-B2-01 (residual) | popup-class detach: **INTEGRATION-VERIFIED (popup scope)** — per-sub-pane `window.open` same-origin popup with fail-closed hash (0..2), chrome-less boot, two-way BroadcastChannel symbol/TF sync with message validation + echo guard; OS placement NOT claimed; inter-window crosshair/range sync NOT claimed in v1 (documented in module + UI + record); multi-monitor = user drags popup to another display (browser capability) | 26 static/integration tests incl. detach pure-logic pins; AUDIT-MR4 check 7; detachable-panel residual beyond popup scope recorded honestly |
+| SW/pins | sw v3-0-9 (+2 precache), 5 recorded counter-pin bumps, tabs 29/29 | `test_master_radar_waveb_frontend.py` + 4 bumped pin files |
+| Battery | 2739 passed / 2 skipped / 0 failed = 2624 + 115 exact (skips = documented environmental G2-harness conditionals) | AUDIT-MR4 check 1 (×2 fresh-clone reproduction) |
+| Gates | unchanged: AI2_ENABLED=0 (config.py:111), verified=False posture, SYNTHETIC_OR_PAPER, no scheduler/egress/live path, no runtime caller added to any disconnected edge; INSTALL NOT ISSUED | AUDIT-MR4 check 6 (diff 0 bytes) |
+
+Remaining after WAVE-B (unchanged from the WAVE-A gap list): WAVE-D PDF export, WAVE-E declared session calendars, WAVE-C AI-seam evidence only, WAVE-F five product loops audit, WAVE-G repo-side packaging readiness, WAVE-H 17-role audit + owner package; legacy demo modules removal assigned to a future hygiene wave (AUDIT-MR4 O1).
