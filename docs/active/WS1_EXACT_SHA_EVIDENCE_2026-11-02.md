@@ -315,3 +315,27 @@ Evidence availability: all three required check runs + the windows job's
 per-step states retrieved via the GitHub API (check-runs + jobs endpoints) —
 nothing unavailable, nothing inferred. Raw CI logs/artifacts remain
 sign-in-gated for the agent (recorded limitation, unchanged from GOV-49).
+
+## §10 — 2026-11-04 (UTC, authoritative): exact-SHA CI on the 2026-11-03 wave records commit `2023895…` + a dated stamp-honesty note
+
+**(a) Date-stamp honesty note (§SC convention):** the 2026-11-03 wave's
+records (AI3_OPERATIONAL_STATUS / WDA_CAPABILITY_MATRIX /
+ROADMAP_TRACEABILITY_DELTA / TABLOKHANI_CAPABILITY_MATRIX, and the dated
+comments in code) carry the logical cycle label "2026-11-03"; the authoritative
+wall-clock evidence — the GitHub CI runs below — is **2026-11-04 UTC**. Treat
+the "2026-11-03" stamps as cycle labels; every TIMESTAMP in evidence rows is
+authoritative and was never invented. File names keep the label for
+referential stability; this note supersedes any implied date claim.
+
+**(b) Exact-SHA CI for the wave publication `20238959d8562e6ebd4b9fe04f963d8
+c6f090a7b`** (tree `cbd1e6dc…`; origin/main == local verified 0/0 after push;
+nothing inferred from any earlier SHA): check-runs API on the exact SHA —
+
+| Job | Job ID | Conclusion | Started (UTC) | Completed (UTC) |
+|---|---|---|---|---|
+| test-backend | 126390154298 | **success** | 2026-11-04T04:34:49Z | 2026-11-04T04:35:39Z |
+| build-docker | 126390445114 | **success** | 2026-11-04T04:35:42Z | 2026-11-04T04:36:06Z |
+| windows-validation | 126390154037 | **success** (4m21s) | 2026-11-04T04:34:48Z | 2026-11-04T04:39:09Z |
+
+⇒ 3/3 required jobs SUCCESS on the exact published wave SHA, with the +200-test
+battery (1794/1s local) carried through real CI test-backend execution.
