@@ -91,6 +91,7 @@
     <button class="tab" data-tab="watch">👁 دیده‌بان</button>
     <button class="tab" data-tab="forex">💱 فارکس</button>
     <button class="tab" data-tab="chartpro">📈 چارت حرفه‌ای</button>
+    <button class="tab" data-tab="strategylab">🧪 آزمایشگاه استراتژی</button>
     <button class="tab" data-tab="excellent">✨ عالی</button>
     <button class="tab" data-tab="guide">📖 راهنما</button>
   </nav>
@@ -889,6 +890,14 @@
             <button data-tf="1D">1D</button>
           </div>
           <span class="cp-vsep"></span>
+          <span class="muted">نوع نمودار:</span>
+          <div class="seg" id="cpTypeSeg" title="نوع نمایش — هایکین‌آشی فقط بازنمایی بصری همان داده است، داده جدید نیست">
+            <button class="active" data-ctype="candles">کندل</button>
+            <button data-ctype="line">خطی</button>
+            <button data-ctype="area">ناحیه</button>
+            <button data-ctype="ha">هایکین‌آشی</button>
+          </div>
+          <span class="cp-vsep"></span>
           <span class="muted">اندیکاتور:</span>
           <div class="seg" id="cpIndSeg">
             <button class="active" data-ind="ma20">MA20</button>
@@ -933,6 +942,89 @@
       <div id="cpOscChart" class="cp-osc" style="display:none" aria-label="پنل اسیلاتور RSI/MACD"></div>
     </section>
 
+    <section class="panel" id="tab-strategylab">
+      <div class="panel-head">
+        <div>
+          <h2>🧪 آزمایشگاه استراتژی — DSL نسخه RSL-1</h2>
+          <p class="muted">اعتبارسنجی، مشخصات رسمی، بک‌تست و بازپخش کاغذی روی داده سینتتیک seed شده + مدیریت اندیکاتورها — زنجیره تأیید کاربر (پیش‌نویس → تأییدشده → ارتقایافته) — هیچ مسیر زنده یا بروکری وجود ندارد</p>
+        </div>
+        <div class="filters">
+          <span class="cp-badge" id="slTrustBadge">اعتماد: —</span>
+        </div>
+      </div>
+
+      <div class="cp-toolbar">
+        <div class="seg" id="slViewSeg">
+          <button class="active" data-slab-view="studio">استودیو استراتژی</button>
+          <button data-slab-view="indicators">مدیر اندیکاتور</button>
+        </div>
+      </div>
+
+      <div id="slStudioView">
+        <div class="cp-toolbar">
+          <div class="cp-row">
+            <button class="btn tiny" id="slValidate">اعتبارسنجی</button>
+            <button class="btn tiny" id="slSpec">مشخصات رسمی</button>
+            <button class="btn tiny" id="slBacktest">بک‌تست</button>
+            <button class="btn tiny" id="slPaper">بازپخش کاغذی</button>
+            <span class="cp-vsep"></span>
+            <span class="muted">نماد:</span>
+            <input class="text-input" id="slSymbol" value="FOLAD" style="max-width:120px" />
+            <select class="text-input" id="slTimeframe" style="max-width:90px">
+              <option value="1D" selected>1D</option>
+              <option value="1h">1h</option>
+              <option value="15m">15m</option>
+            </select>
+            <span class="muted">تعداد:</span>
+            <input class="text-input" id="slCount" type="number" value="200" min="50" max="1000" style="max-width:90px" />
+          </div>
+        </div>
+        <div class="cp-layout">
+          <div style="flex:1 1 320px">
+            <label class="muted" for="slDslSource">منبع استراتژی (DSL نسخه RSL-1 — توسط کاربر نوشته می‌شود؛ مسیر پیشنهاد AI عمداً قطع است)</label>
+            <textarea id="slDslSource" class="text-input" rows="10" style="width:100%;direction:ltr;font-family:monospace" spellcheck="false"></textarea>
+            <div class="cp-row" style="margin-top:8px">
+              <input class="text-input" id="slName" placeholder="نام استراتژی…" style="max-width:200px" />
+              <button class="btn tiny" id="slRegisterDraft">ثبت نسخه (پیش‌نویس)</button>
+              <button class="btn tiny" id="slRegisterApproved">ثبت و تأیید کاربر</button>
+              <button class="btn tiny" id="slRefreshVersions">به‌روزرسانی فهرست نسخه‌ها</button>
+            </div>
+            <p class="muted" style="font-size:12px">زنجیره تأیید §C3: پیش‌نویس → تأییدشده (تأیید صریح کاربر) → ارتقایافته به آزمون کاغذی. ثبت نسخه‌ها فقط در حافظه فرآیند سرور است.</p>
+          </div>
+          <div style="flex:1 1 420px">
+            <pre id="slOut" class="muted" style="white-space:pre-wrap;font-size:12px;max-height:420px;overflow:auto">نتیجه اینجا نمایش داده می‌شود…</pre>
+          </div>
+        </div>
+        <div>
+          <h3>نسخه‌ها</h3>
+          <table class="data-table" id="slVersionsTable">
+            <thead><tr><th>شناسه</th><th>نام</th><th>وضعیت</th><th>دایجست</th><th>عملیات</th></tr></thead>
+            <tbody id="slVersionsBody"><tr><td colspan="5" class="muted">فهرست خالی است</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="slIndicatorsView" style="display:none">
+        <div class="cp-toolbar">
+          <div class="cp-row">
+            <button class="btn tiny" id="imRefresh">بارگذاری کاتالوگ</button>
+            <span class="muted" id="imCount">—</span>
+          </div>
+        </div>
+        <div class="cp-layout">
+          <div style="flex:1 1 340px;max-height:480px;overflow:auto">
+            <table class="data-table" id="imTable">
+              <thead><tr><th>اندیکاتور</th><th>دسته</th><th>گرم‌شدن</th><th>بازترسیم</th></tr></thead>
+              <tbody id="imBody"><tr><td colspan="4" class="muted">کاتالوگ بارگذاری نشده</td></tr></tbody>
+            </table>
+          </div>
+          <div style="flex:1 1 420px">
+            <div id="imDetail" class="muted" style="font-size:12px">جزئیات اندیکاتور اینجا نمایش داده می‌شود…</div>
+            <pre id="imPreview" class="muted" style="white-space:pre-wrap;font-size:11px;max-height:220px;overflow:auto"></pre>
+          </div>
+        </div>
+      </div>
+    </section>
     <section class="panel" id="tab-excellent">
       <div class="panel-head">
         <div>

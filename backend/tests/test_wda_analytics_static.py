@@ -47,9 +47,14 @@ def test_static_validator_contract_still_green_with_wiring():
     assert result.returncode == 0, result.stderr
     data = json.loads(result.stdout)
     assert data["ok"] is True
-    # WDA-3 must be additive: no tab/panel added (orchestrator decides on tabs)
-    assert data["tabs"]["tabs_count"] == 25
-    assert data["tabs"]["panels_count"] == 25
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR 2026-11-04): 25 -> 26 — one new
+    # authorized tab `strategylab` (Strategy Lab studio + Indicator Manager,
+    # directive §B4/§C1) was added WITH this wave; the WDA-3 "no new tab"
+    # posture was specific to that wave's scope and is superseded by the new
+    # directive's explicit product scope. Structural invariants unchanged:
+    # every tab keeps its panel, no orphans/duplicates/missing imports.
+    assert data["tabs"]["tabs_count"] == 26
+    assert data["tabs"]["panels_count"] == 26
     assert data["tabs"]["missing_panels"] == []
     assert data["tabs"]["orphan_panels"] == []
     assert data["duplicate_ids"]["index"] == []

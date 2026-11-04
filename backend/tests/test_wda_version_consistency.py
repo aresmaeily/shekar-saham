@@ -62,19 +62,23 @@ def test_pwa_manifest_version_matches_backend():
 
 def test_sw_cache_token_is_consistent_within_sw_js():
     """Honest finding (WDA-1, 2026-11-03): the sw.js CACHE_NAME token is an
-    INDEPENDENT cache-bust counter (``radar-bourse-static-v3-0-5``, bumped on
-    precache-list changes per WS-10) — it is deliberately NOT derived from the
-    app semantic version, so no version-chain equality is asserted for it.
-    What is pinned here: the token family/format is consistent between the
-    CACHE_NAME literal and the sw.js header comment, and the pinned literal
-    matches the one test_p3_80_local_closure.py enforces (v3-0-5)."""
+    INDEPENDENT cache-bust counter (``radar-bourse-static-v3-0-N``, bumped on
+    precache-list changes per WS-10 / MASTER-RADAR) — it is deliberately NOT
+    derived from the app semantic version, so no version-chain equality is
+    asserted for it. What is pinned here: the token family/format is
+    consistent between the CACHE_NAME literal and the sw.js header comment,
+    and the pinned literal matches the one test_p3_80_local_closure.py
+    enforces (currently v3-0-6, MASTER-RADAR 2026-11-04 bump)."""
     m = re.search(r'const CACHE_NAME = "([^"]+)"', SW_JS)
     assert m, "CACHE_NAME not found in sw.js"
     token = m.group(1)
     assert re.fullmatch(r"radar-bourse-static-v\d+-\d+-\d+", token), token
-    assert token == "radar-bourse-static-v3-0-5"
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR 2026-11-04): v3-0-5 -> v3-0-6 —
+    # precache list extended with strategy_lab.js (new authorized Strategy Lab
+    # tab); same recorded bump discipline as WS-10 (v3-0-4 -> v3-0-5).
+    assert token == "radar-bourse-static-v3-0-6"
     # Header comment must tell the same story (dots variant), no drift.
-    assert "Service Worker v3.0.5" in SW_JS
+    assert "Service Worker v3.0.6" in SW_JS
 
 
 def test_index_html_header_paint_shows_backend_version():

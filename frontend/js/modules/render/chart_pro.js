@@ -80,6 +80,9 @@ export class ChartProChart {
     this.limit = 500;
 
     this.onIndicators = { ma20: true, ma50: true, ema20: false, bb: false, rsi: false, macd: false };
+    // MASTER-RADAR (2026-11-04): نوع نمایش — کندل پیش‌فرض؛ سایر انواع فقط
+    // بازنمایی همان داده‌اند (هیچ داده جدیدی تولید نمی‌شود).
+    this.chartType = "candles";
 
     this.chart = null;
     this.candleSeries = null;
@@ -193,6 +196,70 @@ export class ChartProChart {
     await Promise.all([this.loadUniverse(), this.loadAndRender(this.symbol, this.timeframe)]);
   }
 
+  /* ============================ نوع نمودار (MASTER-RADAR افزودنی) ============================ */
+
+  /**
+   * هایکین‌آشی — بازنمایی بصری همان کندل‌های فعلی (فرمول کلاسیک HA):
+   *   HA_Close = (O+H+L+C)/4 ; HA_Open = (HA_Open_prev + HA_Close_prev)/2
+   *   HA_High = max(H, HA_Open, HA_Close) ; HA_Low = min(L, HA_Open, HA_Close)
+   * داده ورودی دست‌نخورده می‌ماند و هیچ سری جدیدی از داده بالاتر ساخته نمی‌شود.
+   */
+  _heikinAshi(data) {
+    if (!Array.isArray(data) || !data.length) return [];
+    const out = [];
+    let prevOpen = null;
+    let prevClose = null;
+    for (const c of data) {
+      const o = Number(c.open);
+      const h = Number(c.high);
+      const l = Number(c.low);
+      const cl = Number(c.close);
+      const haClose = (o + h + l + cl) / 4;
+      const haOpen = prevOpen === null ? (o + cl) / 2 : (prevOpen + prevClose) / 2;
+      out.push({
+        time: c.time,
+        open: haOpen,
+        high: Math.max(h, haOpen, haClose),
+        low: Math.min(l, haOpen, haClose),
+        close: haClose,
+      });
+      prevOpen = haOpen;
+      prevClose = haClose;
+    }
+    return out;
+  }
+
+  /**
+   * اعمال نوع نمایش فعلی: برای خطی/ناحیه سری price با همان close فعلی
+   * نشان داده/مخفی می‌شود — همان داده، فقط نما؛ کندل و حجم دست‌نخورده‌اند.
+   */
+  _applyChartType() {
+    try {
+      if (!this.candleSeries || !this.chart) return;
+      const t = this.chartType || "candles";
+      // کندل همیشه منبع داده است؛ فقط نمایان‌بودن و سری کمکی تغییر می‌کند
+      this.candleSeries.applyOptions({ visible: t === "candles" || t === "ha" });
+      if (t === "candles" || t === "ha") {
+        this.candleSeries.setData(t === "ha" ? this._heikinAshi(this.currentData || []) : (this.currentData || []));
+        if (this._typeSeries) {
+          this.chart.removeSeries(this._typeSeries);
+          this._typeSeries = null;
+        }
+      } else if (this.currentData && this.currentData.length) {
+        const points = this.currentData.map((c) => ({ time: c.time, value: c.close }));
+        if (!this._typeSeries) {
+          this._typeSeries =
+            t === "area"
+              ? this.chart.addAreaSeries({ lineColor: "rgba(34,211,238,0.9)", topColor: "rgba(34,211,238,0.25)", bottomColor: "rgba(34,211,238,0.02)", priceLineVisible: false })
+              : this.chart.addLineSeries({ color: "rgba(34,211,238,0.9)", lineWidth: 2, priceLineVisible: false });
+        }
+        this._typeSeries.setData(points);
+      }
+    } catch (e) {
+      console.warn("chart type apply failed", e);
+    }
+  }
+
   _buildCanvas(wrap) {
     if (!wrap || this.canvas) return;
     this.canvas = document.createElement("canvas");
@@ -246,6 +313,20 @@ export class ChartProChart {
           if (key === "rsi" || key === "macd") this._renderOsc();
           else this._applyIndicators();
           this._queueWorkspaceSave(); // WDA-1: وضعیت اندیکاتورها ذخیره شود
+        });
+      });
+    }
+
+    /* نوع نمودار (MASTER-RADAR 2026-11-04 — افزودنی): کندل/خطی/ناحیه/هایکین‌آشی.
+       هایکین‌آشی فقط بازنمایی بصری همان داده فعلی است — هیچ کندل جدید یا داده
+       پایین‌تفکیک‌تری از داده بالاتر ساخته نمی‌شود (برچسب صادقانه B1). */
+    const typeSeg = $("cpTypeSeg");
+    if (typeSeg) {
+      typeSeg.querySelectorAll("button[data-ctype]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          this.chartType = btn.dataset.ctype || "candles";
+          typeSeg.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b === btn));
+          this._applyChartType();
         });
       });
     }
@@ -374,7 +455,8 @@ export class ChartProChart {
         this.indicators = null;
       }
 
-      this.candleSeries.setData(this.currentData);
+      this.candleSeries.setData(this.chartType === "ha" ? this._heikinAshi(this.currentData) : this.currentData);
+      this._applyChartType();
       const pal = chartPalette();
       const ind = this.indicators || {};
       this.volumeSeries.setData(

@@ -17,6 +17,7 @@ import { initAlertInbox } from "./modules/alert_inbox.js"; // GOV-41 D-AI-30 in-
 import "./modules/auth.js";
 import "./modules/forex.js";
 import "./modules/render/chart_pro.js"; // WS-10 CH-3: چارت حرفه‌ای — بایند-on-demand مثل forex
+import "./modules/render/strategy_lab.js"; // MASTER-RADAR (2026-11-04): آزمایشگاه استراتژی + مدیر اندیکاتور — بایند-on-demand
 import "./modules/render/watchlist_excellent.js";
 import { renderAnalyticsFlow } from "./modules/render/analytics_flow.js"; // WDA-3 (2026-11-02): پنل افزودنی جمع‌بندی جریان در تب تحرکات بزرگان
 

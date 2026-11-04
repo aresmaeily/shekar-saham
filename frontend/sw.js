@@ -1,8 +1,8 @@
-// Service Worker v3.0.5 — هماهنگ با معماری جدید (WS-HARDEN-1/W3: مسیر legacy حذف شد؛ WS-10: چارت حرفه‌ای)
+// Service Worker v3.0.6 — هماهنگ با معماری جدید (WS-HARDEN-1/W3: مسیر legacy حذف شد؛ WS-10: چارت حرفه‌ای؛ MASTER-RADAR: آزمایشگاه استراتژی)
 // - HTML: network-first با fallback به کش (نسخه جدید همیشه می‌رسد)
 // - استاتیک: stale-while-revalidate (سریع + به‌روز)
 // - API: network-only — هرگز payload بازار/احراز را کش نکن (stale ≠ current؛ logout نباید replay شود)
-const CACHE_NAME = "radar-bourse-static-v3-0-5";
+const CACHE_NAME = "radar-bourse-static-v3-0-6";
 const urlsToCache = [
   "/",
   "/static/css/app.css",
@@ -10,6 +10,7 @@ const urlsToCache = [
   "/static/js/main.js",
   "/static/js/sw-register.js",
   "/static/js/modules/render/chart_pro.js",
+  "/static/js/modules/render/strategy_lab.js",
   "/static/vendor/lightweight-charts.standalone.production.js",
   "/static/js/core/store.js",
   "/static/js/core/api.js",

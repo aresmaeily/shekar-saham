@@ -51,8 +51,9 @@ def test_service_worker_cache_name_bumped_to_drop_old_api_entries():
     assert "shekar-v3-0-1" not in sw
     # WS-HARDEN-1/W3: cache list changed (legacy-loader entry dropped) -> bump to v3-0-3
     # WS-10 (2026-11-02): precache list extended with chart_pro.css/js -> bump to v3-0-5
-    assert "radar-bourse-static-v3-0-5" in sw  # WS-10: chart_pro assets precached -> bump
-    assert "radar-bourse-static-v3-0-4" not in sw
+    # MASTER-RADAR (2026-11-04): precache extended with strategy_lab.js -> bump to v3-0-6 (recorded counter-pin bump)
+    assert "radar-bourse-static-v3-0-6" in sw
+    assert "radar-bourse-static-v3-0-5" not in sw
 
 
 def test_production_disables_openapi_docs(monkeypatch):

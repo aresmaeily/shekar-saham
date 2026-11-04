@@ -20,6 +20,9 @@ from app.api.forex import router as forex_router
 from app.api.excellent import router as excellent_router
 from app.api.auth import router as auth_router
 from app.api.alert_ops import router as alert_ops_router  # GOV-41 D-AI-30 (in-product alert operations)
+from app.api.strategy_lab import router as strategy_lab_router  # MASTER-RADAR (2026-11-04): /api/v10/strategylab — RSL DSL validate/spec/backtest/paper-replay/versions on SYNTHETIC seeded series; AI-proposal seam owner-gated & disconnected
+from app.api.indicator_api import router as indicator_api_router  # MASTER-RADAR (2026-11-04): /api/v10/indicators — audited built-in catalog + deterministic compute (metadata lifecycle only, no code execution)
+from app.api.analyst_api import router as analyst_api_router  # MASTER-RADAR (2026-11-04): /api/v10/analyst — deterministic evidence-grounded symbol analyst, every claim provenanced, no LLM call
 from app.core.config import ROOT, get_settings
 from app.core.security import (
     is_public_path,
@@ -290,6 +293,9 @@ def create_app() -> FastAPI:
     app.include_router(forex_router)  # v0.9 Forex like faraz.io Chart Excellent Excellent features
     app.include_router(auth_router)  # v1.5 حالت خصوصی (فقط مالک)
     app.include_router(alert_ops_router)  # GOV-41 D-AI-30 — Synthetic/Paper in-product alert inbox (no external egress)
+    app.include_router(strategy_lab_router)  # MASTER-RADAR (2026-11-04) — additive Strategy Lab; synthetic-only, approval state machine, no live egress
+    app.include_router(indicator_api_router)  # MASTER-RADAR (2026-11-04) — additive indicator catalog/compute; no downloaded-code execution
+    app.include_router(analyst_api_router)  # MASTER-RADAR (2026-11-04) — additive deterministic symbol analyst; provenance on every claim
 
     @app.websocket("/ws/live")
     async def ws_live(ws: WebSocket):

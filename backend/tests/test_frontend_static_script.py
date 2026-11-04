@@ -20,8 +20,11 @@ def test_frontend_static_validator_contract():
     # WS-10 (2026-11-02, owner directive): the "chartpro" pro-chart tab was
     # added -> 25 tabs/panels. Counter pin updated with the feature; every
     # structural check (matching panel, no orphans/duplicates) unchanged.
-    assert data["tabs"]["tabs_count"] == 25
-    assert data["tabs"]["panels_count"] == 25
+    # MASTER-RADAR (2026-11-04): the "strategylab" tab (Strategy Lab studio +
+    # Indicator Manager) was added -> 26 tabs/panels. Same recorded counter-pin
+    # bump discipline; structural invariants unchanged.
+    assert data["tabs"]["tabs_count"] == 26
+    assert data["tabs"]["panels_count"] == 26
     assert data["tabs"]["missing_panels"] == []
     assert data["tabs"]["orphan_panels"] == []
     assert data["duplicate_ids"]["index"] == []
