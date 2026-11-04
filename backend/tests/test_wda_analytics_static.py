@@ -53,8 +53,12 @@ def test_static_validator_contract_still_green_with_wiring():
     # posture was specific to that wave's scope and is superseded by the new
     # directive's explicit product scope. Structural invariants unchanged:
     # every tab keeps its panel, no orphans/duplicates/missing imports.
-    assert data["tabs"]["tabs_count"] == 26
-    assert data["tabs"]["panels_count"] == 26
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-2 2026-11-04): 26 -> 29 —
+    # three new product tabs (backtestcenter / forwardcenter / dataquality)
+    # were added WITH this wave; structural invariants unchanged (every tab
+    # keeps its panel, no orphans/duplicates/missing imports).
+    assert data["tabs"]["tabs_count"] == 29
+    assert data["tabs"]["panels_count"] == 29
     assert data["tabs"]["missing_panels"] == []
     assert data["tabs"]["orphan_panels"] == []
     assert data["duplicate_ids"]["index"] == []

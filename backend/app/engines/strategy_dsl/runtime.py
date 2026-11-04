@@ -42,15 +42,47 @@ values that are themselves backward-looking. Appending future bars to the
 context therefore cannot change decisions at earlier indices — this property
 is pinned by a dedicated regression test.
 
+Multi-timeframe context (``mtf_context``, MR2-A WAVE-2): ``prepare``,
+``evaluate`` and ``run_over_series`` accept an OPTIONAL ``mtf_context`` mapping
+timeframe label -> a sequence of higher-timeframe BAR DICTS (not float lists).
+Each referenced ``<TF>.<base>`` node is resolved to a primary-length float
+series under a STRICT no-look-ahead alignment rule, enforced in code:
+
+- Base timestamps come from the optional ``SeriesContext.ts`` field (epoch
+  seconds, one per primary bar, ascending per the shared bar contract);
+  ``mtf_context`` without ``ctx.ts`` is a ``RUN_MTF_MISSING_BASE_TS`` error.
+- A higher-TF bar is readable at base bar ``i`` (timestamp ``t_i``) only when
+  its CLOSE timestamp is ``<= t_i``. The close timestamp of higher-TF bar ``j``
+  is derived from bar keys as follows: (1) the explicit ``close_ts`` key when
+  present (a caller assertion that the bar is complete); (2) otherwise the
+  next supplied bar's open timestamp ``ts[j+1]`` (bar ``j`` provably closed no
+  later than the moment bar ``j+1`` opened); (3) otherwise — the final
+  supplied bar without an explicit ``close_ts`` — the bar is treated as NOT
+  YET CLOSED (callers who know a tail bar is complete must pass ``close_ts``).
+  This makes the rule safe (a bar is only ever exposed after it provably
+  closed) and future-append invariant: appending a higher-TF bar whose
+  timestamps lie beyond every base timestamp cannot change any earlier
+  decision (pinned by a dedicated regression test).
+- When no higher-TF bar is closed yet at ``t_i`` (warm-up), the aligned value
+  is ``0.0`` — the same documented warm-up fill every other series in this
+  runtime uses; consumers must treat it exactly like other warm-up zeros.
+- The most recent closed higher-TF bar wins. Aligned values override any
+  equal-length series previously supplied through ``ctx.mtf`` for the same
+  ``<TF>.<base>`` pair; timeframes absent from ``mtf_context`` keep failing
+  closed with ``RUN_MISSING_MTF_SERIES``.
+
 A :class:`PreparedProgram` is bound to exactly one context; it carries a
-``ctx_digest`` (sha256 over every provided series) so callers can assert they
-are not reusing a prepared object across mutated contexts.
+``ctx_digest`` (sha256 over every provided series, including ``ts`` and the
+effective MTF series) so callers can assert they are not reusing a prepared
+object across mutated contexts.
 """
 from __future__ import annotations
 
 import hashlib
 import math
+from bisect import bisect_right
 from dataclasses import dataclass, field
+from typing import Any, Mapping, Sequence
 
 from pydantic import BaseModel, ConfigDict
 
@@ -66,7 +98,12 @@ _BASE_NAMES = ("open", "high", "low", "close", "volume")
 
 
 class SeriesContext(BaseModel):
-    """Primary OHLCV series plus optional MTF/symbol series (equal lengths)."""
+    """Primary OHLCV series plus optional MTF/symbol series (equal lengths).
+
+    ``ts`` (optional, MR2-A) carries the epoch-second timestamp of every
+    primary bar, ascending per the shared bar contract. It is required only
+    for ``mtf_context`` alignment and participates in ``context_digest``.
+    """
 
     model_config = ConfigDict(frozen=True)
 
@@ -77,6 +114,7 @@ class SeriesContext(BaseModel):
     volume: list[float]
     mtf: dict[str, dict[str, list[float]]] | None = None
     symbols: dict[str, dict[str, list[float]]] | None = None
+    ts: list[int] | None = None
 
 
 class Decision(BaseModel):
@@ -271,6 +309,8 @@ def context_digest(ctx: SeriesContext) -> str:
 
     for name in _BASE_NAMES:
         feed(name, list(getattr(ctx, name)))
+    if ctx.ts is not None:
+        feed("ts", list(ctx.ts))
     for group_name, group in (("mtf", ctx.mtf or {}), ("symbols", ctx.symbols or {})):
         for key in sorted(group):
             inner = group[key]
@@ -280,15 +320,173 @@ def context_digest(ctx: SeriesContext) -> str:
 
 
 # ---------------------------------------------------------------------------
+# MTF bar-dict alignment (MR2-A WAVE-2, no look-ahead)
+# ---------------------------------------------------------------------------
+_MTF_BAR_TS_KEYS = ("ts", "time")
+
+# Bar-dict keys accepted for each series base (shared contract first, legacy
+# engine shape second) — same alias precedence the rest of the repo documents.
+_MTF_BAR_BASE_KEYS: dict[str, tuple[str, ...]] = {
+    "open": ("o", "open"),
+    "high": ("h", "high"),
+    "low": ("l", "low"),
+    "close": ("c", "close"),
+    "volume": ("v", "volume"),
+}
+
+
+def _mtf_bar_field(bar: Mapping[str, Any], keys: tuple[str, ...], label: str) -> Any:
+    for key in keys:
+        if key in bar:
+            return bar[key]
+    raise DSLRuntimeError(
+        f"mtf bar dict lacks a {label} key (accepted: {', '.join(keys)})",
+        code="RUN_MTF_BAD_BARS",
+    )
+
+
+def _mtf_close_stamps(bars: Sequence[Mapping[str, Any]]) -> list[int | None]:
+    """Close timestamp per higher-TF bar (see module docstring, rule 1..3)."""
+    stamps = [int(_mtf_bar_field(b, _MTF_BAR_TS_KEYS, "timestamp")) for b in bars]
+    out: list[int | None] = []
+    for j, bar in enumerate(bars):
+        explicit = bar.get("close_ts")
+        if explicit is not None:
+            out.append(int(explicit))
+        elif j + 1 < len(bars):
+            out.append(stamps[j + 1])  # provable close bound: next bar's open
+        else:
+            out.append(None)  # tail bar without close_ts: NOT yet closed
+    return out
+
+
+def _align_mtf_pair(
+    bars: Sequence[Mapping[str, Any]], base_ts: list[int], tf: str, base: str
+) -> list[float]:
+    """Align one ``<TF>.<base>`` pair onto the primary timestamps, no look-ahead.
+
+    At base timestamp ``t`` the value is the close value of the LATEST
+    higher-TF bar whose close timestamp is ``<= t``; ``0.0`` (warm-up) when no
+    such bar exists. Bars that are not yet closed are skipped, so a future
+    bar can never be read. Base values are validated EAGERLY for every
+    supplied bar (fail closed) even when no bar is readable yet.
+    """
+    close_stamps = _mtf_close_stamps(bars)
+    keys = _MTF_BAR_BASE_KEYS[base]
+    values: list[float] = []
+    for j, bar in enumerate(bars):
+        try:
+            raw = _mtf_bar_field(bar, keys, f"{base!r} value")
+        except DSLRuntimeError:
+            raise DSLRuntimeError(
+                f"missing MTF series {tf}.{base}: bar {j} carries none of the "
+                f"accepted keys ({', '.join(keys)})",
+                code="RUN_MISSING_MTF_SERIES",
+            ) from None
+        values.append(float(raw))
+    closed_ts: list[int] = []
+    closed_vals: list[float] = []
+    for j in range(len(bars)):
+        stamp = close_stamps[j]
+        if stamp is None:
+            continue
+        closed_ts.append(stamp)
+        closed_vals.append(values[j])
+    # AUDIT-MR2 O3 fix (fail closed): the bisect below assumes ascending close
+    # stamps; a non-monotonic explicit close_ts (or non-ascending bar order)
+    # would otherwise misalign SILENTLY. Refuse instead — never guess.
+    for j in range(1, len(closed_ts)):
+        if closed_ts[j] < closed_ts[j - 1]:
+            raise DSLRuntimeError(
+                f"MTF series {tf}.{base}: close timestamps are not ascending "
+                f"(index {j}: {closed_ts[j]} < {closed_ts[j - 1]}); "
+                "non-monotonic close_ts breaks deterministic no-look-ahead alignment",
+                code="RUN_MTF_NONMONOTONIC_CLOSE_TS",
+            )
+    out = [0.0] * len(base_ts)
+    for i, t in enumerate(base_ts):
+        idx = bisect_right(closed_ts, t) - 1
+        if idx >= 0:
+            out[i] = closed_vals[idx]
+    return out
+
+
+def _ctx_with_aligned_mtf(
+    program: Program,
+    ctx: SeriesContext,
+    mtf_context: Mapping[str, Sequence[Mapping[str, Any]]],
+) -> SeriesContext:
+    """Return a copy of ``ctx`` whose ``mtf`` carries the aligned bar-dict series."""
+    if not isinstance(mtf_context, Mapping):
+        raise DSLRuntimeError(
+            "mtf_context must map timeframe labels to sequences of bar dicts",
+            code="RUN_BAD_CONTEXT",
+        )
+    n = len(ctx.close)
+    if ctx.ts is None:
+        raise DSLRuntimeError(
+            "mtf_context requires SeriesContext.ts (per-bar epoch-second "
+            "timestamps of the primary series)",
+            code="RUN_MTF_MISSING_BASE_TS",
+        )
+    if len(ctx.ts) != n:
+        raise DSLRuntimeError(
+            f"ctx.ts has length {len(ctx.ts)}, primary length is {n}",
+            code="RUN_SERIES_LENGTH_MISMATCH",
+        )
+    base_ts = [int(t) for t in ctx.ts]
+    merged: dict[str, dict[str, list[float]]] = {
+        tf: dict(series) for tf, series in (ctx.mtf or {}).items()
+    }
+    wanted: list[tuple[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for ref in program.mtf_refs:
+        pair = (ref.tf, ref.base)
+        if pair not in seen:
+            seen.add(pair)
+            wanted.append(pair)
+    for tf, base in wanted:
+        bars = mtf_context.get(tf)
+        if bars is None:
+            # leave the pair unresolved: the regular prepare() path raises
+            # RUN_MISSING_MTF_SERIES fail-closed for it
+            continue
+        merged.setdefault(tf, {})[base] = _align_mtf_pair(list(bars), base_ts, tf, base)
+    return SeriesContext(
+        open=list(ctx.open),
+        high=list(ctx.high),
+        low=list(ctx.low),
+        close=list(ctx.close),
+        volume=list(ctx.volume),
+        mtf=merged,
+        symbols=dict(ctx.symbols) if ctx.symbols is not None else None,
+        ts=list(ctx.ts),
+    )
+
+
+# ---------------------------------------------------------------------------
 # preparation (pre-compute every series-valued node once)
 # ---------------------------------------------------------------------------
 
-def prepare(program: Program, ctx: SeriesContext) -> PreparedProgram:
-    """Pre-compute all series-valued nodes of ``program`` against ``ctx``."""
+def prepare(
+    program: Program,
+    ctx: SeriesContext,
+    *,
+    mtf_context: Mapping[str, Sequence[Mapping[str, Any]]] | None = None,
+) -> PreparedProgram:
+    """Pre-compute all series-valued nodes of ``program`` against ``ctx``.
+
+    With ``mtf_context`` (optional mapping timeframe label -> higher-TF bar
+    dicts), every declared ``<TF>.<base>`` reference is resolved through the
+    documented no-look-ahead timestamp alignment instead of a plain
+    equal-length list; see the module docstring for the exact rule.
+    """
     if not isinstance(ctx, SeriesContext):
         raise DSLRuntimeError(
             "ctx must be a SeriesContext", code="RUN_BAD_CONTEXT"
         )
+    if mtf_context is not None:
+        ctx = _ctx_with_aligned_mtf(program, ctx, mtf_context)
     n = len(ctx.close)
     for name in _BASE_NAMES:
         if len(getattr(ctx, name)) != n:
@@ -624,12 +822,28 @@ def evaluate_at(prepared: PreparedProgram, index: int) -> Decision:
     )
 
 
-def evaluate(program: Program, ctx: SeriesContext, index: int) -> Decision:
+def evaluate(
+    program: Program,
+    ctx: SeriesContext,
+    index: int,
+    *,
+    mtf_context: Mapping[str, Sequence[Mapping[str, Any]]] | None = None,
+) -> Decision:
     """One-shot evaluation: prepare against ``ctx`` then evaluate ``index``."""
-    return evaluate_at(prepare(program, ctx), index)
+    return evaluate_at(prepare(program, ctx, mtf_context=mtf_context), index)
 
 
-def run_over_series(program: Program, ctx: SeriesContext) -> list[Decision]:
-    """Deterministic per-bar decision list over the whole context."""
-    prepared = prepare(program, ctx)
+def run_over_series(
+    program: Program,
+    ctx: SeriesContext,
+    *,
+    mtf_context: Mapping[str, Sequence[Mapping[str, Any]]] | None = None,
+) -> list[Decision]:
+    """Deterministic per-bar decision list over the whole context.
+
+    ``mtf_context`` (optional) aligns declared higher-timeframe references
+    onto the primary series under the strict no-look-ahead rule documented in
+    the module docstring; it requires ``ctx.ts``.
+    """
+    prepared = prepare(program, ctx, mtf_context=mtf_context)
     return [evaluate_at(prepared, i) for i in range(prepared.n_bars)]

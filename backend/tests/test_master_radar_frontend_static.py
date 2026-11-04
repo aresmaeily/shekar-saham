@@ -37,7 +37,7 @@ def test_strategylab_tab_and_panel_exist_and_match():
     assert 'data-tab="strategylab"' in idx
     assert 'id="tab-strategylab"' in idx
     assert idx.count('id="tab-strategylab"') == 1
-    # no orphan: validator counts stay in sync (26/26 asserted in test_wda_analytics_static)
+    # no orphan: validator counts stay in sync (29/29 asserted in test_wda_analytics_static)
 
 
 def test_strategylab_module_http_boundary():
@@ -86,7 +86,10 @@ def test_heikin_ashi_formula_correct_shape():
 def test_sw_precache_includes_strategy_lab_and_bumped():
     sw = _read(SW_JS)
     assert "/static/js/modules/render/strategy_lab.js" in sw
-    assert "radar-bourse-static-v3-0-6" in sw
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-2 2026-11-04): v3-0-6 -> v3-0-7 —
+    # precache list extended with the three new render modules (see
+    # test_master_radar_wave2_frontend.py for the WAVE-2 gates).
+    assert "radar-bourse-static-v3-0-7" in sw
 
 
 def test_new_frontend_modules_pass_node_syntax_check():

@@ -290,7 +290,8 @@ function buildReplayUI() {
     b.onclick = () => {
       bar.querySelectorAll("#rpSpeeds button").forEach((x) => x.classList.remove("active"));
       b.classList.add("active");
-      if (replayCtrl) replayCtrl.setSpeed(parseInt(b.dataset.sp, 10) || 5);
+      // MASTER-RADAR WAVE-2 (2026-11-04): parseFloat تا ۰.۵× هم کار کند (parseInt «0.5» را 0 می‌خواند و به ۵ برمی‌گشت)
+      if (replayCtrl) replayCtrl.setSpeed(parseFloat(b.dataset.sp) || 5);
     };
   });
 

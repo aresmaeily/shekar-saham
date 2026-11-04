@@ -16,9 +16,12 @@ executable references — see ``indicator_manager.py``.
 
 Note on ``missing_data`` semantics: it declares the warm-up / missing-data
 contract of the *reference* output arrays (full-length, 0.0 or seed filled as
-documented per entry).  Entries without an independent reference (adx, cci,
-williams) declare the legacy engine behaviour instead (its dict outputs omit
-warm-up rows).
+documented per entry).  For ``builtin.adx``/``builtin.cci``/``builtin.williams``
+the arrays of the independent reference are full-length and 0.0-filled (see
+the reference docstrings); their ``warmup_bars``/``missing_data`` fields keep
+declaring the legacy engine behaviour (its dict outputs omit warm-up rows),
+and ``builtin.adx`` additionally documents the reference's own longer ADX
+warm-up (2*period-1) in its ``math_definition``.
 """
 
 from __future__ import annotations
@@ -370,7 +373,10 @@ BUILT_IN_CATALOG: tuple[IndicatorSpec, ...] = (
             "+DI/-DI = 100 * Wilder-smoothed(DM)/Wilder-smoothed(TR); "
             "DX = 100*|+DI - -DI|/(+DI + -DI) (0.0 when the sum is 0); "
             "ADX = Wilder-smoothed DX. Warm-up: `period` bars; the engine emits the first "
-            "ADX/+DI/-DI row at index `period` and omits earlier rows."
+            "ADX/+DI/-DI row at index `period` and omits earlier rows. The independent "
+            "reference arrays are full-length and 0.0-filled: +DI/-DI first valid at "
+            "index `period`, the ADX line (textbook Wilder seed = mean of the first "
+            "`period` DX values) first valid at index 2*period-1."
         ),
         inputs=[IndicatorParamSpec(name="period", type="int", default=14, minimum=2, maximum=100)],
         warmup_bars=14,
@@ -379,7 +385,7 @@ BUILT_IN_CATALOG: tuple[IndicatorSpec, ...] = (
         lookahead_declared=False,
         series_inputs=["high", "low", "close"],
         engine_ref="app.engines.indicators.adx",
-        reference_ref=None,
+        reference_ref="app.engines.indicator_reference.ref_adx",
         requires_volume=False,
         dual_implementation=False,
     ),
@@ -393,7 +399,8 @@ BUILT_IN_CATALOG: tuple[IndicatorSpec, ...] = (
         math_definition=(
             "TP = (h+l+c)/3; CCI = (TP[i] - SMA(TP, period)) / (0.015 * mean absolute "
             "deviation of TP over the same window); zero mean deviation maps to 0.0. "
-            "Warm-up: period-1 bars; the engine omits earlier rows."
+            "Warm-up: period-1 bars; the engine omits earlier rows. The independent "
+            "reference array is full-length with 0.0 before the warm-up index."
         ),
         inputs=[IndicatorParamSpec(name="period", type="int", default=20, minimum=2, maximum=200)],
         warmup_bars=19,
@@ -402,7 +409,7 @@ BUILT_IN_CATALOG: tuple[IndicatorSpec, ...] = (
         lookahead_declared=False,
         series_inputs=["high", "low", "close"],
         engine_ref="app.engines.indicators.cci",
-        reference_ref=None,
+        reference_ref="app.engines.indicator_reference.ref_cci",
         requires_volume=False,
         dual_implementation=False,
     ),
@@ -439,7 +446,8 @@ BUILT_IN_CATALOG: tuple[IndicatorSpec, ...] = (
         math_definition=(
             "%R = -100 * (highest_high(period) - close) / (highest_high - lowest_low) over "
             "the trailing `period` bars; a flat window maps to -50. "
-            "Warm-up: period-1 bars; the engine omits earlier rows."
+            "Warm-up: period-1 bars; the engine omits earlier rows. The independent "
+            "reference array is full-length with 0.0 before the warm-up index."
         ),
         inputs=[IndicatorParamSpec(name="period", type="int", default=14, minimum=1, maximum=200)],
         warmup_bars=13,
@@ -448,7 +456,7 @@ BUILT_IN_CATALOG: tuple[IndicatorSpec, ...] = (
         lookahead_declared=False,
         series_inputs=["high", "low", "close"],
         engine_ref="app.engines.indicators.williams",
-        reference_ref=None,
+        reference_ref="app.engines.indicator_reference.ref_williams_r",
         requires_volume=False,
         dual_implementation=False,
     ),

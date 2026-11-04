@@ -13,6 +13,12 @@ Indicator math is NEVER reimplemented here: engines.chart_builder /
 engines.indicators remain the single source of truth; this module only aligns
 their outputs onto the ohlcv time grid, padding the warm-up head with
 value=None (lightweight-charts skips nulls).
+
+MASTER-RADAR WAVE-2 (2026-11-04), additive only: the series responses
+(/chartpro/{symbol} and /chartpro/{symbol}/indicators) carry an additive
+``labeling`` echo object whose bar class is derived from the canonical
+market_service trust context (no hardcoded trust word anywhere; the notes
+state the deterministic seeded synthetic nature of the bars).
 """
 from __future__ import annotations
 
@@ -45,6 +51,36 @@ def _trust_envelope() -> Dict[str, Any]:
 def _clamp_limit(limit: int) -> int:
     """Clamp requested bars onto the generator's 50..1000 contract."""
     return max(50, min(1000, int(limit)))
+
+
+# MASTER-RADAR WAVE-2 (2026-11-04): additive ``labeling`` echo on the series
+# responses. The bar class is DERIVED from the canonical market_service trust
+# context, never asserted as a hardcoded trust word: the canonical context has
+# no live-verification boundary (``is_live`` can never be minted True there,
+# see app.core.config.build_data_trust_context), so seeded-generator series are
+# labeled SYNTHETIC; if a future context ever verified its source, the echo
+# would surface that state's verdict instead of a synthetic claim.
+def _labeling_echo() -> Dict[str, Any]:
+    ctx = market_service.data_trust_context()
+    if ctx.get("is_live") or ctx.get("live_verified"):
+        bar_class = str(ctx.get("state") or "UNKNOWN").upper()
+    else:
+        bar_class = "SYNTHETIC"
+    return {
+        "bar_class": bar_class,
+        "method": "NATIVE",
+        "trust_state": ctx.get("state"),
+        "note_en": (
+            "Deterministic seeded synthetic bars (NATIVE labeling): identical "
+            "arguments always reproduce identical bars; not real market data "
+            "and never a basis for real decisions."
+        ),
+        "note_fa": (
+            "کندل‌ها قطعی و seed-شدهٔ سینتتیک هستند (برچسب‌گذاری بومی bars)؛ "
+            "با آرگومان‌های یکسان همیشه خروجی یکسان تولید می‌شود و دادهٔ بازار "
+            "واقعی نیست و مبنای تصمیم واقعی قرار نمی‌گیرد."
+        ),
+    }
 
 
 def _load_ohlcv(symbol: str, timeframe: str, limit: int) -> List[Dict]:
@@ -125,6 +161,7 @@ async def chartpro_candles(
         "count": len(ohlcv),
         "ohlcv": ohlcv,
         "last_price": ohlcv[-1]["close"] if ohlcv else 0.0,
+        "labeling": _labeling_echo(),  # MASTER-RADAR WAVE-2: additive echo
         "note": "SYNTHETIC_OR_PAPER deterministic seeded series",
     }
 
@@ -146,5 +183,6 @@ async def chartpro_indicators(
         "ohlcv": ohlcv,
         "last_price": ohlcv[-1]["close"] if ohlcv else 0.0,
         "indicators": _build_indicators(ohlcv),
+        "labeling": _labeling_echo(),  # MASTER-RADAR WAVE-2: additive echo
         "note": "SYNTHETIC_OR_PAPER deterministic seeded series",
     }

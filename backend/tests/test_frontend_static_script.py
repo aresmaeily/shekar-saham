@@ -23,8 +23,11 @@ def test_frontend_static_validator_contract():
     # MASTER-RADAR (2026-11-04): the "strategylab" tab (Strategy Lab studio +
     # Indicator Manager) was added -> 26 tabs/panels. Same recorded counter-pin
     # bump discipline; structural invariants unchanged.
-    assert data["tabs"]["tabs_count"] == 26
-    assert data["tabs"]["panels_count"] == 26
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-2 2026-11-04): 26 -> 29 —
+    # three new product tabs (backtestcenter / forwardcenter / dataquality)
+    # were added WITH this wave; structural invariants unchanged.
+    assert data["tabs"]["tabs_count"] == 29
+    assert data["tabs"]["panels_count"] == 29
     assert data["tabs"]["missing_panels"] == []
     assert data["tabs"]["orphan_panels"] == []
     assert data["duplicate_ids"]["index"] == []

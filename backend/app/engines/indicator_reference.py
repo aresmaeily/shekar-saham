@@ -272,6 +272,154 @@ def ref_stochastic(
 
 
 # ---------------------------------------------------------------------------
+# Trend strength / directional movement (WAVE-2, MR2-A)
+# ---------------------------------------------------------------------------
+def ref_adx(bars: List[dict], period: int = 14) -> Dict[str, List[float]]:
+    """Wilder ADX with +DI/-DI (textbook Wilder seeding).
+
+    Formula (all smoothing is Wilder's ``avg = (prev*(period-1) + next)/period``):
+    for ``i >= 1`` with previous bar ``p``:
+    ``TR[i] = max(h[i]-l[i], |h[i]-c_p|, |l[i]-c_p|)``;
+    ``up = h[i]-h_p``, ``dn = l_p-l[i]``;
+    ``+DM[i] = up if (up > dn and up > 0) else 0``;
+    ``-DM[i] = dn if (dn > up and dn > 0) else 0``.
+    The smoothed TR/+DM/-DM series are seeded at bar index ``period`` with the
+    plain mean of their values over bars ``1..period`` (bar 0 contributes no
+    DM/TR).  ``+DI = 100 * smoothed(+DM)/smoothed(TR)`` (``0.0`` when the
+    smoothed TR is 0, i.e. perfectly flat bars); ``-DI`` mirrors; and
+    ``DX = 100 * |+DI - -DI| / (+DI + -DI)`` (``0.0`` when the sum is 0).
+    The ADX line is the textbook Wilder smoothing of DX: the FIRST ADX value
+    is the plain mean of ``DX[period..2*period-1]``, afterwards the Wilder
+    recursion.  (The legacy engine instead seeds ADX with the first DX value,
+    so the two ADX lines coincide only for ``period == 2`` and converge
+    geometrically afterwards — the engine keeps its own convention.)
+
+    Warm-up policy (exact indices): ``+DI``/``-DI`` are ``0.0`` for every
+    index ``i < period`` and first valid at index ``period`` (they consume the
+    ``period`` DM/TR values of bars ``1..period``).  ``adx`` is ``0.0`` for
+    every index ``i < 2*period - 1`` and first valid at index ``2*period - 1``
+    (it consumes the ``2*period - 1`` DM/TR values of bars ``1..2*period-1``).
+    Output arrays are full-length (``len(bars)``) and ``0.0``-filled before
+    those indices; consumers must ignore indices below the declared warm-up.
+    """
+    if period <= 0:
+        raise ValueError("ref_adx: period must be >= 1")
+    n = len(bars)
+    adx_out = [0.0] * n
+    plus_out = [0.0] * n
+    minus_out = [0.0] * n
+    if n <= period:
+        return {"adx": adx_out, "plus_di": plus_out, "minus_di": minus_out}
+    trs: List[float] = []
+    pdms: List[float] = []
+    mdms: List[float] = []
+    for i in range(1, n):
+        hi, lo = bars[i]["h"], bars[i]["l"]
+        pc, ph, pl = bars[i - 1]["c"], bars[i - 1]["h"], bars[i - 1]["l"]
+        trs.append(max(hi - lo, abs(hi - pc), abs(lo - pc)))
+        up, dn = hi - ph, pl - lo
+        pdms.append(up if (up > dn and up > 0) else 0.0)
+        mdms.append(dn if (dn > up and dn > 0) else 0.0)
+
+    def _di(dm: float, tr: float) -> float:
+        return 0.0 if tr == 0 else dm / tr * 100.0
+
+    def _dx(pdi: float, mdi: float) -> float:
+        s = pdi + mdi
+        return 0.0 if s == 0 else abs(pdi - mdi) / s * 100.0
+
+    atr_w = sum(trs[:period]) / period
+    pdi_w = sum(pdms[:period]) / period
+    mdi_w = sum(mdms[:period]) / period
+    plus_out[period] = _di(pdi_w, atr_w)
+    minus_out[period] = _di(mdi_w, atr_w)
+    dx_values: Dict[int, float] = {period: _dx(plus_out[period], minus_out[period])}
+    for i in range(period, len(trs)):  # trs[i] belongs to bar i+1
+        atr_w = (atr_w * (period - 1) + trs[i]) / period
+        pdi_w = (pdi_w * (period - 1) + pdms[i]) / period
+        mdi_w = (mdi_w * (period - 1) + mdms[i]) / period
+        bar_index = i + 1
+        plus_out[bar_index] = _di(pdi_w, atr_w)
+        minus_out[bar_index] = _di(mdi_w, atr_w)
+        dx_values[bar_index] = _dx(plus_out[bar_index], minus_out[bar_index])
+
+    first_adx = 2 * period - 1
+    if first_adx < n:
+        adx_prev = sum(dx_values[k] for k in range(period, first_adx + 1)) / period
+        adx_out[first_adx] = adx_prev
+        for i in range(first_adx + 1, n):
+            adx_prev = (adx_prev * (period - 1) + dx_values[i]) / period
+            adx_out[i] = adx_prev
+    return {"adx": adx_out, "plus_di": plus_out, "minus_di": minus_out}
+
+
+# ---------------------------------------------------------------------------
+# Oscillators on full bars
+# ---------------------------------------------------------------------------
+def ref_cci(bars: List[dict], period: int = 20) -> List[float]:
+    """Commodity Channel Index over typical price.
+
+    Formula: ``TP[i] = (h[i] + l[i] + c[i]) / 3``; over each window
+    ``W = TP[i-period+1 .. i]`` with mean ``m`` and mean absolute deviation
+    ``md = mean(|x - m|)``: ``CCI[i] = (TP[i] - m) / (0.015 * md)``; a zero
+    mean deviation (flat window) maps to ``0.0`` (matching the legacy engine
+    and the catalog declaration).
+
+    Warm-up policy: ``0.0`` for every index ``i < period - 1`` (leading zeros,
+    exactly like :func:`ref_bollinger`); the first valid value sits at index
+    ``period - 1`` (``warmup_bars == period - 1``).  Requires ``period >= 1``.
+    """
+    if period <= 0:
+        raise ValueError("ref_cci: period must be >= 1")
+    n = len(bars)
+    out = [0.0] * n
+    for i in range(period - 1, n):
+        tps = [(b["h"] + b["l"] + b["c"]) / 3 for b in bars[i - period + 1 : i + 1]]
+        mean = sum(tps) / period
+        md = sum(abs(x - mean) for x in tps) / period
+        if md == 0:
+            out[i] = 0.0
+        else:
+            out[i] = (tps[-1] - mean) / (0.015 * md)
+    return out
+
+
+def ref_williams_r(bars: List[dict], period: int = 14) -> List[float]:
+    """Williams %R on the 0..-100 scale.
+
+    Formula: over each window ``W = bars[i-period+1 .. i]`` with ``HH`` the
+    highest high and ``LL`` the lowest low:
+    ``%R[i] = (HH - c[i]) / (HH - LL) * -100``; a flat window (``HH == LL``)
+    maps to ``-50.0`` (matching the legacy engine and the catalog
+    declaration).  Result range is ``0.0`` (close at the high) to ``-100.0``
+    (close at the low).
+
+    Warm-up policy: ``0.0`` for every index ``i < period - 1`` (leading zeros,
+    same convention as the other full-length references); the first valid
+    value sits at index ``period - 1`` (``warmup_bars == period - 1``).
+    NOTE the warm-up fill collides with the valid range's ``0.0`` (close at
+    the window high), so consumers MUST skip indices below ``period - 1``.
+    """
+    if period <= 0:
+        raise ValueError("ref_williams_r: period must be >= 1")
+    n = len(bars)
+    out = [0.0] * n
+    for i in range(period - 1, n):
+        window = bars[i - period + 1 : i + 1]
+        hh = max(b["h"] for b in window)
+        ll = min(b["l"] for b in window)
+        rng = hh - ll
+        if rng == 0:
+            out[i] = -50.0
+        else:
+            # (c - hh) * 100 / rng is algebraically identical to
+            # (hh - c) / rng * -100 but yields +0.0 (not -0.0) when the
+            # close sits exactly on the window high.
+            out[i] = (bars[i]["c"] - hh) * 100.0 / rng
+    return out
+
+
+# ---------------------------------------------------------------------------
 # Volume
 # ---------------------------------------------------------------------------
 def ref_obv(bars: List[dict]) -> List[float]:

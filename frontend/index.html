@@ -92,6 +92,9 @@
     <button class="tab" data-tab="forex">💱 فارکس</button>
     <button class="tab" data-tab="chartpro">📈 چارت حرفه‌ای</button>
     <button class="tab" data-tab="strategylab">🧪 آزمایشگاه استراتژی</button>
+    <button class="tab" data-tab="backtestcenter">🧪 مرکز بک‌تست</button>
+    <button class="tab" data-tab="forwardcenter">⏩ مرکز فوروارد تست</button>
+    <button class="tab" data-tab="dataquality">🔬 مرکز کیفیت داده</button>
     <button class="tab" data-tab="excellent">✨ عالی</button>
     <button class="tab" data-tab="guide">📖 راهنما</button>
   </nav>
@@ -853,6 +856,7 @@
       <div id="replayBar" class="replay-bar hidden" style="margin-top:.6rem">
         <button class="btn tiny primary" id="rpPlay" title="پخش / توقف">⏸</button>
         <div class="seg" id="rpSpeeds">
+          <button data-sp="0.5" title="نیم‌سرعت — مشاهده دقیق‌تر کندل‌به‌کندل">۰.۵×</button>
           <button data-sp="1">1×</button>
           <button class="active" data-sp="5">5×</button>
           <button data-sp="10">10×</button>
@@ -1024,6 +1028,232 @@
           </div>
         </div>
       </div>
+    </section>
+    <section class="panel" id="tab-backtestcenter">
+      <div class="panel-head">
+        <div>
+          <h2>🧪 مرکز بک‌تست — موتور محصول + خروجی + بهینه‌ساز</h2>
+          <p class="muted">اجرای بک‌تست کامل (متریکس، منحنی سرمایه، معاملات، رژیم‌های بازار)، خروجی CSV/JSON و بهینه‌ساز (grid/randomized/evolutionary) روی داده سینتتیک seed شده — همه محاسبات روی داده سینتتیک است؛ زنده نیست و مبنای تصمیم واقعی قرار نگیرد — انتخاب برنده فقط با هدف درون‌نمونه‌ای (IS) و تأیید OOS فقط پس از ثابت‌شدن برنده</p>
+        </div>
+        <div class="filters">
+          <span class="cp-badge" id="bcTrustBadge">اعتماد: —</span>
+        </div>
+      </div>
+
+      <div class="cp-toolbar">
+        <div class="cp-row">
+          <button class="btn tiny" id="bcRun">اجرای بک‌تست</button>
+          <span class="cp-vsep"></span>
+          <span class="muted">نماد:</span>
+          <input class="text-input" id="bcSymbol" value="FOLAD" style="max-width:120px" />
+          <select class="text-input" id="bcTimeframe" style="max-width:90px">
+            <option value="1D" selected>1D</option>
+            <option value="1h">1h</option>
+            <option value="15m">15m</option>
+          </select>
+          <span class="muted">تعداد:</span>
+          <input class="text-input" id="bcCount" type="number" value="200" min="50" max="1000" style="max-width:90px" />
+          <span class="cp-vsep"></span>
+          <button class="btn tiny" id="bcExportCsv">خروجی CSV</button>
+          <button class="btn tiny" id="bcExportJson">خروجی JSON</button>
+        </div>
+        <div class="cp-row" style="margin-top:8px">
+          <label class="muted" for="bcDslSource" style="flex:0 0 100%">منبع استراتژی (DSL نسخه RSL-1 — توسط کاربر نوشته می‌شود؛ مسیر پیشنهاد AI عمداً قطع است)</label>
+          <textarea id="bcDslSource" class="text-input" rows="6" style="width:100%;direction:ltr;font-family:monospace" spellcheck="false" placeholder="ENTRY close > sma(close, 5) …"></textarea>
+        </div>
+      </div>
+
+      <div class="cp-layout">
+        <div style="flex:1 1 340px">
+          <h3>متریکس گزارش</h3>
+          <table class="data-table" id="bcMetricsTable">
+            <thead><tr><th>سنجه</th><th>مقدار</th></tr></thead>
+            <tbody id="bcMetricsBody"><tr><td colspan="2" class="muted">هنوز بک‌تستی اجرا نشده — همه اعداد پس از اجرا از پاسخ سرور پر می‌شوند</td></tr></tbody>
+          </table>
+        </div>
+        <div style="flex:1 1 420px">
+          <h3>منحنی سرمایه (نمودار اولیه)</h3>
+          <canvas id="bcEquityCanvas" width="640" height="200" class="muted" style="max-width:100%;border:1px dashed #8888"></canvas>
+          <p class="muted" style="font-size:11px">نمودار اولیه (placeholder) — ترسیم ساده خطی از سری سرمایهِ پاسخ سرور؛ هیچ داده‌ای اینجا تولید یا برآورد نمی‌شود</p>
+        </div>
+      </div>
+
+      <div class="cp-layout">
+        <div style="flex:1 1 420px">
+          <h3>معاملات</h3>
+          <table class="data-table" id="bcTradesTable">
+            <thead><tr><th>نماد</th><th>جهت</th><th>ورود</th><th>خروج</th><th>سود/زیان خالص</th></tr></thead>
+            <tbody id="bcTradesBody"><tr><td colspan="5" class="muted">فهرست معاملات پس از اجرا از پاسخ سرور پر می‌شود</td></tr></tbody>
+          </table>
+        </div>
+        <div style="flex:1 1 340px">
+          <h3>رژیم‌های بازار</h3>
+          <table class="data-table" id="bcRegimeTable">
+            <thead><tr><th>رژیم</th><th>معاملات</th><th>نرخ برد</th><th>بازده کل</th></tr></thead>
+            <tbody id="bcRegimeBody"><tr><td colspan="4" class="muted">بخش‌بندی رژیم پس از اجرا از پاسخ سرور پر می‌شود</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <pre id="bcOut" class="muted" style="white-space:pre-wrap;font-size:12px;max-height:240px;overflow:auto">نتیجه اینجا نمایش داده می‌شود…</pre>
+
+      <div class="panel-head" style="margin-top:1.5rem">
+        <div>
+          <h3>بهینه‌ساز — انتخاب درون‌نمونه‌ای (IS) و تأیید OOS</h3>
+          <p class="muted">روش grid/randomized/evolutionary — بذر (seed) الزامی است (تکرارپذیری §D4)؛ رتبه‌بندی فقط با مقدار هدف درون‌نمونه‌ای انجام می‌شود و داده برون‌نمونه (OOS) فقط یک‌بار پس از ثابت‌شدن برنده برای تأیید ارزیابی می‌شود — هیچ عددی اینجا جعل نمی‌شود</p>
+        </div>
+      </div>
+      <div class="cp-toolbar">
+        <div class="cp-row">
+          <span class="muted">روش:</span>
+          <select class="text-input" id="bcOptMethod" style="max-width:150px">
+            <option value="grid" selected>grid</option>
+            <option value="randomized">randomized</option>
+            <option value="evolutionary">evolutionary</option>
+          </select>
+          <span class="muted">حد ارزیابی‌ها:</span>
+          <input class="text-input" id="bcOptMaxEvals" type="number" value="50" min="1" max="500" style="max-width:90px" />
+          <span class="muted">بذر (الزامی):</span>
+          <input class="text-input" id="bcOptSeed" type="number" placeholder="مثلاً 1400" style="max-width:110px" required />
+          <label class="muted" style="display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="bcOptOos" /> تأیید OOS پس از انتخاب</label>
+          <button class="btn tiny" id="bcOptRun">اجرای بهینه‌سازی</button>
+        </div>
+        <div class="cp-row" style="margin-top:6px">
+          <span class="muted">فضای جست‌وجو (JSON — grid یا bounds):</span>
+          <textarea id="bcOptSpace" class="text-input" rows="2" style="width:100%;direction:ltr;font-family:monospace" spellcheck="false" placeholder='{"grid": {"period": [10, 20, 50]}}'></textarea>
+        </div>
+      </div>
+      <div id="bcOptWinner" class="muted" style="font-size:12px">برنده درون‌نمونه‌ای (IS) و تأیید OOS اینجا نمایش داده می‌شود…</div>
+      <table class="data-table" id="bcOptResultsTable">
+        <thead><tr><th>#</th><th>پارامترها</th><th>هدف IS</th><th>وضعیت</th></tr></thead>
+        <tbody id="bcOptResultsBody"><tr><td colspan="4" class="muted">نتایج بهینه‌سازی پس از اجرا از پاسخ سرور پر می‌شود</td></tr></tbody>
+      </table>
+    </section>
+    <section class="panel" id="tab-forwardcenter">
+      <div class="panel-head">
+        <div>
+          <h2>⏩ مرکز فوروارد تست — بازپخش کاغذی</h2>
+          <p class="muted">اجرای بازپخش فوروارد روی داده سینتتیک seed شده + دفتر رخدادها (ledger) و مقایسه انتظار/واقعیت و مقایسه با بک‌تست — فقط آزمون کاغذی (PAPER) — نه معامله زنده؛ هیچ سفارش واقعی یا مسیر بروکری وجود ندارد و مشاهده فوروارد زنده عمداً قطع مانده است (R-6)</p>
+        </div>
+        <div class="filters">
+          <span class="cp-badge" id="fcTrustBadge">اعتماد: —</span>
+        </div>
+      </div>
+
+      <div class="cp-toolbar">
+        <div class="cp-row">
+          <button class="btn tiny" id="fcRun">اجرای بازپخش کاغذی</button>
+          <span class="cp-vsep"></span>
+          <span class="muted">نماد:</span>
+          <input class="text-input" id="fcSymbol" value="FOLAD" style="max-width:120px" />
+          <select class="text-input" id="fcTimeframe" style="max-width:90px">
+            <option value="1D" selected>1D</option>
+            <option value="1h">1h</option>
+            <option value="15m">15m</option>
+          </select>
+          <span class="muted">تعداد:</span>
+          <input class="text-input" id="fcCount" type="number" value="200" min="50" max="1000" style="max-width:90px" />
+          <span class="muted">نام استراتژی:</span>
+          <input class="text-input" id="fcName" placeholder="dsl.strategy" style="max-width:160px" />
+        </div>
+        <div class="cp-row" style="margin-top:8px">
+          <label class="muted" for="fcDslSource" style="flex:0 0 100%">منبع استراتژی (DSL نسخه RSL-1 — همان منبع آزمایشگاه استراتژی؛ توسط کاربر نوشته می‌شود)</label>
+          <textarea id="fcDslSource" class="text-input" rows="6" style="width:100%;direction:ltr;font-family:monospace" spellcheck="false" placeholder="ENTRY close > sma(close, 5) …"></textarea>
+        </div>
+      </div>
+
+      <div class="warn-box guide-grid" style="margin-top:8px">
+        <article>
+          <h3>⚠ صادق‌نگه‌داشتن دامنه</h3>
+          <p class="muted">این مرکز فقط «بازپخش کاغذی» روی کندل‌های سینتتیک تاریخچه است — نه معامله زنده، نه اتصال بروکر، نه زمان‌بند. یادداشت رسمی سرور (not_live_note) بدون تغییر زیر نمایش داده می‌شود.</p>
+        </article>
+      </div>
+      <p class="muted" id="fcNotLiveNote" style="font-size:12px">—</p>
+
+      <div class="cp-layout">
+        <div style="flex:1 1 340px">
+          <h3>خلاصه اجرا</h3>
+          <table class="data-table" id="fcSummaryTable">
+            <thead><tr><th>سنجه</th><th>مقدار</th></tr></thead>
+            <tbody id="fcSummaryBody"><tr><td colspan="2" class="muted">هنوز بازپخشی اجرا نشده</td></tr></tbody>
+          </table>
+        </div>
+        <div style="flex:1 1 340px">
+          <h3>انتظار در برابر واقعیت (دلتاها)</h3>
+          <table class="data-table" id="fcDeltasTable">
+            <thead><tr><th>سنجه</th><th>مقدار</th></tr></thead>
+            <tbody id="fcDeltasBody"><tr><td colspan="2" class="muted">دلتاهای قیمت (میانگین/بیشینه قدرمطلق و تعداد مشاهده) پس از اجرا از پاسخ سرور پر می‌شوند</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <h3>دفتر رخدادها (ledger)</h3>
+      <table class="data-table" id="fcLedgerTable">
+        <thead><tr><th>کندل/زمان</th><th>رویداد</th><th>نماد</th><th>قیمت</th><th>تعداد</th><th>توضیح</th></tr></thead>
+        <tbody id="fcLedgerBody"><tr><td colspan="6" class="muted">رخدادهای دفتر پس از اجرا از پاسخ سرور پر می‌شوند</td></tr></tbody>
+      </table>
+
+      <h3>مقایسه با بک‌تست</h3>
+      <div id="fcCompareMount" class="muted" style="font-size:12px">جدول مقایسه با بک‌تست پس از اجرا از پاسخ سرور پر می‌شود…</div>
+
+      <pre id="fcOut" class="muted" style="white-space:pre-wrap;font-size:12px;max-height:240px;overflow:auto">نتیجه اینجا نمایش داده می‌شود…</pre>
+    </section>
+    <section class="panel" id="tab-dataquality">
+      <div class="panel-head">
+        <div>
+          <h2>🔬 مرکز کیفیت داده — پوشش و ممیزی نمادها</h2>
+          <p class="muted">گزارش پوشش و ممیزی هر نماد بر اساس موتور کیفیت داده جهان-نماد — همه داده‌های این مرکز از کلاس SYNTHETIC است (فیکسچر seed شده) — هیچ داده واقعی یا تأییدشده‌ای اینجا نمایش داده نمی‌شود و برچسب کلاس اعتماد فقط از پاسخ سرور خوانده می‌شود</p>
+        </div>
+        <div class="filters">
+          <span class="cp-badge" id="dqTrustBadge">اعتماد: —</span>
+        </div>
+      </div>
+
+      <div class="cp-toolbar">
+        <div class="cp-row">
+          <span class="muted">بازار:</span>
+          <select class="text-input" id="dqMarket" style="max-width:220px">
+            <option value="">در حال بارگذاری بازارها از سرور…</option>
+          </select>
+          <button class="btn tiny" id="dqRefresh">به‌روزرسانی گزارش‌ها</button>
+        </div>
+      </div>
+
+      <div class="warn-box guide-grid" style="margin-top:8px">
+        <article>
+          <h3>⚠ یادداشت صداقت داده</h3>
+          <p class="muted">در وضعیت فعلی مخزن، همه ردیف‌های این مرکز عملاً از کلاس SYNTHETIC هستند (فیکسچر seed شده)؛ ورود داده واقعی نیازمند تصمیم صریح مالک (R-3/R-7) است و عمداً بسته مانده — کلاس هر ردیف فقط از برچسب سرور خوانده می‌شود و اینجا ارتقا داده نمی‌شود.</p>
+        </article>
+      </div>
+
+      <h3>گزارش پوشش (خلاصه بازار — از CoverageReport سرور)</h3>
+      <table class="data-table" id="dqCoverageTable">
+        <thead><tr><th>بازار</th><th>تعداد نماد</th><th>تاریخچه معتبر</th><th>اولین</th><th>آخرین</th><th>تکراری</th><th>نامعتبر</th><th>کهنه</th><th>تعارض ارائه‌دهنده</th><th>اقدام شرکتی</th><th>PIT</th><th>کلاس</th></tr></thead>
+        <tbody id="dqCoverageBody"><tr><td colspan="12" class="muted">گزارش پوشش پس از باز کردن تب از سرور بارگذاری می‌شود</td></tr></tbody>
+      </table>
+
+      <h3>ممیزی نمادها (ردیف‌های ممیزی مکانیکی هر نماد)</h3>
+      <table class="data-table" id="dqAuditTable">
+        <thead><tr><th>نماد</th><th>کندل‌ها</th><th>اولین</th><th>آخرین</th><th>تکراری</th><th>نامرتب</th><th>نامعتبر</th><th>کهنه</th><th>شکاف‌ها</th><th>کلاس اعتماد</th><th>جزئیات</th></tr></thead>
+        <tbody id="dqAuditBody"><tr><td colspan="11" class="muted">ممیزی نمادها پس از باز کردن تب از سرور بارگذاری می‌شود</td></tr></tbody>
+      </table>
+
+      <h3>راهنمای کلاس‌های اعتماد (legend)</h3>
+      <table class="data-table" id="dqLegendTable">
+        <thead><tr><th>کلاس</th><th>معنا</th></tr></thead>
+        <tbody>
+          <tr><td style="direction:ltr">REAL_VERIFIED</td><td class="muted">داده واقعیِ تأییدشده — در این مخزن فعلاً وجود ندارد</td></tr>
+          <tr><td style="direction:ltr">REAL_UNVERIFIED</td><td class="muted">داده واقعیِ تأییدنشده</td></tr>
+          <tr><td style="direction:ltr">DELAYED</td><td class="muted">واقعی اما با تأخیر</td></tr>
+          <tr><td style="direction:ltr">SYNTHETIC</td><td class="muted">شبیه‌سازی‌شده / فیکسچر seed شده — کلاس تمام داده‌های فعلی این مرکز</td></tr>
+          <tr><td style="direction:ltr">PAPER</td><td class="muted">کاغذی (نتایج شبیه‌سازی اجرا، نه داده بازار)</td></tr>
+          <tr><td style="direction:ltr">STALE</td><td class="muted">واقعی اما کهنه/قدیمی</td></tr>
+          <tr><td style="direction:ltr">MISSING</td><td class="muted">ناموجود — داده‌ای گزارش نشده</td></tr>
+        </tbody>
+      </table>
+      <p class="muted" style="font-size:12px">کلاس REAL_VERIFIED فقط با شواهد صلاحیت منبع و تأیید مالک قابل ثبت است؛ هیچ‌یک از مسیرهای این داشبورد خودشان کلاس داده را «ارتقا» نمی‌دهند.</p>
+
+      <pre id="dqOut" class="muted" style="white-space:pre-wrap;font-size:12px;max-height:240px;overflow:auto">نتیجه اینجا نمایش داده می‌شود…</pre>
     </section>
     <section class="panel" id="tab-excellent">
       <div class="panel-head">

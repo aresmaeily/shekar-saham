@@ -18,6 +18,9 @@ import "./modules/auth.js";
 import "./modules/forex.js";
 import "./modules/render/chart_pro.js"; // WS-10 CH-3: چارت حرفه‌ای — بایند-on-demand مثل forex
 import "./modules/render/strategy_lab.js"; // MASTER-RADAR (2026-11-04): آزمایشگاه استراتژی + مدیر اندیکاتور — بایند-on-demand
+import "./modules/render/backtest_center.js"; // MASTER-RADAR WAVE-2 (2026-11-04): مرکز بک‌تست — بایند-on-demand
+import "./modules/render/forward_center.js"; // MASTER-RADAR WAVE-2 (2026-11-04): مرکز فوروارد تست — بایند-on-demand
+import "./modules/render/data_quality_center.js"; // MASTER-RADAR WAVE-2 (2026-11-04): مرکز کیفیت داده — بایند-on-demand
 import "./modules/render/watchlist_excellent.js";
 import { renderAnalyticsFlow } from "./modules/render/analytics_flow.js"; // WDA-3 (2026-11-02): پنل افزودنی جمع‌بندی جریان در تب تحرکات بزرگان
 

@@ -82,5 +82,12 @@ export async function api(path, opts = {}) {
     toast(String(msg).slice(0, 120), "error");
     throw new Error(msg);
   }
+  // MASTER-RADAR WAVE-2 (2026-11-04): پاسخ غیر-JSON (مثل پیوست text/csv خروجی
+  // بک‌تست) به‌صورت متن خام برگردانده می‌شود — پاسخ JSON مثل قبل parse می‌شود؛
+  // رفتار همه مسیرهای JSON دست‌نخورده است.
+  const contentType = res.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    return res.text();
+  }
   return res.json();
 }

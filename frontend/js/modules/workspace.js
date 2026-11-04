@@ -36,8 +36,11 @@ const WORKSPACE_TIMEFRAMES = ["1m", "5m", "15m", "1h", "1D"];
 const WORKSPACE_INDICATORS = ["ma20", "ma50", "ema20", "bb", "rsi", "macd"];
 /* کلیدهای ابزار رسم = data-draw های سگمنت cpDrawSeg */
 const WORKSPACE_DRAW_TOOLS = ["trend", "hline", "fib", "delete"];
-/* انواع رسم قابل ماندگاری (ابزار «حذف» وضعیت گذرا است و ذخیره نمی‌شود) */
-const WORKSPACE_DRAWING_TYPES = ["trend", "hline", "fib"];
+/* انواع رسم قابل ماندگاری (ابزار «حذف» وضعیت گذرا است و ذخیره نمی‌شود)
+ * MASTER-RADAR WAVE-2 (2026-11-04): «measure-move» (اندازه‌گیری حرکت — سه‌کلیکی
+ * در chart_pro.js) به انواع قابل ماندگاری افزوده شد — افزودنی؛ انواع موجود
+ * دست‌نخورده‌اند. */
+const WORKSPACE_DRAWING_TYPES = ["trend", "hline", "fib", "measure-move"];
 
 const WORKSPACE_MAX_SYMBOL_LEN = 64;
 const WORKSPACE_MAX_DRAWINGS = 500;

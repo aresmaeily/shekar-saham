@@ -52,8 +52,11 @@ def test_service_worker_cache_name_bumped_to_drop_old_api_entries():
     # WS-HARDEN-1/W3: cache list changed (legacy-loader entry dropped) -> bump to v3-0-3
     # WS-10 (2026-11-02): precache list extended with chart_pro.css/js -> bump to v3-0-5
     # MASTER-RADAR (2026-11-04): precache extended with strategy_lab.js -> bump to v3-0-6 (recorded counter-pin bump)
-    assert "radar-bourse-static-v3-0-6" in sw
-    assert "radar-bourse-static-v3-0-5" not in sw
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-2 2026-11-04): v3-0-6 -> v3-0-7 —
+    # precache list extended with the three new render modules
+    # (backtest_center.js / forward_center.js / data_quality_center.js)
+    assert "radar-bourse-static-v3-0-7" in sw
+    assert "radar-bourse-static-v3-0-6" not in sw
 
 
 def test_production_disables_openapi_docs(monkeypatch):

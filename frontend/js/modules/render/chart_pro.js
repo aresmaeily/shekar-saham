@@ -6,7 +6,11 @@
  *   (پنل اسیلاتور جداگانه — نمونه کوچک LightweightCharts داخل کانتینر خود این ماژول؛
  *   API ماژول indicator_pane.js با شکل داده v10 هم‌خوانی نداشت: کلیدهای macd.hist/rsi14/
  *   bollinger.mid در قرارداد v10 با macd.histogram/rsi/bollinger.basis آن فرق دارد)
- * - ابزار رسم روی canvas اورلی: خط روند، خط افقی، فیبوناچی + حذف/پاک‌سازی
+ * - ابزار رسم روی canvas اورلی: خط روند، خط افقی، فیبوناچی، اندازه‌گیری حرکت
+ *   (سه‌کلیکی: لنگر → پایان حرکت → هدف فرضی) + حذف/پاک‌سازی
+ * - چیپ «کلاس بار / روش» از فیلد افزودنی labeling پاسخ chartpro candles —
+ *   مصرف تدافعی: فیلد نبود → هیچ چیزی رندر نمی‌شود؛ متن چیپ فقط عین همان
+ *   که سرور گفته است و هیچ برچسب اعتمادی اینجا ساخته نمی‌شود
  * - هشدار قیمی محلی (createPriceLine) — فقط درون‌محصولی (R-9: بدون هیچ کانال خارجی)
  * - ذخیره/بارگذاری/خروجی JSON تحلیل‌ها (localStorage)
  * - داده فقط از core/api.js — هیچ fetch دستی (قرارداد اجباری)
@@ -22,8 +26,12 @@ const DRAW_COLORS = {
   trend: "#2962FF",
   hline: "#FF9800",
   fib: "#9C27B0",
+  measure: "#00BCD4", // MR2-D: اندازه‌گیری حرکت
   alert: "#E91E63",
 };
+
+/* MR2-D: عنوان صادقانه ابزار اندازه‌گیری حرکت — تعامل سه‌کلیکی از ابتدا اعلام می‌شود */
+const MEASURE_MOVE_TITLE = "اندازه‌گیری حرکت — سه کلیک: شروع، پایان، هدف فرضی";
 
 const FIB_LEVELS = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
 const OSC_COLORS = {
@@ -111,6 +119,7 @@ export class ChartProChart {
     this._activated = false;
     this._alertSymbol = null;
     this._oscKey = "";
+    this._escBound = false; // MR2-D: شنونده Escape فقط یک‌بار بایند می‌شود
   }
 
   /* ============================ چارت اصلی ============================ */
@@ -332,6 +341,20 @@ export class ChartProChart {
     }
 
     /* ابزار رسم */
+    /* MR2-D: تزریق دکمه «اندازه‌گیری حرکت» در همان سگمنت رسم — ماژول DOM خودش را
+       می‌سازد (بدون هیچ تغییری در index.html) و دقیقاً از الگوی دکمه‌های موجود
+       پیروی می‌کند؛ بایند کلیک همان querySelectorAll پایین انجام می‌شود */
+    const drawSegHost = $("cpDrawSeg");
+    if (drawSegHost && !drawSegHost.querySelector('button[data-draw="measure-move"]')) {
+      const mBtn = document.createElement("button");
+      mBtn.type = "button";
+      mBtn.setAttribute("data-draw", "measure-move");
+      mBtn.title = MEASURE_MOVE_TITLE;
+      mBtn.textContent = "اندازه‌گیری حرکت";
+      const delBtn = drawSegHost.querySelector('button[data-draw="delete"]');
+      if (delBtn) drawSegHost.insertBefore(mBtn, delBtn);
+      else drawSegHost.appendChild(mBtn);
+    }
     const drawSeg = $("cpDrawSeg");
     if (drawSeg) {
       drawSeg.querySelectorAll("button[data-draw]").forEach((btn) => {
@@ -343,14 +366,24 @@ export class ChartProChart {
           this.drawState.points = [];
           if (this.drawState.tool) btn.classList.add("active");
           this.canvas?.classList.toggle("armed", !!this.drawState.tool);
-          this._setStatus(this.drawState.tool
-            ? { trend: "خط روند: دو نقطه روی چارت کلیک کنید",
-                hline: "خط افقی: یک نقطه (قیمت) کلیک کنید",
-                fib: "فیبوناچی: دو نقطه (کف و سقف) کلیک کنید",
-                delete: "حذف: روی خط موردنظر کلیک کنید" }[this.drawState.tool] || ""
-            : "");
+          this._setStatus(this._drawHint(this.drawState.tool));
           this.redraw();
         });
+      });
+    }
+
+    /* MR2-D: لغو رسم موقت با Escape — همان مسیر پاک‌سازی انتخاب دوباره ابزار
+       (نقاط موقت پاک و بازرسم می‌شوند؛ ابزار فعال می‌ماند تا دوباره شروع شود) */
+    if (!this._escBound) {
+      this._escBound = true;
+      document.addEventListener("keydown", (e) => {
+        if (e.key !== "Escape") return;
+        const panel = document.getElementById(this.panelId);
+        if (!panel || !panel.classList.contains("active")) return;
+        if (!this.drawState.tool || !this.drawState.points.length) return;
+        this.drawState.points = [];
+        this._setStatus(this._drawHint(this.drawState.tool));
+        this.redraw();
       });
     }
     $("cpClearDraw")?.addEventListener("click", () => {
@@ -368,6 +401,18 @@ export class ChartProChart {
     $("cpSaveLayout")?.addEventListener("click", () => this.saveLayout());
     $("cpLoadLayout")?.addEventListener("click", () => this.loadLayout());
     $("cpExportLayouts")?.addEventListener("click", () => this.exportLayouts());
+  }
+
+  /** راهنمای وضعیت هر ابزار رسم — یک منبع مشترک برای بایند و مسیر لغو Escape */
+  _drawHint(tool) {
+    if (!tool) return "";
+    return {
+      trend: "خط روند: دو نقطه روی چارت کلیک کنید",
+      hline: "خط افقی: یک نقطه (قیمت) کلیک کنید",
+      fib: "فیبوناچی: دو نقطه (کف و سقف) کلیک کنید",
+      "measure-move": "اندازه‌گیری حرکت: سه کلیک — شروع، پایان، هدف فرضی",
+      delete: "حذف: روی خط موردنظر کلیک کنید",
+    }[tool] || "";
   }
 
   /* ============================ داده ============================ */
@@ -440,6 +485,9 @@ export class ChartProChart {
         "?timeframe=" + encodeURIComponent(this.timeframe) + "&limit=" + this.limit
       );
       this.currentData = Array.isArray(res?.ohlcv) ? res.ohlcv : [];
+      /* MR2-D: فیلد افزودنی labeling سرور — مصرف تدافعی؛
+         نبود فیلد = بدون چیپ (هیچ متن جایگزین/ساختگی رندر نمی‌شود) */
+      this._renderLabelingChip(res?.labeling ?? null);
       if (!this.currentData.length) {
         this._setStatus("برای این نماد/تایم‌فریم کندلی برگردانده نشد");
         return;
@@ -642,6 +690,40 @@ export class ChartProChart {
     }
   }
 
+  /* ============================ MR2-D: چیپ کلاس بار (افزودنی سرور) ============================
+   * فیلد افزودنی labeling در پاسخ chartpro candles: {bar_class, method, note_en, note_fa}
+   * مصرف کاملاً تدافعی: شیء نبود یا بدون bar_class/method → چیپ حذف/رندر نمی‌شود.
+   * متن چیپ فقط عین مقدار سرور است؛ اینجا هیچ برچسب اعتمادی ساخته نمی‌شود.
+   */
+  _renderLabelingChip(labeling) {
+    const badge = document.getElementById("cpSourceBadge");
+    let chip = document.getElementById("cpLabelingChip");
+    const obj = (labeling && typeof labeling === "object") ? labeling : null;
+    if (!badge || !obj) {
+      if (chip) chip.remove();
+      return;
+    }
+    const barClass = typeof obj.bar_class === "string" ? obj.bar_class.trim() : "";
+    const method = typeof obj.method === "string" ? obj.method.trim() : "";
+    const parts = [];
+    if (barClass) parts.push(`کلاس بار: ${barClass}`);
+    if (method) parts.push(`روش: ${method}`);
+    if (!parts.length) {
+      if (chip) chip.remove();
+      return;
+    }
+    if (!chip) {
+      chip = document.createElement("span");
+      chip.id = "cpLabelingChip";
+      chip.className = "cp-badge cp-labeling-chip";
+      badge.insertAdjacentElement("afterend", chip);
+    }
+    chip.textContent = parts.join(" · ");
+    const noteFa = typeof obj.note_fa === "string" ? obj.note_fa.trim() : "";
+    if (noteFa) chip.title = noteFa;
+    else chip.removeAttribute("title");
+  }
+
   /* ============================ ابزار رسم (canvas) ============================ */
 
   _paneWidth() {
@@ -692,7 +774,9 @@ export class ChartProChart {
   _onCanvasMove(e) {
     if (!this.drawState.tool || this.drawState.tool === "delete") return;
     this._hover = this._canvasPoint(e);
-    if (this.drawState.points.length === 1) this.redraw(); // پیش‌نمایش خط کشیده‌شده
+    // پیش‌نمایش خط کشیده‌شده (+ فاز سوم اندازه‌گیری حرکت MR2-D)
+    if (this.drawState.points.length === 1 ||
+        (this.drawState.tool === "measure-move" && this.drawState.points.length === 2)) this.redraw();
   }
 
   _onCanvasClick(e) {
@@ -710,6 +794,17 @@ export class ChartProChart {
       this.drawState.drawings.push({ type: "hline", price });
       this.drawState.points = [];
       this._finishDrawing();
+    } else if (tool === "measure-move") {
+      /* MR2-D: کلیک ۱ لنگر، کلیک ۲ پایان حرکت (پیش‌نمایش زنده)،
+         کلیک ۳ هدف فرضی → رسم نهایی و ذخیره مثل بقیه ابزارها */
+      if (this.drawState.points.length === 3) {
+        const [p1, p2, p3] = this.drawState.points;
+        this.drawState.drawings.push({ type: "measure-move", p1, p2, p3 });
+        this.drawState.points = [];
+        this._finishDrawing();
+      } else {
+        this.redraw(); // خط موقت + برچسب دلتا به‌صورت زنده
+      }
     } else if (this.drawState.points.length === 2) {
       const [p1, p2] = this.drawState.points;
       this.drawState.drawings.push(
@@ -759,6 +854,13 @@ export class ChartProChart {
             }
           }
           if (hitIdx >= 0) break;
+        } else if (d.type === "measure-move") {
+          /* MR2-D: حذف با نزدیکی به پا (لنگر→پایان) یا خط هدف (پایان→هدف) */
+          const x1 = ts.timeToCoordinate(d.p1.time), x2 = ts.timeToCoordinate(d.p2.time), x3 = ts.timeToCoordinate(d.p3.time);
+          const y1 = ps.priceToCoordinate(d.p1.price), y2 = ps.priceToCoordinate(d.p2.price), y3 = ps.priceToCoordinate(d.p3.price);
+          if (x1 == null || x2 == null || x3 == null || y1 == null || y2 == null || y3 == null) continue;
+          if (this._distToSegment(pt.x, pt.y, x1, y1, x2, y2) <= 8 ||
+              this._distToSegment(pt.x, pt.y, x2, y2, x3, y3) <= 8) { hitIdx = i; break; }
         }
       } catch (e) { /* ignore */ }
     }
@@ -775,6 +877,34 @@ export class ChartProChart {
     const t = len2 ? Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / len2)) : 0;
     const cx = x1 + t * dx, cy = y1 + t * dy;
     return Math.hypot(px - cx, py - cy);
+  }
+
+  /** MR2-D: تعداد کندل بین دو زمان بر اساس نقشه زمان→اندیس (خارج از داده → null) */
+  _measureBars(t1, t2) {
+    try {
+      const m = this._timeIndexMap();
+      const i1 = m.get(Number(t1));
+      const i2 = m.get(Number(t2));
+      if (i1 == null || i2 == null) return null;
+      return Math.abs(i2 - i1);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /** MR2-D: برچسب اندازه‌گیری — دلتای قیمت، درصد دلتا (دو رقم اعشار)،
+   *  تعداد کندل بین لنگر و پایان؛ همه از همین داده فعلی چارت */
+  _measureLabelText(p1, p2) {
+    const a = Number(p1.price);
+    const b = Number(p2.price);
+    const delta = b - a;
+    const sign = delta >= 0 ? "+" : "";
+    const parts = [`دلتا: ${sign}${fmtPrice(delta)}`];
+    const pct = a !== 0 && isFinite(a) ? (delta / Math.abs(a)) * 100 : null;
+    parts.push(pct == null || !isFinite(pct) ? "٪—" : `${pct >= 0 ? "+" : ""}${pct.toFixed(2)}٪`);
+    const bars = this._measureBars(p1.time, p2.time);
+    parts.push(bars == null ? "کندل: —" : `${bars} کندل`);
+    return parts.join(" · ");
   }
 
   _saveDrawings() {
@@ -867,6 +997,48 @@ export class ChartProChart {
           ctx.fillStyle = DRAW_COLORS.fib;
           ctx.fillText(`${lv} · ${fmtPrice(price)}`, xA + 4, y - 3);
         }
+      } else if (d.type === "measure-move") {
+        /* MR2-D: پا اندازه‌گیری p1→p2 + جعبه فرض مکانیکی (تکرار همان دلتا از
+           نقطه پایان) + خط‌چین هدف فرضی کاربر p2→p3 + برچسب اندازه‌گیری */
+        const a = coord(d.p1), b = coord(d.p2), t = coord(d.p3);
+        if (a.x != null && b.x != null && a.y != null && b.y != null) {
+          ctx.strokeStyle = DRAW_COLORS.measure;
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+        const projPrice = 2 * Number(d.p2.price) - Number(d.p1.price);
+        let yProj = null;
+        try { yProj = ps.priceToCoordinate(projPrice); } catch (e) {}
+        if (b.x != null && t.x != null && b.y != null && yProj != null) {
+          const xA = Math.min(b.x, t.x), xB = Math.max(b.x, t.x);
+          const yA = Math.min(b.y, yProj), yB = Math.max(b.y, yProj);
+          ctx.fillStyle = "rgba(0,188,212,0.12)";
+          ctx.fillRect(xA, yA, xB - xA, yB - yA);
+          ctx.strokeStyle = DRAW_COLORS.measure;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+          ctx.strokeRect(xA + 0.5, yA + 0.5, xB - xA - 1, yB - yA - 1);
+          ctx.setLineDash([]);
+        }
+        if (b.x != null && t.x != null && b.y != null && t.y != null) {
+          ctx.strokeStyle = DRAW_COLORS.measure;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([5, 4]);
+          ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(t.x, t.y); ctx.stroke();
+          ctx.setLineDash([]);
+        }
+        for (const q of [a, b, t]) {
+          if (q.x == null || q.y == null) continue;
+          ctx.fillStyle = DRAW_COLORS.measure;
+          ctx.beginPath(); ctx.arc(q.x, q.y, 3, 0, Math.PI * 2); ctx.fill();
+        }
+        /* برچسب اندازه‌گیری: دلتای قیمت، درصد، تعداد کندل بین لنگر و پایان */
+        if (t.x != null && t.y != null) {
+          ctx.fillStyle = DRAW_COLORS.measure;
+          ctx.font = "11px Vazirmatn, sans-serif";
+          ctx.textAlign = "left";
+          ctx.fillText(this._measureLabelText(d.p1, d.p2), t.x + 6, t.y - 6);
+        }
       }
     }
 
@@ -876,12 +1048,39 @@ export class ChartProChart {
       if (p.x != null && p.y != null) {
         ctx.fillStyle = DRAW_COLORS.trend;
         ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill();
-        if (this._hover && this.drawState.tool !== "delete") {
+        /* در فاز سوم اندازه‌گیری حرکت، خط‌چین عمومی جای خود را به پیش‌نمایش هدف می‌دهد */
+        if (this._hover && this.drawState.tool !== "delete" &&
+            !(this.drawState.tool === "measure-move" && this.drawState.points.length >= 2)) {
           ctx.strokeStyle = DRAW_COLORS.trend;
           ctx.setLineDash([4, 4]);
           ctx.lineWidth = 1;
           ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(this._hover.x, this._hover.y); ctx.stroke();
           ctx.setLineDash([]);
+        }
+      }
+      /* MR2-D: پس از کلیک دوم — خط موقت لنگر→پایان + برچسب دلتای زنده */
+      if (this.drawState.tool === "measure-move" && this.drawState.points.length >= 2) {
+        const a = coord(this.drawState.points[0]);
+        const b = coord(this.drawState.points[1]);
+        if (a.x != null && a.y != null && b.x != null && b.y != null) {
+          ctx.strokeStyle = DRAW_COLORS.measure;
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          for (const q of [a, b]) {
+            ctx.fillStyle = DRAW_COLORS.measure;
+            ctx.beginPath(); ctx.arc(q.x, q.y, 3, 0, Math.PI * 2); ctx.fill();
+          }
+          ctx.fillStyle = DRAW_COLORS.measure;
+          ctx.font = "11px Vazirmatn, sans-serif";
+          ctx.textAlign = "left";
+          ctx.fillText(this._measureLabelText(this.drawState.points[0], this.drawState.points[1]), b.x + 6, b.y - 6);
+          if (this._hover) {
+            ctx.strokeStyle = DRAW_COLORS.measure;
+            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(b.x, b.y); ctx.lineTo(this._hover.x, this._hover.y); ctx.stroke();
+            ctx.setLineDash([]);
+          }
         }
       }
     }
