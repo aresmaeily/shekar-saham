@@ -405,3 +405,43 @@ Vercel: not re-probed for this backfill section (external optional pipeline, cla
 **Discriminating evidence (recorded, not assumed):** `9e10ded` is a DOCS-ONLY delta over `11e1d4e` (`git diff 11e1d4e..9e10ded` = `docs/**` + nothing else) — the runtime code, including every traceback-capable surface W7 scans for, is byte-identical between the two SHAs. The identical code PASSED the same W7 gate on `11e1d4e` and FAILED it on `9e10ded`. Therefore the W7 failure on `9e10ded` is classified as an ENVIRONMENTAL RECURRENCE of the historically-documented flake class (windows #14/#16 failed at W7 with #15 green in between, on unchanged code; the md5-bucketed handled-fault-cycle mechanism was structurally removed in the WS-10 cycle, and the two alert_operations sites remain deliberately traceback-visible by pinned D-AI-30 design) — NOT a WAVE-3 regression. No test was weakened and no gate changed in response; the honest response is this record plus the fresh CI execution on the subsequent HEAD.
 
 Vercel: not re-probed (external optional pipeline, classification unchanged per §9/§12).
+
+## §14 — WAVE-B CI currency (2026-11-04): one honest FAILURE root-caused and fixed; 3/3 SUCCESS on the two fix SHAs
+
+Evidence gathered via the GitHub check-runs API (unauthenticated, public repo) and the commit
+checks pages; job IDs quoted exactly. CI spec: `.github/workflows/ci.yml` (ubuntu-latest,
+Python 3.13, fresh `pip install -r requirements.txt`; jobs: test-backend → build-docker
+(needs test-backend) + windows-validation (independent, e2e scope)).
+
+| Commit | test-backend | build-docker | windows-validation |
+|---|---|---|---|
+| `733ba96…` (WAVE-B implementation) | **FAILURE** (check-run 126829304837) | **skipped** (needs test-backend; 126829714245) | **success** (126829304706, 4m7s) |
+| `82dd4b2…` (CI-currency fix) | **success** (126843042377) | **success** (126843496901) | **success** (126843042593) |
+| `dbc2e6f…` (detach-intent fix + sw v3-0-10) | **success** (126848277360) | **success** (126848790702) | **success** (126848277014) |
+
+### 733ba96 failure — root cause and discrimination (no flake hand-waving)
+
+Local replication of the EXACT CI environment (`/usr/bin/python3.13` (3.13.5) + fresh
+`pip install -r requirements.txt` into a clean venv, `pytest tests/ -q` from `backend/`)
+reproduced ONE failing test:
+`tests/test_user_indicator_api.py::TestGovernanceBoundaries::test_router_surface_is_scoped`
+— `app.routes` enumerated 11 objects and zero `user-indicators` paths. Cause: the CI pin
+`fastapi==0.141.1` (with `starlette==1.3.1`) represents included routers as opaque
+`_IncludedRouter` objects in `app.routes`, while the dev sandbox's older fastapi 0.128
+flattens `APIRoute`s — the test's `getattr(r, "path", "")` enumeration was
+framework-version-sensitive, not product-code-deficient. The product routers were
+correctly registered under BOTH versions (all other 89 WAVE-B API/engine tests — which hit
+the real endpoints through the ASGI transport — passed on CI too; windows-validation passed).
+
+Fix (`82dd4b2`): enumerate paths from `app.openapi()` — the specification flattens BOTH
+representations identically; the pinned intent (every user-indicators path lives under the
+single governed `/api/v10/user-indicators` prefix) is unchanged. Full battery re-run inside
+the replicated CI environment after the fix: **2739 passed / 2 skipped / 0 failed**.
+
+### Final WAVE-B chain (forward-only, read-back verified after every push)
+
+`688a77e` (WAVE-A reconciliation) → `733ba96` (implementation; test-backend FAILURE recorded
+honestly + root-caused; windows SUCCESS) → `7d60d0d` (records, docs-only) → `82dd4b2`
+(CI-currency fix; **3/3 SUCCESS**) → `dbc2e6f` (detach-intent fix + sw v3-0-10; **3/3
+SUCCESS**). `origin/main == dbc2e6f` at evidence time. The CI-relevant code SHAs of WAVE-B
+are `82dd4b2` and `dbc2e6f` — both 3/3 green on the exact push SHAs.

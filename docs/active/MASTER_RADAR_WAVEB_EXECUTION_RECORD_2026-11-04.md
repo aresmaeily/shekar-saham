@@ -154,8 +154,16 @@ gap list (`MASTER_RADAR_REQUIREMENTS_MATRIX_2026-11-04.md`).
 - Records commit: this file + requirements-matrix addendum + `AUDIT_MR4_REPORT.md` +
   Persian report §37 + STATUS/CHANGELOG/INDEX (published immediately after; SHA recorded in
   the STATUS entry and verified by read-back).
-- Exact-SHA CI on 733ba96: pending at records-push time; evidence to be appended per WS1 §13
-  discipline (implementation commit is the CI-relevant SHA — records are docs-only).
+- Exact-SHA CI: recorded in **WS1 §14** (`WS1_EXACT_SHA_EVIDENCE_2026-11-02.md`). 733ba96 =
+  windows-validation SUCCESS / **test-backend FAILURE** (root-caused by replicating the exact
+  CI environment: fastapi 0.141 `_IncludedRouter` representation broke ONE version-sensitive
+  route-enumeration test; product routers registered correctly on both versions) /
+  build-docker skipped (needs test-backend). Fixed version-stable in `82dd4b2` → **3/3
+  SUCCESS** (test-backend 126843042377, build-docker 126843496901, windows 126843042593);
+  detach-intent fix `dbc2e6f` → **3/3 SUCCESS** (126848277360 / 126848790702 / 126848277014).
+  Final chain: 688a77e → 733ba96 → 7d60d0d → 82dd4b2 → dbc2e6f, forward-only, read-back
+  verified; `origin/main == dbc2e6f`. Battery under the exact CI env after the fix: 2739/2s;
+  in-repo battery final: 2740/2s (incl. the detach-intent static pin).
 
 ## 7. Status vocabulary (no upgrade without evidence)
 
