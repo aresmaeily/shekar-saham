@@ -1,5 +1,9 @@
 # Changelog — RADAR BOURSE
 
+## 2026-11-04 — MASTER-RADAR CI CURRENCY (WS1 §11 backfill, records-only)
+
+- Exact-SHA CI backfilled for the full MASTER-RADAR publication chain: `3bd46f4…` 3/3 required jobs SUCCESS (re-verified fresh; job IDs 126392289050 / 126392568440 / 126392289708); `8cce25b…` honestly recorded with **zero check runs attached** (rapid two-push publication coalesced CI onto the head commit; code covered by records-SHA CI + pre-publication battery); `269f149…` 3/3 SUCCESS (126452823963 / 126453156965 / 126452824153). Nothing inferred; every row freshly retrieved from the check-runs API. File: `docs/active/WS1_EXACT_SHA_EVIDENCE_2026-11-02.md` §11. No code change.
+
 ## 2026-11-04 — MASTER-RADAR PRODUCT WAVE: WINDOWS PRO TRADING / AI STUDIO / MULTI-MARKET UNIVERSE / BACKTEST & FORWARD-TEST PLATFORM (+607 tests = 2401/1s)
 
 - **Baseline verified before start:** remote main == local == `3bd46f4…` (the directive's known baseline; chain `c7d2dc1` impl → `2023895` records → `3bd46f4` tip). All prior accepted work preserved; forward-only.

@@ -339,3 +339,29 @@ nothing inferred from any earlier SHA): check-runs API on the exact SHA —
 
 ⇒ 3/3 required jobs SUCCESS on the exact published wave SHA, with the +200-test
 battery (1794/1s local) carried through real CI test-backend execution.
+
+## §11 — 2026-11-04 (UTC): CI currency backfill for the MASTER-RADAR publication chain `3bd46f4…` → `8cce25b…` → `269f149…` (nothing inferred; every row below freshly retrieved from the check-runs API at record time)
+
+**(a) `3bd46f419b31fd4e24af2fc116ddda8b3a132120`** (WS1 §10 publication commit): this SHA's own CI was verified in its authoring session but never appended here — recorded now, **re-verified fresh via the check-runs API today** (the freshly retrieved job IDs match the authoring session's records exactly):
+
+| Job | Job ID | Conclusion | Started (UTC) | Completed (UTC) |
+|---|---|---|---|---|
+| test-backend | 126392289050 | **success** | 2026-11-04T04:41:30Z | 2026-11-04T04:42:22Z |
+| build-docker | 126392568440 | **success** | 2026-11-04T04:42:24Z | 2026-11-04T04:42:52Z |
+| windows-validation | 126392289708 | **success** (4m10s) | 2026-11-04T04:41:30Z | 2026-11-04T04:45:40Z |
+
+⇒ 3/3 required jobs SUCCESS on the exact SHA.
+
+**(b) `8cce25b9ba7dd3cff05190da7b8fabbc0c0f513d`** (MASTER-RADAR implementation wave, +607 tests): the check-runs API returns **total_count = 0** for this SHA — **zero check runs were ever attached to it**. Mechanical explanation recorded, not assumed: the implementation and records commits of this wave were published as a rapid two-push sequence, and the repository's push-triggered workflows created their runs for the head commit of the final push (`269f149…`). Consequences recorded honestly: (i) the `8cce25b` tree's code content is a strict subset of the `269f149` tree (the delta is records-only), so the green `269f149` CI execution below exercised that exact code; (ii) the local battery at the implementation tree (2401/1s) was run and recorded before publication; (iii) **no CI run is claimed for `8cce25b` itself** — the absence is stated, not papered over.
+
+**(c) `269f1496d0d65aa8820c3d176d58f87214527dbb`** (MASTER-RADAR records commit, final published HEAD of the wave; origin/main == local verified at session start): check-runs API on the exact SHA —
+
+| Job | Run | Job ID | Conclusion | Started (UTC) | Completed (UTC) |
+|---|---|---|---|---|---|
+| test-backend | run 41793732813 | 126452823963 | **success** | 2026-11-04T07:38:58Z | 2026-11-04T07:39:52Z |
+| build-docker | run 41793732813 | 126453156965 | **success** | 2026-11-04T07:39:54Z | 2026-11-04T07:40:18Z |
+| windows-validation | run 41793732918 | 126452824153 | **success** (4m01s) | 2026-11-04T07:38:58Z | 2026-11-04T07:42:59Z |
+
+⇒ 3/3 required jobs SUCCESS on the exact published wave HEAD — the +607-test battery (2401/1s local) carried through real CI test-backend execution, and the Windows job (incl. W6 E2E and the W7 fail-closed log gate) green on the MASTER-RADAR code.
+
+Vercel: not re-probed for this backfill section (external optional pipeline, classification unchanged); the three required GitHub Actions jobs above are the complete required set per the workflow definitions.
