@@ -316,10 +316,14 @@ class TestCompute:
 
 class TestGovernanceBoundaries:
     def test_router_surface_is_scoped(self) -> None:
-        paths = {
-            getattr(r, "path", "") for r in app.routes
-        }
-        ui = [p for p in paths if "user-indicators" in p]
+        # Version-stable route enumeration: fastapi 0.141 (CI pin) represents
+        # included routers as opaque _IncludedRouter objects in app.routes,
+        # while older fastapi flattens APIRoutes — the OpenAPI spec flattens
+        # BOTH representations identically, so the intent (every
+        # user-indicators path lives under the one governed prefix) is pinned
+        # without depending on the framework's internal route shape.
+        spec_paths = app.openapi().get("paths", {})
+        ui = [p for p in spec_paths if "user-indicators" in p]
         assert ui and all(p.startswith("/api/v10/user-indicators") for p in ui)
 
     def test_no_scheduler_or_egress_added(self) -> None:
