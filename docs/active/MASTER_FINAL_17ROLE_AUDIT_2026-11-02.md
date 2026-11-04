@@ -116,3 +116,47 @@ line conflates severity with disposition and is corrected as follows
 - The two MEDIUM classes stand as originally dispositioned (supply-chain
   remediated in `1b9d461`; 0.0.0.0 launcher default = owner-gated product
   posture, C-2).
+
+---
+
+## DATED CURRENCY ADDENDUM — 2026-11-03 (directive §7.7: audit updated at the actual final SHA; history above preserved verbatim)
+
+Scope of currency: baseline moves from the 2026-11-02 hygiene-cycle HEAD
+`c1f3c1210c350e2a5f859e96e763dc61b7ad620d` (tree `9d7cf85a…`) to the
+2026-11-03 wave published on top of it. Verdicts RE-VERIFIED, not assumed:
+
+- **Exact-SHA CI:** 3/3 required jobs SUCCESS on `c1f3c12` (test-backend job
+  125457449943; build-docker job 125457824759; windows-validation job
+  125457450568, ALL 15 steps incl. W7 — WS1 evidence §9). Vercel recorded
+  separately (external, failure, owner-side).
+- **W7 hygiene record CLOSED accurately (§2 of directive):** six
+  `market_service.py` handled-fault sites + three new tests confirmed at HEAD;
+  W7 fail-closed and byte-unchanged; the four-way distinction preserved
+  (handled faults logged WITHOUT traceback / unhandled ASGI failures still
+  tracebacked by uvicorn / two intentionally retained `alert_operations.py`
+  self-failure-visibility sites (pinned D-AI-30 design) / `core/errors.py`
+  site with ZERO importers (unwired)). **No global "all tracebacks eliminated"
+  claim is made.** Persian report + this WS1 evidence file are TRACKED in the
+  repository (committed), not merely local.
+- **Battery:** 1594/1s at the hygiene SHA (recorded there; NOT one failed
+  test — one env-conditional skip: `test_g2_acceptance_harness.py:271`,
+  skips only when parent..HEAD delta is docs-only). This cycle adds +200
+  tests → **1794 passed / 1 skipped** (arithmetic below).
+- **+200 tests this wave (all additive, none modified/weakened):** WDA-1
+  workspace/shell/version (30), WDA-2 seeded-candle integrity 83 + indicator
+  fixtures 9, WDA-3 analytics API 19 + static 6, P2 corporate actions 18 +
+  universe membership 18 + TabloKhani capability 12, AI-3 backup-CLI 5
+  (= 30+92+25+48+5 = 200).
+- **Role-verdict deltas:** implementation-complete roles expand (P2 data
+  integrity: corporate-actions + PIT universe-membership contracts now
+  IMPLEMENTED with tests; P3 quant: TabloKhani capability matrix + direct
+  tests delivered; P3.43 release: version-consistency gate); owner-gated
+  roles UNCHANGED (D-veto window, INSTALL, target machine, live posture,
+  Two-Key custodians). AI-3: adapter complete, NOT runtime-wired by decision;
+  daily automated backup NOT OPERATIONAL (D5/R-6 reconciled — see
+  AI3_OPERATIONAL_STATUS_2026-11-03.md); RPO/RTO remain thresholds, NOT
+  achieved/proven until the timed target-machine drill.
+- Gates re-verified unchanged: `AI2_ENABLED=0`, `verified=False`,
+  `SYNTHETIC_OR_PAPER`, kill switch ENGAGED, zero ai2 under app/api, no purge
+  path, no runtime caller added to any disconnected edge, forward-only
+  history.

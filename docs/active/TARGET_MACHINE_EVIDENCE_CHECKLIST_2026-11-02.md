@@ -129,3 +129,16 @@ at-rest encryption to AES-256-GCM with the OS keyring as the default key
 source (fail-closed without a key). The research-memory restore drill now has
 repo-side mechanical support (`SqliteWalResearchMemoryStore.verify_backup`,
 +17 adapter tests) — the drill itself remains TARGET-MACHINE-ONLY.
+
+## DATED ADDENDUM — 2026-11-03: AI-3 timed restore drill (D7 RPO/RTO acceptance; exact evidence spec)
+
+Per `AI3_OPERATIONAL_STATUS_2026-11-03.md` §4, RPO ≤ 24h / RTO ≤ 15m remain
+RECORDED THRESHOLDS, not achieved values. The drill that converts them into
+evidence (owner machine, owner-activated):
+
+1. Store with ≥1 appended artifact; key available (env `RADAR_RESEARCH_MEMORY_KEY` or keyring).
+2. `python -m app.data.research_memory_sqlite backup --directory <store dir> --dest <backups dir> --keep 14` — record START/END wall-clock (timed).
+3. `python -m app.data.research_memory_sqlite verify-backup --path <snapshot>` — must exit 0 (any refusal reason = fail).
+4. Restore: copy the snapshot into a FRESH directory as the DB file; run `verify_integrity`; assert all artifacts readable, digests match.
+5. Evidence bundle fields: timed durations for steps 2–4 (RTO ≤ 900s required), snapshot sha256, sidecar check output, integrity report text, machine id, dates; PLUS (for RPO) the owner's activated daily cadence (manual CLI or owner-issued OS Task Scheduler entry — the R-6-compatible paths) running ≥1 full day with two consecutive snapshots.
+6. Until that bundle exists: report "RPO/RTO = threshold recorded, NOT achieved / NOT proven" — stated, not hidden.

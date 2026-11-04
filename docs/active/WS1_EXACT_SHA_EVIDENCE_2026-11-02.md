@@ -282,3 +282,36 @@ validated by real CI execution on its exact published SHA `574ff14…`.**
 - ⇒ **3/3 required jobs SUCCESS on the exact published SHA `574ff14…`;**
   the structural fix for the recorded W7 flake mechanism is proven by
   execution, not by argument.
+
+## §9 — 2026-11-03: FINAL SHA PROOF for the hygiene cycle HEAD `c1f3c12…` (directive §1 — every required job recorded independently)
+
+Exact identity (local git, verified against remote): HEAD ==
+`c1f3c1210c350e2a5f859e96e763dc61b7ad620d`; tree ==
+`9d7cf85ab6b6074489e72bdc3389ec915f8d73a3`; `origin/main` == local (0/0 after
+fetch). GitHub check-runs API on the EXACT SHA (not inferred from `574ff14`
+or any earlier commit):
+
+| Job | Run | Job ID | Conclusion | Started (UTC) | Completed (UTC) |
+|---|---|---|---|---|---|
+| test-backend | CI #25 / run 41497871472 | 125457449943 | **success** | 2026-11-02T18:09:28Z | 2026-11-02T18:10:08Z |
+| build-docker | CI #25 / run 41497871472 | 125457824759 | **success** | 2026-11-02T18:10:11Z | 2026-11-02T18:10:30Z |
+| windows-validation | Windows #18 / run 41497871509 | 125457450568 | **success** (18:09:29→18:13:43Z, runner "GitHub Actions 1000000064") | 2026-11-02T18:09:29Z | 2026-11-02T18:13:43Z |
+
+Windows step-level (jobs API, ALL 15 steps success): Set up job ✓; checkout
+(SHA-pinned v4.2.2) ✓; provenance ✓; **PowerShell script syntax gate (W2-INST
+F3) ✓**; Setup Python 3.13 ✓; deps ✓; **W1 boot ✓**; **W2 health+version ✓**;
+**W6 Browser E2E ✓**; **W7 "Runtime log posture (fail-closed evidence)" ✓**
+(the hygiene-fixed code passing its gate in real CI); Shutdown ✓; artifacts ✓
+(+3 post-steps ✓).
+
+**Vercel (recorded SEPARATELY as an external, non-required status):** commit
+status context "Vercel" on `c1f3c12` = **failure**
+(dpl_H4FD5RWeJrtwFUsM9P8CGifr1vU7) — the owner-connected optional deployment
+pipeline; NOT one of the three required GitHub Actions jobs; classification
+unchanged (WS-1 §1: recurring, pre-dates the program, empirically not a push
+gate; owner-side housekeeping).
+
+Evidence availability: all three required check runs + the windows job's
+per-step states retrieved via the GitHub API (check-runs + jobs endpoints) —
+nothing unavailable, nothing inferred. Raw CI logs/artifacts remain
+sign-in-gated for the agent (recorded limitation, unchanged from GOV-49).
