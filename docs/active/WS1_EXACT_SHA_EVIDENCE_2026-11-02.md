@@ -381,3 +381,27 @@ Vercel: not re-probed for this backfill section (external optional pipeline, cla
 ⇒ 3/3 required jobs SUCCESS on the exact published WAVE-2 HEAD — the +99-test battery (2499/2s local) carried through real CI test-backend execution, and the Windows job (incl. W6 E2E and the fail-closed W7 log gate) green on the WAVE-2 code.
 
 **(c) Publication-transport observation (recorded for honesty, no action required):** during this session's push, GitHub's SSH frontend exhibited transient failures — three `AuthenticationException` responses on a key that then authenticated successfully (probes: auth succeeds ~3/5), and one receive-pack `Internal Server Error` remote rejection before the push landed on retry. The deploy key was NOT changed (same fingerprint `cfb27045…` throughout); nothing on the owner side is implicated; the chain is `6a79ab7` (published earlier in the session after one clean push) → `3ec3427`+`b4ce6aa` (published on push retry 3 of this session). Every read-back in this file was performed after its push.
+
+## §13 — 2026-11-04 (UTC): exact-SHA CI for the MASTER-RADAR WAVE-3 publication chain `11e1d4e…` → `9e10ded…` (nothing inferred; rows freshly retrieved from the check-runs/jobs APIs at record time)
+
+**(a) `11e1d4e3027fa4fe1a476382822ff71bd2f280d8`** (WAVE-3 implementation commit, +125 tests): check-runs API on the exact SHA —
+
+| Job | Run | Job ID | Conclusion | Started (UTC) |
+|---|---|---|---|---|
+| test-backend | run 41825849466 | 126560245055 | **success** | 2026-11-04T12:02:35Z |
+| build-docker | run 41825849466 | 126560745496 | **success** | 2026-11-04T12:03:37Z |
+| windows-validation | run 41825849430 | — | **success** (jobs API: all steps green incl. PS1 gate, W1 boot, W2 health, W6 E2E 7/7, W7 fail-closed log gate) | 2026-11-04T12:02:35Z |
+
+⇒ 3/3 required jobs SUCCESS on the exact WAVE-3 implementation SHA — the +125-test battery (2625/1s local) carried through real CI test-backend execution, and the Windows job (incl. W6 E2E and the fail-closed W7 log gate) green on the WAVE-3 code.
+
+**(b) `9e10dedd6ddcc4bd2b9555a9266f89d938efa393`** (WAVE-3 records commit, docs-only delta vs (a)) —
+
+| Job | Run | Conclusion |
+|---|---|---|
+| test-backend | run 41825945162 | **success** |
+| build-docker | run 41825945162 | **success** |
+| windows-validation | run 41825944951 (job 126560579202) | **failure** — step 10 "Runtime log posture (W7 — fail-closed evidence)" (steps 1–9 green incl. PS1 gate, W1 boot, W2 health, W6 E2E 7/7; Shutdown/artifact steps green) |
+
+**Discriminating evidence (recorded, not assumed):** `9e10ded` is a DOCS-ONLY delta over `11e1d4e` (`git diff 11e1d4e..9e10ded` = `docs/**` + nothing else) — the runtime code, including every traceback-capable surface W7 scans for, is byte-identical between the two SHAs. The identical code PASSED the same W7 gate on `11e1d4e` and FAILED it on `9e10ded`. Therefore the W7 failure on `9e10ded` is classified as an ENVIRONMENTAL RECURRENCE of the historically-documented flake class (windows #14/#16 failed at W7 with #15 green in between, on unchanged code; the md5-bucketed handled-fault-cycle mechanism was structurally removed in the WS-10 cycle, and the two alert_operations sites remain deliberately traceback-visible by pinned D-AI-30 design) — NOT a WAVE-3 regression. No test was weakened and no gate changed in response; the honest response is this record plus the fresh CI execution on the subsequent HEAD.
+
+Vercel: not re-probed (external optional pipeline, classification unchanged per §9/§12).
