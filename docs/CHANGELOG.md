@@ -1,5 +1,9 @@
 # Changelog — RADAR BOURSE
 
+## 2026-11-04 — WAVE-2 CI CURRENCY (WS1 §12, records-only)
+
+- Exact-SHA CI for the WAVE-2 publication chain: `3ec3427…` (implementation) recorded with **zero check runs attached** (single coalesced push; code covered by the records-SHA CI + pre-publication battery 2499/2s); `b4ce6aa…` (records commit, published HEAD) **3/3 required jobs SUCCESS** (test-backend 126514226945, build-docker 126514596087, windows-validation 126514226858). Transient publication-transport flakiness recorded honestly (deploy key unchanged). File: `WS1_EXACT_SHA_EVIDENCE_2026-11-02.md` §12. No code change.
+
 ## 2026-11-04 — MASTER-RADAR WAVE-2: PRODUCT CENTERS + OPTIMIZER + EXPORT + ON-DEMAND ALERTS (+99 tests = 2499/2s)
 
 - **Backend:** `/api/v10/strategylab/optimize` (seed REQUIRED, ≤500-eval guard, explicit JSON space, IS-only selection + OOS evaluated exactly once post-selection, Bonferroni echo, deterministic digest); `/api/v10/strategylab/backtest/export` (full-report JSON attachment + flat CSV projection, byte-identical csv); `/api/v10/strategylab/alerts/evaluate` (ON-DEMAND §B5 evaluation — no scheduler R-6, no egress R-9, staleness refusal only with an explicit series-unit clock — unit honesty recorded); `/api/v10/dataquality/{markets, markets/{m}/coverage, symbols/{id}/audit}` (fixture-universe §G surface; EXCLUDED_US_EQUITY reported, never hidden; injected as_of, never wall clock); chartpro additive `labeling` echo (derived from market_service, no hardcoded trust words); engines: independent ref_adx/ref_cci/ref_williams_r (textbook, hand-computed fixtures, honest engine/reference separation), DSL MTF runtime (strict close-ts no-look-ahead, fail-closed codes incl. RUN_MTF_NONMONOTONIC_CLOSE_TS), strategy_alerts.py.

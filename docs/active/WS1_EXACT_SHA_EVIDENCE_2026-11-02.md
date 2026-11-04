@@ -365,3 +365,19 @@ battery (1794/1s local) carried through real CI test-backend execution.
 ⇒ 3/3 required jobs SUCCESS on the exact published wave HEAD — the +607-test battery (2401/1s local) carried through real CI test-backend execution, and the Windows job (incl. W6 E2E and the W7 fail-closed log gate) green on the MASTER-RADAR code.
 
 Vercel: not re-probed for this backfill section (external optional pipeline, classification unchanged); the three required GitHub Actions jobs above are the complete required set per the workflow definitions.
+
+## §12 — 2026-11-04 (UTC): exact-SHA CI for the MASTER-RADAR WAVE-2 publication chain `3ec3427…` → `b4ce6aa…` (nothing inferred; both rows freshly retrieved from the check-runs API at record time)
+
+**(a) `3ec3427d961f0f48c083cd032d7e82cb020af596`** (WAVE-2 implementation commit, +99 tests): the check-runs API returns **total_count = 0** — zero check runs were ever attached. Mechanical explanation (same pattern as §11(b), recorded not assumed): the implementation and records commits of this wave were published as ONE push (`6a79ab7..b4ce6aa`), and the push-triggered workflows create runs for the pushed head commit only (`b4ce6aa…`). Consequences recorded honestly: (i) the `3ec3427` tree's code content is a strict subset of the `b4ce6aa` tree (the delta is records-only), so the green CI below exercised exactly that implementation code; (ii) the full 2499-test battery was run locally at the implementation tree before publication; (iii) **no CI run is claimed for `3ec3427` itself** — the absence is stated, not papered over.
+
+**(b) `b4ce6aad3dad58ac5bc8590762589a11c3db4988`** (WAVE-2 records commit, final published HEAD; remote == local verified by read-back after push): check-runs API on the exact SHA —
+
+| Job | Job ID | Conclusion | Started (UTC) | Completed (UTC) |
+|---|---|---|---|---|
+| test-backend | 126514226945 | **success** | 2026-11-04T10:09:25Z | 2026-11-04T10:10:19Z |
+| build-docker | 126514596087 | **success** | 2026-11-04T10:10:22Z | 2026-11-04T10:10:41Z |
+| windows-validation | 126514226858 | **success** (4m05s) | 2026-11-04T10:09:25Z | 2026-11-04T10:13:30Z |
+
+⇒ 3/3 required jobs SUCCESS on the exact published WAVE-2 HEAD — the +99-test battery (2499/2s local) carried through real CI test-backend execution, and the Windows job (incl. W6 E2E and the fail-closed W7 log gate) green on the WAVE-2 code.
+
+**(c) Publication-transport observation (recorded for honesty, no action required):** during this session's push, GitHub's SSH frontend exhibited transient failures — three `AuthenticationException` responses on a key that then authenticated successfully (probes: auth succeeds ~3/5), and one receive-pack `Internal Server Error` remote rejection before the push landed on retry. The deploy key was NOT changed (same fingerprint `cfb27045…` throughout); nothing on the owner side is implicated; the chain is `6a79ab7` (published earlier in the session after one clean push) → `3ec3427`+`b4ce6aa` (published on push retry 3 of this session). Every read-back in this file was performed after its push.

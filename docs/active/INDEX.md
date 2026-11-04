@@ -1,5 +1,7 @@
 # Active Documentation Index
 
+- `WS1_EXACT_SHA_EVIDENCE_2026-11-02.md` §12 (in-file) — WAVE-2 CI currency: 3/3 evidence for `b4ce6aa…` (job IDs + timestamps) + honest zero-check-runs record for the coalesced `3ec3427…` + transport-flakiness observation.
+
 - `MASTER_RADAR_WAVE2_EXECUTION_RECORD_2026-11-04.md` — MASTER-RADAR WAVE-2 canonical execution record: 4 disjoint packages + integration syncs, optimizer/export/data-quality/alerts API surface, 3 product Center tabs (29/29), measure-move + labeling chip + ۰.۵× replay, AUDIT-MR2 0-FAILs w/ in-wave fixes O1-O4/O6 + honest O7 dangling-reference correction, battery 2499/2s = 2400+99 exact, gates unchanged.
 
 - `audits/2026-11-04-master-radar-wave2/AUDIT_MR2_REPORT.md` — independent read-only audit of WAVE-2 (both waves' surfaces at the current tree): battery ×3 reproduced, 5/5 honesty claims re-derived (OOS-once by instrumentation), discriminating MTF no-look-ahead proof, 14 hostile DSL + 24 abuse probes zero 500s, gates byte-identical, 0 FAILs / 9 observations with dispositions.
