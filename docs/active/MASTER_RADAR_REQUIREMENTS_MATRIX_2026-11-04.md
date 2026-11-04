@@ -95,3 +95,21 @@ Directive source: MASTER DIRECTIVE §A–§N (2026-11-04). Vocabulary (per §M):
 | Records O7 | wave-1 §4 dangling AUDIT-MR1 reference corrected honestly (file never committed; AUDIT-MR2 is the audit record of reference for both waves) | wave-2 record §4 |
 
 Battery: **2499 passed / 2 skipped = 2400 + 99 exact** (skip drift vs the wave-1 "2401/1s" record audit-explained: GOV-19 bundle absent from this fresh checkout; G2 substantive-rejection test self-skips on the docs-only parent delta). Gates unchanged.
+
+---
+
+## WAVE-3 ADDENDUM — 2026-11-04 (post-AUDIT-MR3 dispositions; execution record: `MASTER_RADAR_WAVE3_EXECUTION_RECORD_2026-11-04.md`)
+
+| Req ID | Wave-3 disposition | Evidence |
+|---|---|---|
+| MR-B1-02 | crosshair readout surface DELIVERED (`#cpCrossReadout`: hovered-bar O/H/L/C/V from the loaded data + `bar_class`/`method` verbatim from the server labeling object; nothing fabricated; defensive container check) — per-series honest labeling now surfaced in the chart UI at the hovered bar | test_master_radar_wave3_chartstatic + integration pins |
+| MR-B2-01 | multi-chart grid with configurable sync DELIVERED (layouts ۱/۲/۴, range/crosshair/symbol-follow toggles, fail-closed `radar.chartgrid.v1` persistence, per-pane symbol/TF, server-fields-only trust labels) — detachable panels/multi-monitor remain honestly NOT-IMPLEMENTED | chart_grid.js + test_master_radar_wave3_chartstatic |
+| MR-B3-01 | Renko/Range/Kagi/LineBreak/PnF DELIVERED with dedicated construction semantics (pinned conventions in module docstring, hand-computed fixtures, no-look-ahead prefix stability, ATR-mode whole-series parameter resolution honestly disclosed) + `POST /chartpro/{symbol}/derived` with `method: DERIVED_*` labeling and bilingual honesty notes; derived views deliberately hide NATIVE-bar overlays | engines/derived_charts.py + test_derived_charts 32 + test_chart_pro_derived_api 23 |
+| MR-D3-01 | walk-forward analysis DELIVERED (`POST /strategylab/walkforward`: pinned fold math, per-fold seed = seed+i, IS-only selection per fold, OOS confirmed EXACTLY ONCE per fold with frozen params — audit-verified with a ±1e9 flip leaving selection byte-identical; unfit windows 422 naming available vs required; deterministic digest) | engines/walk_forward.py + test_walk_forward 38 + AUDIT-MR3 §C |
+| MR-H-02 | full command palette DELIVERED (Ctrl/Cmd+K + button; live-DOM action registry incl. all 29 tabs, chart types, replay speeds, grid controls; explicit-selection-only execution — test-pinned; recent actions in-product) | command_palette.js + test_master_radar_wave3_frontend |
+| Integration | sw v3-0-8 (+2 precache), main.js +2 imports, index.html honest DERIVED segment + containers; counter-pins recorded ×4 | test_master_radar_wave3_integration 8 |
+| AUDIT-MR3 | 7/7 PASS, 0 FAILs; Obs.3 fixed post-audit (cache hygiene symmetry); Obs.1/2/4/5/6 accepted w/ rationale; Obs.7 INFO | `audits/2026-11-04-master-radar-wave3/AUDIT_MR3_REPORT.md` |
+| MR-B4-01 | user-authored indicator DSL beyond RSL-1: still NOT-IMPLEMENTED (recorded honestly — unchanged) | this addendum |
+| MR-B2-01 (residual) | detach/multi-monitor: NOT-IMPLEMENTED (recorded honestly — unchanged) | this addendum |
+
+Battery: **2625 passed / 1 skipped / 0 failed = 2500 + 125 exact** (7 new test files: 32+23+38+12+12+8). Gates unchanged.

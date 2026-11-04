@@ -1,5 +1,15 @@
 # Changelog — RADAR BOURSE
 
+## 2026-11-04 — MASTER-RADAR WAVE-3: DERIVED CHART TYPES + MULTI-CHART GRID + CROSSHAIR READOUT + COMMAND PALETTE + WALK-FORWARD (+125 tests = 2625/1s)
+
+- Derived chart constructions `engines/derived_charts.py` (RENKO/RANGE/KAGI/PNF/LINEBREAK; pinned conventions documented before fixtures; hand-computed fixtures; no-look-ahead prefix stability; fail-closed refusals) + `POST /api/v10/chartpro/{symbol}/derived` with `method: DERIVED_*` honest labeling (bars for RENKO/RANGE/PNF/LINEBREAK, points for KAGI — documented asymmetry).
+- Walk-forward `engines/walk_forward.py` + `POST /api/v10/strategylab/walkforward`: pinned fold windows, per-fold seed = seed+i, IS-only selection per fold, OOS confirmed exactly once with frozen params (±1e9 flip cannot change selection), unfit-window 422 naming both numbers, deterministic reproducibility digest.
+- Frontend: chart_pro.js derived rendering (overlays/volume deliberately emptied in derived views) + crosshair readout (`#cpCrossReadout`, server-fields-only) + `chart_grid.js` (layouts ۱/۲/۴, range/crosshair/symbol-follow sync toggles, fail-closed persistence with corruption quarantine) + `command_palette.js` (Ctrl/Cmd+K, live-DOM action registry, explicit-selection-only execution, zero network calls).
+- Integration: index.html honest DERIVED segment + containers, main.js +2 imports, sw v3-0-8 (+2 precache), recorded counter-pins ×4 (SW v3-0-7→v3-0-8), tabs unchanged 29/29.
+- Pre-publication fixes recorded honestly: distinct rate-limit test identity (default-identity bucket collision → 429 cascade), get_settings cache hygiene in the new API test modules (upstream env-patch residue).
+- AUDIT-MR3 (independent, read-only): 7/7 PASS, 0 FAILs; ~45 hostile probes zero 500s; hand-recomputed derived fixtures exact; walk-forward selection-path instrumentation; Obs.3 fixed post-audit, 6 LOW/INFO accepted with rationale.
+- Battery 2625 passed / 1 skipped / 0 failed = 2500 + 125 exact; pyflakes clean; node --check green; static validator ok:true 29/29; gates unchanged (AI2_ENABLED=0, verified=False, SYNTHETIC_OR_PAPER, R-1..R-11, D1-D7 in force, INSTALL NOT ISSUED).
+
 ## 2026-11-04 — WAVE-2 CI CURRENCY (WS1 §12, records-only)
 
 - Exact-SHA CI for the WAVE-2 publication chain: `3ec3427…` (implementation) recorded with **zero check runs attached** (single coalesced push; code covered by the records-SHA CI + pre-publication battery 2499/2s); `b4ce6aa…` (records commit, published HEAD) **3/3 required jobs SUCCESS** (test-backend 126514226945, build-docker 126514596087, windows-validation 126514226858). Transient publication-transport flakiness recorded honestly (deploy key unchanged). File: `WS1_EXACT_SHA_EVIDENCE_2026-11-02.md` §12. No code change.

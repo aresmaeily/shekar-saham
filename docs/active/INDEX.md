@@ -1,5 +1,9 @@
 # Active Documentation Index
 
+- `MASTER_RADAR_WAVE3_EXECUTION_RECORD_2026-11-04.md` — MASTER-RADAR WAVE-3 canonical execution record: 3 disjoint packages + integration (derived chart constructions + `/derived` API, walk-forward + `/walkforward`, crosshair readout, multi-chart grid, command palette, sw v3-0-8); two integration findings fixed pre-publication (rate-limit identity, settings-cache hygiene); battery 2625/1s = 2500+125 exact; gates unchanged.
+
+- `audits/2026-11-04-master-radar-wave3/AUDIT_MR3_REPORT.md` — independent read-only audit of WAVE-3: battery ×2 reproduced, derived fixtures hand-recomputed exact, walk-forward OOS-once instrumented (±1e9 flip proof), ~45 hostile probes zero 500s, frontend token scan clean, gates sweep clean — 7/7 PASS, 0 FAILs, 7 LOW/INFO observations with dispositions.
+
 - `WS1_EXACT_SHA_EVIDENCE_2026-11-02.md` §12 (in-file) — WAVE-2 CI currency: 3/3 evidence for `b4ce6aa…` (job IDs + timestamps) + honest zero-check-runs record for the coalesced `3ec3427…` + transport-flakiness observation.
 
 - `MASTER_RADAR_WAVE2_EXECUTION_RECORD_2026-11-04.md` — MASTER-RADAR WAVE-2 canonical execution record: 4 disjoint packages + integration syncs, optimizer/export/data-quality/alerts API surface, 3 product Center tabs (29/29), measure-move + labeling chip + ۰.۵× replay, AUDIT-MR2 0-FAILs w/ in-wave fixes O1-O4/O6 + honest O7 dangling-reference correction, battery 2499/2s = 2400+99 exact, gates unchanged.
