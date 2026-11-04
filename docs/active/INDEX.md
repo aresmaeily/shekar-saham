@@ -1,5 +1,9 @@
 # Active Documentation Index
 
+- `MASTER_RADAR_WAVE2_EXECUTION_RECORD_2026-11-04.md` — MASTER-RADAR WAVE-2 canonical execution record: 4 disjoint packages + integration syncs, optimizer/export/data-quality/alerts API surface, 3 product Center tabs (29/29), measure-move + labeling chip + ۰.۵× replay, AUDIT-MR2 0-FAILs w/ in-wave fixes O1-O4/O6 + honest O7 dangling-reference correction, battery 2499/2s = 2400+99 exact, gates unchanged.
+
+- `audits/2026-11-04-master-radar-wave2/AUDIT_MR2_REPORT.md` — independent read-only audit of WAVE-2 (both waves' surfaces at the current tree): battery ×3 reproduced, 5/5 honesty claims re-derived (OOS-once by instrumentation), discriminating MTF no-look-ahead proof, 14 hostile DSL + 24 abuse probes zero 500s, gates byte-identical, 0 FAILs / 9 observations with dispositions.
+
 - `WS1_EXACT_SHA_EVIDENCE_2026-11-02.md` §11 (in-file) — MASTER-RADAR CI currency backfill (2026-11-04): exact-SHA 3/3 evidence for `3bd46f4…` (fresh re-verification) and `269f149…` (job IDs + timestamps), plus the honest zero-check-runs record for the coalesced intermediate `8cce25b…`.
 - `MASTER_RADAR_EXECUTION_RECORD_2026-11-04.md` — MASTER-RADAR directive wave record: baseline audit/architecture map; 6 package deliveries (instrument master/timeframes, RSL-1 DSL, product backtest+optimizer, paper forward test, symbol analyst, indicator catalog/manager) + integration (3 routers, Strategy Lab tab, chart types) + shared execution-model contract; battery 2401/1s = 1794+607 exact; AUDIT-MR1 zero FAILs; gates unchanged; honest scope statement
 - `MASTER_RADAR_REQUIREMENTS_MATRIX_2026-11-04.md` — requirement-level traceability matrix (directive M1+M13): 10-column rows with granular states, honest PARTIAL/NOT-IMPLEMENTED/NOT-VERIFIED rows, no parity claims

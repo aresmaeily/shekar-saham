@@ -72,3 +72,26 @@ Directive source: MASTER DIRECTIVE §A–§N (2026-11-04). Vocabulary (per §M):
 | MR-L-01 | §L owner gates | R-1..R-11 + AI2 gates unchanged | battery gates rows | — | — | R-1..R-11 | PRESERVED | STATUS gates block | owner actions list (M18) |
 
 **Aggregate honesty:** this matrix deliberately contains PARTIAL/NOT-IMPLEMENTED/NOT-VERIFIED rows. Nothing here claims 100% roadmap completion, real-market coverage, TradingView parity, installer readiness, or live forward observation.
+
+---
+
+## WAVE-2 ADDENDUM — 2026-11-04 (post-AUDIT-MR2 dispositions; execution record: `MASTER_RADAR_WAVE2_EXECUTION_RECORD_2026-11-04.md`)
+
+| Req ID | Wave-2 disposition | Evidence |
+|---|---|---|
+| MR-B1-02 | PARTIAL → PARTIAL (narrower): backend `labeling` echo on chartpro series + honest per-series chip in the chart legend (server-fields-only, defensive) — the crosshair-tooltip surface does NOT exist in chart_pro and was NOT invented | test_master_radar_wave2_api (labeling rows) + test_master_radar_wave2_chartstatic |
+| MR-B2-01 | unchanged PARTIAL (multi-chart sync/detach = future increment; this wave delivered the three product Centers instead) | wave-2 record §6 |
+| MR-B3-02 | measured-move tool DELIVERED (3-click, persisted in primary + WDA-1 workspace snapshots, deletable/Escape-cancellable) | test_master_radar_wave2_chartstatic 7 |
+| MR-B3-03 | replay ۰.۵× speed DELIVERED + parseFloat wiring fix (parseInt silently coerced 0.5→5 fallback) | test_master_radar_wave2_frontend (replay pin) |
+| MR-B4-02 | independent references for adx/cci/williams DELIVERED (hand-computed fixtures + auditor-recomputed ≤1e-12; honest engine/reference separation preserved — NOT claimed dual-identical) | test_indicator_reference_wave2 13 + AUDIT-MR2 B.1 |
+| MR-B5-01 | indicator-condition alerts: on-demand evaluator engine + `/alerts/evaluate` endpoint DELIVERED (request-scoped only — no scheduler R-6, no egress R-9; staleness refusal with explicit series-unit clock) | test_strategy_alerts_engine 22 + wave2 api alert rows |
+| MR-C2-01 | MTF runtime plumbing INTEGRATION-VERIFIED: strict close-ts no-look-ahead alignment + fail-closed non-monotonic refusal (AUDIT-MR2 O3) + discriminating-scenario proof by the auditor | test_strategy_dsl_mtf_runtime 22 + AUDIT-MR2 B.2 |
+| MR-D4-01 | optimizer API + Backtest-Center UI DELIVERED (seed required, budget guard 500, explicit JSON space, IS-only selection + OOS-once confirmation, Bonferroni echo, reproducibility digest; determinism test-pinned) | test_master_radar_wave2_api optimize rows |
+| MR-D5-01 | CSV/JSON report export DELIVERED (full-report json attachment; flat csv projection with documented units; byte-identical csv) | test_master_radar_wave2_api export rows |
+| MR-G-01 | Data Quality Center UI + API DELIVERED (market summaries incl. reported exclusion, per-symbol mechanical audits w/ injected as_of, 7-class legend with honest REAL_VERIFIED absence note) | test_master_radar_wave2_api dataquality rows |
+| MR-H-01 | dedicated Backtest Center / Forward Test Center tabs DELIVERED (26→29 tabs, validator 29/29) | test_master_radar_wave2_frontend |
+| MR-D3-01 | regime segmentation surfacing re-verified already present (`report.regime_segments`); Backtest Center renders the regime table | wave2 api regime row |
+| AUDIT-MR2 | 0 FAILs; O1/O2/O3/O4/O6 fixed in-wave (strengthened/new tests); O5/O9 accepted observations w/ rationale; O1-vacuousness replaced with structural IS/OOS pins | `audits/2026-11-04-master-radar-wave2/AUDIT_MR2_REPORT.md` |
+| Records O7 | wave-1 §4 dangling AUDIT-MR1 reference corrected honestly (file never committed; AUDIT-MR2 is the audit record of reference for both waves) | wave-2 record §4 |
+
+Battery: **2499 passed / 2 skipped = 2400 + 99 exact** (skip drift vs the wave-1 "2401/1s" record audit-explained: GOV-19 bundle absent from this fresh checkout; G2 substantive-rejection test self-skips on the docs-only parent delta). Gates unchanged.
