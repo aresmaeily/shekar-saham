@@ -1,0 +1,7 @@
+== outer venv (environment fact, NOT repo venv) ==
+/home/z/.venv/bin/playwright
+outer playwright /home/z/.venv/lib/python3.12/site-packages/playwright/__init__.py
+chromium-1200
+chromium_headless_shell-1200
+ffmpeg-1011
+== browser launch test: NOT EXECUTED (not authorized/required; Windows-target blocker unaffected) ==

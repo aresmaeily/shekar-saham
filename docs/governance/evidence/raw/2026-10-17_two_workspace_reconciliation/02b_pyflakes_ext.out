@@ -1,0 +1,7 @@
+tests/test_data_domain.py:77:5: local variable 'now' is assigned to but never used
+tests/test_data_trust_hardening.py:2:1: 'types.SimpleNamespace' imported but unused
+tests/test_metrics.py:1:1: 'pytest' imported but unused
+tests/test_metrics.py:26:5: redefinition of unused 'pytest' from line 1
+tests/test_security_rate_limit.py:4:1: 'pytest' imported but unused
+tests/test_security_rate_limit.py:43:5: 'unittest.mock.MagicMock' imported but unused
+tests/test_auth.py:4:1: 'pytest' imported but unused

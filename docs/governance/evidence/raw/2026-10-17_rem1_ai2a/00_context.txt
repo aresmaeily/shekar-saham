@@ -1,0 +1,10 @@
+date_utc=2026-10-16T20:46:52Z
+repo=/home/z/my-project/RADAR_BOURSE/repo
+tested_sha=a578abe8296a08152dfb282839519d6d05523647
+branch=main
+upstream_sha=c1984e7979f89f2d727b471deb602953ec62fad5
+ahead_behind=0/2
+git_version=git version 2.47.3
+python=Python 3.12.15
+cwd_backend=backend
+note=Local-only evidence battery; no push/merge/rebase/reset performed.

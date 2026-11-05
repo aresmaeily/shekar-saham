@@ -1,0 +1,16 @@
+== context ==
+2026-10-18T12:00:19Z
+2f86c4a9bef3a4cf2efbe741d6e3f0d678f4a2f0
+?? .claude/
+?? CLAUDE.md
+?? backend/app/domain/ai2_governance.py
+?? backend/tests/test_ai2_f_governance.py
+?? docs/active/AI2F_EXECUTION_RECORD.md
+?? docs/active/AI2_F_SCOPE_DERIVATION.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py
+tracked_dirty_pre:
+0
+tracked_dirty_post:
+0
+2f86c4a9bef3a4cf2efbe741d6e3f0d678f4a2f0

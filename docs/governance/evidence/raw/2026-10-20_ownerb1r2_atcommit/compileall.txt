@@ -1,0 +1,3 @@
+== ownerb1r2-atcommit-bef3a53 :: compileall :: 2026-10-20T20:06:11Z
+== cmd: /home/z/my-project/RADAR_BOURSE/repo/.venv/bin/python -m compileall -q backend/app backend/tests
+

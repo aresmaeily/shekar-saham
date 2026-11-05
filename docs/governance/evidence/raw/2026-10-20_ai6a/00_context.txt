@@ -1,0 +1,6 @@
+context: AI-6a pre-AI-6a-commit battery at HEAD adf8cdf4f7ec0e091c3a1c0adfc32245a6851dcc (main); date 2026-10-20T07:41:52Z; tracked_dirty=9
+note: AI-6a remediation working tree = tracked modifications only in the
+AI-6a file set (external_intelligence.py, test_ai6_external_intelligence.py,
+scope/record/sandbox/readiness docs, STATUS/CHANGELOG/HANDOFF); battery
+captures the exact content later committed as AI-6a. Exit codes preserved
+as <name>.exit files alongside each raw output.

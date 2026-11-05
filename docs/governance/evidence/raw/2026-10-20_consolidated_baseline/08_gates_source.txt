@@ -1,0 +1,27 @@
+== AI2_ENABLED line (config.py:107-111) ==
+    # which cannot be minted in this repository today — plus G2 independent
+    # validation and owner acceptance (governance gate, NOT_PASSED).
+    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+
+    # کش بنیادی (ثانیه)
+== verified line (config.py:263-276) ==
+        state = "mixed"
+    elif base_state in {"live", "mixed"} and stale:
+        state = "stale"
+
+    # Independent verification is never inferred from source label, freshness,
+    # TRUST_LEVEL, fetch success, or an arbitrary live_verified=True argument.
+    # This environment has no live-verification boundary.
+    verified = False
+    trust_level = _legacy_trust_level_from_state(state)
+    if state == "live" and not verified:
+        trust_level = "mixed"
+    is_live = verified
+    is_generated = state in {"mock", "synthetic"}
+
+== grep AI2_ENABLED ==
+109:    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+== grep verified = False ==
+270:    verified = False
+== ai2 route import surface grep (expect exit 1) ==
+api_grep_exit=1

@@ -1,0 +1,3 @@
+/home/z/my-project/RADAR_BOURSE/repo/electron/package.json
+node_modules: 0 entries
+electron binary: NOT FOUND on PATH

@@ -1,0 +1,2 @@
+== consolgov13-fullbattery-3e35f49 :: pyflakes_app_tests :: 2026-10-22T20:46:28Z
+== cmd: cd /home/z/my-project/RADAR_BOURSE/repo/backend && ../.venv/bin/python -m pyflakes app tests

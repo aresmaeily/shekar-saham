@@ -1,0 +1,40 @@
+=== T1: R2 v0.2 SHA-256 (claimed 0045febaa59a7baae0baf093c0bb6525b1a5ba138f648eed9b88a9b2cc65dafc) ===
+0045febaa59a7baae0baf093c0bb6525b1a5ba138f648eed9b88a9b2cc65dafc  docs/active/G2_REVIEW_PROCEDURE_PROPOSED_FINAL_v0.2_2026-10-22.md
+  214 12328
+
+=== T2: AI2-F pins (claimed 43d0912b...=ai2_governance.py, 335aed03...=test_ai2_f_governance.py) ===
+43d0912b0b19c10f0484c530d0c5230892fc13a1e1360d518109131c10d7a9e1  backend/app/domain/ai2_governance.py
+335aed035bc862d2ce5c721b58f1b7854cfb071bba69042a2dff24a83fb273be  backend/tests/test_ai2_f_governance.py
+
+=== T3: residual 1 — record.status refs in governed_acceptance :393-423 ===
+0 hits
+=== T4: residual 2 — approver field in AI2RunRecord :277-297 ===
+0 hits
+109:            raise ValueError("approved_state_requires_approver")
+=== T5: residual 3 — trust rank :234-241 + .get(state,-1) :259 vs config folding :191-196 ===
+_TRUST_RANK: dict[str, int] = {
+    "live": 2,
+    "mixed": 1,
+    "stale": 1,
+    "unavailable": 1,
+    "mock": 0,
+    "synthetic": 0,
+}
+    if _TRUST_RANK.get(current_trust_state, -1) < _TRUST_RANK.get(
+def _legacy_trust_level_from_state(state: DataTrustState) -> str:
+    if state == "live":
+        return "live"
+    if state in {"mixed", "stale", "unavailable"}:
+        return "mixed"
+    return "synthetic"
+
+=== T6: S1 fixture (claimed test_ai2_service.py:305 super-secret-ai2-key-987) ===
+305:    secret = "super-secret-ai2-key-987"
+
+=== T7: AI2_ENABLED + verified loci ===
+109:    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+270:    verified = False
+
+=== T8: touch history of ai2_governance.py ===
+17ef611 AI2-Fa: Independent-audit remediation (canonical trust ranking + honesty hygiene)
+6aeeaa2 AI2-F: Complete AI-2 required-items layer (run identity, budget, artifacts, duplicates, recovery, invalidation, approval state)

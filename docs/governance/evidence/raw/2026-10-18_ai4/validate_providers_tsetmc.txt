@@ -1,0 +1,30 @@
+{
+  "requested_source": "tsetmc",
+  "brsapi_key_status": "missing",
+  "row_count": 60,
+  "last_source": "mock_fallback",
+  "last_error": "tsetmc: ",
+  "first_symbol": "فملی",
+  "first_updated_at": "2026-10-18T16:17:18.365905+00:00",
+  "data_trust": {
+    "state": "mock",
+    "trust_level": "synthetic",
+    "source": "mock_fallback",
+    "provider": "mock_fallback",
+    "timestamp": 1792340238.365905,
+    "checked_at": 1792340238.3710978,
+    "age_sec": 0.005,
+    "stale_after_sec": 300.0,
+    "stale": false,
+    "future_timestamp": false,
+    "fallback_source": "mock",
+    "error_code": "tsetmc: ",
+    "data_source_config": "tsetmc",
+    "is_live": false,
+    "live_verified": false,
+    "is_generated": true,
+    "quality": {},
+    "warning": "MOCK data: development/demo fallback, not validated live market data. Fallback source: mock. Provider status: tsetmc: ."
+  },
+  "live_verified": false
+}

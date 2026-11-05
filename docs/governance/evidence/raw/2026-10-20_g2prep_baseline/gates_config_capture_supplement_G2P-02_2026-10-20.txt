@@ -1,0 +1,33 @@
+SUPPLEMENTARY GATE CAPTURE — G2P-02 remediation (G2PREPa)
+date_utc=2026-10-20T13:38:09Z
+reason: the original gates_fresh_evidence.txt (written 2026-10-20T13:08Z) was overwritten by its second redirect before the config.py lines were preserved; this supplement re-captures them fresh, clearly dated, never backdated.
+independent audit: docs/governance/evidence/2026-10-20_G2PREP_independent_audit.md finding G2P-02 (MEDIUM, provenance)
+
+=== backend/app/core/config.py lines 107-111 (AI2_ENABLED default) — command: sed -n '107,111p' ===
+    # which cannot be minted in this repository today — plus G2 independent
+    # validation and owner acceptance (governance gate, NOT_PASSED).
+    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+
+    # کش بنیادی (ثانیه)
+
+=== backend/app/core/config.py lines 263-276 (trust builder verified=False) — command: sed -n '263,276p' ===
+        state = "mixed"
+    elif base_state in {"live", "mixed"} and stale:
+        state = "stale"
+
+    # Independent verification is never inferred from source label, freshness,
+    # TRUST_LEVEL, fetch success, or an arbitrary live_verified=True argument.
+    # This environment has no live-verification boundary.
+    verified = False
+    trust_level = _legacy_trust_level_from_state(state)
+    if state == "live" and not verified:
+        trust_level = "mixed"
+    is_live = verified
+    is_generated = state in {"mock", "synthetic"}
+
+
+=== corroboration: grep -n 'AI2_ENABLED' backend/app/core/config.py ===
+109:    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+
+=== corroboration: grep -n 'verified = False' backend/app/core/config.py ===
+270:    verified = False

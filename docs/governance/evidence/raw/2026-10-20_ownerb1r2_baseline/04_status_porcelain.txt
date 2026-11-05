@@ -1,0 +1,7 @@
+== ownerb1r2-baseline-precommit :: 04_status_porcelain :: 2026-10-20T19:55:27Z
+== cmd: git status --porcelain=v1
+
+?? .claude/
+?? CLAUDE.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py

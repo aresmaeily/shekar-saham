@@ -1,0 +1,5 @@
+== ownerb1r2-precommit-a3030db :: pytest_ai6 :: 2026-10-20T19:56:57Z
+== cmd: bash -c cd backend && ../.venv/bin/python -m pytest -q tests/test_ai6_external_intelligence.py
+
+..........................................................               [100%]
+58 passed in 0.18s

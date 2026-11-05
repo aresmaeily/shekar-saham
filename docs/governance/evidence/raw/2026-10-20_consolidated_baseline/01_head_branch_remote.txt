@@ -1,0 +1,22 @@
+== rev-parse HEAD ==
+d380ee5797b46ee25ab172d6d77961a4f37517ef
+== log -1 ==
+d380ee5797b46ee25ab172d6d77961a4f37517ef
+d380ee5
+G2PREPa: independent-audit remediation (G2P-01, G2P-02) — dated supplementary gate capture gates_config_capture_supplement_G2P-02_2026-10-20.txt (config.py:107-111 + :263-276 + grep corroboration; G2P-02 root cause: gates_fresh_evidence.txt was overwritten by a second redirect before the config lines were preserved — capture now preserved fresh, clearly dated, never backdated) + review package §1 file-count correction (G2P-01: 22-file Step-1 batch + append-only additions, no brittle count) + E2/E4 rows and decision-package evidence bullet re-cited to the exact correct raw files (config captures vs import-surface grep). Audit verdict at 8e10e11: FAIL narrow (G2P-02 MEDIUM provenance; gate facts themselves re-verified TRUE live by the auditor; zero CRITICAL, zero gate drift); remediation docs-only, no code change; delta re-audit follows this commit. Gates unchanged: G2 NOT_PASSED; AI2_ENABLED=0 (config.py:109); live_verified=false (config.py:270); LLM NOT EXECUTED; no push; 4 untracked bootstrap paths preserved
+Z User <z@container>
+author 2026-10-20 13:39:51 +0000
+commit 2026-10-20 13:39:51 +0000
+== branch ==
+main
+== branches -v ==
+* main d380ee5 [ahead 29] G2PREPa: independent-audit remediation (G2P-01, G2P-02) — dated supplementary gate capture gates_config_capture_supplement_G2P-02_2026-10-20.txt (config.py:107-111 + :263-276 + grep corroboration; G2P-02 root cause: gates_fresh_evidence.txt was overwritten by a second redirect before the config lines were preserved — capture now preserved fresh, clearly dated, never backdated) + review package §1 file-count correction (G2P-01: 22-file Step-1 batch + append-only additions, no brittle count) + E2/E4 rows and decision-package evidence bullet re-cited to the exact correct raw files (config captures vs import-surface grep). Audit verdict at 8e10e11: FAIL narrow (G2P-02 MEDIUM provenance; gate facts themselves re-verified TRUE live by the auditor; zero CRITICAL, zero gate drift); remediation docs-only, no code change; delta re-audit follows this commit. Gates unchanged: G2 NOT_PASSED; AI2_ENABLED=0 (config.py:109); live_verified=false (config.py:270); LLM NOT EXECUTED; no push; 4 untracked bootstrap paths preserved
+== remotes ==
+origin	https://github.com/aresmaeily/shekar-saham (fetch)
+origin	https://github.com/aresmaeily/shekar-saham (push)
+== status -sb (first 3) ==
+## main...origin/main [ahead 29]
+?? .claude/
+?? CLAUDE.md
+== ahead/behind origin/main ==
+0	29

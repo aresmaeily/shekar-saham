@@ -1,0 +1,10 @@
+00_context.txt: OK
+01_head_branch_remote.txt: OK
+02_lsremote.txt: OK
+03_status_untracked.txt: OK
+04_stash_worktree.txt: OK
+05_unpublished_chain.txt: OK
+06_ancestry.txt: OK
+07_bootstrap_paths.txt: OK
+08_gates_source.txt: OK
+09_corpus_integrity.txt: OK

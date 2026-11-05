@@ -1,0 +1,4 @@
+== consolgov13-fullbattery-3e35f49 :: git_diff_check :: 2026-10-22T20:47:47Z
+== cmd: git diff --check; git diff --cached --check; echo diff_check_exit=$?; git diff --cached --check; echo cached_check_exit=$?
+diff_check_exit=0
+cached_check_exit=0

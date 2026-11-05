@@ -1,0 +1,19 @@
+== FINAL gate verification @ 2026-10-20T18:49:29Z ==
+HEAD=a3030dbbb01d5c409d83b0994b000a2bfd40b3ba
+branch=main
+ahead=31 behind=0
+lsremote=c1984e7979f89f2d727b471deb602953ec62fad5	refs/heads/main
+tracked_dirty=0
+staged=0
+stash=0
+worktrees=1
+untracked:
+?? .claude/
+?? CLAUDE.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py
+AI2_ENABLED:
+109:    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+verified=False:
+    verified = False
+diff_check_exit=0

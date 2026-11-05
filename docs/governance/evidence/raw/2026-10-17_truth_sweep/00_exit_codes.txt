@@ -1,0 +1,6 @@
+01_compileall exit_code=0 cwd=backend cmd: ../.venv/bin/python -m compileall -q app
+02_pyflakes_ci exit_code=0 cwd=backend cmd: ../.venv/bin/python -m pyflakes app
+02b_pyflakes_ext exit_code=1 cwd=backend cmd: ../.venv/bin/python -m pyflakes app tests
+03_pytest exit_code=0 cwd=backend cmd: env PYTHONPATH=. ../.venv/bin/python -m pytest -q tests
+04_pip_audit exit_code=0 cwd=backend cmd: ../.venv/bin/python -m pip_audit -r requirements.txt
+05_bootstrap_validator exit_code=0 cwd=. cmd: ./.venv/bin/python scripts/validate_bootstrap_config.py

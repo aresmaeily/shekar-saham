@@ -1,0 +1,16 @@
+== status --porcelain (top-level summary) ==
+      1 ?? scripts/validate_bootstrap_config.py
+      1 ?? docs/governance/
+      1 ?? CLAUDE.md
+      1 ?? .claude/
+== untracked top-level ==
+.claude
+CLAUDE.md
+docs
+scripts
+== tracked modifications (should be empty) ==
+tracked_diff_files=0
+== staged (should be empty) ==
+staged_files=0
+== diff --check (whitespace errors; expect 0) ==
+diff_check_exit=0

@@ -1115,3 +1115,35 @@ class TestLQARemediations:
             }
             out = asyncio.run(svc.generate(_request(), transport=_ok_transport(spec)))
             assert out.ok and out.status == "executed_shadow", (period, out.error_code)
+
+
+class TestCrossSurfaceReproducibility:
+    """WAVE-L session finding, pinned: a candidate's backtest_digest is
+    BYTE-REPRODUCIBLE in the Strategy Lab — the generation path uses the
+    lab's own run convention, so a human taking the generated source to
+    POST /api/v10/strategylab/backtest with the same params gets the exact
+    same digest (governance proof that the AI-2 evaluation claims nothing
+    the human cannot reproduce)."""
+
+    def test_candidate_digest_reproduces_in_strategy_lab(self, gen_enabled):
+        from fastapi.testclient import TestClient
+        from app.main import create_app
+
+        svc = AI2GenerationService()
+        out = asyncio.run(svc.generate(
+            _request(), transport=_ok_transport(), max_concurrent=4, rate_per_minute=60))
+        assert out.ok and out.generated_source
+
+        app = create_app()
+        client = TestClient(app, client=("ai2gen-crosssurface", 12451))
+        r = client.post("/api/v10/strategylab/backtest", json={
+            "source": out.generated_source, "symbol": "FOLAD", "timeframe": "1D",
+            "count": 200, "end_bar_index": 500,
+        })
+        assert r.status_code == 200
+        lab = r.json()
+        assert lab["result_digest"] == out.backtest_digest
+        assert lab["data_trust_label"] == "SYNTHETIC_OR_PAPER"
+        # headline metrics identical too (same numbers, two surfaces)
+        lab_report = lab.get("report") or {}
+        assert lab_report.get("total_return_pct") == out.metrics_headline.get("total_return_pct")

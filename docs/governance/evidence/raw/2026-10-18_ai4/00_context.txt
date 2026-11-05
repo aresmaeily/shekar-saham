@@ -1,0 +1,1 @@
+context: AI-4 governed generation battery, pre-commit, HEAD a3165c46244e8d01c2f997f74a82351220c668d9, branch main, date 2026-10-18T16:11:44Z; working tree: 7 entries (2 planned AI-4 files + untracked bootstrap set)

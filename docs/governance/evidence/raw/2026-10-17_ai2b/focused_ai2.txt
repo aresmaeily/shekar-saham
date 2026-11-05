@@ -1,0 +1,2 @@
+PYTHONPATH=. ../.venv/bin/python -m pytest tests/test_ai2_service.py -q
+23 passed in 0.80s

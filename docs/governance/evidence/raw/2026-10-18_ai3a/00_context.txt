@@ -1,0 +1,9 @@
+context:
+  date_utc=2026-10-18T05:11:42Z
+  head=42587fa418e6b6b24afe3c888ea44c9c31432f26
+  head_subject=AI3-A: Record AI-3 scope derivation and blocker evidence; no implementation authorized from in-repo sources
+  python=Python 3.12.15
+  tracked_dirty=0
+post_battery:
+  modified_tracked=0
+  head_after=42587fa418e6b6b24afe3c888ea44c9c31432f26

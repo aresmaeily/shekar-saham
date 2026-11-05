@@ -1,0 +1,7 @@
+head=357f4b696ad80a58f5ef2e3aaf386c6274259319
+branch=main
+tracked_dirty_pre=0
+python=Python 3.12.15
+cwd=/home/z/my-project/RADAR_BOURSE/repo/backend
+tracked_dirty_post=0
+head_after=357f4b696ad80a58f5ef2e3aaf386c6274259319

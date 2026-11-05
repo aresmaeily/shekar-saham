@@ -1,0 +1,177 @@
+/home/z/my-project/RADAR_BOURSE/repo/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+2026-10-24 11:12:35,194 | INFO | httpx | HTTP Request: GET http://testserver/api/health "HTTP/1.1 200 OK" | request_id=-
+2026-10-24 11:12:35,200 | INFO | httpx | HTTP Request: GET http://testserver/api/status "HTTP/1.1 200 OK" | request_id=-
+2026-10-24 11:13:11,317 | INFO | shekar.service | pruned old data - keep_hours=36.0 | request_id=-
+2026-10-24 11:13:11,318 | INFO | shekar.service | refreshed 60 via mock_fallback trust=synthetic | entry=13 exit=0 | moves=24 | flow_cov=111007.0 | combo_buy=9 | ws=0 | request_id=-
+2026-10-24 11:13:11,322 | INFO | httpx | HTTP Request: GET http://testserver/api/analyze "HTTP/1.1 200 OK" | request_id=-
+2026-10-24 11:13:11,327 | INFO | httpx | HTTP Request: GET http://testserver/api/overview "HTTP/1.1 200 OK" | request_id=-
+2026-10-24 11:13:11,332 | INFO | httpx | HTTP Request: GET http://testserver/api/symbol/%D9%81%D9%85%D9%84%DB%8C "HTTP/1.1 200 OK" | request_id=-
+2026-10-24 11:13:11,341 | INFO | httpx | HTTP Request: POST http://testserver/api/filter/run "HTTP/1.1 200 OK" | request_id=-
+2026-10-24 11:13:11,450 | INFO | httpx | HTTP Request: POST http://testserver/api/backtest/run "HTTP/1.1 200 OK" | request_id=-
+2026-10-24 11:13:11,467 | INFO | httpx | HTTP Request: POST http://testserver/api/ai/assistant "HTTP/1.1 200 OK" | request_id=-
+2026-10-24 11:13:11,474 | INFO | httpx | HTTP Request: POST http://testserver/api/ai/analyze "HTTP/1.1 200 OK" | request_id=-
+2026-10-24 11:13:11,503 | INFO | httpx | HTTP Request: POST http://testserver/api/ai/optimize "HTTP/1.1 200 OK" | request_id=-
+2026-10-24 11:13:11,506 | INFO | httpx | HTTP Request: GET http://testserver/api/fundamental/%D9%81%D9%85%D9%84%DB%8C/deep "HTTP/1.1 200 OK" | request_id=-
+2026-10-24 11:13:11,524 | INFO | httpx | HTTP Request: GET http://testserver/ "HTTP/1.1 200 OK" | request_id=-
+2026-10-24 11:13:11,528 | INFO | httpx | HTTP Request: GET http://testserver/symbol/%D9%81%D9%85%D9%84%DB%8C "HTTP/1.1 200 OK" | request_id=-
+{
+  "ok": true,
+  "checks": [
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200,
+      "bytes": 1727,
+      "data_trust": {
+        "state": "unavailable",
+        "trust_level": "mixed",
+        "is_live": false,
+        "live_verified": false,
+        "stale": false
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/status",
+      "status": 200,
+      "bytes": 1661,
+      "data_trust": {
+        "state": "unavailable",
+        "trust_level": "mixed",
+        "is_live": false,
+        "live_verified": false,
+        "stale": false
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/analyze",
+      "status": 200,
+      "bytes": 44546,
+      "data_trust": {
+        "state": "mock",
+        "trust_level": "synthetic",
+        "is_live": false,
+        "live_verified": false,
+        "stale": false
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/overview",
+      "status": 200,
+      "bytes": 2198,
+      "data_trust": {
+        "state": "mock",
+        "trust_level": "synthetic",
+        "is_live": false,
+        "live_verified": false,
+        "stale": false
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/symbol/فملی",
+      "status": 200,
+      "bytes": 41757,
+      "data_trust": {
+        "state": "mock",
+        "trust_level": "synthetic",
+        "is_live": false,
+        "live_verified": false,
+        "stale": false
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/filter/run",
+      "status": 200,
+      "bytes": 4639,
+      "data_trust": {
+        "state": "mock",
+        "trust_level": "synthetic",
+        "is_live": false,
+        "live_verified": false,
+        "stale": false
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/backtest/run",
+      "status": 200,
+      "bytes": 46010,
+      "data_trust": {
+        "state": "mock",
+        "trust_level": "synthetic",
+        "is_live": false,
+        "live_verified": false,
+        "stale": false
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/assistant",
+      "status": 200,
+      "bytes": 3094,
+      "data_trust": {
+        "state": "mock",
+        "trust_level": "synthetic",
+        "is_live": false,
+        "live_verified": false,
+        "stale": false
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/analyze",
+      "status": 200,
+      "bytes": 44748,
+      "data_trust": {
+        "state": "mock",
+        "trust_level": "synthetic",
+        "is_live": false,
+        "live_verified": false,
+        "stale": false
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/ai/optimize",
+      "status": 200,
+      "bytes": 3052,
+      "data_trust": {
+        "state": "mock",
+        "trust_level": "synthetic",
+        "is_live": false,
+        "live_verified": false,
+        "stale": false
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/fundamental/فملی/deep",
+      "status": 200,
+      "bytes": 18445,
+      "data_trust": {
+        "state": "mock",
+        "trust_level": "synthetic",
+        "is_live": false,
+        "live_verified": false,
+        "stale": false
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "status": 200,
+      "bytes": 49753
+    },
+    {
+      "method": "GET",
+      "path": "/symbol/فملی",
+      "status": 200,
+      "bytes": 6986
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+pytest_full exit=0
+pytest_new_block exit=0
+pyflakes exit=0
+compileall exit=0
+pip_audit exit=0
+validate_alpha_env exit=0
+validate_alpha_runtime exit=0
+validate_frontend exit=0
+validate_bootstrap exit=0
+git_diff_check exit=0

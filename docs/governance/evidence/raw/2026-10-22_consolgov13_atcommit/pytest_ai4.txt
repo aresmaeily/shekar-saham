@@ -1,0 +1,4 @@
+== consolgov13-atcommit-a409ddf :: pytest_ai4 :: 2026-10-22T21:02:54Z
+== cmd: cd /home/z/my-project/RADAR_BOURSE/repo/backend && ../.venv/bin/python -m pytest -q tests/test_ai4_governed_generation.py
+...................................................                      [100%]
+51 passed in 0.19s

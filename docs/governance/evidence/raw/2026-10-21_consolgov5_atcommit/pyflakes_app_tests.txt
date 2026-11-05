@@ -1,0 +1,3 @@
+== consolgov5-atcommit-d59ce3e :: pyflakes_app_tests :: 2026-10-21T05:53:42Z
+== cmd: cd /home/z/my-project/RADAR_BOURSE/repo/backend && ../.venv/bin/python -m pyflakes app tests
+

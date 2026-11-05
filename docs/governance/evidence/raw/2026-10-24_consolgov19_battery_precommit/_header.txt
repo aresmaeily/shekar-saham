@@ -1,0 +1,3 @@
+== consolgov19-battery-precommit :: 300ca7a37b9263ac23c0ed25e95a3c6b8b61b7bb :: 2026-10-24T12:54:31Z
+== tree-state: tracked-clean at HEAD 300ca7a (GOV-19 Phase 0 verified baseline; parent 75b7385; GOV-19 commit NOT yet made)
+== untracked = 4 bootstrap paths + this evidence dir (per bootstrap-path precedent)

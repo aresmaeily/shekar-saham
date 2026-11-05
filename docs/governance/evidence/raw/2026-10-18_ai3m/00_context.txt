@@ -1,0 +1,16 @@
+== context ==
+2026-10-18T13:02:23Z
+aa86c3cc827ba4a9ff655aeba8917746418c5d8d
+?? .claude/
+?? CLAUDE.md
+?? backend/app/domain/research_memory.py
+?? backend/tests/test_ai3_research_memory.py
+?? docs/active/AI3M_EXECUTION_RECORD.md
+?? docs/active/AI3_M_SCOPE_DERIVATION.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py
+tracked_dirty_pre:
+0
+tracked_dirty_post:
+0
+aa86c3cc827ba4a9ff655aeba8917746418c5d8d

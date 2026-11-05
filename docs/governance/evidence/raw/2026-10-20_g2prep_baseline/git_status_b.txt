@@ -1,0 +1,8 @@
+$ git status --porcelain=v1 -b
+---
+## main...origin/main [ahead 27]
+?? .claude/
+?? CLAUDE.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py
+---exit=0

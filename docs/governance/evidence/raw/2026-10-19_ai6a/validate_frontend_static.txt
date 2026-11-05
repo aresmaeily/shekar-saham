@@ -1,0 +1,21 @@
+{
+  "ok": true,
+  "files": {
+    "frontend/index.html": true,
+    "frontend/symbol.html": true,
+    "frontend/js/main.js": true,
+    "frontend/js/symbol.js": true,
+    "frontend/vendor/lightweight-charts.standalone.production.js": true
+  },
+  "tabs": {
+    "tabs_count": 24,
+    "panels_count": 24,
+    "missing_panels": [],
+    "orphan_panels": []
+  },
+  "duplicate_ids": {
+    "index": [],
+    "symbol": []
+  },
+  "missing_js_imports": []
+}

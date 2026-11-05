@@ -1,0 +1,9 @@
+context:
+  date_utc=2026-10-17T11:39:32Z
+  head=56deaff772c90c68c325edb292533717d9360660
+  head_subject=AI2-D: Close AI-2 residual audit and add G2 readiness evidence package
+  python=Python 3.12.15
+  tracked_dirty=0
+post_battery:
+  modified_tracked=0
+  head_after=56deaff772c90c68c325edb292533717d9360660

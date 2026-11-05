@@ -1,0 +1,3 @@
+context: owner B-1/R2 decision-intake cycle battery (ownerb1r2-atcommit-bef3a53) at HEAD bef3a53afca49e40e293a3d233a70129a72bd3ea (main); date 2026-10-20T20:07:26Z
+note: ahead of origin/main = 32 (unpushed; NO push authorized)
+note: exit codes preserved as <name>.exit files; manifest covers .txt evidence only (self + .exit excluded per established convention; .exit cross-validated vs .txt outputs)

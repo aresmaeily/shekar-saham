@@ -1,0 +1,11 @@
+== ancestry checks (expect commit for each) ==
+d380ee5 type=commit ancestor-of-HEAD
+8e10e11 type=commit ancestor-of-HEAD
+7490ad4 type=commit ancestor-of-HEAD
+37c529d type=commit ancestor-of-HEAD
+c1984e7 type=commit ancestor-of-HEAD
+== per-block commit presence (block remediation commits) ==
+b3cbeb1 type=commit ancestor-of-HEAD
+2f86c4a type=commit ancestor-of-HEAD
+17ef611 type=commit ancestor-of-HEAD
+e385415 type=commit ancestor-of-HEAD

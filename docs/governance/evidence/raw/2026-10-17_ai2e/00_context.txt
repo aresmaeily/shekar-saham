@@ -1,0 +1,9 @@
+context:
+  date_utc=2026-10-17T13:50:23Z
+  head=54626ee654c678486b9d365884169990177454fa
+  head_subject=AI2-E: Add AI-2 G2 reviewer checklist, verify evidence-package integrity, fix handoff staleness
+  python=Python 3.12.15
+  tracked_dirty=0
+post_battery:
+  modified_tracked=0
+  head_after=54626ee654c678486b9d365884169990177454fa

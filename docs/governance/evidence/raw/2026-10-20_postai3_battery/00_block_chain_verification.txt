@@ -1,0 +1,45 @@
+== PER-BLOCK COMMIT CHAIN VERIFICATION (2026-10-20 at HEAD a8d6e19) ==
+P0-AMD-1 357f4b6 ancestor=YES | 14 files changed, 2272 insertions(+)
+P0-AMD-1a b3cbeb1 ancestor=YES | 4 files changed, 17 insertions(+), 6 deletions(-)
+AI1-GC ea3277e ancestor=YES | 12 files changed, 1892 insertions(+), 1 deletion(-)
+AI1-GCa 2f86c4a ancestor=YES | 4 files changed, 22 insertions(+), 7 deletions(-)
+AI2-F 6aeeaa2 ancestor=YES | 8 files changed, 830 insertions(+), 1 deletion(-)
+AI2-Fa 17ef611 ancestor=YES | 6 files changed, 73 insertions(+), 13 deletions(-)
+AI-MA-C e385415 ancestor=YES | 8 files changed, 846 insertions(+), 3 deletions(-)
+AI-MA-Ca aa86c3c ancestor=YES | 6 files changed, 116 insertions(+), 19 deletions(-)
+AI3-M 80585c8 ancestor=YES | 8 files changed, 682 insertions(+), 1 deletion(-)
+AI3-Ma 37c529d ancestor=YES | 4 files changed, 16 insertions(+), 4 deletions(-)
+ACC-PKG 45f0b8b ancestor=YES | 8 files changed, 710 insertions(+), 1 deletion(-)
+ACCPKGa a3165c4 ancestor=YES | 2 files changed, 9 insertions(+), 7 deletions(-)
+AI-4 6a10e5a ancestor=YES | 8 files changed, 1855 insertions(+)
+AI-4a cc98c64 ancestor=YES | 7 files changed, 46 insertions(+), 36 deletions(-)
+AI-6 adf8cdf ancestor=YES | 13 files changed, 2886 insertions(+)
+AI-6a 1d9030c ancestor=YES | 9 files changed, 106 insertions(+), 40 deletions(-)
+AI-6b a8d6e19 ancestor=YES | 4 files changed, 29 insertions(+), 4 deletions(-)
+
+== module files exist (additive contract modules) ==
+OK backend/app/domain/evidence.py (235 lines)
+OK backend/app/domain/source_registry.py (224 lines)
+OK backend/app/domain/monitoring.py (174 lines)
+OK backend/app/domain/fundamental_dossier.py (327 lines)
+OK backend/app/domain/product_audit.py (177 lines)
+OK backend/app/domain/prediction.py (224 lines)
+OK backend/app/domain/run_governance.py (262 lines)
+OK backend/app/domain/memory_interfaces.py (217 lines)
+OK backend/app/domain/opportunity.py (259 lines)
+OK backend/app/domain/monitoring_governance.py (186 lines)
+OK backend/app/domain/ai2_governance.py (436 lines)
+OK backend/app/domain/multi_agent.py (472 lines)
+OK backend/app/domain/research_memory.py (341 lines)
+OK backend/app/domain/governed_generation.py (669 lines)
+OK backend/app/domain/external_intelligence.py (884 lines)
+
+== audit files: verdict chains + FAIL history preserved ==
+P0AMD1: file=OK FAIL_mentions=3 PASS_mentions=2 lines=222
+AI1GC: file=OK FAIL_mentions=2 PASS_mentions=1 lines=283
+AI2F: file=OK FAIL_mentions=3 PASS_mentions=1 lines=275
+AIMAC: file=OK FAIL_mentions=0 PASS_mentions=1 lines=140
+AI3M: file=OK FAIL_mentions=0 PASS_mentions=1 lines=146
+AI4: file=OK FAIL_mentions=1 PASS_mentions=1 lines=144
+AI6: file=OK FAIL_mentions=1 PASS_mentions=1 lines=213
+ACCPKG: file=OK FAIL_mentions=1 PASS_mentions=0 lines=55

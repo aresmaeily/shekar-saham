@@ -1,0 +1,6 @@
+# Truth-sweep acceptance battery v2 (CI-parity) — 2026-10-16T19:19:05Z
+cwd per command recorded below; tested SHA: 6ff6b073abb172ca5330dfac535c77a3a5c20b45
+branch: main  upstream: c1984e7979f89f2d727b471deb602953ec62fad5
+ahead/behind: 0	1
+python: Python 3.12.15
+

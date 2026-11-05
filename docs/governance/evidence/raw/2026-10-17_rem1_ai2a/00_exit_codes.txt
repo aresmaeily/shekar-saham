@@ -1,0 +1,7 @@
+01_compileall=0
+02_pyflakes_ci=0
+02b_pyflakes_ext=0
+03_pytest=0
+04_pip_audit=0
+05_bootstrap_validator=0
+06_git_diff_check=0

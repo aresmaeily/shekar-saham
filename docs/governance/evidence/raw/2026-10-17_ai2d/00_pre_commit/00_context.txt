@@ -1,0 +1,9 @@
+context:
+  date_utc=2026-10-17T11:37:36Z
+  head=0834b198864f8a5c06b07df777a9ad200111822f
+  head_subject=AI2-C: Harden AI-2 async boundaries, context integrity, and input bounds
+  python=Python 3.12.15
+  tracked_dirty=5
+post_battery:
+  modified_tracked=5
+  head_after=0834b198864f8a5c06b07df777a9ad200111822f

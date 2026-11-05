@@ -1,0 +1,6 @@
+context: AI-6 pre-commit battery at HEAD cc98c64009f0ea10f3c132fbcf4dc29c87c1e58d (main); date 2026-10-19T07:27:53Z; tracked_dirty=0
+note: first battery pass had two invocation defects in the harness itself
+(pip_audit --progress-terminal flag unsupported; validate_providers.py needs
+--source KEY, not positional). Both were corrected and the two components
+re-run to exit 0; all other components are first-pass outputs. Exit codes
+are preserved as <name>.exit files alongside each raw output.

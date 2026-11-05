@@ -1,0 +1,5 @@
+=== ls-remote (read-only, NO push) ===
+c1984e7979f89f2d727b471deb602953ec62fad5	HEAD
+c1984e7979f89f2d727b471deb602953ec62fad5	refs/heads/main
+9b30cbd222a06a5d63f13d70b00f0948a926018c	refs/heads/v0/repository-access-verification-b6f5622a
+exit=0

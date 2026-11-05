@@ -1,0 +1,8 @@
+### command: git status --porcelain=v1
+### started_utc: 2026-10-20T18:34:13Z
+?? .claude/
+?? CLAUDE.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py
+### exit_code: 0
+### ended_utc: 2026-10-20T18:34:13Z

@@ -1,0 +1,4 @@
+context: AI-6 at-commit battery at HEAD adf8cdf4f7ec0e091c3a1c0adfc32245a6851dcc (main); date 2026-10-19T07:37:16Z; tracked_dirty=0
+note: harness invocation defects from the pre-commit first pass had already
+been fixed in the battery script before this at-commit run; all components
+are single-pass outputs here. Exit codes preserved as <name>.exit files.

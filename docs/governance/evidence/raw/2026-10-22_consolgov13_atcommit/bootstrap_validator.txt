@@ -1,0 +1,24 @@
+== consolgov13-atcommit-a409ddf :: bootstrap_validator :: 2026-10-22T21:04:15Z
+== cmd: .venv/bin/python scripts/validate_bootstrap_config.py
+
+==============================================================================
+BOOTSTRAP-1 STRUCTURAL VALIDATION — /home/z/my-project/RADAR_BOURSE/repo
+==============================================================================
+[PASS] 1. agents presence+frontmatter
+       4/4 ok, name==filename, description present
+[PASS] 2. skills presence+frontmatter
+       8/8 ok
+[PASS] 3. settings.json valid + policy shape
+       allow=50 ask=30 deny=13; push gated, force-push denied, .env denied, no bypass mode, no hooks
+[PASS] 4. path refs: CLAUDE.md
+       10 resolved; unresolved: none
+[PASS] 4. path refs: agents
+       21 resolved; unresolved: none
+[PASS] 4. path refs: skills
+       38 resolved; unresolved: none
+[PASS] 5. secret scan over bootstrap files
+       no credential patterns in 15 files
+[PASS] 6. CLAUDE.md cross-references
+       all 4 agents + 8 skill names referenced; state file exists
+------------------------------------------------------------------------------
+SUMMARY: 8 checks, 0 FAIL

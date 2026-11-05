@@ -1,0 +1,25 @@
+== git stash list ==
+exit=0
+== git worktree list ==
+/home/z/my-project/RADAR_BOURSE/repo  a8d6e19 [main]
+exit=0
+== git rev-parse --verify 37c529d{commit} ==
+37c529d1d558317307238d654e3723240a1f400f
+exit=0
+== merge-base --is-ancestor 37c529d HEAD ==
+IS_ANCESTOR=yes
+== git log --oneline 37c529d..HEAD | wc -l (commits since reported HEAD) ==
+7
+== git log --oneline 37c529d..HEAD ==
+a8d6e19 AI-6b: delta-re-audit closure (AI6-13 + AI6-14) — delta re-audit PASS recorded in execution record §6; AI-6a at-commit battery 2026-10-20_ai6b cited in §5 (621/2W/77.69s at 1d9030c; manifest 13/13 OK); containment wording narrowed to 'evidence-use flow (filing or interpretation)' with containment-aware intake as designed precondition (scope R7 + gate docstring; AST-identical with docstrings stripped, 58/58, pyflakes 0)
+1d9030c AI-6a: Independent-audit remediation (AI6-01..09) — corpus-locus corrections 02:194 / 06 §11 100-101 / 06 §3 16-30 / 02:169 / 02:164-165 / 03:76 / 02:109-112; evidence_filing_gate TIGHTENED to the documented rule (active quarantine always blocks filing until named-human release, regardless of findings; AI6-03) + test updated; scope R8 mechanism wording (construction-time TwoKeyAuthorization validators + quarantine_release_gate) and R13 CoverageReport canonical-not-consumed; readiness-report modified-set parenthetical (ai2_service.py ADDED, not modified); at-commit battery 2026-10-19_ai6a cited in record §6/§5; 880-line count; audit verdict recorded in record §6 (FAIL narrow → dispositions; delta re-audit in audit file); AI6-11/12 INFO accepted
+adf8cdf AI-6: Untrusted-content boundary + injection-isolation contract layer (owner directive R2) with R1/R3/R4/R5/R6/R7 companion artifacts
+cc98c64 AI-4a: Independent-audit remediation (corpus-locus corrections 02:179/02:198/02:89-90; at-commit battery evidence citation; AI4-01..05)
+6a10e5a AI-4: Governed Generation contract layer (sandbox admission gate, deterministic evaluator binding, closed candidate lifecycle, human-approval binding, structural no-production-mutation guarantees)
+a3165c4 ACCPKGa: Audit disposition (ACCPKG-01..04; docs-only)
+45f0b8b ACC-PKG: Owner acceptance package, G2 evidence matrix, AI-3 persistence brief, AI-4..AI-7/P3.43 dependency matrix
+== git show -s --format='%H %ci %s' 37c529d ==
+37c529d1d558317307238d654e3723240a1f400f 2026-10-18 13:20:24 +0000 AI3-Ma: Audit disposition (comment-direction fix; AI3M-01)
+== git ls-remote origin main (live remote ref, read-only) ==
+c1984e7979f89f2d727b471deb602953ec62fad5	refs/heads/main
+exit=0

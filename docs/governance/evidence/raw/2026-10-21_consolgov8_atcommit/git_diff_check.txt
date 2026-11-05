@@ -1,0 +1,6 @@
+== consolgov8-atcommit-34ac37b :: git_diff_check :: 2026-10-21T12:54:37Z
+== cmd: git diff --check; git diff --cached --check; git diff HEAD^ HEAD --check
+
+diff_check_exit=0
+cached_check_exit=0
+commit_check_exit=0

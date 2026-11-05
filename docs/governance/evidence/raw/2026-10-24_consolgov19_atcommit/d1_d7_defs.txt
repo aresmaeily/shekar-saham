@@ -1,0 +1,20 @@
+### 2.2 The unresolved owner choices (D1–D7, from `AI3_PERSISTENCE_DECISION_BRIEF.md` §D — verbatim labels)
+
+| ID | Unresolved choice | Consequence of each supported option (from the brief + evaluation) |
+|---|---|---|
+| D1 | Engine class: embedded single-operator (Option 1 SQLite+blobs / Option 2 JSONL+blobs) vs server-class (Option 3 Postgres) | Opt1: lowest ops delta, app-level immutability (triggers possible), indexed PIT; Opt2: strongest natural format-level immutability, weakest access control; Opt3: storage-level grants + full concurrency, high deploy burden |
+| D2 | Deployment target for the AI runtime (Windows host / Docker / Electron-bundled) | Currently BLOCKED upstream at P3.43 launch gates; deciding D2 before P3.43 prerequisites resolve would be speculative |
+| D3 | Immutability guarantee class (application-enforced / storage-enforced / format-enforced) + periodic hash audits | Determines which option satisfies the owner's guarantee bar; the evaluation recommends trigger-level (M3) as the default for Option 1 |
+| D4 | Access-control model + who may read episodic evidence (A8 approval-state interaction) | Option 3 strongest; Option 1 file-permission+hash class; Option 2 weakest |
+| D5 | Backup/retention/DR policy (cadence, copies, offsite) | The archive itself must never be purged (A3/A11); backups are replication, not retention — policy is owner's regardless of engine |
+| D6 | Blob-store location (inside/outside repo tree) + size ceilings | Engineering default proposed: outside repo tree, content-addressed (register review D-4); ratification is the owner's (same class as the P0 numeric-ceiling ratification) |
+| D7 | Timing: decide now (pre-G2, adapter testable in synthetic runs) vs after G2 | Evaluation A-5/register review D-7 resolution: defer adapter until D2/D3/D4 answered; contract layer unaffected either way; no migration performed |
+
+### 2.3 Current engineering position (recommendation, NOT a decision)
+
+`AI3_PERSISTENCE_CANDIDATE_EVALUATION.md` §7 designates the incumbent
+**SQLite WAL + JSONL as PREFERRED CANDIDATE** with limitations, migration plan,
+and acceptance tests specified — "NO migration performed". This remains a
+candidate designation only; D1–D7 remain open with the owner.
+
+### 2.4 Evidence needed to dispose (unchanged from the decision package §2)

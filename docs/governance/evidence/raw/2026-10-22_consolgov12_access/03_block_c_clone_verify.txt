@@ -1,0 +1,53 @@
+== captured_utc=2026-10-22T04:14:44Z ==
+== target: /home/z/my-project/RADAR_BOURSE/reviewer_clone_20261022 ==
+== full clone (no --depth: full history) ==
+clone_exit=0
+Cloning into '/home/z/my-project/RADAR_BOURSE/reviewer_clone_20261022'...
+== remote -v (clone) ==
+origin	https://github.com/aresmaeily/shekar-saham (fetch)
+origin	https://github.com/aresmaeily/shekar-saham (push)
+== HEAD ==
+c1984e7979f89f2d727b471deb602953ec62fad5
+== parent ==
+52065697022ff1366c878c15242a690bf6c80e01
+== branch ==
+main
+== all branches ==
+* main
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/main
+  remotes/origin/v0/repository-access-verification-b6f5622a
+== history depth (rev-list --count HEAD) ==
+64
+== root commit(s) ==
+b28f26a5540b4fe45023e0bcb167716a5d867739
+== HEAD subject ==
+c1984e7979f89f2d727b471deb602953ec62fad5 | RADAR BOURSE | radar-bourse@localhost | 2026-08-19T08:02:32+03:30 | P3.91: Prove Filter DSL consumes CDN-mapped TSETMC snapshots
+== working tree status (porcelain) ==
+0
+== tags ==
+0
+== stash count ==
+0
+== c661a61 present in clone? (expect 'absent') ==
+fatal: git cat-file: could not get object info
+absent
+== 2ccfacb present in clone? ==
+fatal: git cat-file: could not get object info
+absent
+== bootstrap paths present in clone worktree? (expect all 4 absent) ==
+absent: .claude
+absent: CLAUDE.md
+absent: docs/governance
+absent: scripts/validate_bootstrap_config.py
+== docs/active governance records present in clone? (expect absent — local-only commits) ==
+absent: docs/active/G2_REVIEW_PROCEDURE_DRAFT_v0.1_2026-10-20.md
+absent: docs/active/CONSOLGOV10_R2_STATUS_CONSISTENCY_OWNER_DECISION_READINESS_2026-10-21.md
+PRESENT: docs/STATUS.md
+PRESENT: docs/CHANGELOG.md
+PRESENT: docs/active/INDEX.md
+== ls-remote branches fetched ==
+c1984e7979f89f2d727b471deb602953ec62fad5	refs/heads/main
+9b30cbd222a06a5d63f13d70b00f0948a926018c	refs/heads/v0/repository-access-verification-b6f5622a
+== provenance note: clone is a fresh anonymous read-only copy of canonical origin/main; NOT a simulated repo ==
+BLOCK_C_DONE

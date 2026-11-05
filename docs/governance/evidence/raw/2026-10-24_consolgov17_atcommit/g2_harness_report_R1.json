@@ -1,0 +1,156 @@
+{
+  "harness": "g2_acceptance_battery.py",
+  "generated_utc": "2026-10-24T10:34:29Z",
+  "commit": "75b7385a2ed2a9493f3aea1b398fec7585a87be4",
+  "parent": "5f9916b91dc7a0ff16f2c3076e117c782317710e",
+  "branch": "main",
+  "harness_green": false,
+  "g2_verdict": "NOT_PASSED",
+  "g2_verdict_reason": "G2 verdict authority is the owner alone (04:72 Role 1 A; 05:148-150; D-AI-26; v0.2 T6). Required but absent: owner-approved procedure (D-O1), appointed reviewer with written acknowledgement (D-O2/R-A1 -> E5), COI adjudication (D-O3), convened review at a fixed SHA, owner-recorded verdict. No harness run can substitute for any of these. AI2_ENABLED must remain 0 (real-data AI-2 stays blocked).",
+  "checks": [
+    {
+      "id": "G2-C-iii-1",
+      "predicate": "AI2_ENABLED default '0' in backend/app/core/config.py",
+      "method": "CODE_PARSE",
+      "observed": "0",
+      "required": "'0'",
+      "satisfied": true,
+      "evidence": "backend/app/core/config.py (ai2_enabled _env_bool default)"
+    },
+    {
+      "id": "G2-C-iii-2",
+      "predicate": "live-verification boundary verified=False hard-coded",
+      "method": "CODE_PARSE",
+      "observed": "False",
+      "required": "False",
+      "satisfied": true,
+      "evidence": "backend/app/core/config.py (verified = False in is_verified_live)"
+    },
+    {
+      "id": "G2-C-iii-3",
+      "predicate": "no AI-2 HTTP route (zero ai2 references under backend/app/api)",
+      "method": "TREE_SCAN",
+      "observed": "none",
+      "required": "none",
+      "satisfied": true,
+      "evidence": "rg-style scan of backend/app/api/*.py"
+    },
+    {
+      "id": "G2-C-iv",
+      "predicate": "amendment corpus byte-identity 7/7 vs pinned digests",
+      "method": "DIGEST_COMPARE",
+      "observed": "7/7",
+      "required": "7/7",
+      "satisfied": true,
+      "evidence": "embedded reference digests (GOV-6 provenance)"
+    },
+    {
+      "id": "G2-C-v",
+      "predicate": "evidence bundle SHA256SUMS.manifest verifies OK",
+      "method": "MANIFEST_VERIFY",
+      "observed": "NO_EVIDENCE_DIR_SELECTED",
+      "required": "ok",
+      "satisfied": false,
+      "evidence": "not provided"
+    },
+    {
+      "id": "G2-C-v-fresh",
+      "predicate": "evidence bundle commit-binds the CURRENT HEAD (no stale evidence)",
+      "method": "EVIDENCE_COMMIT_BINDING",
+      "observed": "NO_EVIDENCE_DIR_SELECTED",
+      "required": "FRESH",
+      "satisfied": false,
+      "evidence": "not provided"
+    },
+    {
+      "id": "G2-C-v-impl",
+      "predicate": "implementation evidence binds the tested commit; HEAD delta is docs-only or empty",
+      "method": "EVIDENCE_IMPLEMENTATION_BINDING",
+      "observed": "NO_EVIDENCE_DIR_SELECTED; tested=None",
+      "required": "FRESH_AT_HEAD or DOCS_ONLY_SINCE (tested commit recorded)",
+      "satisfied": false,
+      "evidence": "not provided"
+    },
+    {
+      "id": "G2-C-i",
+      "predicate": "full pytest battery green at the current commit",
+      "method": "PYTEST_RUN",
+      "observed": "NOT_EXECUTED (run with --full-battery)",
+      "required": "exit 0 + N passed",
+      "satisfied": false,
+      "evidence": "delegate to consolgov14 battery evidence for the current cycle"
+    },
+    {
+      "id": "G2-C-ii",
+      "predicate": "all CRITICAL/HIGH/MEDIUM findings dispositioned",
+      "method": "DOC_DERIVED",
+      "observed": "declared-zero-open (see GOV-13 record defects ledger)",
+      "required": "zero open CRITICAL/HIGH/MEDIUM + independent confirmation",
+      "satisfied": false,
+      "evidence": "documented-state check: canonical record set declares zero open CRITICAL/HIGH/MEDIUM; this harness does NOT independently re-audit (T4: implementing-side audits are evidence for the review, not a substitute)"
+    },
+    {
+      "id": "G2-E1",
+      "predicate": "reviewed SHA fixed and tree state matches",
+      "method": "GIT_STATE",
+      "observed": "HEAD=75b7385a2ed2a9493f3aea1b398fec7585a87be4 dirty_entries=4",
+      "required": "review fixed at one full SHA by the reviewer",
+      "satisfied": false,
+      "evidence": "review not convened; reviewed-SHA fixing is a reviewer act"
+    },
+    {
+      "id": "G2-E2",
+      "predicate": "evidence package present and internally consistent",
+      "method": "DOC_DERIVED",
+      "observed": "checklist + AI2-D package present in docs/active",
+      "required": "reviewer confirmation",
+      "satisfied": false,
+      "evidence": "E2 completion requires the reviewer"
+    },
+    {
+      "id": "G2-E3",
+      "predicate": "battery reproducible by the reviewer at the reviewed SHA",
+      "method": "REVIEWER_ACT",
+      "observed": "NOT_VERIFIED",
+      "required": "reviewer-executed reproduction",
+      "satisfied": false,
+      "evidence": "blocked on reviewer appointment (D-O2)"
+    },
+    {
+      "id": "G2-E4",
+      "predicate": "governance gates verified in code (subset of C-iii)",
+      "method": "CODE_PARSE",
+      "observed": "ai2_default=0, verified=False, api_hits=0",
+      "required": "all three hold",
+      "satisfied": true,
+      "evidence": "E4's machine-checkable portion holds; E4 completion = reviewer act"
+    },
+    {
+      "id": "G2-E5",
+      "predicate": "known limitations acknowledged in writing by the reviewer",
+      "method": "REVIEWER_ACT",
+      "observed": "NOT_VERIFIED (E5 NOT_VERIFIED since GOV-10 §A9)",
+      "required": "reviewer written acknowledgement (R-A1)",
+      "satisfied": false,
+      "evidence": "blocked on reviewer appointment (D-O2)"
+    },
+    {
+      "id": "G2-E6",
+      "predicate": "amendment-corpus status acknowledged",
+      "method": "DOC_DERIVED",
+      "observed": "SYNCED",
+      "required": "corpus supplied + re-baselined (R1)",
+      "satisfied": true,
+      "evidence": "corpus is present and byte-identical; acknowledgement is a reviewer act"
+    },
+    {
+      "id": "G2-D-O1",
+      "predicate": "R2 review procedure approved (v1.0; delegated D-16-1)",
+      "method": "DOC_STATE+CROSSREF",
+      "observed": "approval block FILLED; delegated decision record PRESENT",
+      "required": "block filled AND delegated decision record cites the pre-approval candidate hash (verbatim-transcription path of the procedure's own approval clause)",
+      "satisfied": true,
+      "evidence": "delegated approval per CONSOL-GOV-16 §1/§4 — NOT an owner personal signature; the G2 verdict remains owner-only (T6)"
+    }
+  ]
+}

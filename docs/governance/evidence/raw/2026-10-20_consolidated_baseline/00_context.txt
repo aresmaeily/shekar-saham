@@ -1,0 +1,2 @@
+# consolidated baseline capture — date_utc=2026-10-20T14:13:54Z
+# directive reported baseline: d380ee5 (this capture is independent, read-only)

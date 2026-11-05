@@ -1,0 +1,10 @@
+AI2-B verification battery — context
+Session date: 2026-10-17 (Asia/Tehran)
+Tested SHA (post-commit, final): 6cf2d93c8954da1c751c8d1d379925c9f84fb7e8 (main)
+Parent chain: 6cf2d93 (AI2-B) -> 0af6d06 (AI2-A) -> 48c1e2b (REM-1) -> a578abe (P3.92)
+Interpreter: repo .venv Python 3.12.15 (venv at repo root); git 2.47.3; Linux
+cwd for pytest/pyflakes/compileall: backend/ ; PYTHONPATH=.
+Baseline before AI2-B: 320 passed / 2 warnings (AI2-A battery)
+Final: 331 passed / 2 warnings (delta +11 AI-2 tests; zero regressions)
+Tracked worktree after commit: clean (untracked = governance bootstrap set only, owner-gated)
+NOT_VERIFIED unchanged: Python 3.13 parity, Windows validation, live providers (live_verified=false), G2

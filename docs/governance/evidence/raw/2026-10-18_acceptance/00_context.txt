@@ -1,0 +1,5 @@
+head=37c529d1d558317307238d654e3723240a1f400f
+branch=main
+tracked_dirty_at_start=0 (4 untracked bootstrap paths preserved)
+python=Python 3.12.15 (.venv)
+battery_window=2026-10-18 (acceptance directive block)

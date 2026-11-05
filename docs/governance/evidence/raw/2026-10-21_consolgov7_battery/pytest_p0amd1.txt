@@ -1,0 +1,5 @@
+== consolgov7-precommit-3b61795 :: pytest_p0amd1 :: 2026-10-21T11:57:21Z
+== cmd: bash -c cd /home/z/my-project/RADAR_BOURSE/repo/backend && ../.venv/bin/python -m pytest -q tests/test_amendment_p0_source_evidence.py tests/test_amendment_p0_dossier_audit_prediction.py
+
+............................................                             [100%]
+44 passed in 0.30s

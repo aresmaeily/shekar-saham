@@ -1,0 +1,32 @@
+=== FINAL GATE VERIFICATION — 2026-10-20T21:07:48Z ===
+--- HEAD ---
+33107cc73802890a46cd0742838341eb28fd164a
+33107cc CONSOL-GOV-4: four owner decisions (B-1, R2, AI2-F, AI3-M) recorded in canonical governance records (docs-only, 
+--- parent ---
+bef3a53afca49e40e293a3d233a70129a72bd3ea
+--- branch/ahead-behind ---
+# branch.oid 33107cc73802890a46cd0742838341eb28fd164a
+# branch.head main
+# branch.upstream origin/main
+# branch.ab +33 -0
+--- live remote (ls-remote, NO push) ---
+c1984e7979f89f2d727b471deb602953ec62fad5	refs/heads/main
+exit=0
+--- tracked dirty ---
+(empty = clean)
+--- staged ---
+(empty = none)
+--- stash ---
+(empty = none)
+--- worktrees ---
+/home/z/my-project/RADAR_BOURSE/repo  33107cc [main]
+--- untracked top-level ---
+?? .claude/
+?? CLAUDE.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py
+--- gates in code ---
+109:    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+270:    verified = False
+--- whitespace ---
+diff_check_exit=0

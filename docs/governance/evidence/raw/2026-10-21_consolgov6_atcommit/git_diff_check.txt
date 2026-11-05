@@ -1,0 +1,5 @@
+== consolgov6-atcommit-3b61795 :: git_diff_check :: 2026-10-21T09:56:22Z
+== cmd: git diff --check; echo diff_check_exit=$?; git diff --cached --check; echo cached_check_exit=$?
+
+diff_check_exit=0
+cached_check_exit=0

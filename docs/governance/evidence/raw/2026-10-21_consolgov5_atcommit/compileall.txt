@@ -1,0 +1,3 @@
+== consolgov5-atcommit-d59ce3e :: compileall :: 2026-10-21T05:53:43Z
+== cmd: /home/z/my-project/RADAR_BOURSE/repo/.venv/bin/python -m compileall -q /home/z/my-project/RADAR_BOURSE/repo/backend/app /home/z/my-project/RADAR_BOURSE/repo/backend/tests
+

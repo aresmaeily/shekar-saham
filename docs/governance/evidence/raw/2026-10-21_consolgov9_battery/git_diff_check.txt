@@ -1,0 +1,4 @@
+== consolgov9-precommit-34ac37b :: git_diff_check :: 2026-10-21T13:57:35Z
+== cmd: git diff --check; git diff --cached --check; echo diff_check_exit=$?; git diff --cached --check; echo cached_check_exit=$?
+diff_check_exit=0
+cached_check_exit=0

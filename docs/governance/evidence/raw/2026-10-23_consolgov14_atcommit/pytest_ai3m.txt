@@ -1,0 +1,4 @@
+== consolgov14-atcommit-26ca1b7cb1d6eb1157c812c1db3916fa3e268150 :: pytest_ai3m :: 2026-10-23T04:37:44Z
+== cmd: cd /home/z/my-project/RADAR_BOURSE/repo/backend && ../.venv/bin/python -m pytest -q tests/test_ai3_research_memory.py
+.............                                                            [100%]
+13 passed in 0.12s

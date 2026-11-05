@@ -1,0 +1,4 @@
+context: POST-AI-3 directive at-commit POSTAI3-VERIFY-7490ad4 battery at HEAD 7490ad4c3ce0a5190b3456f99223c1b775d3a2c7 (main); date 2026-10-20T10:39:17Z
+note: tracked_dirty=0 (expected 0 — at-HEAD battery, no working-tree modification);
+note: untracked_paths=4 (expected 4 bootstrap paths, preserved untouched);
+note: working tree = committed HEAD content exactly. Exit codes preserved as <name>.exit files.

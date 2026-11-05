@@ -1,0 +1,9 @@
+== ownerb1r2-baseline-precommit :: 12_untracked_all :: 2026-10-20T19:55:28Z
+== cmd: bash -c git status --porcelain=v1 | sort; echo ---; git ls-files --others --exclude-standard | wc -l
+
+?? .claude/
+?? CLAUDE.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py
+---
+886

@@ -1,0 +1,2 @@
+== consolgov19-atcommit :: cd89a8adc72309e88712375f11199fb38a3e033d :: 2026-10-24T13:18:48Z
+== tree-state: tracked-clean at HEAD cd89a8a (GOV-19 commit; at-commit evidence; manifest generated LAST per T2/A1)

@@ -1,0 +1,23 @@
+== consolgov15-atcommit-b02c340c0cfb461910746c84abdf00383ecbf343 :: validate_frontend_static :: 2026-10-23T09:07:07Z
+== cmd: .venv/bin/python scripts/validate_frontend_static.py
+{
+  "ok": true,
+  "files": {
+    "frontend/index.html": true,
+    "frontend/symbol.html": true,
+    "frontend/js/main.js": true,
+    "frontend/js/symbol.js": true,
+    "frontend/vendor/lightweight-charts.standalone.production.js": true
+  },
+  "tabs": {
+    "tabs_count": 24,
+    "panels_count": 24,
+    "missing_panels": [],
+    "orphan_panels": []
+  },
+  "duplicate_ids": {
+    "index": [],
+    "symbol": []
+  },
+  "missing_js_imports": []
+}

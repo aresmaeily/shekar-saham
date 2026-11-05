@@ -1,0 +1,32 @@
+== consolgov13-atcommit-a409ddf :: validate_providers_brsapi :: 2026-10-22T21:04:15Z
+== cmd: .venv/bin/python scripts/validate_providers.py --source brsapi
+{
+  "requested_source": "brsapi",
+  "brsapi_key_status": "missing",
+  "row_count": 60,
+  "last_source": "mock_fallback",
+  "last_error": "brsapi: no API key configured",
+  "first_symbol": "فملی",
+  "first_updated_at": "2026-10-22T21:04:15.876909+00:00",
+  "data_trust": {
+    "state": "mock",
+    "trust_level": "synthetic",
+    "source": "mock_fallback",
+    "provider": "mock_fallback",
+    "timestamp": 1792703055.876909,
+    "checked_at": 1792703055.8818514,
+    "age_sec": 0.005,
+    "stale_after_sec": 300.0,
+    "stale": false,
+    "future_timestamp": false,
+    "fallback_source": "mock",
+    "error_code": "brsapi: no API key configured",
+    "data_source_config": "brsapi",
+    "is_live": false,
+    "live_verified": false,
+    "is_generated": true,
+    "quality": {},
+    "warning": "MOCK data: development/demo fallback, not validated live market data. Fallback source: mock. Provider status: brsapi: no API key configured."
+  },
+  "live_verified": false
+}

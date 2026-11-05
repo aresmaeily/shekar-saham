@@ -1,0 +1,2 @@
+== consolgov18-battery-atcommit :: 300ca7a37b9263ac23c0ed25e95a3c6b8b61b7bb :: 2026-10-24T11:20:00Z
+== tree-state: clean tracked tree at new HEAD 300ca7a (GOV-18 docs-only commit; parent 75b7385; delta = 4 md files enumerated in commit message)

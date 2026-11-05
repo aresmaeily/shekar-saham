@@ -1,0 +1,19 @@
+== FINAL GATE VERIFICATION :: 2026-10-21T09:57:01Z
+HEAD: 3b6179585b6e5b6e6d9fdc194eaaa50b48bb9c55
+short: 3b61795
+parent: d59ce3eb5421ef95f5ff5022631e01efcb9526c7
+branch: main
+ahead: 35 / behind: 0
+local origin/main: c1984e7979f89f2d727b471deb602953ec62fad5
+live remote:
+c1984e7979f89f2d727b471deb602953ec62fad5	refs/heads/main
+ls_remote_exit=0
+tracked_dirty: 0
+staged: 0
+stash: 0
+worktrees: 1
+untracked: .claude/agents/radar-auditor.md .claude/agents/radar-chief-architect.md .claude/agents/radar-developer.md .claude/agents/radar-qa.md 
+gates: AI2_ENABLED=0 default env-unset (Settings instantiation capture 17_gates_corrected.txt: False); verified=False hard-coded config.py:270; import-surface grep exit 1; R2 OPEN; E5 NOT_VERIFIED; G2 NOT_PASSED; reviewer NOT_APPOINTED
+certifi: Version: 2026.10.19
+pip check: No broken requirements found.
+push: NONE (no push command executed anywhere this cycle)

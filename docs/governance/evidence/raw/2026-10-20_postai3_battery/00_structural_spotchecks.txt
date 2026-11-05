@@ -1,0 +1,51 @@
+== STRUCTURAL ENFORCEMENT SPOT-CHECKS (2026-10-20, HEAD a8d6e19) ==
+
+-- [reachability] network/runtime primitives in contract modules (expect none):
+  (no network/subprocess primitives — contract modules are pure dataclasses/gates)
+
+-- [AI-1] run_governance autonomy ceiling + monitoring fail-closed:
+16:  cannot silently increase their autonomy level."
+45:#: Ordering used by the autonomy-ceiling guard (03 §Autonomy levels).
+78:    ``autonomy_level`` records the level under which the run was authorized;
+79:    exceeding a declared ceiling is refused by :func:`assert_autonomy_permitted`
+23:P0-AMD-1 ``effective_run_permission`` (``backend/app/domain/monitoring.py``);
+45:    effective_run_permission,
+50:CycleOutcome = Literal["COMPLETED", "PARTIAL", "FAILED", "REFUSED_BY_POLICY"]
+97:        if self.outcome == "REFUSED_BY_POLICY":
+
+-- [AI-2] canonical trust rank incl. mixed + append-only ledger:
+38:  config.py:191-196): live > mixed/stale/unavailable > mock/synthetic.
+231:# _legacy_trust_level_from_state): live > mixed/stale/unavailable >
+234:_TRUST_RANK: dict[str, int] = {
+236:    "mixed": 1,
+259:    if _TRUST_RANK.get(current_trust_state, -1) < _TRUST_RANK.get(
+354:class AI2RunLedger:
+379:    def append(self, record: AI2RunRecord) -> "AI2RunLedger":
+
+-- [AI-MA] structural peer-refusal + no autonomous spawn:
+8:  peer-to-peer backbone. No autonomous spawning."
+12:- D-AI-20 (orchestrator control, not peer-to-peer), D-AI-21 (agent-as-tool
+27:- peer-addressing refusal is the structural encoding of "no peer-to-peer
+305:# AI-MA-5 — artifact-first branch exchange (no peer-to-peer backbone)
+316:    (D-AI-20; 02:81 "No peer-to-peer backbone").
+342:            raise ValueError("peer_to_peer_addressing_refused")
+249:        # Deterministic cycle detection (iterative DFS, no recursion on input).
+263:                        raise ValueError("plan_has_dependency_cycle")
+294:            raise ValueError("plan_has_dependency_cycle")
+
+-- [AI-3] immutability: no delete/purge in episodic archive; mandatory cutoffs; citation requirement:
+  (no delete/purge/remove path)
+15
+251:    the archive-citation rule and an explicit RETIRE lifecycle (retirement
+
+-- [AI-4] lifecycle: no production state reachable:
+140:ALLOWED_TRANSITIONS: dict[str, frozenset[str]] = {
+508:    if target not in ALLOWED_TRANSITIONS[current]:
+
+-- [AI-6] quarantine + two-key + untrusted lock:
+114:TrustLabel = Literal["UNTRUSTED"]
+307:    must belong to the same content and have distinct ids.
+550:    def _distinct_authorizers(self) -> "TwoKeyAuthorization":
+552:            raise ValueError("two_key_authorizers_must_be_distinct")
+646:    def _distinct(cls, v: tuple[str, ...]) -> tuple[str, ...]:
+461:class QuarantineLedger:

@@ -1,0 +1,29 @@
+== CONSOL-GOV-5 final gate verification :: 2026-10-21T05:56:07Z
+HEAD: d59ce3eb5421ef95f5ff5022631e01efcb9526c7
+HEAD_subject_prefix: CONSOL-GOV-5: owner action package, independent-reviewer readiness, and open-decision evidence (docs-only, no code chang
+parent: 33107cc73802890a46cd0742838341eb28fd164a
+branch: main
+ahead_of_origin/main: 34
+behind: 0
+live_remote_lsremote: c1984e7979f89f2d727b471deb602953ec62fad5	refs/heads/main
+ls_remote_exit=0
+--- status porcelain ---
+?? .claude/
+?? CLAUDE.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py
+tracked_dirty_nonuntracked: 0
+staged: 0
+stash: 0
+worktrees: 1
+--- gates ---
+    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+    verified = False
+contract_import_grep_hits: 0
+--- commit scope ---
+ docs/CHANGELOG.md                                  |   7 +
+ docs/STATUS.md                                     |   1 +
+ docs/active/INDEX.md                               |   1 +
+ .../OWNER_ACTION_PACKAGE_CONSOLGOV5_2026-10-21.md  | 242 +++++++++++++++++++++
+ 4 files changed, 251 insertions(+)
+push_performed: NO (no push authorized)

@@ -1,0 +1,2 @@
+== consolgov13-fullbattery-3e35f49 :: compileall :: 2026-10-22T20:46:29Z
+== cmd: .venv/bin/python -m compileall -q /home/z/my-project/RADAR_BOURSE/repo/backend/app /home/z/my-project/RADAR_BOURSE/repo/backend/tests

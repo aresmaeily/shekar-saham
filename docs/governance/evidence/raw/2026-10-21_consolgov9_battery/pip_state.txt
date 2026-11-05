@@ -1,0 +1,13 @@
+== consolgov9-precommit-34ac37b :: pip_state :: 2026-10-21T13:54:51Z
+== cmd: .venv/bin/pip show certifi; .venv/bin/python -m pip check
+Name: certifi
+Version: 2026.10.19
+Summary: Python package for providing Mozilla's CA Bundle.
+Home-page: https://github.com/certifi/python-certifi
+Author: Kenneth Reitz
+Author-email: me@kennethreitz.com
+License: MPL-2.0
+Location: /home/z/my-project/RADAR_BOURSE/repo/.venv/lib/python3.12/site-packages
+Requires: 
+Required-by: httpcore, httpx, requests
+No broken requirements found.

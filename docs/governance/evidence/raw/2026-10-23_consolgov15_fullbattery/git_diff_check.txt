@@ -1,0 +1,4 @@
+== consolgov15-battery-26ca1b7cb1d6eb1157c812c1db3916fa3e268150 :: git_diff_check :: 2026-10-23T08:49:09Z
+== cmd: git diff --check; echo diff_check_exit=$?; git diff --cached --check; echo cached_check_exit=$?
+diff_check_exit=0
+cached_check_exit=0

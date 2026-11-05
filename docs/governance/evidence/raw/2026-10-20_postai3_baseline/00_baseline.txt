@@ -1,0 +1,31 @@
+== date -u ==
+Tue Oct 20 10:21:52 UTC 2026
+== pwd ==
+/home/z/my-project/RADAR_BOURSE/repo
+== git rev-parse --show-toplevel ==
+/home/z/my-project/RADAR_BOURSE/repo
+exit=0
+== git status -b --porcelain=v2 (first 40 lines) ==
+# branch.oid a8d6e19ce68087294a72950f22283d0a1c8a2b18
+# branch.head main
+# branch.upstream origin/main
+# branch.ab +26 -0
+? .claude/
+? CLAUDE.md
+? docs/governance/
+? scripts/validate_bootstrap_config.py
+exit=0
+== git rev-parse HEAD ==
+a8d6e19ce68087294a72950f22283d0a1c8a2b18
+exit=0
+== git branch -vv ==
+* main a8d6e19 [origin/main: ahead 26] AI-6b: delta-re-audit closure (AI6-13 + AI6-14) — delta re-audit PASS recorded in execution record §6; AI-6a at-commit battery 2026-10-20_ai6b cited in §5 (621/2W/77.69s at 1d9030c; manifest 13/13 OK); containment wording narrowed to 'evidence-use flow (filing or interpretation)' with containment-aware intake as designed precondition (scope R7 + gate docstring; AST-identical with docstrings stripped, 58/58, pyflakes 0)
+== git remote -v ==
+origin	https://github.com/aresmaeily/shekar-saham (fetch)
+origin	https://github.com/aresmaeily/shekar-saham (push)
+== git rev-parse origin/main ==
+c1984e7979f89f2d727b471deb602953ec62fad5
+exit=0
+== git rev-list --left-right --count origin/main...HEAD ==
+0	26
+exit=0

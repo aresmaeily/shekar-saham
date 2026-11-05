@@ -1,0 +1,33 @@
+== consolgov6-atcommit-3b61795 :: validate_providers_tsetmc :: 2026-10-21T09:55:46Z
+== cmd: /home/z/my-project/RADAR_BOURSE/repo/.venv/bin/python scripts/validate_providers.py --source tsetmc
+
+{
+  "requested_source": "tsetmc",
+  "brsapi_key_status": "missing",
+  "row_count": 60,
+  "last_source": "mock_fallback",
+  "last_error": "tsetmc: ",
+  "first_symbol": "فملی",
+  "first_updated_at": "2026-10-21T09:56:22.472307+00:00",
+  "data_trust": {
+    "state": "mock",
+    "trust_level": "synthetic",
+    "source": "mock_fallback",
+    "provider": "mock_fallback",
+    "timestamp": 1792576582.472307,
+    "checked_at": 1792576582.4773178,
+    "age_sec": 0.005,
+    "stale_after_sec": 300.0,
+    "stale": false,
+    "future_timestamp": false,
+    "fallback_source": "mock",
+    "error_code": "tsetmc: ",
+    "data_source_config": "tsetmc",
+    "is_live": false,
+    "live_verified": false,
+    "is_generated": true,
+    "quality": {},
+    "warning": "MOCK data: development/demo fallback, not validated live market data. Fallback source: mock. Provider status: tsetmc: ."
+  },
+  "live_verified": false
+}

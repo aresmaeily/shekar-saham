@@ -1,0 +1,12 @@
+== context ==
+2026-10-18T12:39:26Z
+e3854155c7cc3f3a3af06bbb9ba43ccf0d00be04
+?? .claude/
+?? CLAUDE.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py
+tracked_dirty_pre:
+0
+tracked_dirty_post:
+0
+e3854155c7cc3f3a3af06bbb9ba43ccf0d00be04

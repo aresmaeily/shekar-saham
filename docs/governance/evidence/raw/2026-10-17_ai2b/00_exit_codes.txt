@@ -1,0 +1,10 @@
+# AI2-B verification battery — raw exit codes (2026-10-17, Asia/Tehran session)
+# cwd: backend (unless noted); interpreter: repo .venv Python 3.12.15
+pytest_full: 331 passed, 2 warnings, 77.17s, exit 0
+pytest_focused_test_ai2_service: 23 passed, exit 0
+compileall_app_tests: exit 0
+pyflakes_app: exit 0
+pyflakes_app_tests: exit 0
+pip_audit: No known vulnerabilities found, exit 0
+validate_bootstrap_config: 8 checks, 0 FAIL, exit 0 (cwd: repo root)
+git_diff_check: exit 0

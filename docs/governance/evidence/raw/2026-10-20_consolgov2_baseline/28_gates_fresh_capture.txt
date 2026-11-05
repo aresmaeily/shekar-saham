@@ -1,0 +1,32 @@
+== fresh gate capture @ 2026-10-20T18:41:42Z HEAD=b12b0cfc665c712dd8584099f4945c01b342dc59 ==
+--- config.py:105-115 ---
+    # AI-2 second-stage analysis (Category A offline scaffold).
+    # Real-data AI-2 additionally requires is_verified_live(data_trust) —
+    # which cannot be minted in this repository today — plus G2 independent
+    # validation and owner acceptance (governance gate, NOT_PASSED).
+    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+
+    # کش بنیادی (ثانیه)
+    fundamental_cache_ttl_sec: int = int(os.getenv("FUND_CACHE_TTL", "300"))
+
+    # P0-3: رمزنگاری توکن‌ها
+    fernet_key: str = os.getenv("FERNET_KEY", "")
+--- config.py:265-276 ---
+        state = "stale"
+
+    # Independent verification is never inferred from source label, freshness,
+    # TRUST_LEVEL, fetch success, or an arbitrary live_verified=True argument.
+    # This environment has no live-verification boundary.
+    verified = False
+    trust_level = _legacy_trust_level_from_state(state)
+    if state == "live" and not verified:
+        trust_level = "mixed"
+    is_live = verified
+    is_generated = state in {"mock", "synthetic"}
+
+--- grep AI2_ENABLED ---
+109:    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+--- import-surface grep (app/api app/services) ---
+import_grep_exit=1
+--- domain modules present ---
+ai2_governance.py

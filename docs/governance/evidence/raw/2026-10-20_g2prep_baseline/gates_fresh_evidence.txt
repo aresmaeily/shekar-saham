@@ -1,0 +1,20 @@
+=== import-surface grep: contract module imports in app/api + app/services (must be empty) ===
+import_grep_exit=1 (1 = no match = PASS)
+=== module files actually present ===
+ai2_governance.py
+evidence.py
+external_intelligence.py
+fundamental_dossier.py
+governed_generation.py
+memory_interfaces.py
+monitoring.py
+monitoring_governance.py
+multi_agent.py
+opportunity.py
+prediction.py
+product_audit.py
+research_memory.py
+run_governance.py
+source_registry.py
+=== ai2_service in api routes ===
+api_ai2_grep_exit=1 (1 = no route)

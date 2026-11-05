@@ -1,0 +1,3 @@
+context: CONSOL-GOV-4 owner-decisions recording cycle battery (consolgov4-precommit-bef3a53) at HEAD bef3a53afca49e40e293a3d233a70129a72bd3ea (main); date 2026-10-20T21:02:12Z
+note: ahead of origin/main = 32 (unpushed; NO push authorized)
+note: exit codes preserved as <name>.exit files; manifest covers .txt evidence only (self + .exit excluded per established convention; .exit cross-validated vs .txt outputs)

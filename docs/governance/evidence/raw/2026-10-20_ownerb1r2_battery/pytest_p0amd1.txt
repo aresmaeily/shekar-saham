@@ -1,0 +1,5 @@
+== ownerb1r2-precommit-a3030db :: pytest_p0amd1 :: 2026-10-20T19:56:53Z
+== cmd: bash -c cd backend && ../.venv/bin/python -m pytest -q tests/test_amendment_p0_source_evidence.py tests/test_amendment_p0_dossier_audit_prediction.py
+
+............................................                             [100%]
+44 passed in 0.25s

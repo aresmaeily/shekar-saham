@@ -1,0 +1,2 @@
+context: AI-4 at-commit battery at HEAD 6a10e5aa797153f3d416dcc31025dc299cfd8cfa (6a10e5a AI-4: Governed Generation contract layer (sandbox ad); branch main; date 2026-10-18T16:20:05Z; tracked_dirty=0
+note: first new-block capture attempt ran from repo root (cwd artifact, exit 2, discarded); this file is the backend-cwd re-run.

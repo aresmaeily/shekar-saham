@@ -1,0 +1,8 @@
+== ownerb1r2-baseline-precommit :: 02_head_commit_detail :: 2026-10-20T19:55:27Z
+== cmd: git log -1 --format=%H%n%P%n%an <%ae>%n%aI%n%s
+
+a3030dbbb01d5c409d83b0994b000a2bfd40b3ba
+b12b0cfc665c712dd8584099f4945c01b342dc59
+Z User <z@container>
+2026-10-20T18:45:27Z
+CONSOL-GOV-2: evidence currency + owner-decision intake (docs-only)

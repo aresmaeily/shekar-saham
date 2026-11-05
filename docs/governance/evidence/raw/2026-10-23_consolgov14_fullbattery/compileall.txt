@@ -1,0 +1,2 @@
+== consolgov14-fullbattery-precommit-a409ddff8d8ad9709e69e51a59f1f0736cda2c3e :: compileall :: 2026-10-23T04:22:49Z
+== cmd: .venv/bin/python -m compileall -q /home/z/my-project/RADAR_BOURSE/repo/backend/app /home/z/my-project/RADAR_BOURSE/repo/backend/tests

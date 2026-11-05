@@ -1,0 +1,9 @@
+== ownerb1r2-baseline-precommit :: 14_ancestor_checks :: 2026-10-20T19:55:28Z
+== cmd: bash -c for s in c1984e7979f89f2d727b471deb602953ec62fad5 7490ad4 8e10e11 d380ee5 b12b0cf a3030db; do git merge-base --is-ancestor $s HEAD && echo "$s ANCESTOR_OK" || echo "$s NOT_ANCESTOR"; done
+
+c1984e7979f89f2d727b471deb602953ec62fad5 ANCESTOR_OK
+7490ad4 ANCESTOR_OK
+8e10e11 ANCESTOR_OK
+d380ee5 ANCESTOR_OK
+b12b0cf ANCESTOR_OK
+a3030db ANCESTOR_OK

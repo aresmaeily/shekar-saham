@@ -1,0 +1,10 @@
+pytest_full exit=0
+pytest_new_block exit=0
+pyflakes exit=0
+compileall exit=0
+git_diff_check exit=0
+pip_audit exit=0
+validator_env exit=0
+validator_runtime exit=0
+validator_frontend exit=0
+validator_bootstrap exit=0

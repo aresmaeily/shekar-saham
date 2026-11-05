@@ -1,0 +1,4 @@
+== consolgov14-fullbattery-precommit-a409ddff8d8ad9709e69e51a59f1f0736cda2c3e :: git_diff_check :: 2026-10-23T04:24:10Z
+== cmd: git diff --check; echo diff_check_exit=$?; git diff --cached --check; echo cached_check_exit=$?
+diff_check_exit=0
+cached_check_exit=0

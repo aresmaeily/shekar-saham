@@ -1,0 +1,4 @@
+context: POST-AI-3 directive post-AI-3-directive-verification battery at HEAD a8d6e19ce68087294a72950f22283d0a1c8a2b18 (main); date 2026-10-20T10:26:36Z
+note: tracked_dirty=0 (expected 0 — at-HEAD battery, no working-tree modification);
+note: untracked_paths=4 (expected 4 bootstrap paths, preserved untouched);
+note: working tree = committed HEAD content exactly. Exit codes preserved as <name>.exit files.

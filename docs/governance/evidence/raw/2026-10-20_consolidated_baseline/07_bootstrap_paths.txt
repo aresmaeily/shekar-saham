@@ -1,0 +1,42 @@
+== four untracked bootstrap paths existence+type ==
+.claude EXISTS type=dir
+CLAUDE.md EXISTS type=file
+docs/governance EXISTS type=dir
+scripts/validate_bootstrap_config.py EXISTS type=file
+== .claude inventory ==
+.claude:
+total 20
+drwxr-xr-x  4 z z 4096 Oct 16 13:09 .
+drwxr-xr-x 13 z z 4096 Oct 20 10:42 ..
+drwxr-xr-x  2 z z 4096 Oct 16 13:05 agents
+-rwxr-xr-x  1 z z 2848 Oct 16 13:09 settings.json
+drwxr-xr-x 10 z z 4096 Oct 16 13:05 skills
+
+.claude/agents:
+total 32
+drwxr-xr-x 2 z z 4096 Oct 16 13:05 .
+drwxr-xr-x 4 z z 4096 Oct 16 13:09 ..
+-rwxr-xr-x 1 z z 3969 Oct 16 13:04 radar-auditor.md
+-rwxr-xr-x 1 z z 4744 Oct 16 13:03 radar-chief-architect.md
+-rwxr-xr-x 1 z z 4218 Oct 16 13:04 radar-developer.md
+-rwxr-xr-x 1 z z 3980 Oct 16 13:05 radar-qa.md
+
+.claude/skills:
+total 40
+drwxr-xr-x 10 z z 4096 Oct 16 13:05 .
+drwxr-xr-x  4 z z 4096 Oct 16 13:09 ..
+drwxr-xr-x  2 z z 4096 Oct 16 13:06 radar-architecture
+drwxr-xr-x  2 z z 4096 Oct 16 13:06 radar-coding-standards
+drwxr-xr-x  2 z z 4096 Oct 16 13:07 radar-documentation
+drwxr-xr-x  2 z z 4096 Oct 16 13:08 radar-evidence
+drwxr-xr-x  2 z z 4096 Oct 16 13:06 radar-forensics
+drwxr-xr-x  2 z z 4096 Oct 16 13:07 radar-git-workflow
+drwxr-xr-x  2 z z 4096 Oct 16 13:05 radar-roadmap
+drwxr-xr-x  2 z z 4096 Oct 16 13:07 radar-testing
+== docs/governance top inventory ==
+total 92
+drwxr-xr-x 4 z z  4096 Oct 18 09:19 .
+drwxr-xr-x 6 z z  4096 Oct 18 16:39 ..
+-rwxr-xr-x 1 z z 75391 Oct 20 13:50 PROJECT_EXECUTION_STATE.md
+drwxr-xr-x 2 z z  4096 Oct 18 09:19 amendment_sources_2026-10-02
+drwxr-xr-x 3 z z  4096 Oct 20 13:35 evidence

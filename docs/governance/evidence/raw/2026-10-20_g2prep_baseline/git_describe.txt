@@ -1,0 +1,4 @@
+$ git describe --always --tags
+---
+7490ad4
+---exit=0

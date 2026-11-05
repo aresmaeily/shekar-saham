@@ -1,0 +1,2 @@
+== consolgov17-battery-atcommit :: 75b7385a2ed2a9493f3aea1b398fec7585a87be4 :: 2026-10-24T10:31:32Z
+== tree-state: clean tracked tree at new HEAD 75b7385 (GOV-17 commit; parent 5f9916b)

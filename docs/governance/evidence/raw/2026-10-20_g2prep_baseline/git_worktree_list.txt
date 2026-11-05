@@ -1,0 +1,4 @@
+$ git worktree list
+---
+/home/z/my-project/RADAR_BOURSE/repo  7490ad4 [main]
+---exit=0

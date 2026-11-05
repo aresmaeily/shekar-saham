@@ -1,0 +1,4 @@
+session_start_utc=2026-10-20T19:55:27Z
+repo=/home/z/my-project/RADAR_BOURSE/repo
+label=ownerb1r2-baseline-precommit (owner decision B-1 + R2 intake; read-only baseline)
+session_end_utc=2026-10-20T19:55:28Z

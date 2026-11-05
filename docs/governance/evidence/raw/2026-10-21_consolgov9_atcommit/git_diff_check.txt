@@ -1,0 +1,4 @@
+== consolgov9-atcommit-2ccfacb :: git_diff_check :: 2026-10-21T14:09:45Z
+== cmd: git diff --check; git diff --cached --check; echo diff_check_exit=$?; git diff HEAD^..HEAD --check; echo commit_check_exit=$?
+diff_check_exit=0
+commit_check_exit=0

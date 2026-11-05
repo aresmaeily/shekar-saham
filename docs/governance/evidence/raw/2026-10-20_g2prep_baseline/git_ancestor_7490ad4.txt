@@ -1,0 +1,3 @@
+$ git merge-base --is-ancestor 7490ad4 HEAD
+---
+---exit=0

@@ -1,0 +1,4 @@
+== consolgov14-fullbattery-precommit-a409ddff8d8ad9709e69e51a59f1f0736cda2c3e :: pytest_p0amd1 :: 2026-10-23T04:22:43Z
+== cmd: cd /home/z/my-project/RADAR_BOURSE/repo/backend && ../.venv/bin/python -m pytest -q tests/test_amendment_p0_source_evidence.py tests/test_amendment_p0_dossier_audit_prediction.py
+............................................                             [100%]
+44 passed in 0.28s

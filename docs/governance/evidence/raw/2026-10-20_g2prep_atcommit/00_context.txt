@@ -1,0 +1,4 @@
+context: g2prep-at-commit battery at HEAD 8e10e11f8705d47fe17fc66e544059dddc4c6045 (main); date 2026-10-20T13:14:12Z
+note: tracked_dirty=0 (expected 0 — at-HEAD battery, no working-tree modification);
+note: untracked_paths=4 (expected 4 bootstrap paths, preserved untouched);
+note: working tree = committed HEAD content exactly. Exit codes preserved as <name>.exit files.

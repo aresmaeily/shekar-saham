@@ -1,0 +1,5 @@
+# Run context: post-commit 45f0b8b (docs-only delta vs 37c529d; no application code changed between the two SHAs)
+# Command: .venv/bin/python -m pytest tests/test_ai2_f_governance.py tests/test_ai_ma_contracts.py tests/test_ai3_research_memory.py -q (cwd backend/)
+..............................................................           [100%]
+62 passed in 0.28s
+PYTEST_EXIT=0

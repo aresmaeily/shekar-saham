@@ -1,0 +1,17 @@
+357f4b6 ancestor=OK subject=P0-AMD-1: Import owner amendment corpus (verified byte-ident
+b3cbeb1 ancestor=OK subject=P0-AMD-1a: Independent-audit remediation (docs-only hygiene)
+ea3277e ancestor=OK subject=AI1-GC: Close AI-1 Central Brain gaps (run governance, memor
+2f86c4a ancestor=OK subject=AI1-GCa: Independent-audit remediation (docs-only honesty hy
+6aeeaa2 ancestor=OK subject=AI2-F: Complete AI-2 required-items layer (run identity, bud
+17ef611 ancestor=OK subject=AI2-Fa: Independent-audit remediation (canonical trust ranki
+e385415 ancestor=OK subject=AI-MA-C: Multi-agent runtime contract layer (AI-MA-1..6, con
+aa86c3c ancestor=OK subject=AI-MA-Ca: Audit dispositions (AI-MA-3 composition rule, stru
+80585c8 ancestor=OK subject=AI3-M: Research Memory contract layer (episodic immutable ar
+37c529d ancestor=OK subject=AI3-Ma: Audit disposition (comment-direction fix; AI3M-01)
+45f0b8b ancestor=OK subject=ACC-PKG: Owner acceptance package, G2 evidence matrix, AI-3 
+a3165c4 ancestor=OK subject=ACCPKGa: Audit disposition (ACCPKG-01..04; docs-only)
+6a10e5a ancestor=OK subject=AI-4: Governed Generation contract layer (sandbox admission 
+cc98c64 ancestor=OK subject=AI-4a: Independent-audit remediation (corpus-locus correctio
+adf8cdf ancestor=OK subject=AI-6: Untrusted-content boundary + injection-isolation contr
+1d9030c ancestor=OK subject=AI-6a: Independent-audit remediation (AI6-01..09) — corpus
+a8d6e19 ancestor=OK subject=AI-6b: delta-re-audit closure (AI6-13 + AI6-14) — delta re

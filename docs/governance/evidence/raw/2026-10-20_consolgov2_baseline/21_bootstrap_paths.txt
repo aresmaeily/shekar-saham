@@ -1,0 +1,5 @@
+PRESENT: .claude (directory, mtime 2026-10-16 13:09:20)
+PRESENT: CLAUDE.md (regular file, mtime 2026-10-18 09:53:35)
+PRESENT: docs/governance (directory, mtime 2026-10-18 09:19:45)
+PRESENT: scripts/validate_bootstrap_config.py (regular file, mtime 2026-10-16 15:11:19)
+### exit_code: 0

@@ -1,0 +1,3 @@
+$ git merge-base --is-ancestor c1984e7 HEAD
+---
+---exit=0

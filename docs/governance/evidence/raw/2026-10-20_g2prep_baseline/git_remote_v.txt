@@ -1,0 +1,5 @@
+$ git remote -v
+---
+origin	https://github.com/aresmaeily/shekar-saham (fetch)
+origin	https://github.com/aresmaeily/shekar-saham (push)
+---exit=0

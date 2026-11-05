@@ -1,0 +1,33 @@
+$ git log --oneline -30
+---
+7490ad4 POSTAI3-VERIFY: POST-AI-3 directive independent verification + docs-only currency (no code change)
+a8d6e19 AI-6b: delta-re-audit closure (AI6-13 + AI6-14) — delta re-audit PASS recorded in execution record §6; AI-6a at-commit battery 2026-10-20_ai6b cited in §5 (621/2W/77.69s at 1d9030c; manifest 13/13 OK); containment wording narrowed to 'evidence-use flow (filing or interpretation)' with containment-aware intake as designed precondition (scope R7 + gate docstring; AST-identical with docstrings stripped, 58/58, pyflakes 0)
+1d9030c AI-6a: Independent-audit remediation (AI6-01..09) — corpus-locus corrections 02:194 / 06 §11 100-101 / 06 §3 16-30 / 02:169 / 02:164-165 / 03:76 / 02:109-112; evidence_filing_gate TIGHTENED to the documented rule (active quarantine always blocks filing until named-human release, regardless of findings; AI6-03) + test updated; scope R8 mechanism wording (construction-time TwoKeyAuthorization validators + quarantine_release_gate) and R13 CoverageReport canonical-not-consumed; readiness-report modified-set parenthetical (ai2_service.py ADDED, not modified); at-commit battery 2026-10-19_ai6a cited in record §6/§5; 880-line count; audit verdict recorded in record §6 (FAIL narrow → dispositions; delta re-audit in audit file); AI6-11/12 INFO accepted
+adf8cdf AI-6: Untrusted-content boundary + injection-isolation contract layer (owner directive R2) with R1/R3/R4/R5/R6/R7 companion artifacts
+cc98c64 AI-4a: Independent-audit remediation (corpus-locus corrections 02:179/02:198/02:89-90; at-commit battery evidence citation; AI4-01..05)
+6a10e5a AI-4: Governed Generation contract layer (sandbox admission gate, deterministic evaluator binding, closed candidate lifecycle, human-approval binding, structural no-production-mutation guarantees)
+a3165c4 ACCPKGa: Audit disposition (ACCPKG-01..04; docs-only)
+45f0b8b ACC-PKG: Owner acceptance package, G2 evidence matrix, AI-3 persistence brief, AI-4..AI-7/P3.43 dependency matrix
+37c529d AI3-Ma: Audit disposition (comment-direction fix; AI3M-01)
+80585c8 AI3-M: Research Memory contract layer (episodic immutable archive + curated/versioned semantic lessons)
+aa86c3c AI-MA-Ca: Audit dispositions (AI-MA-3 composition rule, structural bindings, honesty hygiene)
+e385415 AI-MA-C: Multi-agent runtime contract layer (AI-MA-1..6, contracts only)
+17ef611 AI2-Fa: Independent-audit remediation (canonical trust ranking + honesty hygiene)
+6aeeaa2 AI2-F: Complete AI-2 required-items layer (run identity, budget, artifacts, duplicates, recovery, invalidation, approval state)
+2f86c4a AI1-GCa: Independent-audit remediation (docs-only honesty hygiene)
+ea3277e AI1-GC: Close AI-1 Central Brain gaps (run governance, memory interfaces, opportunity clusters, monitoring honesty seam)
+b3cbeb1 P0-AMD-1a: Independent-audit remediation (docs-only hygiene)
+357f4b6 P0-AMD-1: Import owner amendment corpus (verified byte-identical), derive and implement P0 addendum contract layer
+42587fa AI3-A: Record AI-3 scope derivation and blocker evidence; no implementation authorized from in-repo sources
+54626ee AI2-E: Add AI-2 G2 reviewer checklist, verify evidence-package integrity, fix handoff staleness
+56deaff AI2-D: Close AI-2 residual audit and add G2 readiness evidence package
+0834b19 AI2-C: Harden AI-2 async boundaries, context integrity, and input bounds
+6cf2d93 AI2-B: Harden AI-2 Category A contract (bounds, strict schema, trust gate, stage-1 prompt, prompt provenance)
+0af6d06 AI2-A: Add AI-2 Category A offline scaffold (gated, offline-only)
+48c1e2b REM-1: Fix verified lint/docstring defects from full remaining-code audit
+a578abe P3.92: Reconcile documentation state (STATUS/INDEX/handoff/CHANGELOG)
+6ff6b07 P3.93: Align SECURITY_PRIVATE_MODE.md with HttpOnly cookie implementation
+c1984e7 P3.91: Prove Filter DSL consumes CDN-mapped TSETMC snapshots
+5206569 fix(tsetmc): map CDN marketwatch schema
+00e392e P3.90.2: Add tzdata so Windows can resolve Asia/Tehran
+---exit=0

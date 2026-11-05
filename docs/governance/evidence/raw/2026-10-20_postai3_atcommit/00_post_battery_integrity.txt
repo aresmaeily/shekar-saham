@@ -1,0 +1,10 @@
+== HEAD at battery ==
+7490ad4c3ce0a5190b3456f99223c1b775d3a2c7
+== post-battery integrity ==
+tracked_dirty=0
+?? .claude/
+?? 00_post_battery_integrity.txt
+?? CLAUDE.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py
+MANIFEST VERIFY: ALL OK (37 entries)

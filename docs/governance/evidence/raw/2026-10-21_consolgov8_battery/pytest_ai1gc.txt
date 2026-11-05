@@ -1,0 +1,5 @@
+== consolgov8-precommit-1afd1aa :: pytest_ai1gc :: 2026-10-21T12:40:26Z
+== cmd: bash -c cd /home/z/my-project/RADAR_BOURSE/repo/backend && ../.venv/bin/python -m pytest -q tests/test_ai1_run_governance_memory.py tests/test_ai1_opportunity_monitoring.py
+
+..........................................................               [100%]
+58 passed in 0.20s

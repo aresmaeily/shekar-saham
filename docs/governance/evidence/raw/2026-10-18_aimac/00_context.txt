@@ -1,0 +1,16 @@
+== context ==
+2026-10-18T12:36:01Z
+17ef6118bec6004fcb4f02da867714507ef4438c
+ M RADAR_BOURSE_MASTER_HANDOFF.md
+ M docs/CHANGELOG.md
+?? .claude/
+?? CLAUDE.md
+?? backend/app/domain/multi_agent.py
+?? backend/tests/test_ai_ma_contracts.py
+?? docs/active/AIMA_C_EXECUTION_RECORD.md
+?? docs/active/AIMA_C_SCOPE_DERIVATION.md
+tracked_dirty_pre:
+2
+tracked_dirty_post:
+2
+17ef6118bec6004fcb4f02da867714507ef4438c

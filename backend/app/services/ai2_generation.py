@@ -1318,11 +1318,17 @@ class AI2GenerationService:
         # (existing engines, unchanged; the model cannot touch these numbers
         # except through the compiled program's own semantics).
         try:
+            # run_id matches the Strategy Lab's own convention ("strategylab")
+            # so a candidate's backtest_digest is BYTE-REPRODUCIBLE by a human
+            # who takes the generated source to POST /api/v10/strategylab/
+            # backtest with the same params (cross-surface governance proof;
+            # the AI-2 origin lives in the candidate/ledger records, not in
+            # the engine run label). L-session finding, fixed before enable.
             backtest = await asyncio.to_thread(
                 run_backtest_on_seeded, program,
                 symbol=request.symbol, timeframe=request.timeframe,
                 count=request.bar_count, end_bar_index=request.end_bar_index,
-                run_id=f"ai2gen-{program.source_digest[:12]}",
+                run_id="strategylab",
             )
             paper = await asyncio.to_thread(
                 run_paper_replay_on_seeded, program,

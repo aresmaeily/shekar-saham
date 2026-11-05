@@ -1,0 +1,7 @@
+pytest_full exit=0 seconds=77.95
+pytest_ai2 exit=0 seconds=1.47
+compileall exit=0 seconds=0.03
+pyflakes exit=0 seconds=0.64
+pip_audit exit=0 seconds=3.92
+git_diff_check exit=0 seconds=0.00
+bootstrap_validator exit=0 seconds=0.03

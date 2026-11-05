@@ -1,0 +1,7 @@
+=== placeholder pre-existence on origin/main ===
+12:PRIVATE_PASSWORD=یک-رمز-خیلی-قوی-تصادفی
+=== does the placeholder VALUE line change anywhere in the chain? ===
+6ff6b07 added_value_lines=0 removed_value_lines=0
+=== real .env tracked? ===
+0
+=== hit line classification for 26ca1b7 (file) ===

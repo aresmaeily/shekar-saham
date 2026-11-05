@@ -1,0 +1,4 @@
+== consolgov9-precommit-34ac37b :: pytest_ai2f :: 2026-10-21T13:56:12Z
+== cmd: cd /home/z/my-project/RADAR_BOURSE/repo/backend && ../.venv/bin/python -m pytest -q tests/test_ai2_f_governance.py
+........................                                                 [100%]
+24 passed in 0.14s

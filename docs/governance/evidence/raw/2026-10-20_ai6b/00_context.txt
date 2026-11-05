@@ -1,0 +1,5 @@
+context: AI-6a at-AI-6a-commit battery at HEAD 1d9030c00bfa892e3d9afdd262883bcfa46e4ba5 (main); date 2026-10-20T07:45:11Z; tracked_dirty=0
+note: captured AFTER the AI-6a commit (tracked tree clean at 1d9030c); all
+components are single-pass outputs. Exit codes preserved as <name>.exit
+files alongside each raw output. The pre-commit capture of the identical
+content is raw/2026-10-20_ai6a/.

@@ -1,0 +1,114 @@
+== captured_utc=2026-10-22T04:17:39Z — venv python: /home/z/my-project/RADAR_BOURSE/repo/.venv/bin/python ==
+== [G1] AI2_ENABLED gate — canonical source config.py:109 ==
+    # AI-2 second-stage analysis (Category A offline scaffold).
+    # Real-data AI-2 additionally requires is_verified_live(data_trust) —
+    # which cannot be minted in this repository today — plus G2 independent
+    # validation and owner acceptance (governance gate, NOT_PASSED).
+    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+
+    # کش بنیادی (ثانیه)
+    fundamental_cache_ttl_sec: int = int(os.getenv("FUND_CACHE_TTL", "300"))
+-- runtime Settings check (env unset) --
+runtime_ai2_enabled = False | type: bool
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+  File "/home/z/my-project/RADAR_BOURSE/repo/.venv/lib/python3.12/site-packages/pydantic/main.py", line 1042, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'Settings' object has no attribute 'live_verified'
+runtime_check_exit=0
+== [G2] live_verified gate — canonical source config.py:270 ==
+
+    # Independent verification is never inferred from source label, freshness,
+    # TRUST_LEVEL, fetch success, or an arbitrary live_verified=True argument.
+    # This environment has no live-verification boundary.
+    verified = False
+    trust_level = _legacy_trust_level_from_state(state)
+    if state == "live" and not verified:
+        trust_level = "mixed"
+== [G3] G2 gate — state file ==
+242:- G2 independent-validation hard gate: NOT_PASSED (no owner acceptance; blocks real-data AI-2).
+grep_exit=0
+== [G4] R2 status — STATUS.md + procedure ==
+167:| CONSOL-GOV-6 | Complete locally — owner-authorized decisions EXECUTED: B-1 per-block final disposition (REJECT ×5 under the directive's binding rule), R2 seven-item drafting resolution (draft stays NOT APPROVED)
+168:| CONSOL-GOV-5 | Complete locally — owner-action package, independent-reviewer readiness, and open-decision evidence (docs-only; preparation + verification only; NO owner-only decision taken; G2 NOT self-approved; 
+169:| CONSOL-GOV-4 | Complete locally — four owner decisions (B-1, R2, AI2-F, AI3-M) recorded in canonical governance records (docs-only; recording secretary + owner-authorized brief only; no code change; G2 NOT self-a
+15
+-- approval block emptiness (4 underscore fields) --
+130:Approving authority:        ______________________
+131:Approved version:           ______________________  (effective on approval)
+132:Approval date (UTC):        ______________________
+133:Approval evidence / locus:  ______________________
+== [G5] E5 — review package §A9 ==
+301:gaps"). No status upgraded; no owner decision inferred; E5 remains
+345:  VERIFIED (zero discrepancy); E4 VERIFIED (captures above); **E5 remains
+== [G6] AI2-F condition (a) status ==
+10:select an option. **AI2-F condition (a) remains OPEN.** Any remediation or
+95:defer (condition stays OPEN; no work happens). The register review
+177:condition (a) stays OPEN and no code in `ai2_governance.py` is touched.
+173:that identifies: (1) AUTHORIZED or DEFERRED; (2) if AUTHORIZED — the selected
+203:  §8 decision request stands (AUTHORIZED/DEFERRED + (iii) sub-choice +
+237:- **Decision request unchanged (brief §8):** AUTHORIZED/DEFERRED + the (iii)
+authorized_selection_search_exit=0 (1 = no authorization record — expected)
+== [G7] P3.43 five gates — state file :241 ==
+== [G8] AI2-F residual loci (expect zero drift) ==
+-- locus 1: record.status inside governed_acceptance :393-423 (expect 0) --
+hits=0
+-- locus 2: approver fields inside AI2RunRecord :277-297 (expect 0) --
+hits=0
+-- locus 3: _TRUST_RANK :234-241 present --
+1:_TRUST_RANK: dict[str, int] = {
+-- unknown-state fold :259 (expect .get(state, -1)) --
+    if _TRUST_RANK.get(current_trust_state, -1) < _TRUST_RANK.get(
+-- config folding :191-196 --
+def _legacy_trust_level_from_state(state: DataTrustState) -> str:
+    if state == "live":
+        return "live"
+    if state in {"mixed", "stale", "unavailable"}:
+        return "mixed"
+    return "synthetic"
+-- RunContext enforcement run_governance.py:109 --
+            raise ValueError("approved_state_requires_approver")
+-- AI2-F pinned hashes (module + test) --
+43d0912b0b19c10f0484c530d0c5230892fc13a1e1360d518109131c10d7a9e1  backend/app/domain/ai2_governance.py
+335aed035bc862d2ce5c721b58f1b7854cfb071bba69042a2dff24a83fb273be  backend/tests/test_ai2_f_governance.py
+-- touch history --
+17ef611 AI2-Fa: Independent-audit remediation (canonical trust ranking + honesty hygiene)
+6aeeaa2 AI2-F: Complete AI-2 required-items layer (run identity, budget, artifacts, duplicates, recovery, invalidation, approval state)
+-- contract-import greps (expect exit 1 / no output) --
+contract_grep_no_hits_exit=1
+api_ai2_grep_no_hits
+== [G9] AI3-M structure (append-only archive intact) ==
+-- research_memory.py:119-158 operations --
+9:    def __init__(self, entries: tuple[EpisodicRunArtifact, ...] = ()) -> None:
+13:    def entries(self) -> tuple[EpisodicRunArtifact, ...]:
+16:    def get(self, entry_id: str) -> EpisodicRunArtifact | None:
+22:    def for_run(self, run_id: str) -> tuple[EpisodicRunArtifact, ...]:
+25:    def for_hypothesis(self, hypothesis_id: str) -> tuple[EpisodicRunArtifact, ...]:
+28:    def available_at(self, cutoff: datetime) -> tuple[EpisodicRunArtifact, ...]:
+34:    def append(self, entry: EpisodicRunArtifact) -> "EpisodicRunArchive":
+-- update/delete/purge/rewrite defs module-wide (expect none) --
+no_mutation_defs_exit=1
+-- store.py:62-66 backup --
+    def backup(self, keep: int = 7) -> Path | None:
+        """بکاپ WAL-consistent از دیتابیس به پوشه data/backups — فقط N نسخه آخر."""
+        import shutil
+        try:
+            bak_dir = self.path.parent / "backups"
+== [G10] corpus integrity 7/7 vs GOV-10 reference digests ==
+be2f08366666320c4e0b16ac9d2d9db0c48449b47c2d7f637b8b299e8e68bca0  docs/governance/amendment_sources_2026-10-02/00_OWNER_ROADMAP_DECISION_CURRENT_2026-10-02.md
+1c44ebe114d42fbe06aeb06db43aeb50b4a8766017800e53a426990878004c8f  docs/governance/amendment_sources_2026-10-02/02_EXECUTION_ROADMAP_CURRENT_2026-10-02.md
+80b09728e5b7a11b041ccc31e09feca6065f9da5fa7377e54dcdd620fd65cf3b  docs/governance/amendment_sources_2026-10-02/02_PRODUCT_AI_MULTI_AGENT_ARCHITECTURE_CURRENT_2026-10-02.md
+e824e1ef2e068acb0f2d138644993d3a5b3a7d955c1a44df73546e6babd727a0  docs/governance/amendment_sources_2026-10-02/03_AI_GOVERNANCE_BOUNDARIES_CURRENT_2026-10-02.md
+61c413b8c6ebcc5499aaefd3609045fa9b4726a1b32f20344d04dc8b9c3d1176  docs/governance/amendment_sources_2026-10-02/04_17_ROLE_GOVERNANCE_CHARTER_CURRENT_2026-10-02.md
+2cdb57efd02e8c26860a521199aaa0d365e03e77424c17637526a0dfacaa71a7  docs/governance/amendment_sources_2026-10-02/05_GOVERNANCE_DECISION_REGISTER_CURRENT_2026-10-02.md
+2bfbbf05065e303d2c64836268b489f1e1ad7c06d3ecb1f8af3c36fa5f3e5080  docs/governance/amendment_sources_2026-10-02/06_PRODUCT_CAPABILITY_CHARTER_CONTINUOUS_INTELLIGENCE_2026-10-02.md
+IDENTICAL: 00_OWNER_ROADMAP_DECISION_CURRENT_2026-10-02.md
+IDENTICAL: 02_EXECUTION_ROADMAP_CURRENT_2026-10-02.md
+IDENTICAL: 02_PRODUCT_AI_MULTI_AGENT_ARCHITECTURE_CURRENT_2026-10-02.md
+IDENTICAL: 03_AI_GOVERNANCE_BOUNDARIES_CURRENT_2026-10-02.md
+IDENTICAL: 04_17_ROLE_GOVERNANCE_CHARTER_CURRENT_2026-10-02.md
+IDENTICAL: 05_GOVERNANCE_DECISION_REGISTER_CURRENT_2026-10-02.md
+IDENTICAL: 06_PRODUCT_CAPABILITY_CHARTER_CONTINUOUS_INTELLIGENCE_2026-10-02.md
+byte-identical: 7/7
+corpus_verify_exit=0
+BLOCK_G_DONE

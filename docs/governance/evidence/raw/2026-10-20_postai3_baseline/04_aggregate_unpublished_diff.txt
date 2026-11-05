@@ -1,0 +1,22 @@
+== aggregate diff origin/main..HEAD (26 commits) ==
+ docs/active/REM1_AI2A_IMPLEMENTATION_RECORD.md     |  172 +++
+ docs/active/SECURITY_PRIVATE_MODE.md               |   55 +-
+ 65 files changed, 14790 insertions(+), 32 deletions(-)
+
+== diff name-status summary ==
+     53 A
+     12 M
+
+== added vs modified sets ==
+M	RADAR_BOURSE_MASTER_HANDOFF.md
+M	backend/app/core/config.py
+M	backend/app/core/rate_limiter.py
+M	backend/tests/test_auth.py
+M	backend/tests/test_data_domain.py
+M	backend/tests/test_data_trust_hardening.py
+M	backend/tests/test_metrics.py
+M	backend/tests/test_security_rate_limit.py
+M	docs/CHANGELOG.md
+M	docs/STATUS.md
+M	docs/active/INDEX.md
+M	docs/active/SECURITY_PRIVATE_MODE.md

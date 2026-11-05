@@ -1,0 +1,4 @@
+$ git rev-list --count c1984e7..HEAD
+---
+27
+---exit=0

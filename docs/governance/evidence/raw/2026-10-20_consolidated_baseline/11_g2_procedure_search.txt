@@ -1,0 +1,23 @@
+== FRESH G2 PROCEDURE SEARCH 2026-10-20T14:18:08Z ==
+-- (1) 'procedure' occurrences in 7 corpus files --
+-- (2) 'procedure' in docs/active filenames --
+none
+-- (3) 'procedure' word in all docs/active + docs/governance top-level md files (case-insensitive) --
+docs/governance/PROJECT_EXECUTION_STATE.md
+docs/active/PUBLICATION_READINESS_REPORT_2026-10-19.md
+docs/active/OWNER_DECISION_PACKAGE_B1_R2_2026-10-20.md
+docs/active/OWNER_DECISION_REGISTER_REVIEW_2026-10-19.md
+docs/active/G2_EVIDENCE_MATRIX_2026-10-18.md
+docs/active/INDEX.md
+docs/active/ALPHA_INSTALLATION_RUNBOOK.md
+docs/active/G2_REVIEW_PACKAGE_2026-10-20.md
+docs/active/ALPHA_INSTALLATION_PREPARATION_FINAL_REPORT.md
+docs/active/ALPHA_INSTALLATION_CHECKLIST.md
+docs/active/AI3_SCOPE_DERIVATION_AND_BLOCKER_RECORD.md
+docs/active/AI2_G2_REVIEWER_CHECKLIST.md
+docs/active/AI2_G2_READINESS_EVIDENCE_PACKAGE.md
+-- (4) G2 gate-definition loci in corpus --
+102:### D-AI-26 --- G2
+106:G2 remains the independent validation gate and blocks real-data AI-2
+150:consequential permissions, G2 pass and fixed agent hierarchy changes.
+200:D-AI-01 through D-AI-31 remain in force. G2 still blocks real-data AI-2 execution until independent validation and owner acceptance. External intelligence remains untrusted and gated. No live trading, production mutation, auto-promotion, self-escalation or self-modifying production logic is authorized by D-AI-32 through D-AI-39.

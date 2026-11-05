@@ -1,0 +1,36 @@
+== context ==
+captured_utc=2026-10-22T04:13:12Z
+== git remote -v (fresh) ==
+origin	https://github.com/aresmaeily/shekar-saham (fetch)
+origin	https://github.com/aresmaeily/shekar-saham (push)
+exit=0
+== git config --get-regexp 'remote.origin.*' (URL/config only, no credentials expected for https) ==
+remote.origin.url https://github.com/aresmaeily/shekar-saham
+remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+exit=0
+== git ls-remote origin (network, read-only) ==
+ls_remote_exit=0
+c1984e7979f89f2d727b471deb602953ec62fad5	HEAD
+c1984e7979f89f2d727b471deb602953ec62fad5	refs/heads/main
+9b30cbd222a06a5d63f13d70b00f0948a926018c	refs/heads/v0/repository-access-verification-b6f5622a
+c1984e7979f89f2d727b471deb602953ec62fad5	refs/heads/main
+== ahead/behind vs origin/main (local ref) ==
+0	39
+exit=0
+== GitHub API unauthenticated repo metadata (public info only; no token sent) ==
+http_code=403
+curl_exit=0
+{
+  "full_name": "<absent>",
+  "private": "<absent>",
+  "visibility": "<absent>",
+  "default_branch": "<absent>",
+  "fork": "<absent>",
+  "size": "<absent>",
+  "html_url": "<absent>",
+  "clone_url": "<absent>",
+  "git_url": "<absent>",
+  "ssh_url": "<absent>",
+  "message": "API rate limit exceeded for 47.57.242.119. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)"
+}
+BLOCK_A_DONE

@@ -1,0 +1,24 @@
+== captured_utc=2026-10-22T04:13:50Z ==
+-- repo HTML page anonymous status (200=publicly viewable, 404=not public) --
+repo_page_http=200
+curl_exit=0
+-- anonymous git smart-HTTP read endpoint (upload-pack) --
+info_refs_http=200
+curl_exit=0
+-- anonymous git smart-HTTP WRITE endpoint (receive-pack) — read-only proof --
+receive_pack_http=401
+curl_exit=0
+-- retry GitHub API once after brief wait --
+api_http=403
+curl_exit=0
+{
+  "full_name": "<absent>",
+  "private": "<absent>",
+  "visibility": "<absent>",
+  "default_branch": "<absent>",
+  "fork": "<absent>",
+  "html_url": "<absent>",
+  "clone_url": "<absent>",
+  "message": "API rate limit exceeded for 8.212.10.159. (But here's the good news: Authenticated requests get a higher rate limit. Check out the documentation for more details.)"
+}
+BLOCK_A_SUPP_DONE

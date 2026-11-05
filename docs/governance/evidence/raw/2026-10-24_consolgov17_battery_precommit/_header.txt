@@ -1,0 +1,2 @@
+== consolgov17-battery-precommit :: 5f9916b91dc7a0ff16f2c3076e117c782317710e :: 2026-10-24T10:24:26Z
+== tree-state: dirty tracked (2 fix files + 5 governance docs untracked-to-be-added; content == upcoming implementation commit)

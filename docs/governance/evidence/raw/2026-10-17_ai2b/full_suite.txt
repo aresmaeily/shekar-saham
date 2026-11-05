@@ -1,0 +1,2 @@
+PYTHONPATH=. ../.venv/bin/python -m pytest -q
+331 passed, 2 warnings in 77.17s (baseline before AI2-B: 320 passed, 2 warnings — delta +11 AI-2 tests, no regressions)

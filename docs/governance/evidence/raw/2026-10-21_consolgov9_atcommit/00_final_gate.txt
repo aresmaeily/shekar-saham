@@ -1,0 +1,42 @@
+=== GOV-9 FINAL GATE — 2026-10-21T14:10:03Z ===
+
+--- HEAD/parent/branch ---
+2ccfacb282b532fbf59e72cb3ee45b8d630740e5
+34ac37b8c77fc691f3e6fa0ff77d2040a28b5d16
+main
+
+--- ahead/behind ---
+0	38
+
+--- live remote (read-only) ---
+c1984e7979f89f2d727b471deb602953ec62fad5	refs/heads/main
+exit: 0
+
+--- status summary ---
+      4 ??
+tracked mods: 0
+staged: 0
+stash: 0
+worktrees: 1
+untracked top-level:
+.claude
+CLAUDE.md
+docs
+scripts
+
+--- gates re-capture ---
+    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+    verified = False
+13
+--- commit manifest ---
+2ccfacb282b532fbf59e72cb3ee45b8d630740e5|34ac37b8c77fc691f3e6fa0ff77d2040a28b5d16|2026-10-21T14:06:26Z
+
+8	0	docs/CHANGELOG.md
+1	0	docs/STATUS.md
+37	0	docs/active/AI2F_AI3M_DECISION_RECORD_2026-10-20.md
+39	0	docs/active/AI2F_CONDITION_A_DECISION_BRIEF_2026-10-20.md
+461	0	docs/active/CONSOLGOV9_FORMAL_OWNER_DECISIONS_MINIMAL_EXECUTION_2026-10-21.md
+29	0	docs/active/G2_REVIEWER_NOMINATION_RECORD_2026-10-20.md
+62	0	docs/active/G2_REVIEW_PACKAGE_2026-10-20.md
+33	0	docs/active/G2_REVIEW_PROCEDURE_DRAFT_v0.1_2026-10-20.md
+1	0	docs/active/INDEX.md

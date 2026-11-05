@@ -1,0 +1,31 @@
+Root: /home/z/my-project/RADAR_BOURSE/repo
+Python: 3.12.15
+Files:
+  OK README.md
+  OK .env.example
+  OK backend/app/main.py
+  OK backend/app/core/config.py
+  OK backend/app/core/security.py
+  OK backend/app/services/market_service.py
+  OK backend/app/services/ai_service.py
+  OK backend/requirements.txt
+  OK frontend/index.html
+  OK frontend/symbol.html
+  OK electron/package.json
+  OK docs/ALPHA_SETUP_GUIDE.md
+  OK docs/ALPHA_ENV_CONTRACT.md
+Environment variables (status only):
+  PRIVATE_MODE: missing (recommended_required_for_alpha)
+  PRIVATE_PASSWORD: missing (required_when_private_mode)
+  API_KEY: missing (recommended)
+  FERNET_KEY: missing (required_for_stable_token_encryption)
+  COOKIE_SECURE: missing (required_on_https)
+  TRUST_PROXY: missing (required_only_behind_trusted_proxy)
+  CORS_ORIGINS: missing (recommended_for_deployment)
+  DATA_SOURCE: missing (required)
+  BRSAPI_KEY: missing (required_only_for_brsapi)
+  DATA_STALE_AFTER_SEC: missing (optional_default_300)
+Notes:
+  - Secret values are intentionally not printed.
+  - Missing BRSAPI_KEY blocks BRSAPI live validation but does not block mock/offline alpha.
+  - PRIVATE_PASSWORD/API_KEY/FERNET_KEY must be configured on the target system, not committed.

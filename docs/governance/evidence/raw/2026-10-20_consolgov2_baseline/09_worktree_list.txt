@@ -1,0 +1,5 @@
+### command: git worktree list
+### started_utc: 2026-10-20T18:34:13Z
+/home/z/my-project/RADAR_BOURSE/repo  b12b0cf [main]
+### exit_code: 0
+### ended_utc: 2026-10-20T18:34:13Z

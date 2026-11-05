@@ -1,0 +1,3 @@
+G2-PREP directive Step 1 — fresh baseline capture
+date_utc=2026-10-20T13:02:45Z
+repo=/home/z/my-project/RADAR_BOURSE/repo

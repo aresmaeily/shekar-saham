@@ -1,0 +1,8 @@
+== consolgov4-precommit-bef3a53 :: pip_audit :: 2026-10-20T21:00:54Z
+== cmd: /home/z/my-project/RADAR_BOURSE/repo/.venv/bin/pip-audit --progress-spinner off
+
+WARNING:pip_audit._dependency_source.pip:pip-audit will run pip against /home/z/my-project/RADAR_BOURSE/repo/.venv/bin/python, but you have a virtual environment loaded at /home/z/.venv. This may result in unintuitive audits, since your local environment will not be audited. You can forcefully override this behavior by setting PIPAPI_PYTHON_LOCATION to the location of your virtual environment's Python interpreter.
+Found 1 known vulnerability in 1 package
+Name    Version   ID                  Fix Versions
+------- --------- ------------------- ------------
+certifi 2026.7.22 GHSA-6q48-6c7w-9gw2 2026.10.19

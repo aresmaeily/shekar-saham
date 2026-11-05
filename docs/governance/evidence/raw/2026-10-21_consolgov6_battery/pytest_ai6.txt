@@ -1,0 +1,5 @@
+== consolgov6-precommit-d59ce3e :: pytest_ai6 :: 2026-10-21T09:25:05Z
+== cmd: cd /home/z/my-project/RADAR_BOURSE/repo/backend && ../.venv/bin/python -m pytest -q tests/test_ai6_external_intelligence.py
+
+..........................................................               [100%]
+58 passed in 0.18s

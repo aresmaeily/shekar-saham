@@ -1,0 +1,5 @@
+== stash list ==
+stash_count=0
+== worktree list ==
+/home/z/my-project/RADAR_BOURSE/repo  d380ee5 [main]
+worktree_count=1

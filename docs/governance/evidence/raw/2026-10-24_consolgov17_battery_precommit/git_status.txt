@@ -1,0 +1,7 @@
+ M backend/tests/test_ai2_service.py
+ M scripts/validate_frontend_static.py
+?? .claude/
+?? CLAUDE.md
+?? docs/active/OWNER_DELEGATED_DECISIONS_CONSOLGOV17_2026-10-24.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py

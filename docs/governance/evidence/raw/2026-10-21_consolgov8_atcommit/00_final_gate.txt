@@ -1,0 +1,22 @@
+== consolgov8-atcommit-34ac37b :: 00_final_gate :: 2026-10-21T12:54:37Z
+== HEAD ==
+34ac37b8c77fc691f3e6fa0ff77d2040a28b5d16
+1afd1aad7ea695cdf6bd142610f4d7169b69d62f
+main
+== ahead/behind ==
+0	37
+== live remote (READ-ONLY) ==
+c1984e7979f89f2d727b471deb602953ec62fad5	refs/heads/main
+ls_remote_exit=0
+== status ==
+?? .claude/
+?? CLAUDE.md
+?? docs/governance/
+?? scripts/validate_bootstrap_config.py
+== stash ==
+0
+== worktrees ==
+/home/z/my-project/RADAR_BOURSE/repo  34ac37b [main]
+== gates ==
+109:    ai2_enabled: bool = _env_bool("AI2_ENABLED", "0")
+    verified = False

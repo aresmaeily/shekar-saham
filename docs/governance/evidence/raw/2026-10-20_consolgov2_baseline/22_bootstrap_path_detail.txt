@@ -1,0 +1,16 @@
+--- ls .claude ---
+total 20
+drwxr-xr-x  4 z z 4096 Oct 16 13:09 .
+drwxr-xr-x 13 z z 4096 Oct 20 10:42 ..
+drwxr-xr-x  2 z z 4096 Oct 16 13:05 agents
+-rwxr-xr-x  1 z z 2848 Oct 16 13:09 settings.json
+drwxr-xr-x 10 z z 4096 Oct 16 13:05 skills
+--- CLAUDE.md size ---
+6925 CLAUDE.md
+--- docs/governance top-level ---
+PROJECT_EXECUTION_STATE.md
+amendment_sources_2026-10-02
+evidence
+--- scripts/validate_bootstrap_config.py ---
+184 scripts/validate_bootstrap_config.py
+### exit_code: 0
