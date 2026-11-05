@@ -189,3 +189,13 @@ Remaining after WAVE-E (unchanged): WAVE-F five product loops audit, WAVE-G repo
 | Battery | 2826 passed / 1 skipped / 0 failed = 2808 + 18 exact; pyflakes clean; node --check green; validator tabs 30/30; sw v3-0-14 | execution record §3 |
 
 Remaining after WAVE-F (unchanged): WAVE-G repo-side packaging readiness, WAVE-H 17-role audit + owner package; WAVE-C/D(/F) CI exact-SHA evidence currency pending the GitHub API rate-limit window.
+
+## WAVE-G ADDENDUM — 2026-11-05 (directive §11 WAVE-G; runbook: `WINDOWS_PACKAGING_RUNBOOK_2026-11-05.md`)
+
+| Req ID | WAVE-G disposition | Evidence |
+|---|---|---|
+| MR-I-01 (residual: repo-side packaging readiness) | **INTEGRATION-VERIFIED (repository-side readiness only)** — deterministic readiness validator `scripts/windows_package_readiness.py` (NSIS config completeness, version consistency electron==backend==3.0.0, Electron shell security gates byte-present, build scripts + icon, runbook disclosures) + `WINDOWS_PACKAGING_RUNBOOK_2026-11-05.md` (reproducible-build steps with checksum recording + honest NSIS non-byte-reproducibility disclosure, startup health verification via /api/health, upgrade procedure with no-silent-store-layout-change rule, rollback via checksum-verified previous installer, backup/restore incl. FERNET_KEY persistence + process-local registries disclosure, diagnostics, sign-off matrix) | +4 tests `test_windows_packaging_readiness.py` (validator green, --claim-signed REFUSED exit 2, runbook disclosures, no-artifact-claim); battery 2830/1s/0f = 2826+4 exact |
+| NOT CLAIMED (deliberate) | installer artifact built, install/upgrade/rollback executed on Windows, code signature — owner R-1/R-2 gated; the validator refuses to mint a signing claim by design | validator `not_claimed` list + runbook §7 sign-off matrix |
+| Gates | unchanged: AI2_ENABLED=0 · verified=False · SYNTHETIC_OR_PAPER · no scheduler/egress/live/purge path · INSTALL NOT ISSUED | gates test in battery |
+
+Remaining after WAVE-G: WAVE-H 17-role audit + owner package; WAVE-C/D/F CI exact-SHA evidence currency pending the GitHub API rate-limit window (push succeeded over SSH; read-back verified 5a9e3f9).

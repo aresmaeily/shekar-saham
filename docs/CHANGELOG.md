@@ -1,5 +1,13 @@
 # Changelog — RADAR BOURSE
 
+## 2026-11-05 — WAVE-G (directive "COMPLETE REMAINING ROADMAP"): WINDOWS REPOSITORY-SIDE PACKAGING READINESS
+
+- **Readiness validator:** new `scripts/windows_package_readiness.py` — deterministic, cross-platform, no Electron/npm/network: NSIS config completeness (appId/target=nsis/icon/output/files), version consistency (electron/package.json == backend 3.0.0 literal), Electron shell security gates byte-present (nodeIntegration:false / contextIsolation:true / enableRemoteModule:false — the pinned strings), build scripts + icon, and the runbook's mandatory disclosures. `--claim-signed` is REFUSED (exit 2) — the tool can never mint a signing claim; the report carries an explicit `not_claimed` list (installer build / target-machine install-upgrade-rollback / code signature = owner R-1/R-2 gated).
+- **Runbook:** new `docs/active/WINDOWS_PACKAGING_RUNBOOK_2026-11-05.md` — reproducible build steps (pinned toolchain class, exact-SHA checkout, `npm ci` + `npm run build`, mandatory SHA-256 recording) with the honest disclosure that NSIS output is NOT byte-reproducible across machines (one build per exact SHA + checksum comparison instead); startup health verification via /api/health (shell intentionally does not spawn the backend — documented limitation); upgrade procedure with the no-silent-store-layout-change rule; rollback via the checksum-verified previous installer; backup/restore incl. FERNET_KEY persistence and the process-local registries disclosure; diagnostics; honest sign-off matrix.
+- Tests: **+4 = full battery 2830 passed / 1 skipped / 0 failed = 2826 + 4 exact.** pyflakes clean.
+- Publication: WAVE-F pushed over SSH (deploy key, no credential material printed) with independent read-back `origin/main = 5a9e3f9`; CI exact-SHA evidence remains pending the GitHub API rate-limit window (same recorded condition as WAVE-C/D).
+- Gates unchanged: AI2_ENABLED=0 · verified=False · SYNTHETIC_OR_PAPER · no scheduler/egress/live path · R-1..R-11 intact · INSTALL NOT ISSUED. Record: runbook + matrix WAVE-G addendum; Persian §42.
+
 ## 2026-11-05 — WAVE-F (directive "COMPLETE REMAINING ROADMAP"): FIVE PRODUCT LOOPS RUNTIME SURFACE (§5 loops closed within gates)
 
 - **Five product loops: NO runtime caller → INTEGRATION-VERIFIED runtime surface.** New `backend/app/api/product_loops_api.py` (`/api/v10/productloops`, 10 routes) + `backend/app/domain/declared_product_loops.py` (versioned manifest with the 11-word status vocabulary; declared dossiers with restatement chain v1→v2, KNOWN/UNAVAILABLE publication, NOT_AVAILABLE facts, dividend action; two-source declared quote boards; declared research job with kill-switch ENGAGED; declared audit charter with NO SCHEDULED cadence + measured baseline window).
