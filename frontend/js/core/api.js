@@ -91,3 +91,55 @@ export async function api(path, opts = {}) {
   }
   return res.json();
 }
+
+
+/**
+ * WAVE-D (2026-11-05): دریافت پیوست باینری (مثل خروجی PDF گزارش‌ها).
+ * همان قواعد api() — تنها ماژول HTTP — با این تفاوت که بدنه به‌صورت Blob
+ * برمی‌گردد و نام فایل از Content-Disposition سرور (فقط فیلد سرور) استخراج
+ * می‌شود. هیچ بازسازی/پیش‌فرضی ساخته نمی‌شود؛ خطاها مثل api() توست می‌شوند.
+ */
+export async function apiBlob(path, opts = {}) {
+  const headers = new Headers(opts.headers || {});
+  const apiKey = getApiKey();
+  if (apiKey && !headers.has("X-API-Key")) {
+    headers.set("X-API-Key", apiKey);
+  }
+  let res;
+  try {
+    res = await fetch(path, { ...opts, headers, credentials: "same-origin" });
+  } catch (e) {
+    toast("ارتباط با سرور برقرار نشد", "error");
+    throw e;
+  }
+  if (res.status === 401) {
+    events.emit("auth-required", path);
+    throw new Error("Unauthorized");
+  }
+  if (res.status === 429) {
+    const retry = res.headers.get("Retry-After") || "60";
+    toast(`درخواست زیاد — ${retry} ثانیه صبر کنید`, "warn");
+    throw new Error("Rate limited");
+  }
+  if (res.status === 403) {
+    toast("درخواست متقاطع مسدود شد", "error");
+    throw new Error("Forbidden");
+  }
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    let msg = txt;
+    try {
+      const j = JSON.parse(txt);
+      msg = j.detail || j.error || txt;
+      if (Array.isArray(msg)) msg = msg.map((m) => m.msg).join(" · ");
+    } catch {
+      /* keep raw */
+    }
+    toast(String(msg).slice(0, 120), "error");
+    throw new Error(msg);
+  }
+  const blob = await res.blob();
+  const disp = res.headers.get("content-disposition") || "";
+  const m = /filename="([^"\n]+)"/.exec(disp);
+  return { blob, filename: m ? m[1] : "" };
+}

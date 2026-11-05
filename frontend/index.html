@@ -1070,6 +1070,7 @@
           <span class="cp-vsep"></span>
           <button class="btn tiny" id="bcExportCsv">خروجی CSV</button>
           <button class="btn tiny" id="bcExportJson">خروجی JSON</button>
+          <button class="btn tiny" id="bcExportPdf">خروجی PDF</button>
         </div>
         <div class="cp-row" style="margin-top:8px">
           <label class="muted" for="bcDslSource" style="flex:0 0 100%">منبع استراتژی (DSL نسخه RSL-1 — توسط کاربر نوشته می‌شود؛ مسیر پیشنهاد AI عمداً قطع است)</label>
@@ -1136,6 +1137,11 @@
           <span class="muted">فضای جست‌وجو (JSON — grid یا bounds):</span>
           <textarea id="bcOptSpace" class="text-input" rows="2" style="width:100%;direction:ltr;font-family:monospace" spellcheck="false" placeholder='{"grid": {"period": [10, 20, 50]}}'></textarea>
         </div>
+      </div>
+      <div>
+        <button class="btn tiny" id="bcOptExportPdf">خروجی PDF بهینه‌ساز</button>
+        <button class="btn tiny" id="bcOptExportCsv">خروجی CSV بهینه‌ساز</button>
+        <button class="btn tiny" id="bcOptExportJson">خروجی JSON بهینه‌ساز</button>
       </div>
       <div id="bcOptWinner" class="muted" style="font-size:12px">برنده درون‌نمونه‌ای (IS) و تأیید OOS اینجا نمایش داده می‌شود…</div>
       <table class="data-table" id="bcOptResultsTable">

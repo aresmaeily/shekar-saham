@@ -20,7 +20,8 @@
  * - خروجی CSV/JSON فقط از متنِ پاسخ سرور ساخته می‌شود؛ هیچ سطری اینجا
  *   تولید یا بازنویسی نمی‌شود.
  */
-import { api, toast } from "../../core/api.js";
+import { api, toast, apiBlob
+} from "../../core/api.js";
 import { esc, fmtNum } from "../../core/format.js";
 
 const TRUST_STATE_LABELS = {
@@ -39,7 +40,8 @@ function trustText(trust) {
 let bound = false;
 let activated = false;
 let lastRun = null; // آخرین پاسخ بک‌تست — مبنای خروجی CSV/JSON
-let lastRequestBody = null; // WAVE-2 integration: دقیقاً همان بدنه‌ای که به /backtest رفت — خروجی همان اجرا را بازتولید می‌کند (بدون state سمت سرور)
+let lastRequestBody = null;
+let lastOptimizeBody = null; // WAVE-D: آخرین بدنه بهینه‌ساز برای خروجی گزارش // WAVE-2 integration: دقیقاً همان بدنه‌ای که به /backtest رفت — خروجی همان اجرا را بازتولید می‌کند (بدون state سمت سرور)
 
 function $(id) {
   return document.getElementById(id);
@@ -277,6 +279,18 @@ function exportText(res, format) {
   return "";
 }
 
+function downloadBlob(filename, blob) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // آزادسازی object URL — نشت حافظه باقی نماند
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
 function downloadText(filename, text, mime) {
   const blob = new Blob([text], { type: mime });
   const url = URL.createObjectURL(blob);
@@ -298,6 +312,19 @@ async function bcExport(format) {
   try {
     // WAVE-2 integration: سرویس خروجی بدون state است — همان بدنه‌ی آخرین اجرا
     // دوباره ارسال می‌شود تا همان result_digest و همان گزارش بازتولید شود.
+    // WAVE-D: pdf پیوست باینری است — از apiBlob (همان ماژول HTTP یکتا) استفاده می‌شود
+    if (format === "pdf") {
+      const att = await apiBlob("/api/v10/strategylab/backtest/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...lastRequestBody, format }),
+      });
+      const digest8 = String(lastRun?.result_digest || "").slice(0, 8) || "nodigest";
+      const safeName = String(att.filename || "").replace(/[^\w.\-]/g, "");
+      downloadBlob(safeName || `backtest-report-${digest8}.pdf`, att.blob);
+      toast("خروجی PDF از پاسخ سرور دانلود شد", "success");
+      return;
+    }
     const res = await api("/api/v10/strategylab/backtest/export", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -362,20 +389,22 @@ async function bcOptimize() {
   busy(btn, true, "در حال بهینه‌سازی…");
   showOut("در حال اجرای بهینه‌سازی (انتخاب فقط درون‌نمونه‌ای)…");
   try {
+    // WAVE-D: بدنه آخرین اجرای بهینه‌ساز برای خروجی گزارش (همان بدنه، همان digest)
+    lastOptimizeBody = {
+      source,
+      ...runParams(),
+      method: $("bcOptMethod")?.value || "grid",
+      space,
+      budget: {
+        max_evals: Math.max(1, Math.min(500, parseInt($("bcOptMaxEvals")?.value || "50", 10) || 50)),
+        seed,
+      },
+      oos: { enabled: !!$("bcOptOos")?.checked },
+    };
     const res = await api("/api/v10/strategylab/optimize", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        source,
-        ...runParams(),
-        method: $("bcOptMethod")?.value || "grid",
-        space,
-        budget: {
-          max_evals: Math.max(1, Math.min(500, parseInt($("bcOptMaxEvals")?.value || "50", 10) || 50)),
-          seed,
-        },
-        oos: { enabled: !!$("bcOptOos")?.checked },
-      }),
+      body: JSON.stringify(lastOptimizeBody),
     });
     trustFrom(res);
     renderOptResults(res);
@@ -460,7 +489,41 @@ function bindBacktestCenter() {
   on("bcRun", bcRun);
   on("bcExportCsv", () => bcExport("csv"));
   on("bcExportJson", () => bcExport("json"));
+  on("bcExportPdf", () => bcExport("pdf"));
   on("bcOptRun", bcOptimize);
+  // WAVE-D: خروجی گزارش بهینه‌ساز — همان بدنه آخرین اجرا، همان digest
+  const bcOptExport = async (format) => {
+    if (!lastOptimizeBody) {
+      toast("ابتدا بهینه‌سازی را اجرا کنید — خروجی بدون اجرا معنا ندارد", "warn");
+      return;
+    }
+    try {
+      if (format === "json") {
+        const res = await api("/api/v10/strategylab/optimize/export", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...lastOptimizeBody, format }),
+        });
+        downloadText(`optimize-report-${String(res.reproducibility_digest || "").slice(0, 8) || "nodigest"}.json`, JSON.stringify(res, null, 2), "application/json;charset=utf-8");
+        toast("خروجی JSON بهینه‌ساز دانلود شد", "success");
+        return;
+      }
+      const att = await apiBlob("/api/v10/strategylab/optimize/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...lastOptimizeBody, format }),
+      });
+      const safeName = String(att.filename || "").replace(/[^\w.\-]/g, "");
+      downloadBlob(safeName || "optimize-report.pdf", att.blob);
+      toast(`خروجی ${format === "pdf" ? "PDF" : "CSV"} بهینه‌ساز دانلود شد`, "success");
+    } catch (e) {
+      showOut(`خروجی ${format} بهینه‌ساز ناموفق بود:\n${errText(e)}`);
+      toast("خروجی بهینه‌ساز ناموفق بود — جزئیات در خروجی", "error");
+    }
+  };
+  on("bcOptExportPdf", () => bcOptExport("pdf"));
+  on("bcOptExportCsv", () => bcOptExport("csv"));
+  on("bcOptExportJson", () => bcOptExport("json"));
 
   // فعال‌سازی هنگام باز شدن تب (الگوی strategy_lab) — بدون هیچ درخواست خودکار:
   // اجرای بک‌تست/بهینه‌ساز فقط با کنش صریح کاربر انجام می‌شود.

@@ -179,9 +179,20 @@ class OptimizeBody(SourceBody):
 
 
 class ExportBody(BacktestBody):
-    """WAVE-2 /backtest/export body: BacktestBody shape + format."""
+    """WAVE-2 /backtest/export body: BacktestBody shape + format. WAVE-D adds
+    ``pdf`` — a byte-deterministic English-label projection (see
+    app.services.report_pdf for the pinned determinism/limitations contract;
+    the JSON export remains the full-fidelity report)."""
 
-    format: str = Field(default="json", pattern="^(csv|json)$")
+    format: str = Field(default="json", pattern="^(csv|json|pdf)$")
+
+
+class OptimizeExportBody(OptimizeBody):
+    """WAVE-D /optimize/export body: OptimizeBody shape + format. Re-runs the
+    SAME deterministic optimize path (identical body -> identical
+    reproducibility_digest -> identical report)."""
+
+    format: str = Field(default="pdf", pattern="^(csv|json|pdf)$")
 
 
 class RegisterBody(SourceBody):
@@ -444,6 +455,16 @@ def _objective_on_bars(
 @router.post("/optimize")
 async def optimize_strategy(body: OptimizeBody) -> Dict[str, Any]:
     """WAVE-2 §D4 deterministic parameter search over the /backtest series.
+    (WAVE-D: the payload construction lives verbatim in ``_optimize_payload``
+    so /optimize/export re-uses the exact same deterministic path.)
+    """
+    return _optimize_payload(body)
+
+
+def _optimize_payload(body: OptimizeBody) -> Dict[str, Any]:
+    """WAVE-D: verbatim payload construction of POST /optimize (moved, not
+    changed — one shared deterministic run path for /optimize and
+    /optimize/export).
 
     Honesty scope (mirrors the engine contract in app.engines.backtest_optimizer):
     - Ranking uses IN-SAMPLE objective values only (``selection_basis`` is
@@ -748,6 +769,15 @@ async def export_backtest(body: ExportBody) -> Response:
             media_type="application/json",
             headers={"Content-Disposition": f'attachment; filename="backtest-report-{digest8}.json"'},
         )
+    if body.format == "pdf":
+        from app.services.report_pdf import backtest_sections
+
+        return _pdf_report_response(
+            payload,
+            f"RADAR BOURSE - Backtest Report {digest8}",
+            backtest_sections(payload),
+            kind="backtest",
+        )
     report = payload.get("report") or {}
     trades = payload.get("trades") or []
     buf = io.StringIO()
@@ -765,6 +795,158 @@ async def export_backtest(body: ExportBody) -> Response:
         content=buf.getvalue(),
         media_type="text/csv",
         headers={"Content-Disposition": f'attachment; filename="backtest-report-{digest8}.csv"'},
+    )
+
+
+# ---------------------------------------------------------------------------
+# MASTER-RADAR WAVE-D (2026-11-05): PDF export of backtest/optimization/
+# walk-forward reports (MR-D5-01 residual). The PDF writer is a zero-dependency
+# byte-deterministic renderer (app/services/report_pdf.py); the JSON export
+# remains the full-fidelity report on every surface.
+# ---------------------------------------------------------------------------
+
+
+def _pdf_report_response(payload: Dict[str, Any], title: str, blocks: List[Any], kind: str) -> Response:
+    from app.services.report_pdf import render_report_pdf
+
+    pdf_bytes = render_report_pdf(title, blocks)
+    digest8 = str(payload.get("reproducibility_digest") or payload.get("result_digest") or "")[:8] or "nodigest"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{kind}-report-{digest8}.pdf"'},
+    )
+
+
+def _optimize_csv(payload: Dict[str, Any]) -> str:
+    """WAVE-D flat CSV projection of the /optimize payload (same conventions
+    as the backtest csv: English keys, str() as-is, None -> empty cell)."""
+    winner = payload.get("winner") or {}
+    oos = payload.get("oos") or {}
+    buf = io.StringIO()
+    writer = csv.writer(buf, lineterminator="\n")
+    writer.writerow(["## METRICS"])
+    for key in (
+        "method", "objective", "selection_basis", "reproducibility_digest",
+        "total_evaluations", "evaluable_count", "refused_count",
+        "n_constraint_skips", "cancelled", "budget_exhausted",
+        "symbol", "timeframe", "bars_used", "data_trust_label",
+        "evaluations_returned",
+    ):
+        writer.writerow([key, _csv_cell(payload.get(key))])
+    writer.writerow(["winner_params", _csv_cell(winner.get("params"))])
+    writer.writerow(["winner_objective_value", _csv_cell(winner.get("objective_value"))])
+    writer.writerow([])
+    writer.writerow(["## OOS_CONFIRMATION"])
+    for key in (
+        "enabled", "selection_basis", "is_bars", "oos_bars",
+        "is_objective_value", "oos_objective_value", "oos_evaluated_once",
+    ):
+        writer.writerow([key, _csv_cell(oos.get(key))])
+    writer.writerow([])
+    writer.writerow(["## EVALUATIONS"])
+    writer.writerow(["#", "params", "objective_value", "is_refused", "refuse_reason"])
+    for i, e in enumerate(payload.get("evaluations") or []):
+        writer.writerow([
+            str(i + 1), _csv_cell(e.get("params")), _csv_cell(e.get("objective_value")),
+            _csv_cell(e.get("is_refused")), _csv_cell(e.get("refuse_reason")),
+        ])
+    return buf.getvalue()
+
+
+def _walkforward_csv(payload: Dict[str, Any]) -> str:
+    """WAVE-D flat CSV projection of the /walkforward payload."""
+    buf = io.StringIO()
+    writer = csv.writer(buf, lineterminator="\n")
+    writer.writerow(["## METRICS"])
+    for key in (
+        "engine_version", "objective", "search_method", "reproducibility_digest",
+        "symbol", "timeframe", "bars_used", "data_trust_label",
+    ):
+        writer.writerow([key, _csv_cell(payload.get(key))])
+    writer.writerow([])
+    writer.writerow(["## FOLDS"])
+    writer.writerow([
+        "fold_index", "train_start", "train_end", "test_start", "test_end",
+        "fold_seed", "best_params", "is_objective", "oos_objective",
+        "evaluable_count", "oos_eval_count", "oos_evaluated_once",
+    ])
+    for f in payload.get("folds") or []:
+        train = f.get("train") or {}
+        test = f.get("test") or {}
+        writer.writerow([
+            _csv_cell(f.get("fold_index")), _csv_cell(train.get("start_index")),
+            _csv_cell(train.get("end_index")), _csv_cell(test.get("start_index")),
+            _csv_cell(test.get("end_index")), _csv_cell(f.get("fold_seed")),
+            _csv_cell(f.get("best_params")), _csv_cell(f.get("is_objective")),
+            _csv_cell(f.get("oos_objective")), _csv_cell(f.get("evaluable_count")),
+            _csv_cell(f.get("oos_eval_count")), _csv_cell(f.get("oos_evaluated_once")),
+        ])
+    writer.writerow([])
+    writer.writerow(["## AGGREGATE"])
+    agg = payload.get("aggregate") or {}
+    for key in sorted(agg.keys()):
+        if isinstance(agg.get(key), (str, int, float, bool, type(None))):
+            writer.writerow([key, _csv_cell(agg.get(key))])
+    return buf.getvalue()
+
+
+@router.post("/optimize/export")
+async def export_optimize(body: OptimizeExportBody) -> Response:
+    """WAVE-D: downloadable optimize report — json (full payload verbatim),
+    csv (flat documented projection) or pdf (byte-deterministic English-label
+    report; SYNTHETIC honesty block included; see report_pdf contract).
+    Identical bodies produce identical digests and byte-identical csv/pdf
+    files (json embeds the wall-clock trust envelope by canonical design)."""
+    payload = _optimize_payload(body)
+    if body.format == "json":
+        return Response(
+            content=orjson.dumps(payload),
+            media_type="application/json",
+            headers={"Content-Disposition": f'attachment; filename="optimize-report-{str(payload.get("reproducibility_digest"))[:8] or "nodigest"}.json"'},
+        )
+    if body.format == "csv":
+        return Response(
+            content=_optimize_csv(payload),
+            media_type="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="optimize-report-{str(payload.get("reproducibility_digest"))[:8] or "nodigest"}.csv"'},
+        )
+    from app.services.report_pdf import optimize_sections
+
+    return _pdf_report_response(
+        payload,
+        f"RADAR BOURSE - Optimize Report {str(payload.get('reproducibility_digest'))[:8]}",
+        optimize_sections(payload),
+        kind="optimize",
+    )
+
+
+@router.post("/walkforward/export")
+async def export_walkforward(body: WalkForwardExportBody) -> Response:
+    """WAVE-D: downloadable walk-forward report — json (full payload verbatim),
+    csv (flat documented projection) or pdf (byte-deterministic English-label
+    report; per-fold IS-selection + OOS-once discipline echoed; SYNTHETIC
+    honesty block included)."""
+    payload = _walkforward_payload(body)
+    if body.format == "json":
+        return Response(
+            content=orjson.dumps(payload),
+            media_type="application/json",
+            headers={"Content-Disposition": f'attachment; filename="walkforward-report-{str(payload.get("reproducibility_digest"))[:8] or "nodigest"}.json"'},
+        )
+    if body.format == "csv":
+        return Response(
+            content=_walkforward_csv(payload),
+            media_type="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="walkforward-report-{str(payload.get("reproducibility_digest"))[:8] or "nodigest"}.csv"'},
+        )
+    from app.services.report_pdf import walkforward_sections
+
+    return _pdf_report_response(
+        payload,
+        f"RADAR BOURSE - Walk-Forward Report {str(payload.get('reproducibility_digest'))[:8]}",
+        walkforward_sections(payload),
+        kind="walkforward",
     )
 
 
@@ -949,6 +1131,12 @@ class WalkForwardBody(SourceBody):
     objective: str = Field(default="SHARPE")
 
 
+class WalkForwardExportBody(WalkForwardBody):
+    """WAVE-D /walkforward/export body: WalkForwardBody shape + format."""
+
+    format: str = Field(default="pdf", pattern="^(csv|json|pdf)$")
+
+
 def _wf_objective_on_bars(
     program: Any,
     bars_window: List[Dict[str, Any]],
@@ -999,6 +1187,9 @@ def _wf_objective_on_bars(
 async def walkforward_strategy(body: WalkForwardBody) -> Dict[str, Any]:
     """W3-3C walk-forward analysis over the SAME seeded series path as
     /backtest, with per-fold IS-selection + OOS-confirmed-once discipline.
+    (WAVE-D: the payload construction lives verbatim in
+    ``_walkforward_payload`` so /walkforward/export re-uses the exact same
+    deterministic path.)
 
     PINNED window math (0-indexed bars over the seeded series; end indexes
     EXCLUSIVE): fold i (0..n-1) trains on bars
@@ -1032,6 +1223,13 @@ async def walkforward_strategy(body: WalkForwardBody) -> Dict[str, Any]:
       reproducibility digest covers the body echo + the fold table (never the
       trust envelope, whose checked_at is a wall-clock instant by design).
     """
+    return _walkforward_payload(body)
+
+
+def _walkforward_payload(body: WalkForwardBody) -> Dict[str, Any]:
+    """WAVE-D: verbatim payload construction of POST /walkforward (moved, not
+    changed — one shared deterministic run path for /walkforward and
+    /walkforward/export)."""
     from app.engines import walk_forward as wf
 
     outcome = svc.compile_or_errors(body.source)

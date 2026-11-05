@@ -164,10 +164,10 @@ class TestIntegrationPins:
         text = _read(MAIN_JS)
         assert 'import "./modules/render/user_indicator_ui.js"' in text
 
-    def test_sw_bumped_to_v3_0_10_with_precache(self) -> None:
+    def test_sw_bumped_to_v3_0_11_with_precache(self) -> None:
         sw = _read(SW_JS)
-        assert "radar-bourse-static-v3-0-10" in sw
-        assert "radar-bourse-static-v3-0-9" not in sw
+        assert "radar-bourse-static-v3-0-11" in sw
+        assert "radar-bourse-static-v3-0-10" not in sw
         assert "/static/js/modules/user_indicator.js" in sw
         assert "/static/js/modules/render/user_indicator_ui.js" in sw
 
@@ -183,7 +183,7 @@ class TestIntegrationPins:
     )
     def test_counter_pins_bumped(self, path: str) -> None:
         text = _read(ROOT / path)
-        assert "radar-bourse-static-v3-0-10" in text, path
+        assert "radar-bourse-static-v3-0-11" in text, path
         assert "radar-bourse-static-v3-0-8" not in re.sub(
             r"#.*COUNTER-PIN BUMP[^\n]*\n?", "", text
-        ) or "v3-0-9 -> v3-0-10" in text or "v3-0-8 -> v3-0-9" in text  # bump comment may name the old pin
+        ) or "v3-0-10 -> v3-0-11" in text or "v3-0-9 -> v3-0-10" in text  # bump comment may name the old pin

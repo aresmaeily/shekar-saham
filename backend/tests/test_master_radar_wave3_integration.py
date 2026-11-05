@@ -77,8 +77,8 @@ def test_main_js_imports_wave3_modules():
 
 def test_sw_bumped_to_v3_0_8_with_wave3_precache():
     sw = _read(SW_JS)
-    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-B 2026-11-04): v3-0-8 -> v3-0-9 -> v3-0-10 (popup-detach-intent fix)
-    assert "radar-bourse-static-v3-0-10" in sw
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-D 2026-11-05): v3-0-10 -> v3-0-11 (PDF report export frontend wiring) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 (WAVE-B popup-detach-intent fix)
+    assert "radar-bourse-static-v3-0-11" in sw
     assert "radar-bourse-static-v3-0-9" not in sw
     assert "/static/js/modules/render/chart_grid.js" in sw
     assert "/static/js/modules/command_palette.js" in sw
