@@ -1,5 +1,14 @@
 # Changelog — RADAR BOURSE
 
+## 2026-11-05 — WAVE-H (directive "COMPLETE REMAINING ROADMAP"): 17-ROLE INDEPENDENT AUDIT + FINAL OWNER ACCEPTANCE PACKAGE
+
+- **Independent reproductions (auditor-performed, not inherited):** fresh anonymous clone at published HEAD `86f28c2` → full battery **2829 passed / 2 skipped / 0 failed in 27.03s**; the 1-test delta vs the workspace battery (2830/1s) is fully attributed to `test_g2_acceptance_harness.py:367` (GOV-19 governance bundle deliberately untracked per the recorded WAVE-3 commit-boundary decision) — totals reconcile exactly; forward-only chain WAVE-A→G verified by ancestry; hostile probes zero 5xx; gates sweep clean.
+- **17/17 roles dispositioned — 0 FAIL** (governor, CTO, roadmap, release, repo auditor, forensics, RE-lead, reference analyst, data auditor, quant auditor, AI architect, dev director, Windows/DevOps, QA, security, prompt engineer, docs lead) — each with this-execution evidence anchors.
+- **Directive §10 A–S:** DELIVERED with two honest deliberate PARTIALs — M (installer build / target-machine install-upgrade-rollback / code signing = owner R-1/R-2; never claimed) and P (CI exact-SHA check-runs for C/D/F/G pending the GitHub API rate-limit window; the pushes themselves read-back verified: `5a9e3f9`, `86f28c2`).
+- **Owner-action register consolidated:** OA-1 install/target-machine · OA-2 live posture + source entitlements (Two-Key) · OA-3 AI-2 enablement · OA-4 scheduler/notifications · OA-5 prediction-registry persistence · OA-6 Vercel housekeeping · OA-7 CI-evidence window · OA-8 global-completion weighting.
+- **Bounded closing statement:** the non-owner-gated roadmap surface is CLOSED at `86f28c2` per the per-role verdicts — explicitly NOT a claim of 100% roadmap completion, real-market coverage, reference-product parity, or live/production readiness. Global completion: **NOT CALCULATED**.
+- Gates unchanged: AI2_ENABLED=0 · verified=False · SYNTHETIC_OR_PAPER · no scheduler/egress/live path · R-1..R-11 intact · INSTALL NOT ISSUED. Audit: `docs/active/MASTER_RADAR_WAVEH_17ROLE_AUDIT_AND_OWNER_PACKAGE_2026-11-05.md`; Persian §43; matrix WAVE-H addendum.
+
 ## 2026-11-05 — WAVE-G (directive "COMPLETE REMAINING ROADMAP"): WINDOWS REPOSITORY-SIDE PACKAGING READINESS
 
 - **Readiness validator:** new `scripts/windows_package_readiness.py` — deterministic, cross-platform, no Electron/npm/network: NSIS config completeness (appId/target=nsis/icon/output/files), version consistency (electron/package.json == backend 3.0.0 literal), Electron shell security gates byte-present (nodeIntegration:false / contextIsolation:true / enableRemoteModule:false — the pinned strings), build scripts + icon, and the runbook's mandatory disclosures. `--claim-signed` is REFUSED (exit 2) — the tool can never mint a signing claim; the report carries an explicit `not_claimed` list (installer build / target-machine install-upgrade-rollback / code signature = owner R-1/R-2 gated).

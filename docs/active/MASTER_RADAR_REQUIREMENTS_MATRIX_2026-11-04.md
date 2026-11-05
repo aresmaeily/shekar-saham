@@ -199,3 +199,13 @@ Remaining after WAVE-F (unchanged): WAVE-G repo-side packaging readiness, WAVE-H
 | Gates | unchanged: AI2_ENABLED=0 · verified=False · SYNTHETIC_OR_PAPER · no scheduler/egress/live/purge path · INSTALL NOT ISSUED | gates test in battery |
 
 Remaining after WAVE-G: WAVE-H 17-role audit + owner package; WAVE-C/D/F CI exact-SHA evidence currency pending the GitHub API rate-limit window (push succeeded over SSH; read-back verified 5a9e3f9).
+
+## WAVE-H ADDENDUM — 2026-11-05 (directive §11 WAVE-H; audit: `MASTER_RADAR_WAVEH_17ROLE_AUDIT_AND_OWNER_PACKAGE_2026-11-05.md`)
+
+| Item | WAVE-H disposition | Evidence |
+|---|---|---|
+| 17-role audit | **17/17 roles dispositioned — 0 FAIL** at published HEAD `86f28c2` | audit §2 (fresh-clone battery reproduction 2829/2s/0f with skip-delta fully attributed to the recorded untracked-governance-bundle boundary; forward-only chain verified; hostile sweeps zero 5xx; gates sweep clean) |
+| §10 A–S acceptance evidence | DELIVERED with two honest PARTIALs: M (installer build/target-machine/signing = owner R-1/R-2 by design) and P (CI exact-SHA for C/D/F/G pending the GitHub API rate-limit window — environmental, recorded; pushes themselves read-back verified) | audit §3 |
+| Owner-action register | consolidated OA-1..OA-8 (install/live-posture/AI-2/scheduler/persistence/Vercel/CI-window/weighting) — nothing bypassed, nothing inferred from silence | audit §4 |
+| Non-owner-gated roadmap surface | **CLOSED at `86f28c2`** (bounded statement per §2 verdicts; NOT a claim of 100% roadmap completion, real-market coverage, parity, or live readiness) | audit §5 |
+| Global completion | **NOT CALCULATED** (no approved weighting scheme) | audit §6 |
