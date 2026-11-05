@@ -129,3 +129,18 @@ WAVE-M (internal scheduler — persistence acceptance landed in WAVE-J),
 WAVE-N remainder (supervised local backend in the Electron shell), WAVE-O
 (UX integration of the AI-2 surface), WAVE-P (independent acceptance +
 release).
+
+## 6. Exact-SHA CI currency (check-runs API via the WebFetch egress path; the sandbox shared IP is rate-limited — the recorded WS-1/WAVE-I condition)
+
+| SHA | Wave | test-backend | build-docker | windows-validation | build-installer |
+|---|---|---|---|---|---|
+| 71fcf41 (WAVE-K impl) | K | 0 check runs — pushed batched with the docs-only records commit 46274a3 (verified docs-only delta); covered by the 46274a3 runs | — | — | — |
+| 46274a3 (WAVE-K records) | K | success (127520785873) | success (127521463952) | success (127520786213) | success (127520786754) |
+| 504f19b (L-QA remediation) | L | success (127532389293) | success (127533227100) | success (127532389165) | success (127532388821) |
+| 94fc5f8 (WAVE-L, final HEAD) | L | success (127536849745) | success (127537398708) | success (127536849611) | success (127536850267) |
+
+Every recorded conclusion is SUCCESS — 4/4 required checks on each SHA with
+attached runs, nothing converted, nothing inferred. The final published HEAD
+(94fc5f8) carries the full WAVE-K seam + L-QA remediation + WAVE-L record
+with all four CI checks green, including the build-installer job (the
+unsigned installer artifact builds cleanly on the exact final SHA).
