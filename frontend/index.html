@@ -1252,6 +1252,24 @@
         <tbody id="dqCoverageBody"><tr><td colspan="12" class="muted">گزارش پوشش پس از باز کردن تب از سرور بارگذاری می‌شود</td></tr></tbody>
       </table>
 
+      <h3>تقویم‌های اعلامی بازار (کلاس اعتماد: DECLARED — اعلام مخزن، نه جدول تعطیلات مأخذ‌دار)</h3>
+      <div class="warn-box" style="margin-bottom:8px">
+        <p class="muted">این تقویم‌ها «اعلان مخزن» هستند (DECLARED) — جدول تعطیلات مأخذ‌دار و تأییدشده به تصمیم مالک و کلید دوگانه (R-3/R-7) بسته است. محدوده اعلامی فقط قانون روز-ثابت و پنجره‌های هفتگی است؛ جابجایی تعطیلات مجاور آخر هفته، روزهای جایگزین، تعطیلی‌های موردی و فازهای حراج مدل نمی‌شود. تعیین وضعیت هرگز از ساعت سرور استفاده نمی‌کند — لحظه را شما اعلام می‌کنید.</p>
+      </div>
+      <table class="data-table" id="dqCalendarTable">
+        <thead><tr><th>تقویم</th><th>بازار</th><th>منطقه زمانی</th><th>پنجره‌های هفتگی</th><th>قوانین تعطیلات اعلامی</th><th>نسخه</th><th>کلاس</th></tr></thead>
+        <tbody id="dqCalendarBody"><tr><td colspan="7" class="muted">تقویم‌های اعلامی پس از باز کردن تب از سرور بارگذاری می‌شود</td></tr></tbody>
+      </table>
+      <div class="cp-toolbar" style="margin-top:8px">
+        <div class="cp-row">
+          <span class="muted">وضعیت اعلامی در لحظه:</span>
+          <select class="text-input" id="dqCalSelect" style="max-width:260px"><option value="">—</option></select>
+          <input class="text-input" id="dqCalAsOf" style="max-width:230px;direction:ltr" placeholder="2026-11-09T12:00:00Z" spellcheck="false">
+          <button class="btn tiny" id="dqCalCheck">بررسی وضعیت</button>
+        </div>
+        <div class="muted" id="dqCalState" style="margin-top:6px">— لحظه باید ISO-8601 با آفست صریح باشد (مثال: 2026-11-09T12:00:00Z). سرور هرگز ساعت خودش را نمی‌خواند.</div>
+      </div>
+
       <h3>ممیزی نمادها (ردیف‌های ممیزی مکانیکی هر نماد)</h3>
       <table class="data-table" id="dqAuditTable">
         <thead><tr><th>نماد</th><th>کندل‌ها</th><th>اولین</th><th>آخرین</th><th>تکراری</th><th>نامرتب</th><th>نامعتبر</th><th>کهنه</th><th>شکاف‌ها</th><th>کلاس اعتماد</th><th>جزئیات</th></tr></thead>

@@ -328,7 +328,11 @@ def test_pdf_third_party_parser_roundtrip(tmp_path: Path):
 def client() -> TestClient:
     from app.main import app
 
-    with TestClient(app) as c:
+    # Distinct rate-limit identity (AUDIT-MR2 contract: every new API test
+    # module carries its own limiter identity so the shared default "testclient"
+    # budget is never consumed by module order — rate-limit identity census
+    # 12345..12349 recorded; this module uses 12350).
+    with TestClient(app, client=("mr-waved-pdf", 12350)) as c:
         yield c
 
 

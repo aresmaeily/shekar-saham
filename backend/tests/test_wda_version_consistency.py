@@ -82,9 +82,9 @@ def test_sw_cache_token_is_consistent_within_sw_js():
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-3 2026-11-04): v3-0-7 -> v3-0-8 —
     # precache list extended with chart_grid.js + command_palette.js (WAVE-3
     # multi-chart grid + command palette modules).
-    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-D 2026-11-05): v3-0-10 -> v3-0-11 (PDF report export frontend wiring) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 (WAVE-B popup-detach-intent fix) —
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-E 2026-11-05): v3-0-12 -> v3-0-13 (SW install cache:reload honesty fix) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 -> v3-0-12 (WAVE-B popup fix, WAVE-D PDF export, WAVE-E declared calendars) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 (WAVE-B popup fix, WAVE-D PDF export) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 (WAVE-B popup-detach-intent fix) —
     # precache extended with the UIDL-1 user-indicator client + panel modules.
-    assert token == "radar-bourse-static-v3-0-11"
+    assert token == "radar-bourse-static-v3-0-13"
     # Header comment must tell the same story (dots variant), no drift.
     assert "Service Worker v3.0.8" in SW_JS
 

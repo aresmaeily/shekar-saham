@@ -1,8 +1,8 @@
-// Service Worker v3.0.8 — هماهنگ با معماری جدید (WS-HARDEN-1/W3: مسیر legacy حذف شد؛ WS-10: چارت حرفه‌ای؛ MASTER-RADAR: آزمایشگاه استراتژی؛ MASTER-RADAR WAVE-2: مراکز بک‌تست/فوروارد تست/کیفیت داده؛ MASTER-RADAR WAVE-3: شبکه چندچارتی + پالت فرمان؛ WAVE-B: اندیکاتور کاربر UIDL-1؛ v3-0-10: رفع نیت جداسازی popup؛ v3-0-11: خروجی PDF گزارش‌ها (بک‌تست/بهینه‌ساز))
+// Service Worker v3.0.8 — هماهنگ با معماری جدید (WS-HARDEN-1/W3: مسیر legacy حذف شد؛ WS-10: چارت حرفه‌ای؛ MASTER-RADAR: آزمایشگاه استراتژی؛ MASTER-RADAR WAVE-2: مراکز بک‌تست/فوروارد تست/کیفیت داده؛ MASTER-RADAR WAVE-3: شبکه چندچارتی + پالت فرمان؛ WAVE-B: اندیکاتور کاربر UIDL-1؛ v3-0-10: رفع نیت جداسازی popup؛ v3-0-11: خروجی PDF گزارش‌ها (بک‌تست/بهینه‌ساز)؛ v3-0-12: تقویم‌های اعلامی بازار (DECLARED)؛ v3-0-13: نصب SW با cache:reload (دور زدن تازگی-اکتشافی HTTP))
 // - HTML: network-first با fallback به کش (نسخه جدید همیشه می‌رسد)
 // - استاتیک: stale-while-revalidate (سریع + به‌روز)
 // - API: network-only — هرگز payload بازار/احراز را کش نکن (stale ≠ current؛ logout نباید replay شود)
-const CACHE_NAME = "radar-bourse-static-v3-0-11";
+const CACHE_NAME = "radar-bourse-static-v3-0-13";
 const urlsToCache = [
   "/",
   "/static/css/app.css",
@@ -31,7 +31,7 @@ const urlsToCache = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache).catch(() => {}))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache.map((u) => new Request(u, { cache: "reload" }))).catch(() => {}))
   );
   self.skipWaiting();
 });

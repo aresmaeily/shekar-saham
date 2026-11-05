@@ -51,6 +51,27 @@ function showOut(objOrText) {
   out.textContent = typeof objOrText === "string" ? objOrText : JSON.stringify(objOrText, null, 2);
 }
 
+
+/** WAVE-E pre-publication fix: این دو helper در نسخه WAVE-2 «صدا زده می‌شدند ولی
+ * تعریف نشده بودند» (مسیرهای بدون-بازار/بدون-ردیف/خطا هرگز اجرا نمی‌شدند و بلوک
+ * بعدیِ dqLoadAll را هم می‌شکستند). معنای موردنظر، همان حداقلِ روشن است: */
+function setEmptyRow(tbody, colCount, message) {
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td colspan="${colCount}" class="muted">${esc(message)}</td>`;
+  tbody.appendChild(tr);
+}
+
+/** اولین آرایه موجود از بین کلیدهای کاندید در پاسخ سرور (بدون حدس) */
+function rowListOf(res, keys) {
+  for (const k of keys || []) {
+    const v = res ? res[k] : undefined;
+    if (Array.isArray(v)) return v;
+  }
+  return [];
+}
+
 function trustFrom(payload) {
   const el = $("dqTrustBadge");
   if (el && payload && payload.trust_envelope) el.textContent = trustText(payload.trust_envelope.data_trust);
@@ -248,9 +269,85 @@ async function dqLoadAll() {
     }
     await dqLoadCoverage();
     await dqLoadAudit();
+    if (!calendarsLoaded) await dqLoadCalendars();
   } finally {
     busy(btn, false);
   }
+}
+
+
+/* ------------------- WAVE-E: تقویم‌های اعلامی (DECLARED) -------------------
+ * فقط-افزودنی: جدول تقویم‌های اعلامی + بررسی وضعیت اعلامی در لحظهٔ اعلانیِ
+ * کاربر (سرور هرگز ساعت خودش را نمی‌خواند — as_of_utc الزامی است). کلاس
+ * اعتماد DECLARED فقط از فیلد سرور خوانده می‌شود و هیچ ارتقایی نمی‌گیرد.
+ */
+
+let calendarsLoaded = false;
+
+async function dqLoadCalendars() {
+  try {
+    const res = await api("/api/v10/dataquality/calendars");
+    const body = $("dqCalendarBody");
+    const sel = $("dqCalSelect");
+    if (!body || !sel) return;
+    body.innerHTML = "";
+    sel.innerHTML = "";
+    for (const cal of res.calendars || []) {
+      const tr = document.createElement("tr");
+      const wins = (cal.sessions || [])
+        .map((s) => `${esc(s.weekdays.join("، "))} ${esc(s.start_local)}–${esc(s.end_local)}`)
+        .join(" · ");
+      const hols = (cal.declared_holiday_rules || [])
+        .map((h) => `${esc(h.name)} (${esc(h.rule)})`)
+        .join(" · ") || "— (بدون قانون روز-ثابت اعلامی)";
+      tr.innerHTML =
+        `<td style="direction:ltr">${esc(cal.calendar_id)}</td>` +
+        `<td>${esc(cal.market)}</td>` +
+        `<td style="direction:ltr">${esc(cal.timezone)}</td>` +
+        `<td>${wins}</td>` +
+        `<td>${hols}</td>` +
+        `<td style="direction:ltr">${esc(cal.declared_version)}</td>` +
+        `<td>${esc(cal.trust_class)}</td>`;
+      body.appendChild(tr);
+      const opt = document.createElement("option");
+      opt.value = cal.calendar_id;
+      opt.textContent = cal.calendar_id;
+      sel.appendChild(opt);
+    }
+    if (!(res.calendars || []).length) {
+      body.innerHTML = `<tr><td colspan="7" class="muted">سرور فهرست تقویم اعلامی نداشت — چیزی جعل نمی‌شود</td></tr>`;
+    }
+    calendarsLoaded = true;
+  } catch (e) {
+    const body = $("dqCalendarBody");
+    if (body) body.innerHTML = `<tr><td colspan="7" class="muted">بارگذاری تقویم‌ها ناموفق بود — هیچ داده‌ای جعل نمی‌شود</td></tr>`;
+  }
+}
+
+async function dqCheckSessionState() {
+  const out = $("dqCalState");
+  const calId = $("dqCalSelect")?.value;
+  const asOf = String($("dqCalAsOf")?.value || "").trim();
+  if (!out) return;
+  if (!calId || !asOf) {
+    out.textContent = "تقویم و لحظه (ISO-8601 با آفست صریح، مثل 2026-11-09T12:00:00Z) هر دو الزامی‌اند — بدون آنها درخواستی ارسال نمی‌شود.";
+    return;
+  }
+  out.textContent = "در حال بررسی…";
+  try {
+    const st = await api(`/api/v10/dataquality/calendars/${encodeURIComponent(calId)}/session-state?as_of_utc=${encodeURIComponent(asOf)}`);
+    const det = String(st.detail || "");
+    out.innerHTML =
+      `<b style="direction:ltr">${esc(st.state)}</b> — ` +
+      `${esc(det)} · کلاس: ${esc(st.trust_class)} · نسخه: ${esc(st.declared_version)}` +
+      `<br><span class="muted">محدودیت اعلامی: ${esc(st.honesty?.declared_scope_gaps || "")}</span>`;
+  } catch (e) {
+    out.textContent = `بررسی ناموفق بود (ورودی را با آفست صریح بررسی کنید، مثل 2026-11-09T12:00:00Z): ${errTextSafe(e)}`;
+  }
+}
+
+function errTextSafe(e) {
+  return String(e?.message || e).slice(0, 160);
 }
 
 /* ------------------------- بایند-on-demand ------------------------- */
@@ -265,6 +362,8 @@ function bindDataQualityCenter() {
   };
   on("dqRefresh", dqLoadAll);
   $("dqMarket")?.addEventListener("change", dqLoadAll);
+  // WAVE-E: تقویم‌های اعلامی — بررسی وضعیت فقط با کنش صریح کاربر
+  on("dqCalCheck", dqCheckSessionState);
 
   // فعال‌سازی هنگام باز شدن تب (الگوی strategy_lab): بارگذاری فقط-یک‌بار
   // گزارش‌های فقط-خواندنی؛ هیچ درخواستی پیش از باز شدن تب ارسال نمی‌شود.
