@@ -75,8 +75,11 @@ def test_static_validator_contract_still_green_with_wave2():
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-2 2026-11-04): 26 -> 29 —
     # the three WAVE-2 product tabs were added WITH this wave; structural
     # invariants unchanged (every tab keeps its panel, no orphans/duplicates).
-    assert data["tabs"]["tabs_count"] == 29
-    assert data["tabs"]["panels_count"] == 29
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-F 2026-11-05): 29 -> 30 —
+    # one new product tab «حلقه‌های محصول» (loops) added WITH this wave;
+    # prior chain 26 -> 29 (WAVE-2 three product tabs) / 25 -> 26 (analytics tab)
+    assert data["tabs"]["tabs_count"] == 30
+    assert data["tabs"]["panels_count"] == 30
     assert data["tabs"]["missing_panels"] == []
     assert data["tabs"]["orphan_panels"] == []
     assert data["duplicate_ids"]["index"] == []
@@ -184,7 +187,8 @@ def test_sw_precache_includes_wave2_modules_and_bumped():
     # precache list extended with chart_grid.js + command_palette.js; the WAVE-2
     # module-name assertions below are unchanged (see test_master_radar_wave3_integration.py).
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-E 2026-11-05): v3-0-12 -> v3-0-13 (SW install cache:reload honesty fix) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 -> v3-0-12 (WAVE-B popup fix, WAVE-D PDF export, WAVE-E declared calendars) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 (WAVE-B popup fix, WAVE-D PDF export) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 (WAVE-B popup-detach-intent fix)
-    assert "radar-bourse-static-v3-0-13" in sw
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-F 2026-11-05): v3-0-13 -> v3-0-14 — precache extended with product_loops_ui.js (WAVE-F product-loops panel)
+    assert "radar-bourse-static-v3-0-14" in sw
     assert "radar-bourse-static-v3-0-9" not in sw
     for name in WAVE2_MODULE_NAMES:
         assert f"/static/js/modules/render/{name}" in sw

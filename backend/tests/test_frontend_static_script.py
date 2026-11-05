@@ -26,8 +26,11 @@ def test_frontend_static_validator_contract():
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-2 2026-11-04): 26 -> 29 —
     # three new product tabs (backtestcenter / forwardcenter / dataquality)
     # were added WITH this wave; structural invariants unchanged.
-    assert data["tabs"]["tabs_count"] == 29
-    assert data["tabs"]["panels_count"] == 29
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-F 2026-11-05): 29 -> 30 —
+    # one new product tab «حلقه‌های محصول» (loops) added WITH this wave;
+    # prior chain 26 -> 29 (WAVE-2 three product tabs) / 25 -> 26 (analytics tab)
+    assert data["tabs"]["tabs_count"] == 30
+    assert data["tabs"]["panels_count"] == 30
     assert data["tabs"]["missing_panels"] == []
     assert data["tabs"]["orphan_panels"] == []
     assert data["duplicate_ids"]["index"] == []

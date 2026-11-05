@@ -158,15 +158,15 @@ class TestIntegrationPins:
     def test_tabs_stay_29(self) -> None:
         html = _read(INDEX_HTML)
         tabs = re.findall(r'class="tab[^"]*" data-tab="', html)
-        assert len(tabs) == 29
+        assert len(tabs) == 30
 
     def test_main_js_imports_new_panel(self) -> None:
         text = _read(MAIN_JS)
         assert 'import "./modules/render/user_indicator_ui.js"' in text
 
-    def test_sw_bumped_to_v3_0_13_with_precache(self) -> None:
+    def test_sw_bumped_to_v3_0_14_with_precache(self) -> None:
         sw = _read(SW_JS)
-        assert "radar-bourse-static-v3-0-13" in sw
+        assert "radar-bourse-static-v3-0-14" in sw
         assert "radar-bourse-static-v3-0-12" not in sw
         assert "/static/js/modules/user_indicator.js" in sw
         assert "/static/js/modules/render/user_indicator_ui.js" in sw
@@ -183,7 +183,7 @@ class TestIntegrationPins:
     )
     def test_counter_pins_bumped(self, path: str) -> None:
         text = _read(ROOT / path)
-        assert "radar-bourse-static-v3-0-13" in text, path
+        assert "radar-bourse-static-v3-0-14" in text, path
         assert "radar-bourse-static-v3-0-8" not in re.sub(
             r"#.*COUNTER-PIN BUMP[^\n]*\n?", "", text
-        ) or "v3-0-12 -> v3-0-13" in text or "v3-0-11 -> v3-0-12" in text  # bump comment may name the old pin
+        ) or "v3-0-13 -> v3-0-14" in text or "v3-0-12 -> v3-0-13" in text  # bump comment may name the old pin

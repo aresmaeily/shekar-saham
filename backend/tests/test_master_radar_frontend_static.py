@@ -95,7 +95,10 @@ def test_sw_precache_includes_strategy_lab_and_bumped():
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-E 2026-11-05): v3-0-12 -> v3-0-13 (SW install cache:reload honesty fix) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 -> v3-0-12 (WAVE-B popup fix, WAVE-D PDF export, WAVE-E declared calendars) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 (WAVE-B popup fix, WAVE-D PDF export) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 (WAVE-B popup-detach-intent fix) —
     # precache extended with the UIDL-1 user-indicator modules (see
     # test_master_radar_waveb_frontend.py for the WAVE-B gates).
-    assert "radar-bourse-static-v3-0-13" in sw
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-F 2026-11-05): v3-0-13 -> v3-0-14 —
+    # precache extended with product_loops_ui.js (WAVE-F product-loops panel).
+
+    assert "radar-bourse-static-v3-0-14" in sw
 
 
 def test_new_frontend_modules_pass_node_syntax_check():

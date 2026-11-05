@@ -96,6 +96,7 @@
     <button class="tab" data-tab="backtestcenter">🧪 مرکز بک‌تست</button>
     <button class="tab" data-tab="forwardcenter">⏩ مرکز فوروارد تست</button>
     <button class="tab" data-tab="dataquality">🔬 مرکز کیفیت داده</button>
+    <button class="tab" data-tab="loops">🔄 حلقه‌های محصول</button>
     <button class="tab" data-tab="excellent">✨ عالی</button>
     <button class="tab" data-tab="guide">📖 راهنما</button>
   </nav>
@@ -1292,6 +1293,83 @@
       <p class="muted" style="font-size:12px">کلاس REAL_VERIFIED فقط با شواهد صلاحیت منبع و تأیید مالک قابل ثبت است؛ هیچ‌یک از مسیرهای این داشبورد خودشان کلاس داده را «ارتقا» نمی‌دهند.</p>
 
       <pre id="dqOut" class="muted" style="white-space:pre-wrap;font-size:12px;max-height:240px;overflow:auto">نتیجه اینجا نمایش داده می‌شود…</pre>
+    </section>
+
+    <!-- MASTER-RADAR WAVE-F (2026-11-05): پنل حلقه‌های محصول — سطح حاکمیت‌شده
+         پنج حلقه بسته §5 از /api/v10/productloops؛ همه داده‌ها SYNTHETIC/DECLARED؛
+         بدون زمان‌بند و بدون خروج شبکه (R-6/R-9)؛ لحظه‌های زمانی ورودی کاربرند -->
+    <section class="panel" id="tab-loops">
+      <div class="panel-head">
+        <div>
+          <h2>🔄 حلقه‌های محصول — پنج حلقه بسته حاکمیت‌شده (§5)</h2>
+          <p class="muted">نظارت بازار · هوش شرکتی · پژوهش حاکمیت‌شده · هوش محصول (تابلوخوانی) · بازخورد پیش‌بینی — همه داده‌های این مرکز از کلاس SYNTHETIC/DECLARED است (فیکسچر اعلامی مخزن)؛ بدون زمان‌بند و بدون داده زنده؛ ورود منابع بیرونی مالک-گیت است (R-3/R-7)؛ برچسب اعتماد فقط از پاسخ سرور خوانده می‌شود</p>
+        </div>
+        <div class="filters">
+          <span class="cp-badge" id="plTrustBadge">اعتماد: —</span>
+        </div>
+      </div>
+
+      <h3>فهرست حلقه‌ها (نسخه اعلامی)</h3>
+      <div class="cp-toolbar"><button class="btn tiny" id="plManifestReload">بارگذاری فهرست</button></div>
+      <div id="plManifestOut" class="muted">فهرست پنج حلقه و وضعیت هر یک اینجا رندر می‌شود…</div>
+
+      <h3>۱) نظارت و هوش بازار (چرخه فقط-با-فراخوان)</h3>
+      <div class="cp-toolbar"><button class="btn tiny" id="plMarketCycle">اجرای یک چرخه نظارت</button></div>
+      <div id="plMarketOut" class="muted">نتیجه چرخه نظارت اینجا رندر می‌شود…</div>
+
+      <h3>۲) هوش شرکتی — پرونده اعلامی با برش PIT</h3>
+      <div class="cp-toolbar">
+        <select class="text-input" id="plDossierSymbol" style="max-width:140px">
+          <option value="فملی">فملی</option>
+          <option value="فولاد">فولاد</option>
+        </select>
+        <input class="text-input" id="plDossierCutoff" placeholder="cutoff_utc مثل 2025-12-25T00:00:00Z" style="max-width:280px" />
+        <button class="btn tiny" id="plDossierLoad">ساخت پرونده در قطع</button>
+      </div>
+      <div id="plDossierOut" class="muted">پرونده اعلامی (سنجه‌ها، بازبیانی، تعارض منابع، داده غایب) اینجا رندر می‌شود…</div>
+
+      <h3>۳) پژوهش حاکمیت‌شده</h3>
+      <div class="cp-toolbar"><button class="btn tiny" id="plResearchStatus">وضعیت حاکمیت و اجازه اجرا</button></div>
+      <div id="plResearchOut" class="muted">وضعیت job اعلامی، ردیف‌های رد زنده و وضعیت AI-2 اینجا رندر می‌شود…</div>
+      <div class="cp-toolbar">
+        <textarea class="text-input" id="plHypBody" rows="3" style="max-width:560px;font-size:12px">{"family_id":"FAM-1","method":"BONFERRONI","alpha":0.05,"members":[{"hypothesis_id":"H1","attempt_index":1,"metric_name":"hit_rate","pvalue":0.01},{"hypothesis_id":"H2","attempt_index":2,"metric_name":"hit_rate","pvalue":0.5}]}</textarea>
+        <button class="btn tiny" id="plHypEval">ارزیابی قطعی فرضیه‌ها</button>
+      </div>
+      <div id="plHypOut" class="muted">حکم‌های تعدیل‌شده (BONFERRONI/BH) و digest بازپخش اینجا رندر می‌شود…</div>
+
+      <h3>۴) هوش محصول — ممیزی در-خواستی تابلوخوانی</h3>
+      <div class="cp-toolbar">
+        <input class="text-input" id="plAuditStart" placeholder="window_start_utc مثل 2026-11-05T00:00:00Z" style="max-width:280px" />
+        <input class="text-input" id="plAuditEnd" placeholder="window_end_utc مثل 2026-11-05T01:00:00Z" style="max-width:280px" />
+        <button class="btn tiny" id="plAuditRun">اجرای ممیزی (۳ سنجه واقعی)</button>
+      </div>
+      <div id="plAuditOut" class="muted">سنجه‌های اندازه‌گیری‌شده، حکم drift نسبت به بیس‌لاین اعلامی و پیشنهادهای مشورتی اینجا رندر می‌شود…</div>
+
+      <h3>۵) بازخورد پیش‌بینی — ریجستری الحاقی (فرایند-محلی)</h3>
+      <div class="cp-toolbar">
+        <input class="text-input" id="plPredId" placeholder="شناسه پیش‌بینی" style="max-width:160px" />
+        <input class="text-input" id="plPredSubject" placeholder="موضوع (مثل SYNTHETIC:فملی)" style="max-width:180px" />
+        <input class="text-input" id="plPredRegAt" placeholder="registered_at_utc" style="max-width:200px" />
+        <input class="text-input" id="plPredHorizon" placeholder="outcome_horizon_end_utc" style="max-width:210px" />
+        <button class="btn tiny" id="plPredRegister">ثبت پیش‌بینی</button>
+      </div>
+      <div class="cp-toolbar">
+        <input class="text-input" id="plOutPid" placeholder="شناسه پیش‌بینی" style="max-width:160px" />
+        <input class="text-input" id="plOutAt" placeholder="observed_at_utc" style="max-width:200px" />
+        <input class="text-input" id="plOutVal" placeholder="مقدار 0 یا 1" style="max-width:120px" />
+        <button class="btn tiny" id="plOutcomeRecord">ثبت برون‌داد</button>
+      </div>
+      <div class="cp-toolbar">
+        <input class="text-input" id="plPredAsOf" placeholder="as_of_utc برای بلوغ" style="max-width:220px" />
+        <button class="btn tiny" id="plPredList">فهرست پیش‌بینی‌ها</button>
+      </div>
+      <div id="plPredOut" class="muted">ریجستری پیش‌بینی (الحاقی، نگهبانی نشت برچسب) اینجا رندر می‌شود…</div>
+      <div class="cp-toolbar">
+        <textarea class="text-input" id="plCalPairs" rows="2" style="max-width:420px;font-size:12px">[{"prediction_id":"P-1","predicted_probability":0.9,"observed":1.0}]</textarea>
+        <input class="text-input" id="plCalAt" placeholder="measured_at_utc" style="max-width:200px" />
+        <button class="btn tiny" id="plCalRun">محاسبه Brier/ECE</button>
+      </div>
+      <div id="plCalOut" class="muted">Brier، ECE و سطوح قابلیت اعتماد اینجا رندر می‌شود…</div>
     </section>
     <section class="panel" id="tab-excellent">
       <div class="panel-head">

@@ -77,8 +77,12 @@ def test_main_js_imports_wave3_modules():
 
 def test_sw_bumped_to_v3_0_8_with_wave3_precache():
     sw = _read(SW_JS)
-    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-E 2026-11-05): v3-0-12 -> v3-0-13 (SW install cache:reload honesty fix) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 -> v3-0-12 (WAVE-B popup fix, WAVE-D PDF export, WAVE-E declared calendars) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 (WAVE-B popup fix, WAVE-D PDF export) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 (WAVE-B popup-detach-intent fix)
-    assert "radar-bourse-static-v3-0-13" in sw
+        # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-F 2026-11-05): v3-0-13 -> v3-0-14 —
+    # precache extended with product_loops_ui.js (WAVE-F product-loops panel) —
+    # prior chain v3-0-12 -> v3-0-13 (WAVE-E install cache:reload honesty fix) —
+    # prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 -> v3-0-12 (WAVE-B popup fix,
+    # WAVE-D PDF export, WAVE-E declared calendars)
+    assert "radar-bourse-static-v3-0-14" in sw
     assert "radar-bourse-static-v3-0-9" not in sw
     assert "/static/js/modules/render/chart_grid.js" in sw
     assert "/static/js/modules/command_palette.js" in sw
@@ -88,7 +92,7 @@ def test_tabs_count_unchanged_29():
     """WAVE-3 adds NO new tabs (grid + palette live inside existing surfaces)."""
     html = _read(INDEX)
     # class="tab" (default active state varies: class="tab active" on the first)
-    assert len(re.findall(r'class="tab[^"]*" data-tab=', html)) == 29
+    assert len(re.findall(r'class="tab[^"]*" data-tab=', html)) == 30
 
 
 def test_wave3_files_pass_node_syntax_check():

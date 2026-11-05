@@ -1,8 +1,8 @@
-// Service Worker v3.0.8 — هماهنگ با معماری جدید (WS-HARDEN-1/W3: مسیر legacy حذف شد؛ WS-10: چارت حرفه‌ای؛ MASTER-RADAR: آزمایشگاه استراتژی؛ MASTER-RADAR WAVE-2: مراکز بک‌تست/فوروارد تست/کیفیت داده؛ MASTER-RADAR WAVE-3: شبکه چندچارتی + پالت فرمان؛ WAVE-B: اندیکاتور کاربر UIDL-1؛ v3-0-10: رفع نیت جداسازی popup؛ v3-0-11: خروجی PDF گزارش‌ها (بک‌تست/بهینه‌ساز)؛ v3-0-12: تقویم‌های اعلامی بازار (DECLARED)؛ v3-0-13: نصب SW با cache:reload (دور زدن تازگی-اکتشافی HTTP))
+// Service Worker v3.0.8 — هماهنگ با معماری جدید (WS-HARDEN-1/W3: مسیر legacy حذف شد؛ WS-10: چارت حرفه‌ای؛ MASTER-RADAR: آزمایشگاه استراتژی؛ MASTER-RADAR WAVE-2: مراکز بک‌تست/فوروارد تست/کیفیت داده؛ MASTER-RADAR WAVE-3: شبکه چندچارتی + پالت فرمان؛ WAVE-B: اندیکاتور کاربر UIDL-1؛ v3-0-10: رفع نیت جداسازی popup؛ v3-0-11: خروجی PDF گزارش‌ها (بک‌تست/بهینه‌ساز)؛ v3-0-12: تقویم‌های اعلامی بازار (DECLARED)؛ v3-0-13: نصب SW با cache:reload (دور زدن تازگی-اکتشافی HTTP)؛ v3-0-14: پنل حلقه‌های محصول WAVE-F)
 // - HTML: network-first با fallback به کش (نسخه جدید همیشه می‌رسد)
 // - استاتیک: stale-while-revalidate (سریع + به‌روز)
 // - API: network-only — هرگز payload بازار/احراز را کش نکن (stale ≠ current؛ logout نباید replay شود)
-const CACHE_NAME = "radar-bourse-static-v3-0-13";
+const CACHE_NAME = "radar-bourse-static-v3-0-14";
 const urlsToCache = [
   "/",
   "/static/css/app.css",
@@ -18,6 +18,7 @@ const urlsToCache = [
   "/static/js/modules/command_palette.js",
   "/static/js/modules/user_indicator.js",
   "/static/js/modules/render/user_indicator_ui.js",
+  "/static/js/modules/render/product_loops_ui.js",
   "/static/vendor/lightweight-charts.standalone.production.js",
   "/static/js/core/store.js",
   "/static/js/core/api.js",

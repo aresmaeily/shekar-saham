@@ -25,6 +25,7 @@ from app.api.indicator_api import router as indicator_api_router  # MASTER-RADAR
 from app.api.analyst_api import router as analyst_api_router  # MASTER-RADAR (2026-11-04): /api/v10/analyst — deterministic evidence-grounded symbol analyst, every claim provenanced, no LLM call
 from app.api.user_indicator_api import router as user_indicator_api_router  # MASTER-RADAR WAVE-B (2026-11-04): /api/v10/user-indicators — UIDL-1 governed user indicator DSL (compile/install/lifecycle/compute; single execution path = audited RSL-1 interpreter, no eval/exec)
 from app.api.data_quality_api import router as data_quality_api_router  # MASTER-RADAR WAVE-2 (2026-11-04): /api/v10/dataquality — fixture-universe coverage/audit center (declared SYNTHETIC_FIXTURE, canonical non-live provenance, no network)
+from app.api.product_loops_api import router as product_loops_api_router  # MASTER-RADAR WAVE-F (2026-11-05): /api/v10/productloops — governed five product-loop surface (declared dossiers + research permission + on-demand audit + prediction registry); SYNTHETIC/DECLARED only, no scheduler/egress
 from app.core.config import ROOT, get_settings
 from app.core.security import (
     is_public_path,
@@ -300,6 +301,7 @@ def create_app() -> FastAPI:
     app.include_router(analyst_api_router)  # MASTER-RADAR (2026-11-04) — additive deterministic symbol analyst; provenance on every claim
     app.include_router(user_indicator_api_router)  # MASTER-RADAR WAVE-B (2026-11-04) — additive UIDL-1 user-indicator DSL lifecycle + deterministic compute; SYNTHETIC-seeded only, no code execution beyond the restricted interpreter
     app.include_router(data_quality_api_router)  # MASTER-RADAR WAVE-2 (2026-11-04) — additive data-quality center; fixture-universe audit/coverage only, canonical non-live provenance on every endpoint
+    app.include_router(product_loops_api_router)  # MASTER-RADAR WAVE-F (2026-11-05) — additive five product-loop surface; declared fixtures + live governed checks, no scheduler/egress, gates unchanged
 
     @app.websocket("/ws/live")
     async def ws_live(ws: WebSocket):
