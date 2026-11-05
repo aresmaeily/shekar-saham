@@ -41,3 +41,8 @@ Thumbs.db
 .venv/
 __pycache__/
 *.pyc
+# OA-5 / WAVE-J (2026-11-05): durable prediction registry runtime files —
+# never tracked (append-only live data; backup/restore is the documented path)
+data/predictions_registry.sqlite3
+data/predictions_registry.sqlite3-wal
+data/predictions_registry.sqlite3-shm

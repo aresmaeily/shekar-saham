@@ -54,3 +54,24 @@ if _data_source is not None and _data_source != "mock":
         )
 os.environ.setdefault("DATA_SOURCE", "mock")
 os.environ.setdefault("BRSAPI_KEY", "")
+
+
+# ---------------------------------------------------------------------------
+# OA-5 / WAVE-J (owner directive 2026-11-05): durable prediction-store
+# isolation. The application default backend is the DURABLE SQLite store;
+# tests get a throwaway DB per test and never write into the repository's
+# DATA_DIR, and the store cache is reset so env changes take effect. This
+# fixture changes nothing about DATA_SOURCE/AI gates and skips nothing.
+# ---------------------------------------------------------------------------
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _prediction_store_isolation(tmp_path, monkeypatch):
+    from app.services.prediction_store import reset_prediction_store_cache
+
+    monkeypatch.setenv("PREDICTION_DB_PATH", str(tmp_path / "predictions_registry.sqlite3"))
+    monkeypatch.setenv("PREDICTION_STORE_BACKEND", "sqlite")
+    reset_prediction_store_cache()
+    yield
+    reset_prediction_store_cache()

@@ -122,6 +122,16 @@ class Settings(BaseSettings):
     # denies by verdict regardless.
     runtime_commit: str = os.getenv("RADAR_RUNTIME_COMMIT", "")
 
+    # OA-5 (owner directive 2026-11-05): durable prediction registry.
+    # "sqlite" = DURABLE SQLite/WAL store — the real application path
+    # (append-only, row digests, verified backup/restore, restart recovery).
+    # "memory" = process-local adapter for UNIT TESTS ONLY, never a default:
+    # the acceptance contract forbids calling a process-local registry
+    # persistent. Path override via PREDICTION_DB_PATH; empty = the repo
+    # DATA_DIR default (predictions_registry.sqlite3).
+    prediction_store_backend: str = os.getenv("PREDICTION_STORE_BACKEND", "sqlite")
+    prediction_db_path: str = os.getenv("PREDICTION_DB_PATH", "")
+
     # کش بنیادی (ثانیه)
     fundamental_cache_ttl_sec: int = int(os.getenv("FUND_CACHE_TTL", "300"))
 

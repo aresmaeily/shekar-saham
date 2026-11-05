@@ -36,6 +36,13 @@ v10 routers, defined locally on purpose):
 - process-local state (prediction registry) is non-persistent and disclosed
   as such on every payload that exposes it.
 
+WAVE-J (OA-5, owner directive 2026-11-05): the L5 prediction registry is now
+DURABLE by default — the application path uses the SQLite/WAL append-only
+store (app/services/prediction_store.py) with row digests, verified
+backup/restore and restart recovery. The process-local value object remains
+available ONLY as an explicit unit-test adapter (PREDICTION_STORE_BACKEND=
+memory). Every L5 payload discloses the effective backend + durability.
+
 Gates unchanged: AI2_ENABLED=0 / verified=False / SYNTHETIC_OR_PAPER.
 """
 from __future__ import annotations
@@ -72,7 +79,6 @@ from app.domain.calibration_metrics import build_calibration_record
 from app.domain.prediction import (
     OutcomeRecord,
     PredictionRecord,
-    PredictionRegistry,
     maturity_state,
 )
 from app.domain.product_audit import (
@@ -558,11 +564,13 @@ async def product_audit_run(body: AuditRunBody) -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# L5 — prediction feedback (append-only in-process registry)
+# L5 — prediction feedback (durable append-only registry, OA-5 / WAVE-J)
 # ---------------------------------------------------------------------------
 
-_REGISTRY_STATE: Dict[str, PredictionRegistry] = {"registry": PredictionRegistry()}
-PERSISTENCE_NOTE = "ریجستری فرایند-محلی و غیرماندگار است؛ پایداری دائمی نیازمند تصمیم مالک است"
+from app.services.prediction_store import (  # noqa: E402
+    RETENTION_POLICY,
+    get_prediction_store,
+)
 
 
 class PredictionRegisterBody(BaseModel):
@@ -580,6 +588,7 @@ class PredictionRegisterBody(BaseModel):
 
 @router.post("/predictions/register")
 async def predictions_register(body: PredictionRegisterBody) -> Dict[str, Any]:
+    store = get_prediction_store()
     try:
         record = PredictionRecord(
             prediction_id=body.prediction_id,
@@ -593,7 +602,7 @@ async def predictions_register(body: PredictionRegisterBody) -> Dict[str, Any]:
             creator=body.creator,
             notes=body.notes,
         )
-        registry = _REGISTRY_STATE["registry"].register_prediction(record)
+        result = store.register_prediction(record)
     except ValueError as exc:
         raise _typed_422(
             "PREDICTION_REGISTRATION_REFUSED",
@@ -601,11 +610,14 @@ async def predictions_register(body: PredictionRegisterBody) -> Dict[str, Any]:
             "ثبت پیش‌بینی رد شد",
             reason=str(exc),
         ) from exc
-    _REGISTRY_STATE["registry"] = registry
     return {
         "registered": record.model_dump(mode="json"),
-        "registry_version": registry.registry_version,
-        "persistence_note": PERSISTENCE_NOTE,
+        "registry_version": result["registry_version"],
+        "duplicate_of_existing": result.get("duplicate_of_existing", False),
+        "persistence_note": store.persistence_note,
+        "persistence_backend": store.backend_label,
+        "persistence_durable": store.persistence_durable,
+        "retention_policy": RETENTION_POLICY,
         "honesty": _honesty_envelope(declared_version="PREDICTION-REGISTRY-V1"),
     }
 
@@ -621,6 +633,7 @@ class PredictionOutcomeBody(BaseModel):
 
 @router.post("/predictions/{prediction_id}/outcome")
 async def predictions_outcome(prediction_id: str, body: PredictionOutcomeBody) -> Dict[str, Any]:
+    store = get_prediction_store()
     try:
         outcome = OutcomeRecord(
             outcome_id=body.outcome_id,
@@ -631,7 +644,7 @@ async def predictions_outcome(prediction_id: str, body: PredictionOutcomeBody) -
             source_evidence_ids=tuple(body.source_evidence_ids),
             notes=body.notes,
         )
-        registry = _REGISTRY_STATE["registry"].attach_outcome(outcome)
+        result = store.attach_outcome(outcome)
     except ValueError as exc:
         raise _typed_422(
             "OUTCOME_REFUSED",
@@ -639,11 +652,13 @@ async def predictions_outcome(prediction_id: str, body: PredictionOutcomeBody) -
             "ثبت برون‌داد رد شد",
             reason=str(exc),
         ) from exc
-    _REGISTRY_STATE["registry"] = registry
     return {
         "outcome": outcome.model_dump(mode="json"),
-        "registry_version": registry.registry_version,
-        "persistence_note": PERSISTENCE_NOTE,
+        "registry_version": result["registry_version"],
+        "persistence_note": store.persistence_note,
+        "persistence_backend": store.backend_label,
+        "persistence_durable": store.persistence_durable,
+        "retention_policy": RETENTION_POLICY,
         "honesty": _honesty_envelope(declared_version="PREDICTION-REGISTRY-V1"),
     }
 
@@ -651,10 +666,11 @@ async def predictions_outcome(prediction_id: str, body: PredictionOutcomeBody) -
 @router.get("/predictions")
 async def predictions_list(as_of_utc: str = Query(..., description="caller instant for maturity")) -> Dict[str, Any]:
     as_of = _parse_instant(as_of_utc, "as_of_utc")
-    registry = _REGISTRY_STATE["registry"]
+    store = get_prediction_store()
     rows = []
-    for record in registry.predictions:
-        outcome = registry.get_outcome(record.prediction_id)
+    for entry in store.list_rows():
+        record = entry["prediction"]
+        outcome = entry["outcome"]
         rows.append(
             {
                 "prediction": record.model_dump(mode="json"),
@@ -665,10 +681,13 @@ async def predictions_list(as_of_utc: str = Query(..., description="caller insta
         )
     return {
         "as_of_utc": as_of.isoformat(),
-        "registry_version": registry.registry_version,
+        "registry_version": store.registry_version,
         "count": len(rows),
         "rows": rows,
-        "persistence_note": PERSISTENCE_NOTE,
+        "persistence_note": store.persistence_note,
+        "persistence_backend": store.backend_label,
+        "persistence_durable": store.persistence_durable,
+        "retention_policy": RETENTION_POLICY,
         "honesty": _honesty_envelope(declared_version="PREDICTION-REGISTRY-V1"),
     }
 
@@ -687,8 +706,9 @@ async def predictions_evaluate(
     as_of_utc: str = Query(..., description="caller instant; evaluation is refused before maturity"),
 ) -> Dict[str, Any]:
     as_of = _parse_instant(as_of_utc, "as_of_utc")
+    store = get_prediction_store()
     try:
-        evaluation = _REGISTRY_STATE["registry"].evaluate(
+        evaluation, registry_version = store.evaluate(
             prediction_id,
             as_of=as_of,
             matched_expectation=body.matched_expectation,
@@ -705,8 +725,10 @@ async def predictions_evaluate(
         ) from exc
     return {
         "evaluation": evaluation.model_dump(mode="json"),
-        "registry_version": _REGISTRY_STATE["registry"].registry_version,
-        "persistence_note": PERSISTENCE_NOTE,
+        "registry_version": registry_version,
+        "persistence_note": store.persistence_note,
+        "persistence_backend": store.backend_label,
+        "persistence_durable": store.persistence_durable,
         "honesty": _honesty_envelope(declared_version="PREDICTION-REGISTRY-V1"),
     }
 
@@ -731,11 +753,11 @@ async def predictions_calibration(
     measured_at_utc: str = Query(..., description="caller instant; immature predictions are refused"),
 ) -> Dict[str, Any]:
     measured_at = _parse_instant(measured_at_utc, "measured_at_utc")
-    registry = _REGISTRY_STATE["registry"]
+    store = get_prediction_store()
     pairs = []
     records = []
     for item in body.pairs:
-        record = registry.get_prediction(item.prediction_id)
+        record = store.get_prediction(item.prediction_id)
         if record is None:
             raise _typed_422(
                 "UNKNOWN_PREDICTION_ID",
@@ -743,7 +765,7 @@ async def predictions_calibration(
                 "شناسه پیش‌بینی ناشناخته است",
                 prediction_id=item.prediction_id,
             )
-        if registry.get_outcome(item.prediction_id) is None:
+        if store.get_outcome(item.prediction_id) is None:
             raise _typed_422(
                 "OUTCOME_NOT_RECORDED",
                 f"prediction {item.prediction_id!r} has no recorded outcome",
@@ -752,7 +774,7 @@ async def predictions_calibration(
             )
         # PIT discipline: an outcome observed AFTER the measurement instant
         # cannot be known at that instant — refuse (no look-ahead).
-        outcome = registry.get_outcome(item.prediction_id)
+        outcome = store.get_outcome(item.prediction_id)
         if outcome is not None and outcome.observed_at_utc > measured_at:
             raise _typed_422(
                 "OUTCOME_AFTER_MEASUREMENT_REFUSED",
@@ -792,6 +814,9 @@ async def predictions_calibration(
         ) from exc
     return {
         "calibration": calibration.model_dump(mode="json"),
-        "persistence_note": PERSISTENCE_NOTE,
+        "persistence_note": store.persistence_note,
+        "persistence_backend": store.backend_label,
+        "persistence_durable": store.persistence_durable,
+        "retention_policy": RETENTION_POLICY,
         "honesty": _honesty_envelope(declared_version="PREDICTION-REGISTRY-V1"),
     }

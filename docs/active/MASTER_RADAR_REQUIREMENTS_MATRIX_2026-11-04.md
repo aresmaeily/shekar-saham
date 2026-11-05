@@ -209,3 +209,14 @@ Remaining after WAVE-G: WAVE-H 17-role audit + owner package; WAVE-C/D/F CI exac
 | Owner-action register | consolidated OA-1..OA-8 (install/live-posture/AI-2/scheduler/persistence/Vercel/CI-window/weighting) — nothing bypassed, nothing inferred from silence | audit §4 |
 | Non-owner-gated roadmap surface | **CLOSED at `86f28c2`** (bounded statement per §2 verdicts; NOT a claim of 100% roadmap completion, real-market coverage, parity, or live readiness) | audit §5 |
 | Global completion | **NOT CALCULATED** (no approved weighting scheme) | audit §6 |
+
+## WAVE-I/J ADDENDUM — 2026-11-05 (owner directive OA-1..OA-8; record: `MASTER_RADAR_WAVEI_WAVEJ_EXECUTION_RECORD_2026-11-05.md`)
+
+| Item | WAVE-I/J disposition | Evidence |
+|---|---|---|
+| WAVE-I baseline | origin/main = `6d78a84` verified (not assumed); checkout fast-forwarded forward-only; battery 2830/1s/0f re-run exactly; untracked owner artifacts preserved; runtime site re-established + browser-verified (30 tabs, RTL, Chart Pro 9 canvases, zero console errors, probes fail-closed) | record §1 |
+| AI-2 source sync | corpus COMPLETE in-repo (GOV-49 digests); requirement-to-code matrix produced; flags verified (AI2_ENABLED=0 config.py:111, verified=False mint-block, no HTTP route calls AI2Service); recorded gaps for WAVE-K (provenance field list, NL→spec→DSL seam absent by design) | record §2 |
+| OA-7 exact-SHA CI | all pending SHAs resolved via check-runs API: 6d78a84 = 3/3 SUCCESS; 32363dd/2d15f2b/35e44f8/5a9e3f9/86f28c2 = 3/3 SUCCESS; windows FAILURES on 7a85528/99e9da1 recorded AS FAILURES (byte-identical runtime passed on 32363dd = documented flake class; failing step not publicly extractable); 5293679/0fc2a45 = 0 runs (batched push, tip green, verified docs-only delta) — nothing converted to pass | record §3 (job IDs per SHA) |
+| OA-5 durable prediction registry (WAVE-J) | **INTEGRATION-VERIFIED** — SQLite/WAL append-only store with pinned-digest migrations, row-digest tamper evidence, verified backup/restore, restart recovery, concurrency-safe idempotency; memory value object demoted to explicit unit-test adapter; runtime path wired on /api/v10/productloops/predictions* with per-payload durability disclosure | record §4; +17 tests = battery 2847/1s/0f = 2830+17 exact |
+| OA-8 | global completion stays **NOT CALCULATED** | record §5 |
+| Gates | unchanged: AI2_ENABLED=0 · verified=False · SYNTHETIC_OR_PAPER · no scheduler/egress/live/purge path · INSTALL NOT ISSUED | record §5 |
