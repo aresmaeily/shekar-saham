@@ -226,3 +226,9 @@ acceptance + release).
   escalate to a real-environment investigation (candidate environmental
   factor: the runner-forced Node.js 24 execution of Node-20-target actions
   visible in the check-run annotations). No gate changed, no test weakened.
+
+## 8. Discriminator verdict + WAVE-N installer build (recorded currency)
+
+- **Discriminator `5c04719` (docs-only, byte-identical runtime to `a6402cd`), pushed alone:** check-runs = test-backend SUCCESS (127293758662), build-docker SUCCESS (127294413560), **windows-validation SUCCESS (127293758706, 14:09:37Z)**. Classification per the recorded precedent: the `a6402cd` windows FAILURE was an **environmental recurrence of the documented WAVE-3 flake class** — byte-identical runtime code passed the identical step sequence minutes later. No gate changed; no test weakened; the failure remains on record as a failure with its disposition.
+- **WAVE-N increment `dd8feb1` (installer CI workflow): ALL 4 CHECKS SUCCESS** — test-backend (127295565150), build-docker (127296301000), **windows-validation SUCCESS (127295565901)**, **build-installer SUCCESS (127295565794, 14:10:55Z)**. The actual unsigned NSIS installer artifact was produced in the authorized CI environment from the exact source SHA; artifact name/size/**SHA-256** recorded into `installer_provenance.txt` and the public build log (run URL inside the log; artifact retained 30 days, download may be auth-gated); label **INSTALLER_ARTIFACT_READY_UNSIGNED_TARGET_INSTALL_PENDING** is now evidence-backed for this SHA (NOT `INSTALLED`, NOT `SIGNED`, NOT `PUBLICLY_DEPLOYED`; target-machine install stays owner R-1/R-2).
+- Gates unchanged; global completion NOT CALCULATED (OA-8). Next authorized waves: WAVE-K (AI-2 governed generation seam), WAVE-L (controlled activation after the §4 gate), WAVE-M (scheduler), WAVE-N remainder (supervised local backend in the shell — the recorded residual), WAVE-O (UX integration), WAVE-P (independent acceptance).
