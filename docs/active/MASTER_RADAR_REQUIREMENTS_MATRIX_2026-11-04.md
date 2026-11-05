@@ -157,3 +157,12 @@ Remaining after WAVE-B (unchanged from the WAVE-A gap list): WAVE-D PDF export, 
 | Gates | unchanged: AI2_ENABLED=0 · verified=False · SYNTHETIC_OR_PAPER · no scheduler/egress/live/purge path · Two-Key Rule intact · INSTALL NOT ISSUED | evidence package §3 |
 
 Remaining after WAVE-C (unchanged): WAVE-D PDF export, WAVE-E declared session calendars, WAVE-F five product loops audit, WAVE-G repo-side packaging readiness, WAVE-H 17-role audit + owner package.
+
+## WAVE-D ADDENDUM — 2026-11-05 (directive §11 WAVE-D; execution record: `MASTER_RADAR_WAVED_EXECUTION_RECORD_2026-11-05.md`)
+
+| Req ID | WAVE-D disposition | Evidence |
+|---|---|---|
+| MR-D5-01 (residual: PDF export) | **INTEGRATION-VERIFIED** — PDF export of backtest/optimization/walk-forward reports closed with a ZERO-NEW-DEPENDENCY byte-deterministic PDF writer (`app/services/report_pdf.py`: fixed Info dates, no /ID, uncompressed streams, exact xref; base-14 fonts → English-label projection per the existing CSV export convention, Persian limitation stated on every report; honesty block on every report: data-trust label + NOT LIVE MARKET DATA + JSON-remains-full-fidelity). Surfaces: `/strategylab/backtest/export?format=pdf` (additive), NEW `/strategylab/optimize/export` + `/strategylab/walkforward/export` (json/csv/pdf) sharing the SAME deterministic run path as the primary endpoints via verbatim `_optimize_payload`/`_walkforward_payload` delegation (digest equality test pinned). Frontend: `apiBlob()` binary client (single-HTTP-module rule kept), Backtest Center PDF button + optimizer PDF/CSV/JSON export buttons, Blob download; sw v3-0-10 → v3-0-11 + 6 recorded counter-pin bumps (pins only). | +27 tests `test_report_pdf.py` (byte-determinism, xref-offset parse, hostile operator containment, pagination consistency, env-conditional poppler roundtrip, API surfaces incl. digest-equality + hostile-422 + csv/json regression); full battery 2768/1s/0f = 2741+27 exact; pyflakes clean; node --check green; browser golden path: backtest→PDF 200 + optimize→PDF 200, zero console errors (SW cache verified v3-0-11 after controlled unregister; stale-process 422 root-caused honestly) |
+| Gates | unchanged: AI2_ENABLED=0 · verified=False · SYNTHETIC_OR_PAPER · no scheduler/egress/live/purge path · INSTALL NOT ISSUED | execution record §4 |
+
+Remaining after WAVE-D (unchanged): WAVE-E declared session calendars, WAVE-F five product loops audit, WAVE-G repo-side packaging readiness, WAVE-H 17-role audit + owner package.
