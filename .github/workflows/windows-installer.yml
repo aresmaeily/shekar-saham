@@ -1,0 +1,100 @@
+name: Windows installer artifact (OA-1)
+
+# OA-1 (owner directive 2026-11-05): produce the ACTUAL unsigned Windows
+# installer artifact in an authorized CI build environment.
+#
+# Honesty contract (directive §6):
+# - the artifact is UNSIGNED (no certificate exists; CSC auto-discovery is
+#   disabled so no signing is attempted and none can be claimed);
+# - label: INSTALLER_ARTIFACT_READY_UNSIGNED_TARGET_INSTALL_PENDING;
+# - the Electron shell does NOT spawn the backend (recorded limitation, see
+#   WINDOWS_PACKAGING_RUNBOOK_2026-11-05.md) — packaged with a prominent
+#   provenance disclosure instead of a silent dependency;
+# - the SHA-256 is printed to the public build log AND recorded in
+#   installer_provenance.txt (artifact zip download may be auth-gated; the
+#   log line is the verifiable public evidence);
+# - target-machine installation is NOT authorized/performed here.
+#
+# This workflow is ADDITIVE to windows.yml (validation) and ci.yml.
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  build-installer:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Record provenance (source SHA / runner toolchain)
+        shell: pwsh
+        run: |
+          "source_sha=$($env:GITHUB_SHA)" | Out-File -Append installer_provenance.txt
+          "build_run_url=$($env:GITHUB_SERVER_URL)/$($env:GITHUB_REPOSITORY)/actions/runs/$($env:GITHUB_RUN_ID)" | Out-File -Append installer_provenance.txt
+          "runner_os=$($env:RUNNER_OS)" | Out-File -Append installer_provenance.txt
+          Get-Content installer_provenance.txt
+
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0 (SHA verified via git ls-remote on 2026-11-05)
+        with:
+          node-version: 20
+
+      - name: Bundle backend sources + embed release provenance (unsigned)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path electron/resources/backend | Out-Null
+          Copy-Item -Recurse -Force backend/app electron/resources/backend/app
+          Copy-Item -Force backend/requirements.txt electron/resources/backend/requirements.txt
+          $backendVersion = "unknown"
+          Select-String -Path backend/app/core/config.py -Pattern 'version:\s*str\s*=\s*"([^"]+)"' | ForEach-Object { $backendVersion = $_.Matches[0].Groups[1].Value }
+          $meta = [ordered]@{
+            label = 'INSTALLER_ARTIFACT_READY_UNSIGNED_TARGET_INSTALL_PENDING'
+            source_sha = $env:GITHUB_SHA
+            build_run_url = "$($env:GITHUB_SERVER_URL)/$($env:GITHUB_REPOSITORY)/actions/runs/$($env:GITHUB_RUN_ID)"
+            backend_version = $backendVersion
+            electron_version = '3.0.0'
+            signing = 'UNSIGNED_NO_CERTIFICATE'
+            smartscreen_note = 'Windows SmartScreen may warn for unsigned installers'
+            backend_supervision = 'RESIDUAL: the shell does not spawn the backend (documented limitation, WINDOWS_PACKAGING_RUNBOOK); supervised local backend is the next WAVE-N increment'
+          }
+          $meta | ConvertTo-Json | Out-File -Encoding utf8 electron/resources/RELEASE_PROVENANCE.json
+          Get-Content electron/resources/RELEASE_PROVENANCE.json
+
+      - name: Build NSIS installer (electron-builder, unsigned)
+        working-directory: electron
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: SHA-256 + size recording (public log evidence)
+        shell: pwsh
+        run: |
+          $f = Get-ChildItem "electron/dist/*.exe" | Select-Object -First 1
+          if (-not $f) { Write-Error "no installer artifact produced"; exit 1 }
+          $h = (Get-FileHash $f.FullName -Algorithm SHA256).Hash
+          "artifact_name=$($f.Name)" | Out-File -Append installer_provenance.txt
+          "artifact_size_bytes=$($f.Length)" | Out-File -Append installer_provenance.txt
+          "artifact_sha256=$h" | Out-File -Append installer_provenance.txt
+          "unsigned=true (no signing certificate; SmartScreen may warn)" | Out-File -Append installer_provenance.txt
+          Get-Content installer_provenance.txt
+
+      - name: Upload installer artifact (retention 30 days)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2 (pinned SHA, verified 2026-11-02)
+        with:
+          name: windows-installer-unsigned-${{ github.sha }}
+          path: |
+            electron/dist/*.exe
+            electron/dist/*.nsis.zip
+            installer_provenance.txt
+          retention-days: 30
+          if-no-files-found: error

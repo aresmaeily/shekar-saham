@@ -18,7 +18,10 @@
   "build": {
     "appId": "com.radarbourse.desktop",
     "productName": "رادار بورس",
-    "files": ["main.js"],
+    "files": [
+      "main.js",
+      "resources/**/*"
+    ],
     "win": {
       "target": "nsis",
       "icon": "icon.ico"
