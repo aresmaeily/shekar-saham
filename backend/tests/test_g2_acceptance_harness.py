@@ -137,9 +137,16 @@ class TestGateFlags:
 
 
 class TestAi2ApiSurface:
-    def test_real_api_dir_has_zero_ai2_references(self):
-        hits = g2.ai2_api_surface(REPO / "backend/app/api")
-        assert hits == [], hits
+    def test_real_api_surface_confined_to_governed_seam(self):
+        # WAVE-K counter-pin (OA-3, owner directive 2026-11-05, recorded):
+        # the predicate was "zero ai2 references" while the seam was
+        # disconnected by design (WAVE-C); the owner directive authorizes
+        # exactly ONE governed AI-2 HTTP surface (ai2_generation_api.py,
+        # fail-closed AI2_ENABLED gate). The strengthened contract proves
+        # confinement + gating, not absence.
+        api_dir = REPO / "backend/app/api"
+        assert g2.ai2_api_surface(api_dir) == []
+        assert g2.governed_seam_state(api_dir) == "ok"
 
     def test_synthetic_route_reference_detected(self, tmp_path):
         (tmp_path / "routers.py").write_text(
@@ -147,6 +154,22 @@ class TestAi2ApiSurface:
             encoding="utf-8")
         hits = g2.ai2_api_surface(tmp_path)
         assert hits == ["routers.py"]
+
+    def test_governed_seam_is_exempt_from_reference_scan(self, tmp_path):
+        (tmp_path / "ai2_generation_api.py").write_text(
+            'router = APIRouter(prefix="/api/v10/ai2")\n', encoding="utf-8")
+        assert g2.ai2_api_surface(tmp_path) == []
+
+    def test_ungated_governed_seam_detected(self, tmp_path):
+        # a seam file WITHOUT the fail-closed gate tokens is a violation
+        (tmp_path / "ai2_generation_api.py").write_text(
+            'router = APIRouter(prefix="/api/v10/ai2")  # no gates\n',
+            encoding="utf-8")
+        assert g2.governed_seam_state(tmp_path) == "ungated"
+
+    def test_missing_governed_seam_detected(self, tmp_path):
+        (tmp_path / "other.py").write_text("x = 1\n", encoding="utf-8")
+        assert g2.governed_seam_state(tmp_path) == "missing"
 
 
 class TestManifestVerify:

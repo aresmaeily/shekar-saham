@@ -132,6 +132,15 @@ class Settings(BaseSettings):
     prediction_store_backend: str = os.getenv("PREDICTION_STORE_BACKEND", "sqlite")
     prediction_db_path: str = os.getenv("PREDICTION_DB_PATH", "")
 
+    # OA-3 (owner directive 2026-11-05) — WAVE-K governed generation knobs.
+    # Additive, bounded engineering-authority ceilings (D-AI-24 class); the
+    # fail-closed AI2_ENABLED gate above governs whether generation runs at
+    # all. These knobs only bound HOW MUCH once that gate opens.
+    ai2_gen_max_concurrent: int = int(os.getenv("AI2_GEN_MAX_CONCURRENT", "2"))
+    ai2_gen_timeout_sec: float = float(os.getenv("AI2_GEN_TIMEOUT_SEC", "45"))
+    ai2_gen_rate_per_minute: int = int(os.getenv("AI2_GEN_RATE_PER_MINUTE", "6"))
+    ai2_gen_output_max_bytes: int = int(os.getenv("AI2_GEN_OUTPUT_MAX_BYTES", "65536"))
+
     # کش بنیادی (ثانیه)
     fundamental_cache_ttl_sec: int = int(os.getenv("FUND_CACHE_TTL", "300"))
 

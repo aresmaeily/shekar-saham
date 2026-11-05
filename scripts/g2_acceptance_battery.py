@@ -167,9 +167,23 @@ def gate_flags(config_text: str) -> dict:
 
 
 def ai2_api_surface(api_dir: Path) -> list[str]:
-    """Files under app/api referencing ai2 (an AI-2 HTTP route would need one)."""
-    hits = []
+    """Files under app/api referencing ai2 OUTSIDE the governed WAVE-K seam.
+
+    WAVE-K counter-pin (OA-3, owner directive 2026-11-05, recorded): the
+    governed generation seam ``ai2_generation_api.py`` is the ONE authorized
+    AI-2 HTTP surface. The predicate previously read "zero ai2 references"
+    (WAVE-C discipline, when the seam was disconnected by design); it is
+    STRENGTHENED, not weakened — see ``governed_seam_state``: the seam file
+    must exist AND carry the fail-closed gate tokens, and every OTHER file
+    must remain ai2-free. The G2 gate itself (evaluate_g2_gate / gate-state
+    document) is untouched by this counter-pin and the harness still can
+    never emit a PASSED verdict.
+    """
+    hits: list[str] = []
+    seam_name = "ai2_generation_api.py"
     for path in sorted(api_dir.rglob("*.py")):
+        if path.name == seam_name:
+            continue
         try:
             text = path.read_text(encoding="utf-8", errors="replace")
         except OSError:
@@ -177,6 +191,25 @@ def ai2_api_surface(api_dir: Path) -> list[str]:
         if re.search(r"\bai2\b", text, re.IGNORECASE):
             hits.append(str(path.relative_to(api_dir)))
     return hits
+
+
+def governed_seam_state(api_dir: Path) -> str:
+    """Integrity state of the governed WAVE-K seam file.
+
+    Returns ``"ok"`` (seam present + fail-closed gate tokens present),
+    ``"missing"`` (seam absent), or ``"ungated"`` (seam present but the
+    AI2_ENABLED gate / gated_not_executed honest outcome are absent).
+    """
+    seam = api_dir / "ai2_generation_api.py"
+    if not seam.exists():
+        return "missing"
+    try:
+        text = seam.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return "missing"
+    if "AI2_ENABLED" not in text or "gated_not_executed" not in text:
+        return "ungated"
+    return "ok"
 
 
 def verify_manifest(evidence_dir: Path) -> dict:
@@ -437,11 +470,17 @@ def collect(evidence_dir: Path | None, full_battery: bool) -> dict:
         "CODE_PARSE", flags["verified_hardcoded"], "False",
         flags["verified_hardcoded"] == "False",
         "backend/app/core/config.py (verified = False in is_verified_live)")
-    api_hits = ai2_api_surface(REPO / "backend/app/api")
+    api_dir = REPO / "backend/app/api"
+    api_hits = ai2_api_surface(api_dir)
+    seam_state = governed_seam_state(api_dir)
     add("G2-C-iii-3",
-        "no AI-2 HTTP route (zero ai2 references under backend/app/api)",
-        "TREE_SCAN", api_hits or "none", "none", not api_hits,
-        "rg-style scan of backend/app/api/*.py")
+        "AI-2 HTTP surface confined to the governed WAVE-K seam "
+        "(ai2 references only in ai2_generation_api.py, fail-closed gates present)",
+        "TREE_SCAN",
+        f"hits={api_hits or 'none'} seam={seam_state}",
+        "hits=none seam=ok",
+        (not api_hits) and seam_state == "ok",
+        "rg-style scan of backend/app/api/*.py with the recorded WAVE-K allowlist")
 
     # ---- T3(iv) corpus byte-identity ------------------------------------
     corpus = corpus_identity(REPO / "docs/governance/amendment_sources_2026-10-02",
