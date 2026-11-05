@@ -124,7 +124,14 @@ _MAX_INPUT_NAME = 32               # parser _INPUT_NAME_MAX
 _MAX_NAME = 64
 _MAX_RATIONALE = 600
 _NUM_ABS_MAX = 1_000_000_000.0
-_PERIOD_MIN, _PERIOD_MAX = 2, 200  # validator minimum is 2 (SEM rule); bounded above
+# ADVERTISED + ENFORCED generation-level period bound for indicator period
+# slots (sma/ema/rsi/stdev/highest/lowest arg 1; atr arg 3). Note: this is
+# deliberately STRICTER than the unchanged DSL validator, whose per-function
+# minimum for sma/ema/highest/lowest is 1 (validator.py) — generation is
+# allowed to be stricter, and the bound advertised to the model in the
+# prompt is hereby TRUE (L-QA finding D-2 fix). ref() offsets stay under the
+# validator's own rule (source of truth).
+_PERIOD_MIN, _PERIOD_MAX = 2, 200
 _MIN_BARS, _MAX_BARS = 50, 500     # engine DataPolicy(min_bars=50); bounded above
 _REGISTRY_CAPACITY = 128
 _LEDGER_SNAPSHOT_BOUND = 256
@@ -160,6 +167,13 @@ _SPEC_KINDS: tuple[str, ...] = (
 
 ARITH_FNS = frozenset({"abs", "min", "max"})
 SIGNAL_FNS = frozenset({"crossover", "crossunder"})
+# Period-slot index per whitelisted indicator function (0-based). ref()'s
+# second argument is an OFFSET governed by the DSL validator itself, so it is
+# deliberately absent here.
+_PERIOD_SLOTS: dict[str, int] = {
+    "sma": 1, "ema": 1, "rsi": 1, "stdev": 1, "highest": 1, "lowest": 1,
+    "atr": 3,
+}
 
 
 # ---------------------------------------------------------------------------
@@ -380,6 +394,7 @@ class GenerationOutcome(BaseModel):
         "refused",
         "failed_provider",
         "failed_schema",
+        "executed",
         "executed_shadow",
     ]
     error_code: str | None = None
@@ -514,6 +529,20 @@ def emit_expr(node: SpecNode) -> str:
             expected = FUNCTION_ARITY[n.fn]
             if len(n.children) != expected:
                 raise EmitterError("function_arity_mismatch")
+            # Enforce the period bound ADVERTISED to the model (D-2 fix):
+            # indicator period slots must be integer literals within
+            # [_PERIOD_MIN, _PERIOD_MAX]. Stricter than the DSL validator by
+            # design; ref() offsets stay under the validator's own rule.
+            slot = _PERIOD_SLOTS.get(n.fn)
+            if slot is not None:
+                pnode = n.children[slot]
+                if (
+                    pnode.kind != "num"
+                    or pnode.value is None
+                    or float(pnode.value) != int(pnode.value)
+                    or not (_PERIOD_MIN <= pnode.value <= _PERIOD_MAX)
+                ):
+                    raise EmitterError("period_out_of_advertised_range")
             rendered = ", ".join(rec(c, depth + 1) for c in n.children)
             return f"{n.fn}({rendered})"
         if k == "cmp":
@@ -1355,6 +1384,15 @@ class AI2GenerationService:
 
         # Stage 6 — versioned candidate (DRAFT; the registry assigns the
         # versioned id) + append-only governance record.
+        #
+        # COMMIT IS ATOMIC (compare-and-set under the snapshot lock): the
+        # gate-4 duplicate check earlier in `generate` is check-then-act, so
+        # concurrent identical requests can both reach this point. Exactly
+        # ONE winner commits the candidate; each loser DISCARDS its
+        # (deterministically identical) output, is refused with
+        # `duplicate_generation`, and is ledgered DUPLICATE_FLAGGED with the
+        # winner recorded (the invocation honestly happened — the flag keeps
+        # it visible without committing a second candidate).
         candidate = GenerationCandidate(
             candidate_id="pending",
             run_id=run_id,
@@ -1370,14 +1408,33 @@ class AI2GenerationService:
             metrics_headline=headline,
             created_at_utc=provenance.created_at_utc,
         )
-        candidate = self._candidates.add(candidate)
+        winner_id: str | None = None
         with self._snap_lock:
-            self._snapshots[snapshot] = candidate.candidate_id
-            if request.idempotency_key:
-                self._idempotency[request.idempotency_key] = snapshot
-            if len(self._snapshots) > _LEDGER_SNAPSHOT_BOUND:
-                for k in list(self._snapshots)[: len(self._snapshots) - _LEDGER_SNAPSHOT_BOUND]:
-                    self._snapshots.pop(k, None)
+            existing = self._snapshots.get(snapshot)
+            if existing is None:
+                candidate = self._candidates.add(candidate)  # assigns the id
+                self._snapshots[snapshot] = candidate.candidate_id
+                if request.idempotency_key:
+                    self._idempotency[request.idempotency_key] = snapshot
+                if len(self._snapshots) > _LEDGER_SNAPSHOT_BOUND:
+                    for k in list(self._snapshots)[: len(self._snapshots) - _LEDGER_SNAPSHOT_BOUND]:
+                        self._snapshots.pop(k, None)
+                winner_id = candidate.candidate_id
+        if winner_id is None:
+            self._record(
+                run_id=run_id, snapshot=snapshot, status="DUPLICATE_FLAGGED",
+                notes=f"concurrent_duplicate_commit_refused winner={existing}",
+                now_utc=now_utc(),
+            )
+            return GenerationOutcome(
+                status="refused", error_code="duplicate_generation",
+                run_id=run_id, provenance=provenance, candidate_id=existing,
+                warnings=[
+                    "A concurrent identical generation committed first; this output was "
+                    "discarded (deterministic evaluation — the winner's candidate is identical).",
+                ],
+            )
+        candidate = self._candidates.get(winner_id)
         self._record(
             run_id=run_id, snapshot=snapshot, status="LEDGERED",
             notes=f"candidate={candidate.candidate_id} test_transport={transport is not None}",
@@ -1395,7 +1452,12 @@ class AI2GenerationService:
         )
         return GenerationOutcome(
             ok=True,
-            status="executed_shadow" if transport is not None else "executed_shadow",
+            # executed_shadow = synthetic TEST-transport run (the only path
+            # reachable today: the fallback provider seam never yields a
+            # ok=True spec payload); "executed" is the honest label for a
+            # non-test-transport success, kept as defense against future
+            # seam changes — both stay LEDGERED, never COMPLETED.
+            status="executed_shadow" if transport is not None else "executed",
             candidate_id=candidate.candidate_id,
             run_id=run_id,
             generated_source=source,

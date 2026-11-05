@@ -321,10 +321,9 @@ def test_promote_requires_approved_state(transported_service) -> None:
 
     again = client.post(f"{PREFIX}/candidates/{cid}/promote", json={"approver": "owner-alice"})
     assert again.status_code == 422
-    assert again.json()["detail"]["error"] in (
-        "candidate_already_promoted",
-        "promotion_requires_approved_state",
-    )
+    # tightened per L-QA (LOW): the registry raises promotion_requires_approved_state
+    # for a PROMOTED candidate — pin the exact single error.
+    assert again.json()["detail"]["error"] == "promotion_requires_approved_state"
 
 
 # ---------------------------------------------------------------------------

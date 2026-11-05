@@ -997,3 +997,121 @@ class TestPostureAndSurface:
         )
         for usage in forbidden_usages:
             assert usage not in source, f"unexpected network usage pattern: {usage!r}"
+
+
+# ---------------------------------------------------------------------------
+# L-QA remediation regression pins (D-1 concurrent-commit CAS, D-2 period bound)
+# ---------------------------------------------------------------------------
+class TestLQARemediations:
+    """Independent-QA findings fixed in-wave and pinned here.
+
+    D-1 (MEDIUM): concurrent identical requests previously raced past the
+    gate-4 duplicate check and committed multiple candidates. The commit is
+    now a compare-and-set under the snapshot lock: exactly ONE winner.
+    D-2 (LOW): the prompt-advertised period bound [2, 200] is now ENFORCED by
+    the emitter (deliberately stricter than the unchanged DSL validator).
+    """
+
+    def test_concurrent_identical_requests_commit_exactly_one_candidate(self, gen_enabled):
+        svc = AI2GenerationService()
+        transport = _ok_transport()
+        req = _request()
+
+        async def run() -> list:
+            return await asyncio.gather(
+                *[svc.generate(req, transport=transport, max_concurrent=6, rate_per_minute=60)
+                  for _ in range(6)]
+            )
+
+        outcomes = asyncio.run(run())
+        oks = [o for o in outcomes if o.ok]
+        refused = [o for o in outcomes if o.error_code == "duplicate_generation"]
+        assert len(oks) == 1, [(o.status, o.error_code) for o in outcomes]
+        assert len(refused) == 5, [(o.status, o.error_code) for o in outcomes]
+        assert len(svc.candidates.list()) == 1
+        statuses = [r.status for r in svc.ledger.records]
+        assert statuses.count("LEDGERED") == 1
+        assert all(s == "DUPLICATE_FLAGGED" for s in statuses if s != "LEDGERED")
+
+    def test_concurrent_identical_with_idempotency_key_single_candidate(self, gen_enabled):
+        svc = AI2GenerationService()
+        transport = _ok_transport()
+        req = _request(idempotency_key="race-key-0001")
+
+        async def run() -> list:
+            return await asyncio.gather(
+                *[svc.generate(req, transport=transport, max_concurrent=6, rate_per_minute=60)
+                  for _ in range(6)]
+            )
+
+        outcomes = asyncio.run(run())
+        assert len([o for o in outcomes if o.ok]) == 1, [(o.status, o.error_code) for o in outcomes]
+        assert len(svc.candidates.list()) == 1
+
+    def test_period_below_advertised_minimum_refused(self, gen_enabled):
+        # D-2: sma(close, 1) passes the unchanged DSL validator (its own
+        # minimum is 1) but violates the ADVERTISED generation bound — the
+        # emitter refuses with a typed error.
+        svc = AI2GenerationService()
+        spec = {
+            **VALID_SPEC,
+            "entry": {"kind": "cmp", "op": ">", "children": [
+                {"kind": "series", "base": "close"},
+                {"kind": "call", "fn": "sma", "children": [
+                    {"kind": "series", "base": "close"},
+                    {"kind": "num", "value": 1},
+                ]},
+            ]},
+        }
+        out = asyncio.run(svc.generate(_request(), transport=_ok_transport(spec)))
+        assert out.status == "failed_schema"
+        assert "period_out_of_advertised_range" in (out.error_code or "")
+
+    def test_period_above_advertised_maximum_refused(self, gen_enabled):
+        svc = AI2GenerationService()
+        spec = {
+            **VALID_SPEC,
+            "entry": {"kind": "cmp", "op": ">", "children": [
+                {"kind": "series", "base": "close"},
+                {"kind": "call", "fn": "sma", "children": [
+                    {"kind": "series", "base": "close"},
+                    {"kind": "num", "value": 201},
+                ]},
+            ]},
+        }
+        out = asyncio.run(svc.generate(_request(), transport=_ok_transport(spec)))
+        assert out.status == "failed_schema"
+        assert "period_out_of_advertised_range" in (out.error_code or "")
+
+    def test_period_non_integer_refused(self, gen_enabled):
+        svc = AI2GenerationService()
+        spec = {
+            **VALID_SPEC,
+            "entry": {"kind": "cmp", "op": ">", "children": [
+                {"kind": "series", "base": "close"},
+                {"kind": "call", "fn": "sma", "children": [
+                    {"kind": "series", "base": "close"},
+                    {"kind": "num", "value": 20.5},
+                ]},
+            ]},
+        }
+        out = asyncio.run(svc.generate(_request(), transport=_ok_transport(spec)))
+        assert out.status == "failed_schema"
+        assert "period_out_of_advertised_range" in (out.error_code or "")
+
+    def test_period_at_bounds_accepted(self, gen_enabled):
+        # the honest positive control: periods 2 and 200 compile and run
+        for period in (2, 200):
+            svc = AI2GenerationService()
+            spec = {
+                **VALID_SPEC,
+                "entry": {"kind": "cmp", "op": ">", "children": [
+                    {"kind": "series", "base": "close"},
+                    {"kind": "call", "fn": "sma", "children": [
+                        {"kind": "series", "base": "close"},
+                        {"kind": "num", "value": period},
+                    ]},
+                ]},
+            }
+            out = asyncio.run(svc.generate(_request(), transport=_ok_transport(spec)))
+            assert out.ok and out.status == "executed_shadow", (period, out.error_code)

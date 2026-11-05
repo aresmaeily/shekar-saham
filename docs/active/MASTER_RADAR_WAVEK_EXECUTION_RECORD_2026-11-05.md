@@ -196,3 +196,45 @@ recorded, Strategy-Lab display verification, disable-blocks-immediately
 verification), WAVE-M (internal scheduler), WAVE-N remainder (supervised
 local backend in the shell), WAVE-O (UX integration), WAVE-P (independent
 acceptance + release).
+
+## 7. Independent QA (L-QA) — findings and in-wave remediation
+
+Independent read-only audit at HEAD 46274a3 (fresh adversarial probes; 31
+probe scenarios, ZERO 500s; battery reproduced ×2 = 2897/1s/0f both; order
+probes green both directions; gate sweep clean — config diff additive-only,
+g2_gate.py + G2_GATE_STATE.json diff 0 bytes; counter-pin verified BITING
+(ungated seam / foreign ai2 file / missing seam all detected); G2 verdict
+remains NOT_PASSED; provenance hashes re-derived independently — all four
+match). Findings and dispositions:
+
+- **D-1 (MEDIUM) — concurrent duplicate-suppression TOCTOU:** six concurrent
+  identical requests could each pass the gate-4 check-then-act and commit
+  six candidates. **FIXED in-wave:** Stage-6 commit is now a compare-and-set
+  under the snapshot lock — exactly ONE winner commits; each loser discards
+  its (deterministically identical) output, is refused
+  `duplicate_generation`, and is ledgered `DUPLICATE_FLAGGED` with the
+  winner recorded (the invocation honestly happened; nothing rewritten).
+  Pinned by 2 new tests (6-way race without/with idempotency key).
+- **D-2 (LOW) — advertised period bound never enforced; docstring wrong**
+  (the unchanged DSL validator's own sma/ema/highest/lowest minimum is 1, not
+  the advertised 2). **FIXED in-wave:** the emitter now ENFORCES the
+  advertised [2, 200] integer bound on indicator period slots
+  (`sma/ema/rsi/stdev/highest/lowest` arg 1, `atr` arg 3) — deliberately
+  STRICTER than the DSL validator; `ref()` offsets stay under the
+  validator's own rule; docstring corrected. Pinned by 4 new tests
+  (below-min, above-max, non-integer, both boundary positives).
+- **LOW (K4 test) — re-promote assertion accepted a two-way disjunction:**
+  tightened to the exact single error `promotion_requires_approved_state`.
+- **INFO — status tautology** (`executed_shadow if transport is not None
+  else executed_shadow`): made structurally meaningful — a non-test-
+  transport success would honestly be `executed` (unreachable today: the
+  fallback seam never yields an ok=True spec payload; kept as defense
+  against future seam changes; both statuses stay LEDGERED, never
+  COMPLETED).
+- **INFO — raw substring grep shows `product_loops_api.py` ai2-echoes**
+  (pre-existing `ai2_gate`/`ai2_enabled` settings reads, unchanged since
+  before 3b6f15d): the recorded predicate scans `\bai2\b`, under which those
+  identifiers do not match; noted here so the scan vocabulary is explicit.
+
+Post-remediation battery: **2903 passed / 1 skipped / 0 failed = 2897 + 6
+exact** (36.83s). pyflakes clean. Gates byte-unchanged.
