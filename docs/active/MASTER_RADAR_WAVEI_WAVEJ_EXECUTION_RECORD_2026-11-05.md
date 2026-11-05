@@ -195,3 +195,34 @@ the §4 gate), WAVE-M (internal scheduler after persistence acceptance —
 persistence landed this wave), WAVE-N (Windows installer artifact via
 authorized CI build), WAVE-O (UX integration), WAVE-P (independent
 acceptance + release).
+
+## 7. Post-publication currency (added in the docs-only discriminator commit)
+
+- **Publication:** WAVE-I/J pushed forward-only `6d78a84 → a6402cd`; independent
+  read-back `origin/main = a6402cdcac57184a8e99df444c7c8562f84befb4`.
+- **Runtime durability demo on the LIVE site (a6402cd code):** L5 endpoints
+  report `persistence_backend: sqlite-wal`, `persistence_durable: true`,
+  retention policy disclosure; a prediction was registered + outcome-attached
+  through the preview origin, the backend process was HARD-RESTARTED, and the
+  record came back MATURED with its outcome (`registry_version` preserved) —
+  restart-recovery acceptance demonstrated on the real application path, not
+  only in tests.
+- **Exact-SHA CI on `a6402cd`** (check-runs API): test-backend **success**
+  (job 127286685841 — full battery incl. the 17 new WAVE-J tests on Python
+  3.13), build-docker **success** (127287229048), windows-validation
+  **FAILURE** (127286685937, 13:56:39Z; public annotation "Process completed
+  with exit code 1"; failing step not publicly extractable — job logs
+  admin-gated; artifact zip download auth-gated per the GOV-49 record).
+  LOCAL replication with the exact pushed code: fresh boot clean (~40s),
+  W7's three assertions all PASS locally (zero Tracebacks in captured
+  stdout/stderr, ephemeral-key warning present, health live_verified=false),
+  and the W6 e2e surface does not touch the changed prediction path (grep:
+  no productloops/predictions references under e2e/). Third occurrence of
+  the same windows-only failure class (7a85528, 99e9da1, a6402cd) with
+  byte-identical-runtime successor runs passing in the first two cases.
+  Discriminator: this docs-only commit (byte-identical runtime code) is
+  pushed ALONE so its windows run classifies the `a6402cd` failure — PASS =
+  environmental recurrence per the recorded WAVE-3 flake class; FAIL =
+  escalate to a real-environment investigation (candidate environmental
+  factor: the runner-forced Node.js 24 execution of Node-20-target actions
+  visible in the check-run annotations). No gate changed, no test weakened.
