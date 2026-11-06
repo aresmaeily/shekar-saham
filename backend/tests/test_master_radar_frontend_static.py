@@ -97,8 +97,9 @@ def test_sw_precache_includes_strategy_lab_and_bumped():
     # test_master_radar_waveb_frontend.py for the WAVE-B gates).
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-F 2026-11-05): v3-0-13 -> v3-0-14 —
     # precache extended with product_loops_ui.js (WAVE-F product-loops panel).
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-15 — precache extended with ai2_studio.js (WAVE-O governed AI-2 studio panel).
 
-    assert "radar-bourse-static-v3-0-14" in sw
+    assert "radar-bourse-static-v3-0-15" in sw
 
 
 def test_new_frontend_modules_pass_node_syntax_check():

@@ -82,17 +82,21 @@ def test_sw_bumped_to_v3_0_8_with_wave3_precache():
     # prior chain v3-0-12 -> v3-0-13 (WAVE-E install cache:reload honesty fix) —
     # prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 -> v3-0-12 (WAVE-B popup fix,
     # WAVE-D PDF export, WAVE-E declared calendars)
-    assert "radar-bourse-static-v3-0-14" in sw
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-15 — precache extended with ai2_studio.js (WAVE-O governed AI-2 studio panel)
+    assert "radar-bourse-static-v3-0-15" in sw
     assert "radar-bourse-static-v3-0-9" not in sw
     assert "/static/js/modules/render/chart_grid.js" in sw
     assert "/static/js/modules/command_palette.js" in sw
 
 
 def test_tabs_count_unchanged_29():
-    """WAVE-3 adds NO new tabs (grid + palette live inside existing surfaces)."""
+    """WAVE-3 adds NO new tabs (grid + palette live inside existing surfaces).
+    COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): 30 -> 31 — the
+    new governed AI-2 studio tab (frontend-only, additive); prior chain 26 ->
+    29 (WAVE-2) -> 30."""
     html = _read(INDEX)
     # class="tab" (default active state varies: class="tab active" on the first)
-    assert len(re.findall(r'class="tab[^"]*" data-tab=', html)) == 30
+    assert len(re.findall(r'class="tab[^"]*" data-tab=', html)) == 31
 
 
 def test_wave3_files_pass_node_syntax_check():

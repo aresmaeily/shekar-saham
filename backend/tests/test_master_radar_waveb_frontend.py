@@ -156,17 +156,21 @@ class TestIntegrationPins:
         assert 'id="cpUserIndRoot"' in html
 
     def test_tabs_stay_29(self) -> None:
+        # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): 30 -> 31 — the
+        # new governed AI-2 studio tab (frontend-only, additive); prior chain
+        # 26 -> 29 (WAVE-2) -> 30.
         html = _read(INDEX_HTML)
         tabs = re.findall(r'class="tab[^"]*" data-tab="', html)
-        assert len(tabs) == 30
+        assert len(tabs) == 31
 
     def test_main_js_imports_new_panel(self) -> None:
         text = _read(MAIN_JS)
         assert 'import "./modules/render/user_indicator_ui.js"' in text
 
     def test_sw_bumped_to_v3_0_14_with_precache(self) -> None:
+        # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-15 — precache extended with ai2_studio.js (WAVE-O governed AI-2 studio panel)
         sw = _read(SW_JS)
-        assert "radar-bourse-static-v3-0-14" in sw
+        assert "radar-bourse-static-v3-0-15" in sw
         assert "radar-bourse-static-v3-0-12" not in sw
         assert "/static/js/modules/user_indicator.js" in sw
         assert "/static/js/modules/render/user_indicator_ui.js" in sw
@@ -182,8 +186,11 @@ class TestIntegrationPins:
         ],
     )
     def test_counter_pins_bumped(self, path: str) -> None:
+        # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): pin token
+        # advanced v3-0-14 -> v3-0-15 across the five pinned files; escape chain
+        # extended (v3-0-13 -> v3-0-14 / v3-0-12 -> v3-0-13 / v3-0-14 -> v3-0-15).
         text = _read(ROOT / path)
-        assert "radar-bourse-static-v3-0-14" in text, path
+        assert "radar-bourse-static-v3-0-15" in text, path
         assert "radar-bourse-static-v3-0-8" not in re.sub(
             r"#.*COUNTER-PIN BUMP[^\n]*\n?", "", text
-        ) or "v3-0-13 -> v3-0-14" in text or "v3-0-12 -> v3-0-13" in text  # bump comment may name the old pin
+        ) or "v3-0-13 -> v3-0-14" in text or "v3-0-12 -> v3-0-13" in text or "v3-0-14 -> v3-0-15" in text  # bump comment may name the old pin

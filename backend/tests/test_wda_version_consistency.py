@@ -86,8 +86,9 @@ def test_sw_cache_token_is_consistent_within_sw_js():
     # precache extended with the UIDL-1 user-indicator client + panel modules.
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-F 2026-11-05): v3-0-13 -> v3-0-14 —
     # precache extended with product_loops_ui.js (WAVE-F product-loops panel).
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-15 — precache extended with ai2_studio.js (WAVE-O governed AI-2 studio panel).
 
-    assert token == "radar-bourse-static-v3-0-14"
+    assert token == "radar-bourse-static-v3-0-15"
     # Header comment must tell the same story (dots variant), no drift.
     assert "Service Worker v3.0.8" in SW_JS
 

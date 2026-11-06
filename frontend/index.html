@@ -97,6 +97,7 @@
     <button class="tab" data-tab="forwardcenter">⏩ مرکز فوروارد تست</button>
     <button class="tab" data-tab="dataquality">🔬 مرکز کیفیت داده</button>
     <button class="tab" data-tab="loops">🔄 حلقه‌های محصول</button>
+    <button class="tab" data-tab="aistudio">🤖 استودیو AI-2</button>
     <button class="tab" data-tab="excellent">✨ عالی</button>
     <button class="tab" data-tab="guide">📖 راهنما</button>
   </nav>
@@ -1370,6 +1371,61 @@
         <button class="btn tiny" id="plCalRun">محاسبه Brier/ECE</button>
       </div>
       <div id="plCalOut" class="muted">Brier، ECE و سطوح قابلیت اعتماد اینجا رندر می‌شود…</div>
+    </section>
+    <section class="panel" id="tab-aistudio">
+      <div class="panel-head">
+        <div>
+          <h2>🤖 استودیو AI-2 — مسیر تولید حاکمیت‌شده (WAVE-K/L)</h2>
+          <p class="muted">پرسش → شفاف‌سازی → spec تایپ‌شده → تولید قطعی RSL-1 → بک‌تست SYNTHETIC seed-دار → نامزد نسخه‌دار با تأیید انسانی نام‌دار. مدل هیچ اختیاری روی تأیید/ارتقا ندارد؛ ارتقا فقط کاغذی است (هیچ‌گاه لایو، هیچ‌گاه بروکر، هیچ‌گاه اعلان بیرونی). با پیش‌فرض مخزن AI2_ENABLED=0 هر تولید نتیجهٔ صادقانهٔ gated_not_executed می‌گیرد و همین عیناً نمایش داده می‌شود. ریجستری نامزدها فقط-در-حافظه است (تصمیم ماندگاری مالک-گیت). بدون خروج به بیرون و بدون زمان‌بند؛ هر فراخوان با کنش صریح کاربر.</p>
+        </div>
+        <div class="filters">
+          <span class="cp-badge" id="ai2TrustBadge">اعتماد: —</span>
+        </div>
+      </div>
+
+      <h3>وضعیت گیت‌ها (فقط-خواندنی، صادقانه)</h3>
+      <div class="cp-toolbar"><button class="btn tiny" id="ai2PostureReload">خواندن وضعیت</button></div>
+      <div id="ai2PostureOut" class="muted">وضعیت گیت‌ها، حالت اجرا، سیاست فراهم‌کننده و پاکت صداقت سرور اینجا رندر می‌شود…</div>
+
+      <h3>تولید حاکمیت‌شده (NL → spec → RSL-1 → ارزیابی قطعی)</h3>
+      <div class="cp-toolbar">
+        <textarea class="text-input" id="ai2Question" rows="2" style="max-width:560px;font-size:12px" placeholder="مثلاً: یک استراتژی کراس میانگین متحرک با خروج روی RSI اشباع بساز"></textarea>
+        <input class="text-input" id="ai2Symbol" placeholder="نماد (مثل فملی)" style="max-width:120px" value="فملی" />
+        <select class="text-input" id="ai2Timeframe" style="max-width:90px">
+          <option value="1D" selected>1D</option>
+          <option value="1h">1h</option>
+          <option value="15m">15m</option>
+          <option value="5m">5m</option>
+          <option value="1m">1m</option>
+        </select>
+        <input class="text-input" id="ai2Bars" type="number" min="50" max="500" value="200" style="max-width:90px" title="تعداد کندل (50..500)" />
+      </div>
+      <div class="cp-toolbar">
+        <textarea class="text-input" id="ai2Clarifs" rows="2" style="max-width:560px;font-size:12px" placeholder="شفاف‌سازی‌ها: یک key=value در هر خط، حداکثر ۸ (مثلاً fast=10)"></textarea>
+        <input class="text-input" id="ai2EndBar" placeholder="اندیس انتهایی (اختیاری)" style="max-width:160px" />
+        <input class="text-input" id="ai2IdemKey" placeholder="کلید یکسان‌سازی ≥۸ (اختیاری)" style="max-width:200px" />
+        <input class="text-input" id="ai2ParentRun" placeholder="parent_run_id (اختیاری)" style="max-width:180px" />
+        <input class="text-input" id="ai2HypId" placeholder="hypothesis_id (اختیاری)" style="max-width:160px" />
+        <button class="btn tiny" id="ai2Generate">ارسال تولید (گیت سمت سرور)</button>
+      </div>
+      <div id="ai2GenOut" class="muted">نتیجهٔ صادقانهٔ تولید (وضعیت، سنجه‌های تیتر، شواهد مبدأ، منبع RSL-1) اینجا رندر می‌شود…</div>
+
+      <h3>نامزدهای نسخه‌دار + تأیید/ارتقای انسانی نام‌دار</h3>
+      <div class="cp-toolbar"><button class="btn tiny" id="ai2CandidatesReload">خواندن فهرست نامزدها</button></div>
+      <div id="ai2CandOut" class="muted">فهرست نامزدها (وضعیت DRAFT/APPROVED/PROMOTED، حکم دستکاری) اینجا رندر می‌شود…</div>
+      <div class="cp-toolbar">
+        <input class="text-input" id="ai2CandId" placeholder="شناسه نامزد" style="max-width:240px" />
+        <button class="btn tiny" id="ai2CandLoad">نمایش جزئیات</button>
+        <input class="text-input" id="ai2Approver" placeholder="نام تأییدکنندهٔ انسانی (≥۴ کاراکتر)" style="max-width:220px" />
+        <button class="btn tiny" id="ai2Approve">تأیید انسانی</button>
+        <button class="btn tiny" id="ai2Promote">ارتقا (فقط کاغذی)</button>
+      </div>
+      <div id="ai2CandDetailOut" class="muted">جزئیات نامزد (منبع RSL-1، شواهد مبدأ، حکم دستکاری) اینجا رندر می‌شود…</div>
+      <div id="ai2ActionOut" class="muted">نتیجهٔ تأیید/ارتقا اینجا رندر می‌شود…</div>
+
+      <h3>دفتر کل اجراها (فقط-الحاقی)</h3>
+      <div class="cp-toolbar"><button class="btn tiny" id="ai2RunsReload">خواندن دفتر کل</button></div>
+      <div id="ai2RunsOut" class="muted">دُم دفتر کل اجراها (append-only؛ بی‌اعتب‌سازی با رکورد جدید) اینجا رندر می‌شود…</div>
     </section>
     <section class="panel" id="tab-excellent">
       <div class="panel-head">

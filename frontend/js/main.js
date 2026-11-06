@@ -25,6 +25,7 @@ import "./modules/render/chart_grid.js"; // MASTER-RADAR WAVE-3 (2026-11-04): ش
 import "./modules/command_palette.js"; // MASTER-RADAR WAVE-3 (2026-11-04): پالت فرمان (Ctrl+K) — فقط اجرای صریح کاربر
 import "./modules/render/user_indicator_ui.js"; // MASTER-RADAR WAVE-B (2026-11-04): اندیکاتور شخصی UIDL-1 — بایند-on-demand، اجرا فقط سمت سرور
 import "./modules/render/product_loops_ui.js"; // MASTER-RADAR WAVE-F (2026-11-05): حلقه‌های محصول §5 — بایند-on-demand، همه داده SYNTHETIC/DECLARED
+import "./modules/render/ai2_studio.js"; // MASTER-RADAR WAVE-O (2026-11-06): استودیو AI-2 — سطح UX خط لوله تولید حاکمیت‌شده /api/v10/ai2 — بایند-on-demand، برچسب‌ها فقط از سرور، بدون polling
 import "./modules/render/watchlist_excellent.js";
 import { renderAnalyticsFlow } from "./modules/render/analytics_flow.js"; // WDA-3 (2026-11-02): پنل افزودنی جمع‌بندی جریان در تب تحرکات بزرگان
 
