@@ -215,5 +215,12 @@ convention. Recorded per-SHA, exactly as observed:
   build-docker (127748578808) / windows-validation (127748234640) /
   build-installer (127748234649). The batched-push docs-only delta rule
   applies to the following docs-only commit (verified before push).
+- Currency addendum: the docs-only CI-currency commit **c934efb**
+  (published HEAD at session close) itself concluded **ALL 4 REQUIRED
+  CHECKS SUCCESS** — test-backend (127755013914) / build-docker
+  (127755284296) / windows-validation (127755014301) / build-installer
+  (127755014050) — the third consecutive windows-validation SUCCESS on the
+  same job definition (3e40e66 + c934efb), bounding the e585085 hung run
+  definitively to the runner flake class.
 - Nothing converted; a missing/failing/hung check is recorded as
   missing/failing/hung. Global completion **NOT CALCULATED** (OA-8).
