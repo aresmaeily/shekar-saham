@@ -1,5 +1,11 @@
 # Changelog — RADAR BOURSE
 
+## 2026-11-07 — WAVE-S (MASTER directive): WEBSITE/DESKTOP/CHARTING GAP CLOSURE
+
+- **WAVE-S2:** cross-window crosshair/range sync for the multi-chart grid + detached popups (closed the recorded WAVE-B residual): 3 NEW fail-closed BroadcastChannel validators, dual echo guards, sync toggles govern cross-window, pane→primary crosshair, values always from local data (no fabricated prices).
+- **WAVE-S2W:** installer payload defect CLOSED (frontend/ bundled; CI payload-verification step), non-loopback override ENFORCED, RADAR_BACKEND_PORT-consistent window origin, dependency command disclosed on the degraded page, package-lock.json added, runbook drift ×3 fixed; embedded Python = EVALUATED (not bundled; nothing downloaded/executed).
+- sw v3-0-16; recorded counter-pin bumps ×7; NEW `test_master_radar_waves_frontend.py` (15 gates); battery 3006/1s/0f = 2991+15 exact.
+- Record (incl. unified 11-status matrix + Vercel root-cause/owner packet + owner-gated register + honest remaining work): `docs/active/MASTER_RADAR_WAVES_EXECUTION_RECORD_2026-11-07.md`.
 ## 2026-11-06 — WAVE-Q (docs-only runtime-currency + residual-closure): POST-PUBLICATION RUNTIME CURRENCY + BROWSER-DOM VERIFICATION
 
 - **Currency re-proven at the published HEAD `89246e2`:** full battery 2991/1s/0f (45.21s, exact match); REAL app booted (repo venv, clean boot ~40s); HTTP probes: health ok/synthetic; posture `ai2_enabled=false` + SYNTHETIC_OR_PAPER + FULL 7-field honesty envelope; POST generate = `gated_not_executed`/`ai2_disabled` with 23-key provenance; runs ledger stayed EMPTY (nothing executed); `data-tab="aistudio"` ×1; studio asset HTTP 200.
