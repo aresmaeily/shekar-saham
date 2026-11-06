@@ -445,3 +445,14 @@ honestly + root-caused; windows SUCCESS) → `7d60d0d` (records, docs-only) → 
 (CI-currency fix; **3/3 SUCCESS**) → `dbc2e6f` (detach-intent fix + sw v3-0-10; **3/3
 SUCCESS**). `origin/main == dbc2e6f` at evidence time. The CI-relevant code SHAs of WAVE-B
 are `82dd4b2` and `dbc2e6f` — both 3/3 green on the exact push SHAs.
+
+## §15 — WAVE-O/P CI currency (2026-11-06, UTC): exact-SHA evidence for the final publication chain of the OWNER DIRECTIVE wave queue (nothing inferred; rows freshly retrieved from the check-runs API at record time after one shared-IP rate-limit window — the recorded WS-1 condition — was waited out; the actions-page HTML evidence was cross-checked via the WebFetch egress path DURING the rate-limit window and agrees)
+
+Publication chain: `d128295` (baseline, origin/main at wave start) → `c300e42` (WAVE-O implementation: 13 files, +818/−19 — frontend module + panel wiring + new 14-test file + recorded counter-pins) → `097c7d2` (WAVE-O/P records: docs-only, 5 files, +280/−0) — one forward-only push (`d128295..097c7d2`), read-back verified (`origin/main == local == 097c7d2`, 0/0; both SHAs merge-base ancestors of origin/main).
+
+| SHA | check-runs | Evidence |
+|---|---|---|
+| `c300e42` | **total_count = 0** | Batched-push convention (per the recorded `8cce25b`/`3ec3427`/`71fcf41`/`20caaa0` precedent): both commits landed in a single push event, so workflow runs attach only to the pushed tip. Honest zero-run record. The CI-relevant code delta (`c300e42`) is covered byte-wise by the head runs: `git diff c300e42..097c7d2` is docs-only (5 files, all `.md`, +280/−0) — verified, not assumed. |
+| `097c7d2` (published HEAD) | **ALL 4 REQUIRED CHECKS SUCCESS** | check-runs API at record time: `test-backend` completed/**success** (job **127791040996**), `build-docker` completed/**success** (job **127791538337**), `windows-validation` completed/**success** (job **127791040865**), `build-installer` completed/**success** (job **127791040960**). Workflow-level corroboration from the actions page (WebFetch egress path during the rate-limit window): CI #61 completed successfully (1m42s), Windows validation #54 completed successfully (4m17s), Windows installer artifact (OA-1) #11 completed successfully (1m14s). |
+
+Gates on the published HEAD: `AI2_ENABLED=0` committed default byte-unchanged · `SCHEDULER_ENABLED=0` · `verified=False` · SYNTHETIC_OR_PAPER · no egress · G2 untouched (NOT_PASSED) · Two-Key intact · R-1..R-11 · installer UNSIGNED + NOT ISSUED. Global completion NOT CALCULATED (OA-8).
