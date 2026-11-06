@@ -82,8 +82,9 @@ def test_sw_bumped_to_v3_0_8_with_wave3_precache():
     # prior chain v3-0-12 -> v3-0-13 (WAVE-E install cache:reload honesty fix) —
     # prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 -> v3-0-12 (WAVE-B popup fix,
     # WAVE-D PDF export, WAVE-E declared calendars)
-    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-15 — precache extended with ai2_studio.js (WAVE-O governed AI-2 studio panel)
-    assert "radar-bourse-static-v3-0-15" in sw
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-16 — precache extended with ai2_studio.js (WAVE-O governed AI-2 studio panel)
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
+    assert "radar-bourse-static-v3-0-16" in sw
     assert "radar-bourse-static-v3-0-9" not in sw
     assert "/static/js/modules/render/chart_grid.js" in sw
     assert "/static/js/modules/command_palette.js" in sw

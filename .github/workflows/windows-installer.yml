@@ -48,12 +48,17 @@ jobs:
         with:
           node-version: 20
 
-      - name: Bundle backend sources + embed release provenance (unsigned)
+      - name: Bundle backend sources + frontend assets + embed release provenance (unsigned)
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path electron/resources/backend | Out-Null
           Copy-Item -Recurse -Force backend/app electron/resources/backend/app
           Copy-Item -Force backend/requirements.txt electron/resources/backend/requirements.txt
+          # WAVE-S2W (2026-11-07): the backend serves the frontend from ROOT/frontend
+          # where ROOT = config.py parents[3] = the packaged resources/ directory —
+          # i.e. <install>/resources/frontend. Without this copy the packaged app
+          # would serve /api/* but 404 on / — the recorded payload defect is closed.
+          Copy-Item -Recurse -Force frontend electron/resources/frontend
           $backendVersion = "unknown"
           Select-String -Path backend/app/core/config.py -Pattern 'version:\s*str\s*=\s*"([^"]+)"' | ForEach-Object { $backendVersion = $_.Matches[0].Groups[1].Value }
           $meta = [ordered]@{
@@ -68,6 +73,25 @@ jobs:
           }
           $meta | ConvertTo-Json | Out-File -Encoding utf8 electron/resources/RELEASE_PROVENANCE.json
           Get-Content electron/resources/RELEASE_PROVENANCE.json
+
+      - name: Payload verification (fail the build on an incomplete payload)
+        shell: pwsh
+        run: |
+          # WAVE-S2W: verify the packaged layout the supervised backend resolves at
+          # runtime (backend_service.js resolveBackendDir -> resources/backend) —
+          # source, requirements, frontend index, and the release provenance must
+          # all exist BEFORE electron-builder runs; otherwise fail the build.
+          $required = @(
+            'electron/resources/backend/app/main.py',
+            'electron/resources/backend/requirements.txt',
+            'electron/resources/frontend/index.html',
+            'electron/resources/RELEASE_PROVENANCE.json'
+          )
+          $missing = @($required | Where-Object { -not (Test-Path $_) })
+          if ($missing.Count -gt 0) { Write-Error ("incomplete payload: " + ($missing -join ', ')); exit 1 }
+          $n = (Get-ChildItem -Recurse -File electron/resources/frontend).Count
+          "frontend_files_bundled=$n" | Out-File -Append installer_provenance.txt
+          Write-Host "payload OK — frontend files bundled: $n"
 
       - name: Build NSIS installer (electron-builder, unsigned)
         working-directory: electron

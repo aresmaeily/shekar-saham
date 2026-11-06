@@ -26,26 +26,31 @@ function createWindow() {
     title: "رادار بورس - نسخه دسکتاپ"
   });
 
-  // For personal use - load local server
-  // Change to https://your-server.com for production
-  const startUrl = process.env.RADAR_BOURSE_URL || process.env.SHEKAR_URL || 'http://127.0.0.1:8000';
+  // For personal use - load local server (WAVE-S2W: port kept consistent with
+  // the supervised backend's RADAR_BACKEND_PORT resolution in backend_service.js)
+  const backendPort = String(process.env.RADAR_BACKEND_PORT || '8000');
+  const loopbackDefault = 'http://127.0.0.1:' + backendPort;
+  let startUrl = process.env.RADAR_BOURSE_URL || process.env.SHEKAR_URL || loopbackDefault;
 
   // WAVE-N remainder: when the shell SUPERVISES its own backend, the shell
   // must never load a foreign origin; the supervised backend is loopback-only.
+  // WAVE-S2W: the refusal is now ENFORCED — a non-loopback override falls back
+  // to the loopback default instead of being loaded anyway (log-only before).
   if (process.env.RADAR_BOURSE_URL || process.env.SHEKAR_URL) {
     try {
       const forced = new URL(startUrl);
       if (forced.hostname !== '127.0.0.1' && forced.hostname !== 'localhost') {
         console.error('[radar] refusing non-loopback RADAR_BOURSE_URL override:', startUrl);
+        startUrl = loopbackDefault;
       }
-    } catch (e) { /* fall through to the loopback default */ }
+    } catch (e) { startUrl = loopbackDefault; }
   }
 
-  let allowedOrigin = 'http://127.0.0.1:8000';
+  let allowedOrigin = loopbackDefault;
   try {
     allowedOrigin = new URL(startUrl).origin;
   } catch (e) {
-    allowedOrigin = 'http://127.0.0.1:8000';
+    allowedOrigin = loopbackDefault;
   }
 
   function isAllowedNavigation(url) {
@@ -151,6 +156,7 @@ function loadDegradedStatusPage(reason) {
   <p>شایع‌ترین علت‌ها و راه‌حل‌ها:</p>
   <ul>
     <li>پایتون ۳٫۱۱ یا جدیدتر نصب نیست — پایتون را نصب کنید (فقط نسخهٔ رسمی، بدون دانلود از داخل برنامه).</li>
+    <li>وابستگی‌های پایتون نصب نیستند (پیام <code>ModuleNotFoundError</code> در لاگ) — یک‌بار در پوشهٔ نصب اجرا کنید: <code>python -m pip install -r backend/requirements.txt</code></li>
     <li>پورت <code>8000</code> توسط برنامهٔ دیگری اشغال است — متغیر محیطی <code>RADAR_BACKEND_PORT</code> را تغییر دهید.</li>
     <li>پایگاه دادهٔ محلی قفل است — از Runbook بخش Diagnostics استفاده کنید.</li>
   </ul>

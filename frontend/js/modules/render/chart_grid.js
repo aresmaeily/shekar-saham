@@ -242,6 +242,39 @@ function validDetachSyncMsg(msg) {
   return true;
 }
 
+/* >>> WAVE-S2 PURE LOGIC BEGIN — همگام‌سازی کراس‌هیر/بازهٔ بین‌پنجره‌ای — مرز پین ایستا */
+
+/* WAVE-S2: پیام‌های جدید روی همان کانال radar.grid.sync.v1 — fail-closed.
+ * pane === -1 یعنی فرستنده «چارت اصلی» است؛ 0..GRID_MAX_PANES-1 یعنی پنل فرعی. */
+
+/** پیام کراس‌هیر بین‌پنجره‌ای — هر فیلد نامعتبر → false */
+function validGridCrossMsg(msg) {
+  if (!msg || typeof msg !== "object" || msg.type !== "pane_cross") return false;
+  const n = Number(msg.pane);
+  if (!Number.isInteger(n) || n < -1 || n >= GRID_MAX_PANES) return false;
+  if (msg.time == null) return false;
+  return Number.isFinite(Number(msg.value));
+}
+
+/** پیام پاک‌کردن کراس‌هیر بین‌پنجره‌ای */
+function validGridCrossClearMsg(msg) {
+  if (!msg || typeof msg !== "object" || msg.type !== "pane_cross_clear") return false;
+  const n = Number(msg.pane);
+  return Number.isInteger(n) && n >= -1 && n < GRID_MAX_PANES;
+}
+
+/** پیام بازهٔ دید بین‌پنجره‌ای — از/تا باید عددهای متناهی و از<=تا باشند */
+function validGridRangeMsg(msg) {
+  if (!msg || typeof msg !== "object" || msg.type !== "pane_range") return false;
+  const n = Number(msg.pane);
+  if (!Number.isInteger(n) || n < -1 || n >= GRID_MAX_PANES) return false;
+  const f = Number(msg.from);
+  const t = Number(msg.to);
+  return Number.isFinite(f) && Number.isFinite(t) && f <= t;
+}
+
+/* <<< WAVE-S2 PURE LOGIC END */
+
 /* <<< WAVE-B PURE LOGIC END */
 
 /* WAVE-B: capture the detach intent at MODULE LOAD — main.js's tab router
@@ -269,6 +302,7 @@ export class ChartGrid {
     /* WAVE-B: جداسازی popup + همگام‌سازی نماد/تایم‌فریم بین پنجره‌ها */
     this._channel = null;
     this._applyingRemote = false; // گارد پژواک برای پیام‌های همگام‌سازی
+    this._gridCrossRemote = false; // WAVE-S2: گارد پژواک کراس‌هیرِ دور
     try {
       if (typeof BroadcastChannel === "function") this._channel = new BroadcastChannel(DETACH_CHANNEL);
     } catch (e) { /* بدون کانال: همگام‌سازی بین‌پنجره‌ای صادقانه غیرفعال می‌ماند */ }
@@ -296,11 +330,11 @@ export class ChartGrid {
     return true;
   }
 
-  /* ---------------- WAVE-B: جداسازی popup (چندنمایشگر) ----------------
+  /* ---------------- WAVE-B/S2: جداسازی popup (چندنمایشگر) ----------------
    * صادقانه: «جداسازی» یعنی پنجرهٔ همان‌مبدأ مرورگر — کاربر می‌تواند آن را
-   * به نمایشگر دیگر بکاند؛ جای‌گذاری OS ادعا نمی‌شود. همگام‌سازی v1 فقط
-   * نماد/تایم‌فریم (دوسویه، رویدادمحور، بدون تایمر) — کراس‌هیر/بازه
-   * بین پنجره‌های جدا همگام نمی‌شود و همین صادقانه مستند است. */
+   * به نمایشگر دیگر بکاند؛ جای‌گذاری OS ادعا نمی‌شود. همگام‌سازی دوسویه و
+   * رویدادمحور (بدون تایمر): نماد/تایم‌فریم (WAVE-B) + بازه/کراس‌هیر
+   * (WAVE-S2) — همه fail-closed با گیت‌های sync محلی. */
 
   _detachPane(paneIndex) {
     const h = gridDetachHash(paneIndex);
@@ -336,7 +370,7 @@ export class ChartGrid {
     this._buildPane(wrap, paneIndex, sym, tf);
     const note = document.createElement("span");
     note.className = "muted cp-grid-note";
-    note.textContent = "پنجرهٔ جدا (قابل کشیدن به نمایشگر دیگر) — همگام‌سازی نماد/تایم‌فریم دوسویه؛ بدون ادعای جای‌گذاری OS";
+    note.textContent = "پنجرهٔ جدا (قابل کشیدن به نمایشگر دیگر) — همگام‌سازی نماد/تایم‌فریم/بازه/کراس‌هیر دوسویه؛ بدون ادعای جای‌گذاری OS";
     wrap.appendChild(note);
     this._setupChannel();
     this._resizeCharts();
@@ -347,8 +381,11 @@ export class ChartGrid {
     try {
       this._channel.onmessage = (ev) => {
         const msg = ev && ev.data;
-        if (!validDetachSyncMsg(msg)) return; // fail-closed: پیام نامعتبر نادیده
-        this._applyPaneStateMsg(msg);
+        if (validDetachSyncMsg(msg)) { this._applyPaneStateMsg(msg); return; }
+        if (validGridCrossMsg(msg)) { this._applyRemoteCrossMsg(msg); return; }
+        if (validGridCrossClearMsg(msg)) { this._applyRemoteCrossClearMsg(msg); return; }
+        if (validGridRangeMsg(msg)) { this._applyRemoteRangeMsg(msg); return; }
+        /* fail-closed: پیام ناشناخته نادیده — هیچ حالتی ساخته نمی‌شود */
       };
     } catch (e) { /* ignore */ }
   }
@@ -380,6 +417,73 @@ export class ChartGrid {
     try {
       this._channel.postMessage({ type: "pane_state", pane: rec.index, symbol: rec.symbol, timeframe: rec.timeframe });
     } catch (e) { /* ignore */ }
+  }
+
+  /* ---------- WAVE-S2: همگام‌سازی کراس‌هیر/بازهٔ بین‌پنجره‌ای ----------
+   * همان کانال WAVE-B، پیام‌های جدید fail-closed؛ گیت‌های sync محلی
+   * (range/crosshair) روی همگام‌سازی بین‌پنجره‌ای هم حاکم‌اند؛ حلقهٔ پژواک
+   * با فلگ + شناسه فرستنده دوتایی بسته می‌شود. */
+
+  _broadcastCross(paneIndex, time, value) {
+    if (!this._channel || !this.state.sync.crosshair) return;
+    try { this._channel.postMessage({ type: "pane_cross", pane: paneIndex, time, value }); } catch (e) { /* ignore */ }
+  }
+
+  _broadcastCrossClear(paneIndex) {
+    if (!this._channel || !this.state.sync.crosshair) return;
+    try { this._channel.postMessage({ type: "pane_cross_clear", pane: paneIndex }); } catch (e) { /* ignore */ }
+  }
+
+  _broadcastRange(paneIndex, range) {
+    if (!this._channel || !this.state.sync.range || !range) return;
+    try {
+      const from = Number(range.from);
+      const to = Number(range.to);
+      if (!Number.isFinite(from) || !Number.isFinite(to)) return;
+      this._channel.postMessage({ type: "pane_range", pane: paneIndex, from, to });
+    } catch (e) { /* ignore */ }
+  }
+
+  /** اعمال کراس‌هیر دور به پنل‌های محلی (به‌جز فرستنده) — مقدار همیشه از داده محلی */
+  _applyRemoteCrossMsg(msg) {
+    if (!this.state.sync.crosshair) return;
+    const sender = Number(msg.pane);
+    this._gridCrossRemote = true;
+    try {
+      for (const p of this.panes) {
+        if (p.index === sender) continue;
+        this._setPaneCrossAt(p, msg.time);
+      }
+      if (sender !== -1) this._setPrimaryCrossAt(msg.time);
+    } finally { this._gridCrossRemote = false; }
+  }
+
+  _applyRemoteCrossClearMsg(msg) {
+    if (!this.state.sync.crosshair) return;
+    const sender = Number(msg.pane);
+    this._gridCrossRemote = true;
+    try {
+      for (const p of this.panes) {
+        if (p.index === sender) continue;
+        this._setPaneCrossAt(p, null);
+      }
+    } finally { this._gridCrossRemote = false; }
+  }
+
+  _applyRemoteRangeMsg(msg) {
+    if (!this.state.sync.range) return;
+    const sender = Number(msg.pane);
+    const range = { from: Number(msg.from), to: Number(msg.to) };
+    this._gridSyncing = true;
+    try {
+      const primary = this._primaryChart();
+      if (primary && sender !== -1) primary.timeScale().setVisibleLogicalRange(range);
+      for (const p of this.panes) {
+        if (p.index === sender) continue;
+        p.chart.timeScale().setVisibleLogicalRange(range);
+      }
+    } catch (e) { /* ignore */ }
+    this._gridSyncing = false;
   }
 
   /* ---------------- ماندگاری (fail-closed) ---------------- */
@@ -727,6 +831,7 @@ export class ChartGrid {
             for (const p of this.panes) p.chart.timeScale().setVisibleLogicalRange(range);
           } catch (e) { /* ignore */ }
           this._gridSyncing = false;
+          this._broadcastRange(-1, range); // WAVE-S2: انتشار به پنجره‌های جدا (-1 = چارت اصلی)
         });
       } catch (e) { /* ignore */ }
     }
@@ -752,24 +857,74 @@ export class ChartGrid {
           }
         } catch (e) { /* ignore */ }
         this._gridSyncing = false;
+        this._broadcastRange(rec.index, range); // WAVE-S2: انتشار به پنجره‌های جدا
+      });
+    } catch (e) { /* ignore */ }
+    /* WAVE-S2: کراس‌هیر پنل → چارت اصلی + سایر پنل‌ها + پنجره‌های جدا
+       (قبلاً فقط اصلی→پنل‌ها بود؛ اکنون دوسویه کامل) */
+    try {
+      rec.chart.subscribeCrosshairMove((param) => {
+        if (!this.state.sync.crosshair || this._gridCrossRemote) return;
+        if (!param || param.time == null || !param.point) {
+          for (const other of this.panes) {
+            if (other !== rec) this._setPaneCrossAt(other, null);
+          }
+          this._broadcastCrossClear(rec.index);
+          return;
+        }
+        for (const other of this.panes) {
+          if (other !== rec) this._setPaneCrossAt(other, param.time);
+        }
+        this._setPrimaryCrossAt(param.time);
+        this._broadcastCross(rec.index, param.time, param.point ? param.point.y : null);
       });
     } catch (e) { /* ignore */ }
   }
 
-  /** همگام‌سازی کراس‌هیر اصلی → پنل‌ها (امکان‌سنجی API — توضیح بالای فایل) */
+  /** کراس‌هیر یک پنل در زمان مشخص — مقدار فقط از داده محلی پنل؛ null یعنی پاک‌کردن */
+  _setPaneCrossAt(p, time) {
+    try {
+      if (!p || !p.chart) return;
+      if (time == null) {
+        if (typeof p.chart.clearCrosshairPosition === "function") p.chart.clearCrosshairPosition();
+        return;
+      }
+      const pt = (p.data || []).find((c) => gridSameTime(c && c.time, time));
+      if (!pt) return; // این زمان در داده این پنل نیست — هیچ مقدار ساختگی
+      const val = pt.close != null ? pt.close : pt.value;
+      if (val == null) return;
+      if (typeof p.chart.setCrosshairPosition === "function") {
+        p.chart.setCrosshairPosition(val, time, p.series);
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  /** کراس‌هیر چارت اصلی در زمان مشخص — از دادهٔ فعال chart_pro (native یا derived) */
+  _setPrimaryCrossAt(time) {
+    if (time == null) return;
+    try {
+      const s = getActiveChartPro ? getActiveChartPro() : null;
+      if (!s || !s.chart || typeof s.chart.setCrosshairPosition !== "function") return;
+      const data = (s.currentDerivedData && s.currentDerivedData.length ? s.currentDerivedData : s.currentData) || [];
+      const bar = data.find((c) => gridSameTime(c && c.time, time));
+      if (!bar) return; // این زمان در داده چارت اصلی نیست — هیچ مقدار ساختگی
+      const val = bar.close != null ? bar.close : bar.value;
+      if (val == null || !s.series) return;
+      s.chart.setCrosshairPosition(val, time, s.series);
+    } catch (e) { /* ignore */ }
+  }
+
+  /** همگام‌سازی کراس‌هیر اصلی → پنل‌ها + پنجره‌های جدا (امکان‌سنجی API — توضیح بالای فایل) */
   _syncCrosshair(param) {
     if (!this.state.sync.crosshair) return;
+    const active = param && param.time != null && param.point;
+    if (this._channel) {
+      if (active) this._broadcastCross(-1, param.time, param.point.y);
+      else this._broadcastCrossClear(-1);
+    }
     for (const p of this.panes) {
       try {
-        if (!param || param.time == null || !param.point) {
-          if (typeof p.chart.clearCrosshairPosition === "function") p.chart.clearCrosshairPosition();
-          continue;
-        }
-        const pt = (p.data || []).find((c) => gridSameTime(c && c.time, param.time));
-        if (!pt) continue; // این زمان در داده این پنل نیست — هیچ مقدار ساختگی
-        if (typeof p.chart.setCrosshairPosition === "function") {
-          p.chart.setCrosshairPosition(pt.value, param.time, p.series);
-        }
+        this._setPaneCrossAt(p, active ? param.time : null);
       } catch (e) { /* ignore */ }
     }
   }

@@ -37,7 +37,7 @@ npm run build          # electron-builder --win --x64  → dist/ نور جدول
 Electron-builder emits (at least):
 - `dist/radar-bourse-desktop Setup <version>.exe` — the NSIS installer
   (`win.target: nsis`, `appId: com.radarbourse.desktop`,
-  `directories.output: dist`, files list includes `main.js` only);
+  `directories.output: dist`, files list includes `main.js` + `backend_service.js` (supervised backend, WAVE-N remainder) only);
 - `dist/latest.yml` — builder metadata used for future differential updates.
 
 Integrity recording (mandatory step, not optional):
@@ -80,7 +80,20 @@ verification step after install. The narrower residual: the packaged
 payload carries the backend SOURCE (backend/app + requirements.txt) — a
 Python 3.11+ interpreter must exist on the target machine; if none is
 found, the shell shows the honest `python-not-found` status page instead
-of failing silently. Static contract pins:
+of failing silently.
+WAVE-S2W (2026-11-07) first-run dependency disclosure (explicit, minimal
+manual steps): the shell does NOT silently install dependencies. When a
+Python 3.11+ interpreter exists but the bundled requirements are absent,
+the supervised backend exits and the bounded-recovery budget lands on the
+honest degraded page, which now names the exact one-time command
+(`python -m pip install -r backend/requirements.txt` inside the install
+directory). The dev-oriented automated alternative (venv creation +
+pip install) remains `scripts/windows/install.ps1`; running it on the
+target machine is an owner R-1/R-2 action. Bundling an embeddable Python
+runtime is recorded as EVALUATED — PSF-license redistribution is
+permitted and the publisher's checksum verification is possible, but the
+runtime was NOT bundled in this increment and nothing was downloaded or
+executed repo-side (see the unified matrix row MR-I-02). Static contract pins:
 `backend/tests/test_wda_electron_shell_gates.py` (WAVE-N remainder section)
 + `scripts/windows_package_readiness.py` section 3b (SUPERVISED_BACKEND_*).
 
@@ -144,7 +157,7 @@ not executed.
 |---|---|
 | NSIS config complete + version-consistent + shell gates pinned | READY (machine-validated repo-side) |
 | Reproducible build runbook (exact steps + checksum recording) | READY (documented) |
-| Unsigned installer artifact | NOT BUILT HERE (requires Windows/wine toolchain — owner-side step) |
+| Unsigned installer artifact | BUILT IN AUTHORIZED CI (`windows-installer.yml`, windows-latest, exact source SHA + SHA-256 recorded in installer_provenance.txt); target-machine INSTALL remains owner R-1/R-2 |
 | Install / upgrade / rollback executed on Windows | NOT EXECUTED (owner R-1/R-2) |
 | Code signing | NOT AVAILABLE (no certificate; never claimed) |
 | Backup/restore procedure | DOCUMENTED (target-machine execution owner-gated) |

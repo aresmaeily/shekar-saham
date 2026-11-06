@@ -12,7 +12,7 @@ panel renders exactly that — no client-side bypass exists.
 Mirrors the established source-scan style of test_master_radar_wave2_frontend.py
 and test_master_radar_wave3_integration.py. All gates here are ADDITIVE:
 no existing test was modified beyond the recorded counter-pin bumps
-(tabs 30 -> 31, SW radar-bourse-static-v3-0-14 -> v3-0-15).
+(tabs 30 -> 31, SW radar-bourse-static-v3-0-14 -> v3-0-16).
 """
 
 from __future__ import annotations
@@ -150,9 +150,10 @@ def test_main_js_imports_ai2_studio():
 
 def test_sw_bumped_to_v3_0_15_with_waveo_precache():
     sw = _read(SW_JS)
-    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-15 —
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-16 —
     # precache extended with ai2_studio.js (governed AI-2 studio panel).
-    assert "radar-bourse-static-v3-0-15" in sw
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
+    assert "radar-bourse-static-v3-0-16" in sw
     assert "radar-bourse-static-v3-0-14" not in sw
     assert "/static/js/modules/render/ai2_studio.js" in sw
 

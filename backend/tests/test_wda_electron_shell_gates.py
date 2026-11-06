@@ -73,7 +73,13 @@ def test_no_ipc_surface_so_allowlist_not_applicable():
 def test_default_origin_is_local_loopback():
     """The shell loads the local backend by default; no remote default origin."""
     assert "http://127.0.0.1:8000" in MAIN_JS
-    assert MAIN_JS.count("http://127.0.0.1:8000") >= 2  # startUrl fallback + allowedOrigin fallback
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2W 2026-11-07): the two
+    # hardcoded literals became the loopbackDefault composition so the window
+    # origin stays CONSISTENT with the supervised backend's RADAR_BACKEND_PORT;
+    # intent preserved — default origin is still loopback, now enforced:
+    assert "'http://127.0.0.1:' + backendPort" in MAIN_JS  # composed loopback default
+    assert MAIN_JS.count("loopbackDefault") >= 4  # startUrl + refusal fallback + allowedOrigin x2
+    assert "startUrl = loopbackDefault;" in MAIN_JS  # non-loopback override now BLOCKED
 
 
 def test_window_lifecycle_handlers_present():
