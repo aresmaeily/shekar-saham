@@ -468,3 +468,14 @@ Publication: `89246e2` (baseline, origin/main at wave start) → `7299cb8` (WAVE
 Local runtime currency evidence for the same HEAD (independent of CI, same session): battery **2991/1s/0f** (45.21s); REAL app boot ~40s; posture disabled + FULL 7-field honesty envelope; generate = `gated_not_executed`/`ai2_disabled` with 23-key provenance; ledger stayed EMPTY; browser-DOM verification of the AI-2 Studio tab (recorded §7 residual CLOSED) — see `docs/active/MASTER_RADAR_WAVEQ_RUNTIME_CURRENCY_RECORD_2026-11-06.md`.
 
 Gates on the published HEAD: `AI2_ENABLED=0` committed default byte-unchanged · `SCHEDULER_ENABLED=0` · `verified=False` · SYNTHETIC_OR_PAPER · no egress · G2 untouched (NOT_PASSED) · Two-Key intact · R-1..R-11 in force · installer UNSIGNED + TARGET_INSTALL_PENDING · global completion NOT CALCULATED (OA-8).
+
+## §17 — WAVE-S CI currency (2026-11-07, UTC): exact-SHA evidence for the gap-closure implementation chain (recorded at record time, nothing inferred, nothing converted)
+
+Chain: `5e56dec` (baseline) → `9aad512` (WAVE-S implementation: chart_grid.js sync + electron/workflow fixes + 15 NEW gates + sw v3-0-16, read-back verified) → `6d8e485` (WAVE-S records, docs-only, read-back verified).
+
+| SHA | check-runs at record time | Evidence |
+|---|---|---|
+| `9aad512` | **2/4 SUCCESS + 2 in-progress (recorded AS-IS)** | check-runs API (WebFetch egress path — shared-IP rate-limit = the recorded WS-1 condition): `test-backend` completed/**success** (job 128025731171), `build-installer` completed/**success** (job 128025731158 — the MODIFIED installer workflow ran green, proving the new payload-verification step + frontend bundling execute correctly in CI), `build-docker` in_progress (128026419489), `windows-validation` in_progress (128025732251). Pending resolutions are recorded by the next currency pass per the established convention. |
+| `6d8e485` (published HEAD, docs-only) | **workflow-level SUCCESS ×2 visible** | actions/runs API: CI run #67 (id 42256944113) completed/**success**; Windows installer artifact (OA-1) run #17 (id 42256944173) completed/**success** — the frontend-payload-bundled installer built green from the exact SHA. |
+
+Gates on the published HEAD: `AI2_ENABLED=0` · `SCHEDULER_ENABLED=0` · `verified=False` · SYNTHETIC_OR_PAPER · no egress · G2 untouched (NOT_PASSED) · Two-Key intact · R-1..R-11 · installer UNSIGNED + NOT ISSUED · global completion NOT CALCULATED (OA-8).
