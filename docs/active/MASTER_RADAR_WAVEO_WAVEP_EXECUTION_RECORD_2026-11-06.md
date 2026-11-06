@@ -232,11 +232,46 @@ machine — owner R-1/R-2) · global completion **NOT CALCULATED** (OA-8).
 Forward-only chain, no amend/rebase/reset/force; read-back verified after
 each push; exact-SHA check-runs recorded per the WS1 discipline (OA-7):
 
-- **Implementation commit** — WAVE-O frontend + new tests + recorded
-  counter-pins.
-- **Records commit** — this record + STATUS currency + CHANGELOG section +
-  INDEX rows + Persian report §۴۷–§۵۰.
-- **CI currency commit** — exact-SHA check-runs evidence appended (docs-only).
+- **Implementation commit** `c300e42` — WAVE-O frontend + new tests +
+  recorded counter-pins (13 files, +818/−19).
+- **Records commit** `097c7d2` — this record + STATUS currency + CHANGELOG
+  section + INDEX rows + Persian report §۴۷–§۵۰ (5 files, +280/−0).
+- **CI currency commit** `d1c2660` — WS1 §15 exact-SHA check-runs evidence
+  appended (docs-only).
 
-(SHA-256 chain, check-run IDs, and read-back results are recorded in the
-commit messages and in WS1_EXACT_SHA_EVIDENCE §14 as they land.)
+One forward-only push per landing (`d128295..097c7d2`, then
+`097c7d2..d1c2660`); read-back verified after each (origin/main == local,
+0/0). Exact-SHA CI (check-runs API at record time): `097c7d2` = ALL 4
+REQUIRED CHECKS SUCCESS (test-backend 127791040996, build-docker
+127791538337, windows-validation 127791040865, build-installer 127791040960;
+workflow-level CI #61 / Windows validation #54 / installer #11 cross-checked
+via the WebFetch egress path during the shared-IP rate-limit window — the
+recorded WS-1 condition); `c300e42` = honest zero-check-runs batched-push
+record (docs-only delta to the verified head verified, not assumed);
+FINAL HEAD `d1c2660` = ALL 4 REQUIRED CHECKS SUCCESS (test-backend
+127795338424, build-docker 127795798385, windows-validation 127795338914,
+build-installer 127795339013).
+
+## §9. Post-publication runtime currency (added at CI-currency time)
+
+The REAL application was booted at the published HEAD `d1c2660` (uvicorn on
+127.0.0.1:8000 behind the verbatim preview transport :3000) and verified
+over HTTP on the live path:
+
+- `GET /api/health` → `ok:true`, `trust_level: synthetic` (mock_fallback).
+- `GET /api/v10/ai2/posture` → `ai2_enabled: false`,
+  `execution_mode: SYNTHETIC_OR_PAPER`, 7-field honesty envelope present,
+  `data_trust_label: SYNTHETIC_OR_PAPER`.
+- `POST /api/v10/ai2/generate` (real HTTP, no special headers) →
+  `status: gated_not_executed`, `ok: false`, `error_code: ai2_disabled` —
+  the honest closed-gate refusal on the REAL application path; the ledger
+  stayed empty (nothing executed).
+- Frontend served by the same process: `data-tab="aistudio"` present ×1,
+  «استودیو AI-2» present (button + panel), and
+  `/static/js/modules/render/ai2_studio.js` served HTTP 200 — the new
+  AI-2 Studio tab is LIVE at the published HEAD.
+
+The sandbox recycles processes between sessions, so the runtime evidence is
+a per-session boot + probe (the documented keepalive supervisor pattern
+re-establishes it); the record keeps the HTTP-level evidence, the browser
+DOM-render check remains the recorded residual of §7.
