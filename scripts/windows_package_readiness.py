@@ -37,6 +37,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ELECTRON_DIR = ROOT / "electron"
 ELECTRON_PKG_PATH = ELECTRON_DIR / "package.json"
 ELECTRON_MAIN_PATH = ELECTRON_DIR / "main.js"
+ELECTRON_BACKEND_SERVICE_PATH = ELECTRON_DIR / "backend_service.js"
 ICON_PATH = ELECTRON_DIR / "icon.ico"
 RUNBOOK_PATH = ROOT / "docs" / "active" / "WINDOWS_PACKAGING_RUNBOOK_2026-11-05.md"
 BACKEND_CONFIG = ROOT / "backend" / "app" / "core" / "config.py"
@@ -47,6 +48,29 @@ _SECURITY_GATES = (
     "contextIsolation: true",
     "enableRemoteModule: false",
 )
+
+# WAVE-N remainder (OA-1, 2026-11-06): the supervised-backend contract the
+# shell must carry (resolves the recorded "shell-does-not-spawn-backend"
+# residual). Byte-present strings in electron/backend_service.js + main.js.
+_SUPERVISED_BACKEND_GATES = (
+    # loopback-only binding (structural, not advisory)
+    ("backend_service.js", "LOCAL_HOST = '127.0.0.1'"),
+    ("backend_service.js", "'--host', LOCAL_HOST"),
+    # bounded startup + health poll on /api/health (loopback only)
+    ("backend_service.js", "BACKEND_STARTUP_TIMEOUT_MS"),
+    ("backend_service.js", "'/api/health'"),
+    # graceful shutdown with bounded grace window
+    ("backend_service.js", "GRACEFUL_SHUTDOWN_MS"),
+    # bounded crash recovery (restart budget, never infinite)
+    ("backend_service.js", "MAX_RESTARTS"),
+    # honest degraded state surfaced (never silent)
+    ("backend_service.js", "'degraded'"),
+)
+
+# Tokens that must NEVER appear in the supervised-backend service or the
+# shell wiring: no download path, no auto-updater, no remote URL literals
+# (the only egress the service performs is loopback health probes).
+_SUPERVISED_BACKEND_ABSENT = ("https://", "http://", "autoUpdate", "update-electron-app", "download")  # in backend_service.js
 
 
 def _fail(code: str, message: str) -> dict:
@@ -87,6 +111,7 @@ def validate() -> dict:
         "NSIS_ICON": bool(win.get("icon")) and ICON_PATH.is_file(),
         "NSIS_OUTPUT_DIR": build.get("directories", {}).get("output") == "dist",
         "NSIS_FILES_INCLUDE_MAIN": "main.js" in (build.get("files") or []),
+        "NSIS_FILES_INCLUDE_BACKEND_SERVICE": "backend_service.js" in (build.get("files") or []),
         "BUILD_SCRIPTS": pkg.get("scripts", {}).get("build") == "electron-builder --win --x64",
     }
     for code, ok in nsis_checks.items():
@@ -100,6 +125,38 @@ def validate() -> dict:
             if gate in main_text
             else _fail(f"SHELL_GATE:{gate.split(':')[0]}", "gate string absent from electron/main.js")
         )
+
+    # 3b) WAVE-N remainder: supervised local backend contract (resolves the
+    # recorded "shell-does-not-spawn-backend" residual — the shell now
+    # STARTS and SUPERVISES the bundled backend: bounded startup, loopback
+    # health check, graceful shutdown, bounded restart, honest degraded).
+    if ELECTRON_BACKEND_SERVICE_PATH.is_file():
+        svc_text = ELECTRON_BACKEND_SERVICE_PATH.read_text(encoding="utf-8")
+        for target, gate in _SUPERVISED_BACKEND_GATES:
+            text = svc_text if target == "backend_service.js" else main_text
+            results.append(
+                _pass(f"SUPERVISED_BACKEND:{gate[:24]}", "byte-present")
+                if gate in text
+                else _fail(f"SUPERVISED_BACKEND:{gate[:24]}", f"gate string absent from electron/{target}")
+            )
+        for banned in _SUPERVISED_BACKEND_ABSENT:
+            results.append(
+                _pass(f"SUPERVISED_BACKEND_ABSENT:{banned}", "absent (no remote path)")
+                if banned not in svc_text
+                else _fail(f"SUPERVISED_BACKEND_ABSENT:{banned}", "remote/download token present in backend_service.js")
+            )
+        results.append(
+            _pass("SUPERVISED_BACKEND_WIRING", "main.js requires ./backend_service")
+            if "require('./backend_service')" in main_text
+            else _fail("SUPERVISED_BACKEND_WIRING", "main.js does not wire the supervised backend")
+        )
+        results.append(
+            _pass("SUPERVISED_BACKEND_HONEST_DEGRADED", "degraded status page wired")
+            if "loadDegradedStatusPage" in main_text
+            else _fail("SUPERVISED_BACKEND_HONEST_DEGRADED", "no honest degraded-state surface in main.js")
+        )
+    else:
+        results.append(_fail("SUPERVISED_BACKEND_PRESENT", "electron/backend_service.js missing"))
 
     # 4) runbook present with the mandatory honest disclosures
     if RUNBOOK_PATH.is_file():

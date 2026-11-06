@@ -104,3 +104,114 @@ def test_renderer_reload_is_rate_limited_and_guarded():
 def test_external_targets_open_in_os_browser():
     """Foreign origins are handed to the OS browser (never rendered in-shell)."""
     assert MAIN_JS.count("shell.openExternal") >= 2
+
+
+# ---------------------------------------------------------------------------
+# WAVE-N remainder (OA-1, 2026-11-06): supervised local backend lifecycle.
+# Resolves the recorded "shell-does-not-spawn-backend" limitation: the shell
+# now STARTS and SUPERVISES the bundled backend as a loopback-only child
+# process with a bounded startup window + health check, graceful shutdown,
+# bounded crash recovery, and an honest degraded-state surface. These are
+# static contract pins (the shell is never executed in pytest).
+# ---------------------------------------------------------------------------
+
+BACKEND_SERVICE_JS = (ROOT / "electron" / "backend_service.js").read_text(encoding="utf-8")
+
+
+def test_supervised_backend_module_exists_and_is_wired():
+    """The shell wires the supervised backend service — the recorded
+    residual is resolved, not silently inherited."""
+    assert "require('./backend_service')" in MAIN_JS
+    assert "backendService.start(" in MAIN_JS
+
+
+def test_supervised_backend_binds_loopback_only():
+    """Structural local-only binding: the child is spawned with
+    --host 127.0.0.1 and HOST=127.0.0.1 env — never a wildcard interface."""
+    assert "LOCAL_HOST = '127.0.0.1'" in BACKEND_SERVICE_JS
+    assert "'--host', LOCAL_HOST" in BACKEND_SERVICE_JS
+    assert "'--port', DEFAULT_PORT" in BACKEND_SERVICE_JS
+    assert "HOST: LOCAL_HOST" in BACKEND_SERVICE_JS
+    # no wildcard binding anywhere in the supervised spawn
+    assert "--host 0.0.0.0" not in BACKEND_SERVICE_JS
+
+
+def test_supervised_backend_health_check_is_loopback_bounded():
+    """The startup window is bounded and the health poll targets the
+    loopback /api/health endpoint only."""
+    assert "BACKEND_STARTUP_TIMEOUT_MS" in BACKEND_SERVICE_JS
+    assert "90000" in BACKEND_SERVICE_JS  # bounded startup window value
+    assert "'/api/health'" in BACKEND_SERVICE_JS
+    assert "host: LOCAL_HOST" in BACKEND_SERVICE_JS  # probe → loopback only
+
+
+def test_supervised_backend_graceful_shutdown_bounded():
+    """Quit path: graceful kill first, bounded grace window, then a forced
+    kill — the backend is never left running silently."""
+    assert "GRACEFUL_SHUTDOWN_MS" in BACKEND_SERVICE_JS
+    assert "intentionalStop" in BACKEND_SERVICE_JS
+    assert "taskkill" in BACKEND_SERVICE_JS  # forced kill on Windows
+    assert "app.on('will-quit'" in MAIN_JS
+    assert "backendService.stop()" in MAIN_JS
+
+
+def test_supervised_backend_bounded_crash_recovery():
+    """Unexpected backend exits restart a BOUNDED number of times with
+    backoff — beyond the budget the state is honestly degraded."""
+    assert "MAX_RESTARTS" in BACKEND_SERVICE_JS
+    assert "RESTART_BACKOFF_MS" in BACKEND_SERVICE_JS
+    assert "restart-budget-exhausted" in BACKEND_SERVICE_JS
+    assert "restarts < MAX_RESTARTS" in BACKEND_SERVICE_JS
+
+
+def test_supervised_backend_degraded_state_is_honest_never_silent():
+    """Degraded states are machine-labeled and surfaced to the user via a
+    LOCAL data:-URL status page (no remote content, no egress)."""
+    assert "'degraded'" in BACKEND_SERVICE_JS
+    assert "python-not-found" in BACKEND_SERVICE_JS
+    assert "startup-timeout" in BACKEND_SERVICE_JS
+    assert "loadDegradedStatusPage" in MAIN_JS
+    assert "data:text/html" in MAIN_JS
+    assert "127.0.0.1" in MAIN_JS  # the status page names the loopback fact
+
+
+def test_supervised_backend_has_no_remote_paths():
+    """The supervised service contains NO remote URL literal, NO updater, NO
+    fetch path — its only egress is the loopback health probe."""
+    for banned in ("https://", "http://", "autoUpdate", "update-electron-app", "download"):
+        assert banned not in BACKEND_SERVICE_JS, banned
+
+
+def test_supervised_backend_respects_fail_closed_gates():
+    """The spawned backend inherits the repo's fail-closed defaults: the
+    supervised spawn passes AI2_ENABLED=0 and SCHEDULER_ENABLED=0 unless the
+    operator explicitly overrode them in the environment."""
+    assert "AI2_ENABLED: process.env.AI2_ENABLED || '0'" in BACKEND_SERVICE_JS
+    assert "SCHEDULER_ENABLED: process.env.SCHEDULER_ENABLED || '0'" in BACKEND_SERVICE_JS
+
+
+def test_supervised_backend_data_dir_outside_install_dir():
+    """OA-1 data contract: the packaged shell relocates the backend's data
+    directory OUTSIDE the install directory (%APPDATA%/radar-bourse) via
+    RADAR_DATA_DIR, honored by backend/app/core/config.py — stores survive
+    upgrade/uninstall instead of living in the (deletable) install dir."""
+    assert "resolveDataDir" in BACKEND_SERVICE_JS
+    assert "RADAR_DATA_DIR" in BACKEND_SERVICE_JS
+    assert "radar-bourse" in BACKEND_SERVICE_JS
+    assert "APPDATA" in BACKEND_SERVICE_JS
+    config_text = (ROOT / "backend" / "app" / "core" / "config.py").read_text(encoding="utf-8")
+    assert "RADAR_DATA_DIR" in config_text
+    # the in-repo default stays ROOT/data (development/CI byte-compat)
+    assert 'ROOT / "data"' in config_text
+
+
+def test_supervised_backend_payload_is_unpacked_not_asar():
+    """A Python child cannot execute from inside app.asar — the bundled
+    payload must ship via extraResources (REAL filesystem path exposed by
+    Electron's process.resourcesPath), and the resolver must use it."""
+    pkg = (ROOT / "electron" / "package.json").read_text(encoding="utf-8")
+    assert "extraResources" in pkg
+    assert '"from": "resources/"' in pkg
+    assert "process.resourcesPath" in BACKEND_SERVICE_JS
+    # the payload must NOT ride inside app.asar
+    assert "resources/**/*" not in pkg

@@ -7,9 +7,11 @@ name: Windows installer artifact (OA-1)
 # - the artifact is UNSIGNED (no certificate exists; CSC auto-discovery is
 #   disabled so no signing is attempted and none can be claimed);
 # - label: INSTALLER_ARTIFACT_READY_UNSIGNED_TARGET_INSTALL_PENDING;
-# - the Electron shell does NOT spawn the backend (recorded limitation, see
-#   WINDOWS_PACKAGING_RUNBOOK_2026-11-05.md) — packaged with a prominent
-#   provenance disclosure instead of a silent dependency;
+# - the Electron shell STARTS and SUPERVISES the bundled backend (WAVE-N
+#   remainder, 2026-11-06: bounded startup + /api/health health-check +
+#   graceful shutdown + bounded crash recovery + honest degraded status page;
+#   loopback-only binding). Residual disclosed in provenance: a Python 3.11+
+#   interpreter must exist on the target machine.
 # - the SHA-256 is printed to the public build log AND recorded in
 #   installer_provenance.txt (artifact zip download may be auth-gated; the
 #   log line is the verifiable public evidence);
@@ -62,7 +64,7 @@ jobs:
             electron_version = '3.0.0'
             signing = 'UNSIGNED_NO_CERTIFICATE'
             smartscreen_note = 'Windows SmartScreen may warn for unsigned installers'
-            backend_supervision = 'RESIDUAL: the shell does not spawn the backend (documented limitation, WINDOWS_PACKAGING_RUNBOOK); supervised local backend is the next WAVE-N increment'
+            backend_supervision = 'SUPERVISED (WAVE-N remainder, 2026-11-06): the shell starts and supervises the bundled backend as a local loopback-only child process — bounded startup (90s) + /api/health health-check + graceful shutdown + bounded crash recovery (max 3 restarts) + honest degraded status page; narrower residual: a Python 3.11+ interpreter must exist on the target machine (honest python-not-found page if absent)'
           }
           $meta | ConvertTo-Json | Out-File -Encoding utf8 electron/resources/RELEASE_PROVENANCE.json
           Get-Content electron/resources/RELEASE_PROVENANCE.json

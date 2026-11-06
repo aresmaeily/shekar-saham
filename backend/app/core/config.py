@@ -9,7 +9,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 ROOT = Path(__file__).resolve().parents[3]
-DATA_DIR = ROOT / "data"
+# WAVE-N remainder (OA-1, 2026-11-06): the packaged Electron shell relocates
+# the data directory OUTSIDE the install directory (%APPDATA%/radar-bourse
+# on Windows) via RADAR_DATA_DIR — in-repo default (ROOT/data) is unchanged
+# for development/CI, byte-for-byte. Without the override, a packaged layout
+# would write stores inside the (upgradable/deletable) install directory,
+# violating the runbook's data-retention/upgrade contract.
+_data_dir_env = (os.getenv("RADAR_DATA_DIR") or "").strip()
+DATA_DIR = Path(_data_dir_env) if _data_dir_env else ROOT / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 TrustLevel = Literal["synthetic", "mixed", "live"]
