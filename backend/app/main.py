@@ -27,6 +27,7 @@ from app.api.user_indicator_api import router as user_indicator_api_router  # MA
 from app.api.data_quality_api import router as data_quality_api_router  # MASTER-RADAR WAVE-2 (2026-11-04): /api/v10/dataquality — fixture-universe coverage/audit center (declared SYNTHETIC_FIXTURE, canonical non-live provenance, no network)
 from app.api.product_loops_api import router as product_loops_api_router  # MASTER-RADAR WAVE-F (2026-11-05): /api/v10/productloops — governed five product-loop surface (declared dossiers + research permission + on-demand audit + prediction registry); SYNTHETIC/DECLARED only, no scheduler/egress
 from app.api.ai2_generation_api import router as ai2_generation_api_router  # WAVE-K (OA-3, 2026-11-05): /api/v10/ai2 — governed AI-2 generation seam (NL→clarification→typed spec→RSL-1→deterministic eval→versioned candidate); fail-closed AI2_ENABLED gate, synthetic/paper-only, human-approval-only transitions
+from app.api.scheduler_api import router as scheduler_api_router  # WAVE-M (OA-4, 2026-11-06): /api/v10/scheduler — bounded LOCAL internal scheduler (fail-closed SCHEDULER_ENABLED default 0, append-only run history, pause/resume/stop/kill-switch, no egress, no broker, no promotion authority)
 from app.core.config import ROOT, get_settings
 from app.core.security import (
     is_public_path,
@@ -123,6 +124,22 @@ async def lifespan(app: FastAPI):
         metrics.inc("shekar_refresh_total", {"status": "failed"})
     
     await market_service.start_background()
+    # WAVE-M (OA-4): bounded LOCAL internal scheduler — fail-closed. With the
+    # committed default (SCHEDULER_ENABLED=0) start() refuses and NOTHING is
+    # scheduled; the /api/v10/scheduler posture stays honestly readable.
+    # The scheduler has no egress/broker/notification surface and cannot
+    # bypass AI-2 or Two-Key gates (handlers run under their own governance).
+    try:
+        from app.services.internal_scheduler import get_scheduler
+
+        _scheduler = get_scheduler()
+        if get_settings().scheduler_enabled:
+            _start_result = await _scheduler.start()
+            logger.info(f"scheduler started: {_start_result}")
+        else:
+            logger.info("scheduler gate closed (SCHEDULER_ENABLED=0) — not started")
+    except Exception as exc:  # scheduler must never block product startup
+        logger.warning(f"scheduler not started: {exc}")
     # GOV-41 D-AI-30: explicit, observable alert-operations heartbeat. The
     # 30-minute freshness cadence lives in OwnerBudgets + recorded last-success
     # state; every tick stays gated by the fail-closed kill switches and budgets.
@@ -133,6 +150,16 @@ async def lifespan(app: FastAPI):
     except Exception as exc:  # loop must never block product startup
         logger.warning(f"alert_ops background loop not started: {exc}")
     yield
+    try:
+        from app.services.internal_scheduler import get_scheduler
+
+        _s = get_scheduler()
+        # Stop ONLY a scheduler that actually started (WAVE-M QA M2): with
+        # the committed gate off, shutdown records nothing in the history.
+        if _s.state in {"running", "paused"}:
+            await _s.stop(actor="lifespan_shutdown", drain=False)
+    except Exception:
+        pass
     try:
         from app.services import alert_operations as _alert_ops
 
@@ -304,6 +331,7 @@ def create_app() -> FastAPI:
     app.include_router(data_quality_api_router)  # MASTER-RADAR WAVE-2 (2026-11-04) — additive data-quality center; fixture-universe audit/coverage only, canonical non-live provenance on every endpoint
     app.include_router(product_loops_api_router)  # MASTER-RADAR WAVE-F (2026-11-05) — additive five product-loop surface; declared fixtures + live governed checks, no scheduler/egress, gates unchanged
     app.include_router(ai2_generation_api_router)  # WAVE-K (OA-3, 2026-11-05) — additive governed AI-2 generation seam; fail-closed gates (AI2_ENABLED default 0), typed-spec-only model surface, deterministic emitter, human-approval-only transitions, no egress
+    app.include_router(scheduler_api_router)  # WAVE-M (OA-4, 2026-11-06) — additive bounded LOCAL internal scheduler; fail-closed (SCHEDULER_ENABLED default 0), append-only run history, pause/resume/stop/kill-switch, no egress/no broker/no promotion authority
 
     @app.websocket("/ws/live")
     async def ws_live(ws: WebSocket):

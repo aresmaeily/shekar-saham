@@ -141,6 +141,25 @@ class Settings(BaseSettings):
     ai2_gen_rate_per_minute: int = int(os.getenv("AI2_GEN_RATE_PER_MINUTE", "6"))
     ai2_gen_output_max_bytes: int = int(os.getenv("AI2_GEN_OUTPUT_MAX_BYTES", "65536"))
 
+    # OA-4 (owner directive 2026-11-05) — WAVE-M internal scheduler knobs.
+    # The scheduler is LOCAL and bounded: it may only run registered
+    # synthetic/paper research handlers under their own governance. It has
+    # NO external notification egress, NO broker path, NO production-mutation
+    # or promotion authority, and it CANNOT bypass AI-2 or Two-Key gates.
+    # Fail-closed: SCHEDULER_ENABLED default 0 — start/enqueue refuse while
+    # the gate is closed; nothing is scheduled, nothing runs.
+    scheduler_enabled: bool = _env_bool("SCHEDULER_ENABLED", "0")
+    scheduler_max_queue: int = int(os.getenv("SCHEDULER_MAX_QUEUE", "32"))
+    scheduler_max_concurrent: int = int(os.getenv("SCHEDULER_MAX_CONCURRENT", "1"))
+    scheduler_run_timeout_sec: float = float(os.getenv("SCHEDULER_RUN_TIMEOUT_SEC", "60"))
+    scheduler_max_attempts: int = int(os.getenv("SCHEDULER_MAX_ATTEMPTS", "2"))
+    # "sqlite" = DURABLE append-only run history (real application path,
+    # row digests, restart recovery). "memory" = process-local adapter for
+    # UNIT TESTS ONLY, never a default. Path override via SCHEDULER_DB_PATH;
+    # empty = the repo DATA_DIR default (scheduler_runs.sqlite3).
+    scheduler_store_backend: str = os.getenv("SCHEDULER_STORE_BACKEND", "sqlite")
+    scheduler_db_path: str = os.getenv("SCHEDULER_DB_PATH", "")
+
     # کش بنیادی (ثانیه)
     fundamental_cache_ttl_sec: int = int(os.getenv("FUND_CACHE_TTL", "300"))
 
