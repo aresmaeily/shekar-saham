@@ -169,6 +169,20 @@ CALCULATED** (OA-8).
 
 ## 8. Publication
 
-Forward-only docs-only commit(s); no amend/rebase/reset/force; read-back
-verified after push; exact-SHA check-runs appended per the WS1 discipline
-(OA-7) in the follow-up CI-currency commit.
+Forward-only docs-only commit; no amend/rebase/reset/force; read-back
+verified after push (`89246e2..7299cb8 HEAD -> main`, then
+`origin/main == 7299cb8`):
+
+- **WAVE-Q records commit** `7299cb8` — this record + STATUS currency line
+  + CHANGELOG section + INDEX row (4 files, +183/−0).
+- **Exact-SHA CI (OA-7)** at `7299cb8`: **ALL 4 REQUIRED CHECKS SUCCESS** —
+  `test-backend` completed/success (job 127994123954), `build-docker`
+  completed/success (job 127994672539), `windows-validation`
+  completed/success (job 127994123733), `build-installer`
+  completed/success (job 127994123807); workflow-level cross-check: CI run
+  #64 (id 42247692795) success, Windows validation run #57 (id
+  42247692790) success. Evidence recorded in WS1 §16 (WebFetch egress path
+  after the shared-IP rate-limit — the recorded WS-1 condition; the stale
+  in-progress snapshot served by the check-runs endpoint for the two
+  Windows jobs across two polls is recorded honestly there, resolved by
+  the actions/runs cross-check and the final conclusions).
