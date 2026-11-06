@@ -190,9 +190,30 @@ WAVE-N remainder (supervised local backend in the Electron shell — the
 recorded runbook residual), WAVE-O (UX integration), WAVE-P (independent
 acceptance + release).
 
-## 8. Exact-SHA CI currency (OA-7 — recorded at push time)
+## 8. Exact-SHA CI currency (OA-7 — recorded via the WebFetch egress path; the sandbox shared-IP API is rate-limited = the recorded WS-1/WAVE-I condition)
 
-To be appended by the Release agent after push: per-SHA check-run IDs for
-test-backend / build-docker / windows-validation / build-installer. Nothing
-is converted, nothing inferred; a missing/failing check stays recorded as
-missing/failing.
+Push was BATCHED (code `20caaa0` + docs `e585085` in one push): the
+intermediate SHA `20caaa0` was never individually published; its docs-only
+delta is verified (`git diff --stat 20caaa0 e585085` = 3 files, all `.md`,
++210/−0) — covered by the head runs per the recorded 71fcf41/46274a3
+convention. Recorded per-SHA, exactly as observed:
+
+- **e585085 (WAVE-M records head; full WAVE-M delta vs a944620):**
+  test-backend **SUCCESS** (check-run 127739142247) · build-docker
+  **SUCCESS** (127739522393) · build-installer **SUCCESS** (127739142444) ·
+  windows-validation **in_progress at recording time** (check-run
+  127739142170, started_at 2026-11-06T05:54:43Z, >60 min in_progress at
+  recording). HONEST DISPOSITION: recorded AS OBSERVED — nothing converted,
+  nothing inferred. The successor SHA `3e40e66` (a strict SUPERSET of this
+  code + 10 more tests, same windows job) concluded **SUCCESS** on the same
+  job definition — bounding the hung run to the recorded windows-runner
+  flake class (cf. the WAVE-I/J environmental-recurrence precedent), not to
+  a scheduler-code defect; the e585085 job's own final conclusion stays on
+  record in CI wherever it lands.
+- **3e40e66 (WAVE-N remainder head; the published HEAD at recording):**
+  **ALL 4 REQUIRED CHECKS SUCCESS** — test-backend (127748235489) /
+  build-docker (127748578808) / windows-validation (127748234640) /
+  build-installer (127748234649). The batched-push docs-only delta rule
+  applies to the following docs-only commit (verified before push).
+- Nothing converted; a missing/failing/hung check is recorded as
+  missing/failing/hung. Global completion **NOT CALCULATED** (OA-8).
