@@ -63,10 +63,26 @@ curl http://127.0.0.1:8000/api/health   # expect {"ok":true, ...}
 
 The backend must be started with the documented run configuration
 (`PYTHONPATH=backend DATA_SOURCE=auto python3 -m uvicorn app.main:app
---host 127.0.0.1 --port 8000 --no-proxy-headers`). The shell intentionally
-does NOT spawn the backend itself (no process supervision in the shell —
-documented limitation, not a defect); a shell-side readiness poll is a
-possible future increment and is NOT claimed here.
+--host 127.0.0.1 --port 8000 --no-proxy-headers`).
+
+**WAVE-N remainder update (2026-11-06, OA-1): the shell now SUPERVISES the
+bundled backend itself** — `electron/backend_service.js` (wired in
+`electron/main.js`) starts the backend as a LOCAL loopback-only child
+process (`--host 127.0.0.1`) with a bounded startup window (90 s) polling
+`/api/health` on 127.0.0.1 only, graceful shutdown on quit (bounded grace
+window, then forced kill), bounded crash recovery (max 3 restarts with
+backoff, then an honest degraded state), and an honest local status page
+(`data:` URL, zero remote content) for every degraded state
+(`python-not-found` / `startup-timeout` / `restart-budget-exhausted`).
+The recorded "shell does not spawn the backend" limitation is RESOLVED as
+of this increment; the §2 manual curl check remains as the human
+verification step after install. The narrower residual: the packaged
+payload carries the backend SOURCE (backend/app + requirements.txt) — a
+Python 3.11+ interpreter must exist on the target machine; if none is
+found, the shell shows the honest `python-not-found` status page instead
+of failing silently. Static contract pins:
+`backend/tests/test_wda_electron_shell_gates.py` (WAVE-N remainder section)
++ `scripts/windows_package_readiness.py` section 3b (SUPERVISED_BACKEND_*).
 
 Dependency/asset checks are automated repo-side:
 `python3 scripts/windows_package_readiness.py` (green = NSIS config,
