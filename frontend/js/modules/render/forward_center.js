@@ -16,7 +16,7 @@
  *   جمله «زنده» — اینجا جعل نمی‌شود.
  * - سلامت زنجیره دفتر (ledger_chain_ok) عیناً و بدون رنگ‌آمیزی گزارش می‌شود.
  */
-import { api, toast } from "../../core/api.js";
+import { api, apiBlob, toast } from "../../core/api.js";
 import { esc, fmtNum } from "../../core/format.js";
 
 const TRUST_STATE_LABELS = {
@@ -262,6 +262,234 @@ function renderComparison(comp) {
   mount.appendChild(table);
 }
 
+/* ------------------- تحلیل walk-forward (MASTER-2 WP-J) -------------------
+ * WAVE-AB2 (2026-11-08): افزودن تریگر UI برای تحلیل walk-forward — گپ ثبت‌شده
+ * WAVE-AD («تریگر UI walk-forward صادقانه غایب») همین‌جا بسته می‌شود.
+ * پشتوانه: POST /api/v10/strategylab/walkforward + /walkforward/export
+ * (موتور walk_forward.py — ۳۸ آزمون) که از قبل موجود و آزموده بود؛ این بخش
+ * فقط مسیر UI را به همان API می‌بندد. هیچ رفتار موجودی تغییر نمی‌کند.
+ * قرارداد همان بقیه مرکز است: همه HTTP از api()/apiBlob()؛ esc برای هر متن
+ * درون‌یابی‌شده؛ برچسب اعتماد فقط از trust_envelope سرور؛ اجرا فقط با کنش
+ * صریح کاربر؛ انتخاب درون‌نمونه‌ای در هر فولد و ارزیابی OOS دقیقاً یک‌بار —
+ * عیناً همان که سرور گزارش می‌کند، بدون تزئین.
+ */
+
+let lastWalkforwardBody = null; // آخرین بدنه walk-forward برای خروجی گزارش (همان بدنه، همان digest)
+
+function wfParams() {
+  const intOr = (id, fallback) => {
+    const v = parseInt($(id)?.value || "", 10);
+    return Number.isInteger(v) ? v : fallback;
+  };
+  return {
+    n: Math.max(2, Math.min(12, intOr("fcWfN", 3))),
+    train_bars: Math.max(30, intOr("fcWfTrain", 60)),
+    test_bars: Math.max(10, intOr("fcWfTest", 20)),
+    max_evals_per_fold: Math.max(1, Math.min(100, intOr("fcWfMaxEvals", 9))),
+  };
+}
+
+function wfBody() {
+  // الزام بذر سمت کلاینت (همان انضباط §D4 بهینه‌ساز): بدون بذر درخواستی ارسال نمی‌شود.
+  const seedRaw = String($("fcWfSeed")?.value || "").trim();
+  if (seedRaw === "") {
+    showOut("بذر (seed) الزامی است — بدون بذر walk-forward تکرارپذیر نیست و درخواستی ارسال نشد.");
+    toast("بذر (seed) الزامی است", "error");
+    return null;
+  }
+  const seed = Number(seedRaw);
+  if (!Number.isInteger(seed) || seed < 0) {
+    showOut("بذر باید یک عدد صحیح نامنفی باشد — درخواستی ارسال نشد.");
+    toast("بذر نامعتبر است", "error");
+    return null;
+  }
+  const source = ($("fcDslSource")?.value || "").trim();
+  if (!source) {
+    toast("منبع DSL خالی است — استراتژی را وارد کنید", "error");
+    showOut("منبع DSL خالی است — هیچ درخواستی ارسال نشد.");
+    return null;
+  }
+  let space = null;
+  const spaceRaw = String($("fcWfSpace")?.value || "").trim();
+  if (!spaceRaw) {
+    showOut("فضای جست‌وجو (space) الزامی است — مثال: {\"grid\": {\"len\": [5, 10, 20]}}");
+    toast("فضای جست‌وجو الزامی است", "error");
+    return null;
+  }
+  try {
+    space = JSON.parse(spaceRaw);
+  } catch (e) {
+    showOut(`JSON فضای جست‌وجو نامعتبر است — درخواستی ارسال نشد:\n${errText(e)}`);
+    toast("JSON فضای جست‌وجو نامعتبر است", "error");
+    return null;
+  }
+  const p = wfParams();
+  const objective = String($("fcWfObjective")?.value || "SHARPE");
+  return {
+    source,
+    symbol: runParams().symbol,
+    timeframe: runParams().timeframe,
+    count: runParams().count,
+    folds: { n: p.n, train_bars: p.train_bars, test_bars: p.test_bars },
+    space,
+    budget: { max_evals_per_fold: p.max_evals_per_fold, seed },
+    objective,
+  };
+}
+
+function wfStatusOf(fold) {
+  // وضعیت هر فولد عیناً از پرچم‌های سرور — هیچ تفسیر اضافه‌ای جعل نمی‌شود.
+  const flags = [];
+  if (fold.budget_exhausted) flags.push("پایان بودجه");
+  if (fold.cancelled) flags.push("لغوشده");
+  if (fold.oos_evaluated_once) flags.push("OOS یک‌بار");
+  return flags.length ? esc(flags.join(" · ")) : "—";
+}
+
+function renderWfFolds(res) {
+  const body = $("fcWfFoldsBody");
+  if (!body) return;
+  body.innerHTML = "";
+  const folds = Array.isArray(res.folds) ? res.folds : [];
+  if (!folds.length) {
+    body.innerHTML = `<tr><td colspan="9" class="muted">پاسخ سرور فهرست فولدها نداشت — چیزی جعل نمی‌شود</td></tr>`;
+    return;
+  }
+  folds.forEach((f) => {
+    const train = f.train ? `${cell(f.train.start, 0)}..${cell(f.train.end, 0)}` : "—";
+    const test = f.test ? `${cell(f.test.start, 0)}..${cell(f.test.end, 0)}` : "—";
+    const params = f.best_params && typeof f.best_params === "object"
+      ? esc(Object.entries(f.best_params).map(([k, v]) => `${k}=${v}`).join(", "))
+      : "—";
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      `<td style="direction:ltr">${cell(f.fold_index, 0)}</td>` +
+      `<td style="direction:ltr">${train}</td>` +
+      `<td style="direction:ltr">${test}</td>` +
+      `<td style="direction:ltr">${cell(f.fold_seed, 0)}</td>` +
+      `<td style="direction:ltr">${params}</td>` +
+      `<td style="direction:ltr">${cell(f.is_objective)}</td>` +
+      `<td style="direction:ltr">${cell(f.oos_objective)}</td>` +
+      `<td style="direction:ltr">${cell(f.evaluated_count, 0)}</td>` +
+      `<td>${wfStatusOf(f)}</td>`;
+    body.appendChild(tr);
+  });
+}
+
+function renderWfAggregate(res) {
+  const body = $("fcWfAggregateBody");
+  if (!body) return;
+  body.innerHTML = "";
+  const a = res.aggregate && typeof res.aggregate === "object" ? res.aggregate : null;
+  if (!a) {
+    body.innerHTML = `<tr><td colspan="2" class="muted">پاسخ سرور بخش تجمیع نداشت — چیزی جعل نمی‌شود</td></tr>`;
+    return;
+  }
+  const rows = [
+    ["تعداد فولدها", a.n_folds, 0],
+    ["فولدهای تأییدشده (OOS)", a.confirmed_folds, 0],
+    ["فولدهای با OOS مثبت", a.positive_folds, 0],
+    ["میانگین OOS", a.oos_mean],
+    ["میانه OOS", a.oos_median],
+    ["کمینه OOS", a.oos_min],
+    ["بیشینه OOS", a.oos_max],
+    ["مبنای انتخاب", a.selection_basis],
+    ["OOS در هر فولد دقیقاً یک‌بار ارزیابی شد", a.oos_evaluated_once_per_fold],
+  ];
+  rows.forEach(([label, v, digits]) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${esc(String(label))}</td><td style="direction:ltr">${cell(v, digits === undefined ? 2 : digits)}</td>`;
+    body.appendChild(tr);
+  });
+  const digestRow = document.createElement("tr");
+  digestRow.innerHTML =
+    `<td>خلاصه تکرارپذیری</td><td style="direction:ltr">${esc(String(res.reproducibility_digest || "—"))}</td>`;
+  body.appendChild(digestRow);
+}
+
+function renderWalkforward(res) {
+  renderWfFolds(res);
+  renderWfAggregate(res);
+  const noteEl = $("fcWfNote");
+  if (noteEl && res.bonferroni_note) noteEl.textContent = String(res.bonferroni_note);
+  const [jbtn, cbtn, pbtn] = [$("fcWfExportJson"), $("fcWfExportCsv"), $("fcWfExportPdf")];
+  [jbtn, cbtn, pbtn].forEach((b) => { if (b) b.disabled = false; });
+}
+
+function downloadBlobLocal(filename, blob) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+function downloadTextLocal(filename, text, mime) {
+  downloadBlobLocal(filename, new Blob([text], { type: mime }));
+}
+
+async function fcWalkforward() {
+  const btn = $("fcWfRun");
+  const body = wfBody();
+  if (!body) return;
+  busy(btn, true, "در حال walk-forward…");
+  showOut("در حال اجرای walk-forward (انتخاب IS در هر فولد + تأیید OOS یک‌بار) روی داده سینتتیک سرور…");
+  try {
+    const res = await api("/api/v10/strategylab/walkforward", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    lastWalkforwardBody = body;
+    trustFrom(res);
+    renderWalkforward(res);
+    showOut(res);
+    toast("walk-forward کامل شد — انتخاب فقط درون‌نمونه‌ای، OOS یک‌بار", "success");
+  } catch (e) {
+    showOut(`walk-forward ناموفق بود:\n${errText(e)}`);
+    toast("walk-forward ناموفق بود — جزئیات در خروجی", "error");
+  } finally {
+    busy(btn, false);
+  }
+}
+
+async function fcWfExport(format) {
+  if (!lastWalkforwardBody) {
+    toast("ابتدا walk-forward را اجرا کنید — خروجی بدون اجرا معنا ندارد", "warn");
+    return;
+  }
+  try {
+    if (format === "json") {
+      const res = await api("/api/v10/strategylab/walkforward/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...lastWalkforwardBody, format }),
+      });
+      downloadTextLocal(
+        `walkforward-report-${String(res.reproducibility_digest || "").slice(0, 8) || "nodigest"}.json`,
+        JSON.stringify(res, null, 2),
+        "application/json;charset=utf-8"
+      );
+      toast("خروجی JSON walk-forward دانلود شد", "success");
+      return;
+    }
+    const att = await apiBlob("/api/v10/strategylab/walkforward/export", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...lastWalkforwardBody, format }),
+    });
+    const safeName = String(att.filename || "").replace(/[^\w.\-]/g, "");
+    downloadBlobLocal(safeName || "walkforward-report.pdf", att.blob);
+    toast(`خروجی ${format === "pdf" ? "PDF" : "CSV"} walk-forward دانلود شد`, "success");
+  } catch (e) {
+    showOut(`خروجی ${format} walk-forward ناموفق بود:\n${errText(e)}`);
+    toast("خروجی walk-forward ناموفق بود — جزئیات در خروجی", "error");
+  }
+}
+
 /* ------------------------- بایند-on-demand ------------------------- */
 
 function bindForwardCenter() {
@@ -273,6 +501,10 @@ function bindForwardCenter() {
     if (el) el.addEventListener("click", fn);
   };
   on("fcRun", fcRun);
+  on("fcWfRun", fcWalkforward);
+  on("fcWfExportJson", () => fcWfExport("json"));
+  on("fcWfExportCsv", () => fcWfExport("csv"));
+  on("fcWfExportPdf", () => fcWfExport("pdf"));
 
   // فعال‌سازی هنگام باز شدن تب (الگوی strategy_lab) — بدون هیچ درخواست خودکار:
   // بازپخش کاغذی فقط با کنش صریح کاربر اجرا می‌شود.
@@ -283,7 +515,7 @@ function bindForwardCenter() {
       const out = $("fcOut");
       if (out) {
         out.textContent =
-          "آماده — منبع DSL (RSL-1) را وارد و «اجرای بازپخش کاغذی» را بزنید. این مرکز فقط بازپخش کاغذی روی داده سینتتیک است؛ نه معامله زنده، نه بروکر، نه زمان‌بند.";
+          "آماده — منبع DSL (RSL-1) را وارد و «اجرای بازپخش کاغذی» یا «اجرای walk-forward» را بزنید. این مرکز فقط بازپخش کاغذی و تحلیل walk-forward روی داده سینتتیک است؛ نه معامله زنده، نه بروکر، نه زمان‌بند.";
       }
     }
   });

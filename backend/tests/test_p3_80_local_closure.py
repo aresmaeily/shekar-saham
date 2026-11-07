@@ -60,8 +60,9 @@ def test_service_worker_cache_name_bumped_to_drop_old_api_entries():
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-E 2026-11-05): v3-0-12 -> v3-0-13 (SW install cache:reload honesty fix) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 -> v3-0-12 (WAVE-B popup fix, WAVE-D PDF export, WAVE-E declared calendars) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 -> v3-0-11 (WAVE-B popup fix, WAVE-D PDF export) — prior chain v3-0-8 -> v3-0-9 -> v3-0-10 (WAVE-B popup-detach-intent fix)
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-16 — precache extended with ai2_studio.js (WAVE-O governed AI-2 studio panel)
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
-    assert "radar-bourse-static-v3-0-16" in sw
-    assert "radar-bourse-static-v3-0-9" not in sw
+    # COUNTER-PIN BUMP (recorded, WAVE-AB2 2026-11-08): v3-0-16 -> v3-0-17 — walk-forward UI trigger added to the forward-test center (forward_center.js + index.html walk-forward section)
+    assert "radar-bourse-static-v3-0-17" in sw
+    assert "radar-bourse-static-v3-0-16" not in sw
 
 
 def test_production_disables_openapi_docs(monkeypatch):

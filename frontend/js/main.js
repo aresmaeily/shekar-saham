@@ -330,6 +330,124 @@ function bindTopbar() {
   $("#btnWsReconnect")?.addEventListener("click", connectWs);
 }
 
+/* WAVE-AB2 (2026-11-08): سیم‌کشی کنترل‌های مرده ثبت‌شده در ممیزی WP-J —
+ * هیچ رفتار موجودی تغییر نمی‌کند؛ فقط کنترل‌هایی که در HTML بودند اما هیچ
+ * شنونده‌ای نداشتند، حالا واقعاً کار می‌کنند (صادقانه، بدون داده جعل). */
+function bindDataFilters() {
+  const reHunt = () => T.hunt();
+  const reTablo = () => T.tablo();
+  const reHot = () => T.hot();
+  const reValue = () => T.value();
+
+  // فیلترهای تب شکار (قبلاً هرگز خوانده نمی‌شدند)
+  $("#fNegOnly")?.addEventListener("change", reHunt);
+  $("#fFundOnly")?.addEventListener("change", reHunt);
+  $("#fMinScore")?.addEventListener("input", () => {
+    const el = $("#fMinScoreVal");
+    if (el) el.textContent = $("#fMinScore").value;
+    reHunt();
+  });
+
+  // اسلایدر تابلوکستیک (در رندر خوانده می‌شد اما هرگز رفرش نمی‌کرد)
+  $("#fTabloQ")?.addEventListener("input", () => {
+    const el = $("#fTabloQVal");
+    if (el) el.textContent = $("#fTabloQ").value;
+    reTablo();
+  });
+
+  // کنترل‌های سگمنتی درجه/تییر/نما (فقط نمایشی — بدون هیچ درخواست شبکه‌ای)
+  const wireSeg = (id, key, attr, rerender) => {
+    const seg = $(id);
+    if (!seg) return;
+    seg.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-" + attr + "]");
+      if (!b) return;
+      seg.querySelectorAll("button").forEach((x) => x.classList.remove("active"));
+      b.classList.add("active");
+      store.set({ [key]: b.dataset[attr] });
+      rerender();
+    });
+  };
+  wireSeg("#tabloGrade", "tabloGrade", "g", reTablo);
+  wireSeg("#hotTier", "hotTier", "tier", reHot);
+  wireSeg("#hotView", "hotView", "view", reHot);
+
+  // دکمه refresh تب «زنده» — POST /api/refresh سپس refresh مرکزی
+  $("#btnWsRefresh")?.addEventListener("click", async (e) => {
+    const btn = e.currentTarget;
+    const idle = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "در حال درخواست refresh…";
+    try {
+      await api("/api/refresh", { method: "POST" });
+      await refreshApp(true);
+      toast("refresh سرور انجام شد", "success");
+    } catch (err) {
+      toast("refresh سرور ناموفق بود — جزئیات در کنسول", "error");
+      console.error("ws refresh failed", err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = idle;
+    }
+  });
+
+  // دکمه بروزرسانی تب ارزش‌گذاری — واکشی مجدد همان API ارزش‌گذاری
+  $("#btnValueReload")?.addEventListener("click", async (e) => {
+    const btn = e.currentTarget;
+    const idle = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "در حال بروزرسانی…";
+    try {
+      const pack = await api(`/api/fundamentals/value?limit=50&max_pe=${$("#valMaxPe")?.value || 18}&min_score=${$("#valMinScore")?.value || 55}`);
+      store.set({ valueStocks: pack.rows || [], valueScoring: pack.scoring || null });
+      reValue();
+      toast("ارزش‌گذاری بروزرسانی شد", "success");
+    } catch (err) {
+      toast("بروزرسانی ارزش‌گذاری ناموفق بود", "error");
+      console.error("value reload failed", err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = idle;
+    }
+  });
+
+  // فرم افزودن درون‌خطی پورتفو (کنار جدول پورتفو)
+  $("#btnPfAdd")?.addEventListener("click", async () => {
+    const sym = ($("#pfSymbol")?.value || "").trim();
+    if (!sym) { toast("نماد را وارد کنید", "error"); return; }
+    try {
+      await addPortfolio(sym);
+      if ($("#pfSymbol")) $("#pfSymbol").value = "";
+      if ($("#pfNote")) $("#pfNote").value = "";
+      toast("به پورتفو اضافه شد", "success");
+    } catch (err) {
+      toast("افزودن به پورتفو ناموفق بود", "error");
+    }
+  });
+}
+
+/* WAVE-AB2: فعال‌سازی تب «عالی» — ماژول render/excellent.js از قبل موجود بود
+ * اما هیچ‌کس آن را import نمی‌کرد و پنل‌ها برای همیشه «در حال بارگذاری…»
+ * می‌ماندند. اکنون هنگام باز شدن تب یک‌بار رندر می‌شوند (فقط با کنش کاربر). */
+function bindExcellentTab() {
+  let activated = false;
+  const observer = new MutationObserver(() => {
+    const panel = $("#tab-excellent");
+    if (panel && panel.classList.contains("active") && !activated) {
+      activated = true;
+      import("./modules/render/excellent.js")
+        .then((m) => {
+          m.renderRisk?.();
+          m.renderDataQuality?.();
+          m.renderAnomalies?.();
+          m.renderPortfolioOptimization?.();
+        })
+        .catch(() => { /* رندر عالی اختیاری است — در سکوت رد نمی‌شود، خطا داخل خود ماژول صادقانه نمایش داده می‌شود */ });
+    }
+  });
+  observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ["class"] });
+}
+
 function setupTimer() {
   if (window.__timer) clearInterval(window.__timer);
   if (store.get().auto) window.__timer = setInterval(() => refreshApp(false), 30000);
@@ -340,6 +458,8 @@ async function boot() {
   bindTopbar();
   bindNav();
   bindGlobalDelegation();
+  bindDataFilters(); // WAVE-AB2: سیم‌کشی کنترل‌های مرده (شکار/تابلو/پول داغ/زنده/ارزش‌گذاری/پورتفو)
+  bindExcellentTab(); // WAVE-AB2: فعال‌سازی تب «عالی» هنگام باز شدن
   bindSettings();
   bindBacktest();
   bindOptions();

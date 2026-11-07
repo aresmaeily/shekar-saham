@@ -84,7 +84,8 @@ def test_sw_bumped_to_v3_0_8_with_wave3_precache():
     # WAVE-D PDF export, WAVE-E declared calendars)
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-16 — precache extended with ai2_studio.js (WAVE-O governed AI-2 studio panel)
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
-    assert "radar-bourse-static-v3-0-16" in sw
+    # COUNTER-PIN BUMP (recorded, WAVE-AB2 2026-11-08): v3-0-16 -> v3-0-17 — walk-forward UI trigger in forward_center.js + index.html + dead-control wiring (hunt/tablo/hot filters, btnWsRefresh/btnValueReload/btnPfAdd, excellent tab activation)
+    assert "radar-bourse-static-v3-0-17" in sw
     assert "radar-bourse-static-v3-0-9" not in sw
     assert "/static/js/modules/render/chart_grid.js" in sw
     assert "/static/js/modules/command_palette.js" in sw

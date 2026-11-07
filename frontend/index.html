@@ -1218,6 +1218,48 @@
       <h3>مقایسه با بک‌تست</h3>
       <div id="fcCompareMount" class="muted" style="font-size:12px">جدول مقایسه با بک‌تست پس از اجرا از پاسخ سرور پر می‌شود…</div>
 
+      <!-- WAVE-AB2 (2026-11-08): تریگر UI walk-forward — بستن گپ ثبت‌شده WAVE-AD؛
+           اتصال به همان API آزموده (/api/v10/strategylab/walkforward + /export) -->
+      <h3>تحلیل walk-forward — انتخاب درون‌نمونه‌ای در هر فولد + تأیید OOS</h3>
+      <div class="cp-toolbar">
+        <div class="cp-row">
+          <button class="btn tiny" id="fcWfRun">اجرای walk-forward</button>
+          <span class="cp-vsep"></span>
+          <span class="muted">فولدها:</span>
+          <input class="text-input" id="fcWfN" type="number" value="3" min="2" max="12" style="max-width:70px" />
+          <span class="muted">کندل آموزش:</span>
+          <input class="text-input" id="fcWfTrain" type="number" value="60" min="30" style="max-width:80px" />
+          <span class="muted">کندل آزمون:</span>
+          <input class="text-input" id="fcWfTest" type="number" value="20" min="10" style="max-width:70px" />
+          <span class="muted">بودجه هر فولد:</span>
+          <input class="text-input" id="fcWfMaxEvals" type="number" value="9" min="1" max="100" style="max-width:70px" />
+          <span class="muted">بذر:</span>
+          <input class="text-input" id="fcWfSeed" type="number" value="42" min="0" style="max-width:80px" />
+          <select class="text-input" id="fcWfObjective" style="max-width:140px">
+            <option value="SHARPE" selected>SHARPE</option>
+            <option value="CALMAR">CALMAR</option>
+            <option value="PROFIT_FACTOR">PROFIT_FACTOR</option>
+          </select>
+          <span class="cp-vsep"></span>
+          <button class="btn tiny" id="fcWfExportJson" disabled>خروجی JSON</button>
+          <button class="btn tiny" id="fcWfExportCsv" disabled>خروجی CSV</button>
+          <button class="btn tiny" id="fcWfExportPdf" disabled>خروجی PDF</button>
+        </div>
+        <div class="cp-row" style="margin-top:8px">
+          <label class="muted" for="fcWfSpace" style="flex:0 0 100%">فضای جست‌وجوی شبکه‌ای (JSON — فقط grid؛ bounds اینجا پذیرفته نمی‌شود؛ همان منبع DSL بالای این بخش استفاده می‌شود)</label>
+          <textarea id="fcWfSpace" class="text-input" rows="2" style="width:100%;direction:ltr;font-family:monospace" spellcheck="false" placeholder='{"grid": {"len": [5, 10, 20]}}'></textarea>
+        </div>
+      </div>
+      <p class="muted" id="fcWfNote" style="font-size:12px">در هر فولد فقط پنجره آموزش در انتخاب می‌بیند؛ پنجره آزمون دقیقاً یک‌بار با برنده منجمد ارزیابی می‌شود و هرگز در انتخاب نقش ندارد. بذر هر فولد پایه‌ای است: fold_seed = بذر + شماره فولد.</p>
+      <table class="data-table" id="fcWfFoldsTable">
+        <thead><tr><th>فولد</th><th>آموزش</th><th>آزمون</th><th>بذر فولد</th><th>بهترین پارامترها</th><th>هدف IS</th><th>هدف OOS</th><th>ارزیابی‌ها</th><th>وضعیت</th></tr></thead>
+        <tbody id="fcWfFoldsBody"><tr><td colspan="9" class="muted">فولدها پس از اجرای walk-forward از پاسخ سرور پر می‌شوند</td></tr></tbody>
+      </table>
+      <table class="data-table" id="fcWfAggregateTable">
+        <thead><tr><th>سنجه تجمیعی</th><th>مقدار</th></tr></thead>
+        <tbody id="fcWfAggregateBody"><tr><td colspan="2" class="muted">تجمیع فولدها پس از اجرا از پاسخ سرور پر می‌شود</td></tr></tbody>
+      </table>
+
       <pre id="fcOut" class="muted" style="white-space:pre-wrap;font-size:12px;max-height:240px;overflow:auto">نتیجه اینجا نمایش داده می‌شود…</pre>
     </section>
     <section class="panel" id="tab-dataquality">

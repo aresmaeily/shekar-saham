@@ -88,7 +88,9 @@ def test_sw_cache_token_is_consistent_within_sw_js():
     # precache extended with product_loops_ui.js (WAVE-F product-loops panel).
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-16 — precache extended with ai2_studio.js (WAVE-O governed AI-2 studio panel).
 
-    assert token == "radar-bourse-static-v3-0-16"  # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-16 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
+    # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
+    # COUNTER-PIN BUMP (recorded, WAVE-AB2 2026-11-08): v3-0-16 -> v3-0-17 — walk-forward UI trigger in forward_center.js + index.html + dead-control wiring
+    assert token == "radar-bourse-static-v3-0-17"
     # Header comment must tell the same story (dots variant), no drift.
     assert "Service Worker v3.0.8" in SW_JS
 

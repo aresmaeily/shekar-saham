@@ -23,9 +23,17 @@ const addBtn = (r) =>
 const openBtn = (r) =>
   `<a class="btn tiny" href="/symbol?s=${encodeURIComponent(r.symbol)}" onclick="event.stopPropagation()">↗</a>`;
 
-/* ----------------------------- تب: شکار ورود ----------------------------- */
+/* ----------------------------- تب: شکار ورود -----------------------------
+ * WAVE-AB2 (2026-11-08): فیلترهای «فقط منفی / بنیادی خوب / حداقل امتیاز» که
+ * همیشه در HTML بودند اما هرگز خوانده نمی‌شدند (کنترل مرده)، حالا سمت کلاینت
+ * روی همان ردیف‌های analysis.entry_signals سرور اعمال می‌شوند — هیچ درخواست
+ * یا داده جدیدی جعل نمی‌شود؛ فقط پالایش نمایشی همان داده سرور است. */
 export function hunt() {
-  const rows = store.get().analysis?.entry_signals || [];
+  let rows = store.get().analysis?.entry_signals || [];
+  if ($("#fNegOnly")?.checked) rows = rows.filter((r) => Number(r.plp) < 0);
+  if ($("#fFundOnly")?.checked) rows = rows.filter((r) => Array.isArray(r.tags) && r.tags.includes("بنیادی‌خوب"));
+  const minScore = Number($("#fMinScore")?.value ?? 0);
+  if (Number.isFinite(minScore) && minScore > 0) rows = rows.filter((r) => Number(r.entry_score) >= minScore);
   renderRows($("#entryTable tbody"), [
     { key: "_", label: "", render: (r) => `${addBtn(r)} ${openBtn(r)}` },
     { key: "entry_score", label: "امتیاز", format: "num", cls: (r) => scoreClass(r.entry_score) },
