@@ -34,22 +34,30 @@ function setOut(id, html) {
 }
 
 function failText(err) {
-  const d = err && err.detail ? err.detail : err;
+  // api() throws Error(msg) where msg is already the server's extracted
+  // detail (array details are joined by core/api.js) — prefer err.message.
+  const raw = err && err.message ? String(err.message) : "";
+  if (raw) {
+    let inner = raw;
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) {
+        const e0 = parsed[0] || {};
+        inner = `${e0.msg || ""} (${(e0.loc || []).join(".")})` || raw;
+      } else if (parsed && typeof parsed === "object") {
+        inner = parsed.message_fa || parsed.reason || parsed.message_en || parsed.error || raw;
+      }
+    } catch {
+      /* not JSON — use the raw server detail */
+    }
+    return esc(inner || raw);
+  }
+  const d = err && err.detail ? err.detail : null;
   if (d && typeof d === "object") {
     const fa = d.message_fa || d.reason || d.message_en || d.error || "";
     return `${esc(String(d.error || "خطا"))} — ${esc(String(fa))}`;
   }
-  const msg = (err && err.message) || "";
-  let inner = msg;
-  try {
-    const parsed = JSON.parse(msg);
-    if (parsed && typeof parsed === "object") {
-      inner = parsed.message_fa || parsed.reason || parsed.message_en || parsed.error || msg;
-    }
-  } catch {
-    /* not JSON — use the raw message */
-  }
-  return esc(String(inner || err || "خطای ناشناخته"));
+  return esc(String(d || err || "خطای ناشناخته"));
 }
 
 function statusChip(status) {
