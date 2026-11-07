@@ -1,0 +1,521 @@
+{
+  "cases": [
+    {
+      "case_id": "gs2-mi-buy",
+      "description": "strong aligned technical+fundamental+money-flow context",
+      "expected": {
+        "confidence": 0.8,
+        "reason_codes": [],
+        "recommendation": "BUY_CANDIDATE"
+      },
+      "input_id": "input-gs2-mi-buy",
+      "input_sha256": "8fc723f18420500e4453175da45a50e00833108c2502e846e2d9bd37df99687c",
+      "invalidations": [
+        "ai_intelligence label vocabulary or threshold set changes (BUY/HOLD/WATCH/SELL/NO_ACTION/INSUFFICIENT_DATA semantics)",
+        "IntelligenceWeights defaults change",
+        "trust-cap state table changes"
+      ],
+      "kind": "MARKET_INTERPRETATION"
+    },
+    {
+      "case_id": "gs2-mi-hold",
+      "description": "technical-positive vs fundamental-weak single conflict (the recorded HOLD condition)",
+      "expected": {
+        "confidence": 0.48,
+        "reason_codes": [
+          "EVIDENCE_CONFLICT",
+          "TECHNICAL_FUNDAMENTAL_CONFLICT_HOLD"
+        ],
+        "recommendation": "HOLD"
+      },
+      "input_id": "input-gs2-mi-hold",
+      "input_sha256": "d306e9fcb9eef92b32a84b91909575fa61347045de05ae920b319e3c48947892",
+      "invalidations": [
+        "ai_intelligence label vocabulary or threshold set changes (BUY/HOLD/WATCH/SELL/NO_ACTION/INSUFFICIENT_DATA semantics)",
+        "IntelligenceWeights defaults change",
+        "trust-cap state table changes"
+      ],
+      "kind": "MARKET_INTERPRETATION"
+    },
+    {
+      "case_id": "gs2-mi-insufficient",
+      "description": "empty symbol context — honest INSUFFICIENT_DATA",
+      "expected": {
+        "confidence": 0.36,
+        "reason_codes": [
+          "DATA_TRUST_BLOCK"
+        ],
+        "recommendation": "INSUFFICIENT_DATA"
+      },
+      "input_id": "input-gs2-mi-insufficient",
+      "input_sha256": "fb6c08e43a2b6c72e538823933d96d335732511051b4bfaf732c5619b2f74171",
+      "invalidations": [
+        "ai_intelligence label vocabulary or threshold set changes (BUY/HOLD/WATCH/SELL/NO_ACTION/INSUFFICIENT_DATA semantics)",
+        "IntelligenceWeights defaults change",
+        "trust-cap state table changes"
+      ],
+      "kind": "MARKET_INTERPRETATION"
+    },
+    {
+      "case_id": "gs2-sc-primary-wins",
+      "description": "PRIMARY beats SECONDARY under PRIMARY_OVER_SECONDARY_V1; loser preserved",
+      "expected": {
+        "loser_evidence_ids": [
+          "gs2-ev-secondary"
+        ],
+        "rule_id": "PRIMARY_OVER_SECONDARY_V1",
+        "status": "RESOLVED_DETERMINISTIC",
+        "winner_evidence_id": "gs2-ev-primary",
+        "winner_precedence": "PRIMARY"
+      },
+      "input_id": "input-gs2-sc-primary",
+      "input_sha256": "2713a13edab412b5874f36e464a83531e4f2a086308254c2b4f784ab01c9623a",
+      "invalidations": [
+        "PRIMARY_OVER_SECONDARY_V1 rule id or precedence mapping changes",
+        "EvidenceItem provenance schema changes"
+      ],
+      "kind": "SOURCE_CONFLICT"
+    },
+    {
+      "case_id": "gs2-sc-same-precedence-refusal",
+      "description": "same-precedence conflicts stay OPEN (no arbitrary tie-break)",
+      "expected": {
+        "refusal_reason": "rule_not_applicable_same_precedence",
+        "status_stays": "OPEN"
+      },
+      "input_id": "input-gs2-sc-same",
+      "input_sha256": "049822dd2afb720250bd27b6203827970fdbfab9f463eb23ebe172e659972fcb",
+      "invalidations": [
+        "a tie-break rule is introduced without an owner-approved change record",
+        "PRIMARY_OVER_SECONDARY_V1 rule id changes"
+      ],
+      "kind": "SOURCE_CONFLICT"
+    },
+    {
+      "case_id": "gs2-fe-extraction-and-refusal",
+      "description": "declared section-map extraction with unit/currency discipline; value-less financial row refuses honestly; restated successor carries hash linkage",
+      "expected": {
+        "facts": [
+          {
+            "currency": "IRR",
+            "line_item": "operating_revenue",
+            "reporting_period": "FY1403",
+            "unit": "RIAL",
+            "value": "120000000000"
+          },
+          {
+            "currency": "IRR",
+            "line_item": "cost_of_goods",
+            "reporting_period": "FY1403",
+            "unit": "RIAL",
+            "value": "80000000000"
+          }
+        ],
+        "refusal_rows": [
+          [
+            "no_value_row",
+            "financial_statement_without_declared_value"
+          ]
+        ],
+        "restated_fact_count": 1,
+        "restated_supersedes_sha256": "6f310d031f7335a3012f35c31669db482c0169e75d3e6735a80127b6b4eb62ec",
+        "restated_value": "135000000000"
+      },
+      "input_id": "input-gs2-fe",
+      "input_sha256": "cc124796ce41a7d0125dd05d96c95e44ae3fe3e2947929cc67c2315c72de5ab2",
+      "invalidations": [
+        "DETERMINISTIC_SECTION_MAP_V1 section kinds change",
+        "unit/currency requirement relaxes (value without unit+currency ever accepted)",
+        "restatement linkage fields change"
+      ],
+      "kind": "FUNDAMENTAL_EXTRACTION"
+    },
+    {
+      "case_id": "gs2-regime-declared-slices",
+      "description": "caller-DECLARED regime windows (not data-inferred) with pinned per-slice mean",
+      "expected": {
+        "gap_labels": [],
+        "slices": [
+          {
+            "bar_count": 3,
+            "label": "BULLISH",
+            "metrics": [
+              102.0
+            ]
+          },
+          {
+            "bar_count": 3,
+            "label": "BEARISH",
+            "metrics": [
+              96.0
+            ]
+          }
+        ],
+        "uncovered_bar_count": 0
+      },
+      "input_id": "input-gs2-regime",
+      "input_sha256": "b4942094f49658041cb0877d6d4bf1968b4a0de8544ade31bc782f402189050e",
+      "invalidations": [
+        "windows become data-inferred (clustering/inference introduced)",
+        "deterministic aggregation semantics change"
+      ],
+      "kind": "REGIME_ROBUSTNESS"
+    },
+    {
+      "case_id": "gs2-calibration-pinned",
+      "description": "pinned prediction/outcome pairs with pinned exact Brier/ECE (hand-verified Brier)",
+      "expected": {
+        "brier_score": 0.375,
+        "bucket_count": 2,
+        "ece": 0.35
+      },
+      "input_id": "input-gs2-calibration",
+      "input_sha256": "cd1740c0fb987e592b837645b51778d724ae5eff0458fa25c103b6f342588714",
+      "invalidations": [
+        "Brier/ECE definitions change",
+        "bucket boundary convention changes",
+        "label-leakage guards loosen (immature predictions ever evaluated)"
+      ],
+      "kind": "CALIBRATION"
+    }
+  ],
+  "created_at_utc": "2026-11-08T10:00:00+00:00",
+  "inputs": {
+    "input-gs2-calibration": {
+      "bucket_count": 2,
+      "calibration_id": "gs2-cal-1",
+      "data_class": "SYNTHETIC",
+      "evidence_ref": "gs2-fixture://calibration/1",
+      "measured_at_utc": "2026-11-08T10:00:00+00:00",
+      "pairs": [
+        [
+          0.9,
+          1
+        ],
+        [
+          0.9,
+          0
+        ],
+        [
+          0.2,
+          0
+        ],
+        [
+          0.2,
+          1
+        ]
+      ],
+      "subject_kind": "PREDICTION",
+      "subject_ref": "SYNTHETIC:فملی"
+    },
+    "input-gs2-fe": {
+      "document": {
+        "content": "درآمد عملیاتی ۱۲۰ میلیارد ریال\nبهای تمام‌شده ۸۰ میلیارد ریال\n",
+        "currency": "IRR",
+        "declared_sha256": "6f310d031f7335a3012f35c31669db482c0169e75d3e6735a80127b6b4eb62ec",
+        "document_id": "gs2-doc-1",
+        "published_at_utc": null,
+        "reporting_period": "FY1403",
+        "sections": [
+          {
+            "declared_currency": "IRR",
+            "declared_period": "FY1403",
+            "declared_unit": "RIAL",
+            "declared_value": "120000000000",
+            "kind": "FINANCIAL_STATEMENT",
+            "section_id": "operating_revenue",
+            "text": "درآمد عملیاتی ۱۲۰ میلیارد ریال\nبهای تمام‌شده ۸۰ میلیارد ریال\n"
+          },
+          {
+            "declared_currency": "IRR",
+            "declared_period": "FY1403",
+            "declared_unit": "RIAL",
+            "declared_value": "80000000000",
+            "kind": "FINANCIAL_STATEMENT",
+            "section_id": "cost_of_goods",
+            "text": "درآمد عملیاتی ۱۲۰ میلیارد ریال\nبهای تمام‌شده ۸۰ میلیارد ریال\n"
+          },
+          {
+            "declared_currency": null,
+            "declared_period": null,
+            "declared_unit": null,
+            "declared_value": null,
+            "kind": "NOTE",
+            "section_id": "board_note",
+            "text": "این یادداشت صرفاً برای آزمون استخراج است."
+          },
+          {
+            "declared_currency": null,
+            "declared_period": null,
+            "declared_unit": null,
+            "declared_value": null,
+            "kind": "FINANCIAL_STATEMENT",
+            "section_id": "no_value_row",
+            "text": "درآمد عملیاتی ۱۲۰ میلیارد ریال\nبهای تمام‌شده ۸۰ میلیارد ریال\n"
+          }
+        ],
+        "supersedes_document_sha256": null
+      },
+      "restatement_linkage": {
+        "content": "درآمد عملیاتی ۱۳۵ میلیارد ریال (بازبیانی‌شده)\n",
+        "currency": "IRR",
+        "declared_sha256": "58ddb1ec2e4c16f3b34769e8f3fd8b0d838b1c14a658a3d1880d2bc30f088cc6",
+        "document_id": "gs2-doc-1R",
+        "reporting_period": "FY1403",
+        "sections": [
+          {
+            "declared_currency": "IRR",
+            "declared_period": "FY1403",
+            "declared_unit": "RIAL",
+            "declared_value": 135000000000,
+            "kind": "FINANCIAL_STATEMENT",
+            "section_id": "operating_revenue",
+            "text": "درآمد عملیاتی ۱۳۵ میلیارد ریال (بازبیانی‌شده)\n"
+          }
+        ],
+        "supersedes_document_sha256": "6f310d031f7335a3012f35c31669db482c0169e75d3e6735a80127b6b4eb62ec"
+      }
+    },
+    "input-gs2-mi-buy": {
+      "backtest_context": {
+        "metrics": {
+          "maximum_drawdown": 8,
+          "profit_factor": 1.4
+        }
+      },
+      "data_trust": {
+        "checked_at": 1010,
+        "is_live": true,
+        "live_verified": true,
+        "source": "tsetmc",
+        "state": "live",
+        "timestamp": 1000,
+        "trust_level": "live"
+      },
+      "filter_context": {
+        "sample": {
+          "count": 3
+        }
+      },
+      "market_context": {
+        "confluence": {
+          "buy_alerts": 5,
+          "sell_alerts": 0
+        }
+      },
+      "symbol_context": {
+        "fundamental": {
+          "is_synthetic": false,
+          "value_score": 70
+        },
+        "metrics": {
+          "buy_power": 3.0,
+          "entry_score": 90,
+          "exit_score": 10,
+          "individual_net_value": 5.0,
+          "volume_ratio": 2.0
+        },
+        "snapshot": {
+          "l18": "فملی"
+        },
+        "tablocastic": {
+          "golden_number": 80
+        }
+      }
+    },
+    "input-gs2-mi-hold": {
+      "data_trust": {
+        "state": "mixed"
+      },
+      "symbol_context": {
+        "fundamental": {
+          "is_synthetic": false,
+          "value_score": 20
+        },
+        "metrics": {
+          "buy_power": 2.0,
+          "entry_score": 90,
+          "exit_score": 30,
+          "individual_net_value": 10.0,
+          "volume_ratio": 1.5
+        },
+        "snapshot": {
+          "l18": "فولاد"
+        },
+        "tablocastic": {
+          "golden_number": 80
+        }
+      }
+    },
+    "input-gs2-mi-insufficient": {
+      "data_trust": {},
+      "symbol_context": {}
+    },
+    "input-gs2-regime": {
+      "bars": [
+        {
+          "close": 100.0,
+          "ts": 0.0
+        },
+        {
+          "close": 102.0,
+          "ts": 1.0
+        },
+        {
+          "close": 104.0,
+          "ts": 2.0
+        },
+        {
+          "close": 98.0,
+          "ts": 3.0
+        },
+        {
+          "close": 96.0,
+          "ts": 4.0
+        },
+        {
+          "close": 94.0,
+          "ts": 5.0
+        }
+      ],
+      "metric_name": "mean_close",
+      "windows": [
+        {
+          "end_ts": 3.0,
+          "label": "BULLISH",
+          "start_ts": 0.0
+        },
+        {
+          "end_ts": 6.0,
+          "label": "BEARISH",
+          "start_ts": 3.0
+        }
+      ]
+    },
+    "input-gs2-sc-primary": {
+      "conflict": {
+        "conflict_id": "gs2-conflict-1",
+        "description": "differing reported revenue for the same period",
+        "evidence_ids": [
+          "gs2-ev-primary",
+          "gs2-ev-secondary"
+        ],
+        "status": "OPEN"
+      },
+      "primary": {
+        "citations": [
+          "citation-1"
+        ],
+        "conflicting_with": [],
+        "corroboration_status": "UNVERIFIED",
+        "document_sha256": null,
+        "effective_period": null,
+        "evidence_id": "gs2-ev-primary",
+        "extraction_method": "deterministic-gs2-fixture",
+        "extraction_model_version": null,
+        "notes": "",
+        "publication_status": "KNOWN",
+        "publication_time_utc": "2026-11-08T09:00:00Z",
+        "publisher": "src.codal",
+        "retrieval_time_utc": "2026-11-08T10:00:00Z",
+        "schema_version": "1.0.0",
+        "source_id": "src.codal",
+        "source_identifier": "identifier-src.codal",
+        "source_tier": "PRIMARY_REGULATOR",
+        "trust_status": "UNVERIFIED"
+      },
+      "resolved_at_utc": "2026-11-08T10:00:00+00:00",
+      "resolved_by": "deterministic-rule-v1",
+      "secondary": {
+        "citations": [
+          "citation-1"
+        ],
+        "conflicting_with": [],
+        "corroboration_status": "UNVERIFIED",
+        "document_sha256": null,
+        "effective_period": null,
+        "evidence_id": "gs2-ev-secondary",
+        "extraction_method": "deterministic-gs2-fixture",
+        "extraction_model_version": null,
+        "notes": "",
+        "publication_status": "KNOWN",
+        "publication_time_utc": "2026-11-08T09:00:00Z",
+        "publisher": "src.news",
+        "retrieval_time_utc": "2026-11-08T10:00:00Z",
+        "schema_version": "1.0.0",
+        "source_id": "src.news",
+        "source_identifier": "identifier-src.news",
+        "source_tier": "REPUTABLE_FINANCIAL_NEWS",
+        "trust_status": "UNVERIFIED"
+      },
+      "tier_precedence": {
+        "PRIMARY_REGULATOR": "PRIMARY",
+        "REPUTABLE_FINANCIAL_NEWS": "SECONDARY"
+      }
+    },
+    "input-gs2-sc-same": {
+      "a": {
+        "citations": [
+          "citation-1"
+        ],
+        "conflicting_with": [],
+        "corroboration_status": "UNVERIFIED",
+        "document_sha256": null,
+        "effective_period": null,
+        "evidence_id": "gs2-ev-a",
+        "extraction_method": "deterministic-gs2-fixture",
+        "extraction_model_version": null,
+        "notes": "",
+        "publication_status": "KNOWN",
+        "publication_time_utc": "2026-11-08T09:00:00Z",
+        "publisher": "src.codal-2",
+        "retrieval_time_utc": "2026-11-08T10:00:00Z",
+        "schema_version": "1.0.0",
+        "source_id": "src.codal-2",
+        "source_identifier": "identifier-src.codal-2",
+        "source_tier": "PRIMARY_REGULATOR",
+        "trust_status": "UNVERIFIED"
+      },
+      "b": {
+        "citations": [
+          "citation-1"
+        ],
+        "conflicting_with": [],
+        "corroboration_status": "UNVERIFIED",
+        "document_sha256": null,
+        "effective_period": null,
+        "evidence_id": "gs2-ev-b",
+        "extraction_method": "deterministic-gs2-fixture",
+        "extraction_model_version": null,
+        "notes": "",
+        "publication_status": "KNOWN",
+        "publication_time_utc": "2026-11-08T09:00:00Z",
+        "publisher": "src.codal-3",
+        "retrieval_time_utc": "2026-11-08T10:00:00Z",
+        "schema_version": "1.0.0",
+        "source_id": "src.codal-3",
+        "source_identifier": "identifier-src.codal-3",
+        "source_tier": "PRIMARY_REGULATOR",
+        "trust_status": "UNVERIFIED"
+      },
+      "conflict": {
+        "conflict_id": "gs2-conflict-2",
+        "description": "same-precedence conflict stays open",
+        "evidence_ids": [
+          "gs2-ev-a",
+          "gs2-ev-b"
+        ],
+        "status": "OPEN"
+      },
+      "resolved_at_utc": "2026-11-08T10:00:00+00:00",
+      "resolved_by": "deterministic-rule-v1",
+      "tier_precedence": {
+        "PRIMARY_REGULATOR": "PRIMARY",
+        "REPUTABLE_FINANCIAL_NEWS": "SECONDARY"
+      }
+    }
+  },
+  "notes": "Golden Set v2 (WAVE-AI WP-F): versioned reproducible benchmark extension across five capability kinds with explicit expected outputs and invalidation conditions. Baseline (v1 corpus) and candidate (v2 corpus) results are reported SEPARATELY; no superiority claim is made or implied.",
+  "version_id": "GS2-2026-11-08",
+  "version_sha256": "99835a3e7add21faea15ea1f296edaa778680a84de998a822f1d1db69bcfe628"
+}
