@@ -553,7 +553,12 @@ def test_route_surface_scoped_to_governed_prefix() -> None:
     # CoverageReport contract finally surfaced at runtime (it had ZERO
     # production callers; declared fixture descriptors, all kill switches
     # ENGAGED, no uptime evidence invented). See test_wpg_gap_closure.py.
-    assert len(product_paths) == 11  # manifest + dossier + coverage + research(2) + audit + predictions(5)
+    # COUNTER-PIN BUMP (recorded, WAVE-AB5 2026-11-08): 11 -> 12 — NEW
+    # GET /api/v10/productloops/predictions/calibration/by-regime (WP-I):
+    # regime-sliced prediction performance over caller-DECLARED regime
+    # labels (closed regime_slices vocabulary); empty regimes are honest
+    # empty slices, never fabricated. See test_wpi_regime_and_proposals.py.
+    assert len(product_paths) == 12  # manifest + dossier + coverage + research(2) + audit + predictions(6)
 
 
 def test_gates_unchanged_in_default_settings() -> None:

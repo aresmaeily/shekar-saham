@@ -39,6 +39,14 @@ ProductAuditDomain = Literal[
     "DATA_PROVIDER_OPERATIONS",
     "PRODUCT_UX",
     "SOFTWARE_QUALITY",
+    # WAVE-AB5 (WP-H, additive): the AI-7 evaluation-domain audit recorded that
+    # domains 12/13/14 of the 15 required evaluation domains had NO code.
+    # These three members close that gap additively; the domain/evaluator
+    # matching rule below is unchanged (backtest-family evaluators stay
+    # bound to FILTERS_STRATEGIES only — 06 charter §8).
+    "ACCESSIBILITY",
+    "FEATURE_ADOPTION",
+    "TASK_COMPLETION",
 ]
 
 EvaluatorKind = Literal[

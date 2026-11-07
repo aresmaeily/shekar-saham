@@ -24,6 +24,10 @@ closable portion, WITHOUT touching any governance gate:
                                           (label-leakage refusal before it)
   POST /predictions/calibration         — L5 Brier/ECE over pairs bound to
                                           matured predictions
+  GET  /predictions/calibration/by-regime — L5 per-regime Brier/ECE over
+                                          caller-DECLARED regime labels
+                                          (WAVE-AB5 WP-I; empty regimes are
+                                          honest empty slices, never fabricated)
 
 Honesty envelope on every payload (same wording discipline as the other
 v10 routers, defined locally on purpose):
@@ -76,6 +80,12 @@ from app.domain.declared_product_loops import (
 )
 from app.domain.evaluation_statistics import EvaluationFamily, adjusted_acceptance
 from app.domain.calibration_metrics import build_calibration_record
+from app.domain.prediction_regime_performance import (
+    RegimeBoundPrediction,
+    slice_prediction_performance_by_regime,
+)
+from app.domain.prediction_research_proposals import derive_research_proposal_draft
+from app.engines.regime_slices import REGIME_LABELS
 from app.domain.prediction import (
     OutcomeRecord,
     PredictionRecord,
@@ -87,8 +97,13 @@ from app.domain.product_audit import (
     PrivacyTelemetryBoundary,
     ProductAuditCharter,
 )
+from app.domain.declared_adoption_metrics import (
+    DECLARED_ADOPTION_METRICS_VERSION,
+    build_declared_domain_evaluator_results,
+)
 from app.domain.product_audit_records import (
     CalibrationWindowDigest,
+    DomainEvaluatorResult,
     ProductAuditRunRecord,
     WindowMetric,
     compare_windows,
@@ -503,13 +518,27 @@ class AuditRunBody(BaseModel):
 
 
 def _declared_charter() -> ProductAuditCharter:
+    # WAVE-AB5 (WP-H): the declared charter gains the three AI-7 evaluation
+    # domains that had NO code (accessibility / feature adoption / task
+    # completion) — additive only; cadences stay non-SCHEDULED (R-6) and the
+    # telemetry boundary below is unchanged (aggregate counters only).
     return ProductAuditCharter(
         charter_version=_DECLARED_CHARTER_VERSION,
-        domains=("FILTERS_STRATEGIES", "PRODUCT_UX", "SOFTWARE_QUALITY"),
+        domains=(
+            "FILTERS_STRATEGIES",
+            "PRODUCT_UX",
+            "SOFTWARE_QUALITY",
+            "ACCESSIBILITY",
+            "FEATURE_ADOPTION",
+            "TASK_COMPLETION",
+        ),
         cadences=(
             AuditCadence(domain="FILTERS_STRATEGIES", mode="EVENT_DRIVEN"),
             AuditCadence(domain="PRODUCT_UX", mode="OWNER_CONFIGURED", cadence_expression="owner-set; unset in this declared charter"),
             AuditCadence(domain="SOFTWARE_QUALITY", mode="EVENT_DRIVEN"),
+            AuditCadence(domain="ACCESSIBILITY", mode="EVENT_DRIVEN"),
+            AuditCadence(domain="FEATURE_ADOPTION", mode="EVENT_DRIVEN"),
+            AuditCadence(domain="TASK_COMPLETION", mode="EVENT_DRIVEN"),
         ),
         telemetry_boundary=PrivacyTelemetryBoundary(
             data_classes=("AGGREGATE_COUNTERS", "ROW_COUNTS", "LATENCY"),
@@ -583,12 +612,25 @@ async def product_audit_run(body: AuditRunBody) -> Dict[str, Any]:
                 evaluation_design="اجرای دوباره ممیزی پس از بررسی و مقایسه با بیس‌لاین اعلامی",
             ),
         )
+    # WAVE-AB5 (WP-H): the run appends the three declared adoption/accessibility/
+    # task-completion DomainEvaluatorResult rows built from the DECLARED fixture
+    # (aggregate counters only, no user content, no user ids). The three real
+    # in-process probes above are untouched. UX_REVIEW/MANUAL_REVIEW are the
+    # existing evaluator vocabulary entries allowed for these domains by the
+    # canonical evaluator_allowed_for_domain rule (06 charter §8). The declared
+    # accessibility-regression proposal generator stays at the module layer
+    # (see declared_adoption_metrics.build_accessibility_regression_proposal) —
+    # this endpoint only appends the evaluator rows, keeping the pinned
+    # drift/proposal behavior of the run unchanged.
+    declared_domain_results: Tuple[DomainEvaluatorResult, ...] = (
+        build_declared_domain_evaluator_results()
+    )
     run_record = ProductAuditRunRecord(
         run_record_id="RUNREC-" + current_window.digest[:12],
         run_id="AUDIT-RUN-" + current_window.digest[:12],
         charter_version=_DECLARED_CHARTER_VERSION,
         executed_at_utc=end,
-        domain_results=(),
+        domain_results=declared_domain_results,
         proposal_ids=tuple(p.proposal_id for p in proposals),
         advisory_only=True,
         data_class="SYNTHETIC",
@@ -607,6 +649,13 @@ async def product_audit_run(body: AuditRunBody) -> Dict[str, Any]:
             "chartpro": detail_chart,
         },
         "drift": drift.model_dump(mode="json"),
+        "declared_adoption_domains": {
+            "declared_version": DECLARED_ADOPTION_METRICS_VERSION,
+            "domains": [r.domain for r in declared_domain_results],
+            "privacy_note": (
+                "شمارنده‌های تجمیعی اعلامی؛ بدون شناسه کاربر و بدون محتوای کاربر"
+            ),
+        },
         "honesty": _honesty_envelope(declared_version=_DECLARED_CHARTER_VERSION),
     }
 
@@ -771,8 +820,20 @@ async def predictions_evaluate(
             "ارزیابی پیش‌بینی رد شد (نگهبانی نشت برچسب)",
             reason=str(exc),
         ) from exc
+    # WAVE-AB5 (WP-I, additive): a DETERMINISTIC research-proposal DRAFT is
+    # derived from the returned evaluation when its error_category maps to
+    # the declared draft vocabulary — never auto-registered anywhere
+    # (preregistered=False, advisory_only=True, approval_state pinned DRAFT).
+    # Existing response fields are untouched; the field is None when no draft
+    # is derivable (unknown/absent error category → no draft invented).
+    research_proposal_draft = derive_research_proposal_draft(evaluation)
     return {
         "evaluation": evaluation.model_dump(mode="json"),
+        "research_proposal_draft": (
+            research_proposal_draft.model_dump(mode="json")
+            if research_proposal_draft is not None
+            else None
+        ),
         "registry_version": registry_version,
         "persistence_note": store.persistence_note,
         "persistence_backend": store.backend_label,
@@ -866,5 +927,173 @@ async def predictions_calibration(
         "persistence_backend": store.backend_label,
         "persistence_durable": store.persistence_durable,
         "retention_policy": RETENTION_POLICY,
+        "honesty": _honesty_envelope(declared_version="PREDICTION-REGISTRY-V1"),
+    }
+
+
+@router.get("/predictions/calibration/by-regime")
+async def predictions_calibration_by_regime(
+    measured_at_utc: str = Query(..., description="caller instant; outcomes after it are refused (no look-ahead)"),
+    regime_labels: str = Query(..., description="JSON array of regime labels from the closed vocabulary"),
+    assignments: str = Query("[]", description="JSON array of {prediction_id, regime_label, predicted_probability, observed}"),
+    bucket_count: int = Query(10, ge=2, le=32),
+) -> Dict[str, Any]:
+    """WAVE-AB5 (WP-I): regime-sliced prediction performance (02:145 P3).
+
+    Per-regime Brier/ECE over matured+evaluated predictions, bound to
+    CALLER-DECLARED regime labels from the closed ``regime_slices``
+    vocabulary — regimes are never inferred from data. Every assignment is
+    validated against the durable store exactly like ``/predictions/calibration``
+    (prediction exists, outcome recorded, PIT-ordered vs the caller instant)
+    PLUS the evaluated-prediction binding (``PREDICTION_NOT_EVALUATED``).
+    A declared regime with no bound predictions is an honest EMPTY slice
+    with a reason — never fabricated. An empty registry/assignment set
+    yields the honest empty payload (empty slices, nothing invented).
+    """
+    measured_at = _parse_instant(measured_at_utc, "measured_at_utc")
+
+    def _parse_json_list(raw: str, field: str, error_code: str, fa: str) -> List[Any]:
+        try:
+            parsed = json.loads(raw)
+        except ValueError:
+            raise _typed_422(error_code, f"{field} is not valid JSON", fa, field=field) from None
+        if not isinstance(parsed, list):
+            raise _typed_422(
+                error_code, f"{field} must be a JSON array", fa, field=field
+            )
+        return parsed
+
+    raw_labels = _parse_json_list(
+        regime_labels,
+        "regime_labels",
+        "MALFORMED_REGIME_LABELS",
+        "برچسب‌های رژیم JSON معتبر نیست",
+    )
+    for label in raw_labels:
+        if not isinstance(label, str) or label not in REGIME_LABELS:
+            raise _typed_422(
+                "UNKNOWN_REGIME_LABEL",
+                f"regime label {label!r} is outside the closed vocabulary {list(REGIME_LABELS)}",
+                "برچسب رژیم خارج از واژگان بسته است",
+                regime_label=label if isinstance(label, str) else None,
+            )
+    raw_assignments = _parse_json_list(
+        assignments,
+        "assignments",
+        "MALFORMED_REGIME_ASSIGNMENTS",
+        "تخصیص‌های رژیم JSON معتبر نیست",
+    )
+
+    store = get_prediction_store()
+    evaluated_ids = {e.prediction_id for e in store.list_evaluations()}
+    bound: List[RegimeBoundPrediction] = []
+    for item in raw_assignments:
+        if not isinstance(item, dict):
+            raise _typed_422(
+                "MALFORMED_REGIME_ASSIGNMENT_ROW",
+                "each assignment must be a JSON object",
+                "هر تخصیص باید یک شیء JSON باشد",
+            )
+        missing = [
+            key
+            for key in ("prediction_id", "regime_label", "predicted_probability", "observed")
+            if key not in item
+        ]
+        if missing:
+            raise _typed_422(
+                "MALFORMED_REGIME_ASSIGNMENT_ROW",
+                f"assignment missing required keys {missing}",
+                "تخصیص کلیدهای لازم را ندارد",
+                missing=missing,
+            )
+        prediction_id = str(item["prediction_id"])
+        label = item["regime_label"]
+        if not isinstance(label, str) or label not in REGIME_LABELS:
+            raise _typed_422(
+                "UNKNOWN_REGIME_LABEL",
+                f"assignment regime label {label!r} is outside the closed vocabulary",
+                "برچسب رژیم تخصیص خارج از واژگان بسته است",
+                prediction_id=prediction_id,
+            )
+        if prediction_id not in evaluated_ids:
+            # Honest, ordered store checks: unknown id first (same shapes as
+            # /predictions/calibration), then the evaluated-prediction gate.
+            if store.get_prediction(prediction_id) is None:
+                raise _typed_422(
+                    "UNKNOWN_PREDICTION_ID",
+                    f"unknown prediction id {prediction_id!r}",
+                    "شناسه پیش‌بینی ناشناخته است",
+                    prediction_id=prediction_id,
+                )
+            raise _typed_422(
+                "PREDICTION_NOT_EVALUATED",
+                f"prediction {prediction_id!r} has no recorded post-maturity evaluation",
+                "این پیش‌بینی پس از بلوغ ارزیابی نشده است",
+                prediction_id=prediction_id,
+            )
+        if store.get_outcome(prediction_id) is None:
+            raise _typed_422(
+                "OUTCOME_NOT_RECORDED",
+                f"prediction {prediction_id!r} has no recorded outcome",
+                "برون‌داد این پیش‌بینی ثبت نشده است",
+                prediction_id=prediction_id,
+            )
+        outcome = store.get_outcome(prediction_id)
+        if outcome is not None and outcome.observed_at_utc > measured_at:
+            raise _typed_422(
+                "OUTCOME_AFTER_MEASUREMENT_REFUSED",
+                f"outcome for {prediction_id!r} was observed after the measurement instant",
+                "برون‌داد بعد از لحظه اندازه‌گیری مشاهده شده است (نگهبانی آینده‌نگری)",
+                prediction_id=prediction_id,
+                observed_at_utc=outcome.observed_at_utc.isoformat(),
+                measured_at_utc=measured_at.isoformat(),
+            )
+        try:
+            bound.append(
+                RegimeBoundPrediction(
+                    prediction_id=prediction_id,
+                    regime_label=label,  # type: ignore[arg-type]
+                    predicted_probability=float(item["predicted_probability"]),
+                    observed=item["observed"],
+                )
+            )
+        except (TypeError, ValueError) as exc:
+            raise _typed_422(
+                "REGIME_ASSIGNMENT_REFUSED",
+                str(exc),
+                "تخصیص رژیم با این مقادیر رد شد",
+                prediction_id=prediction_id,
+                reason=str(exc),
+            ) from exc
+
+    try:
+        regime_table = slice_prediction_performance_by_regime(
+            bound, raw_labels, bucket_count=bucket_count
+        )
+    except ValueError as exc:
+        raise _typed_422(
+            "REGIME_PERFORMANCE_REFUSED",
+            str(exc),
+            "برش رژیمی عملکرد پیش‌بینی رد شد",
+            reason=str(exc),
+        ) from exc
+
+    return {
+        "measured_at_utc": measured_at.isoformat(),
+        "declared_labels": list(raw_labels),
+        "bucket_count": bucket_count,
+        "assignment_count": len(bound),
+        "evaluated_predictions_in_registry": len(evaluated_ids),
+        "regime_table": [row.model_dump(mode="json") for row in regime_table],
+        "empty_registry_note": (
+            "هیچ ارزیابی پس از بلوغ در ریجستری وجود ندارد؛ جدول رژیم خالی و صادقانه است"
+            if not evaluated_ids
+            else None
+        ),
+        "persistence_note": store.persistence_note,
+        "persistence_backend": store.backend_label,
+        "persistence_durable": store.persistence_durable,
+        "retention_policy": RETENTION_POLICY,
+        "trust_envelope": _trust_envelope(),
         "honesty": _honesty_envelope(declared_version="PREDICTION-REGISTRY-V1"),
     }

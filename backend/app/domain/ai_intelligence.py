@@ -3,6 +3,17 @@
 P3.39 scope: structured intelligence and decision-support only.
 No autonomous trading, broker integration, live order execution, or LLM provider
 is implemented here.
+
+WAVE-AB5 (WP-A) HOLD status: HOLD is EMITTED, not merely reserved. The
+pre-AB5 aggregation had a genuine-conflict hole: when the ONLY evidence
+conflict was "technical evidence is positive but fundamental evidence is
+weak" (technical entry support opposed by fundamental evidence with
+comparable weight, neither side dominating the composite), the recommendation
+collapsed into the generic WATCH branch — conflating "weak/mixed signals"
+with "two strong opposing signals". The additive HOLD branch (see
+``AIIntelligenceCore.evaluate``) emits HOLD for exactly that deterministic
+state (single technical-vs-fundamental conflict, composite below the clear
+zone). Every other branch and threshold is unchanged.
 """
 
 from __future__ import annotations
@@ -16,6 +27,16 @@ from app.core.config import is_verified_live
 
 Recommendation = Literal["BUY_CANDIDATE", "HOLD", "SELL_CANDIDATE", "WATCH", "NO_ACTION", "INSUFFICIENT_DATA"]
 RiskLevel = Literal["LOW", "MEDIUM", "HIGH"]
+
+#: WAVE-AB5 (WP-A): the exact conflict string whose SOLE presence (with the
+#: composite below the clear zone) is the deterministic HOLD condition.
+_TECHNICAL_FUNDAMENTAL_CONFLICT = (
+    "Technical evidence is positive but fundamental evidence is weak."
+)
+#: Composite ceiling of the HOLD band: above it the weighted aggregate has
+#: already resolved toward the technical side (pre-BUY/SELL behavior is
+#: deliberately unchanged).
+_HOLD_COMPOSITE_CEILING = 75.0
 
 
 class IntelligenceEvidence(BaseModel):
@@ -225,6 +246,22 @@ class AIIntelligenceCore:
         if trust_invalidations or not symbol_context:
             recommendation = "INSUFFICIENT_DATA"
             reason_codes.append("DATA_TRUST_BLOCK")
+        elif (
+            conflicts == [_TECHNICAL_FUNDAMENTAL_CONFLICT]
+            and composite < _HOLD_COMPOSITE_CEILING
+        ):
+            # WAVE-AB5 (WP-A) — HOLD branch, ADDITIVE. Deterministic condition
+            # under which HOLD is the honest recommendation: technical
+            # evidence supports entry (technical_score >= 65 produced this
+            # conflict) while fundamental evidence opposes it (value < 35),
+            # with COMPARABLE weight — the technical-vs-fundamental conflict
+            # is the ONLY conflict, no other evidence axis tips the balance,
+            # and the composite has not resolved above the clear zone.
+            # Previously this genuine conflict fell through to the generic
+            # WATCH label, conflating weak/mixed signals with two strong
+            # opposing signals. All other branches/thresholds unchanged.
+            recommendation = "HOLD"
+            reason_codes.append("TECHNICAL_FUNDAMENTAL_CONFLICT_HOLD")
         elif conflicts and composite < 75:
             recommendation = "WATCH"
         elif risk_score >= 75:

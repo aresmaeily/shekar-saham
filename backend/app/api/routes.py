@@ -745,6 +745,117 @@ async def ai_events(limit: int = Query(50, ge=1, le=200)) -> dict[str, Any]:
     return {"ok": True, "events": market_intelligence_service.list_events(limit=limit)}
 
 
+@router.get("/ai/opportunity-clusters")
+async def ai_opportunity_clusters(
+    run_id: str = Query(..., min_length=1, max_length=128, description="governance run binding (required)"),
+    created_at_utc: str = Query(..., description="caller-supplied instant (ISO-8601, tz-aware); no wall clock is read"),
+    limit: int = Query(20, ge=1, le=100),
+    declared_context: str = Query("{}", description="caller-DECLARED context JSON: watchlist_symbols / ma_signal_evidence / rotation_industries"),
+) -> dict[str, Any]:
+    """WAVE-AB5 (WP-A, additive): explainable opportunity clusters at runtime.
+
+    Runs one market-monitoring cycle (persist=False), then deterministically
+    clusters the ``OpportunityRank`` rows into governed
+    ``OpportunityObject``/``OpportunityCluster`` records (06 §6: the FIVE
+    corpus explanations; classified by DECLARED rules only; unclassified
+    objects refused; M&A signals only from caller-declared dedicated
+    evidence — never from a score). ``run_id`` and ``created_at_utc`` are
+    REQUIRED caller supplies (governance binding, no wall clock). A rank
+    that matches no declared rule is a typed 422 refusal — never silently
+    dropped, never loosely clustered.
+    """
+    from datetime import datetime as _datetime
+
+    from app.services.market_intelligence_service import market_intelligence_service
+    from app.services.opportunity_clustering import (
+        OPPORTUNITY_CLUSTERING_VERSION,
+        OpportunityClusteringRefusal,
+        build_opportunity_clusters,
+    )
+
+    try:
+        created = _datetime.fromisoformat(str(created_at_utc).replace("Z", "+00:00"))
+    except ValueError:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "MALFORMED_INSTANT",
+                "message_en": "created_at_utc is not an ISO-8601 instant",
+                "message_fa": "created_at_utc یک لحظه ISO-8601 معتبر نیست",
+            },
+        ) from None
+    if created.tzinfo is None or created.tzinfo.utcoffset(created) is None:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "NAIVE_INSTANT_REFUSED",
+                "message_en": "created_at_utc must carry an explicit UTC offset",
+                "message_fa": "created_at_utc باید آفست صریح UTC داشته باشد",
+            },
+        )
+    import json as _json
+
+    try:
+        context = _json.loads(declared_context)
+        if not isinstance(context, dict):
+            raise ValueError("not-a-dict")
+    except ValueError:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "MALFORMED_DECLARED_CONTEXT",
+                "message_en": "declared_context must be a JSON object",
+                "message_fa": "declared_context باید یک شیء JSON باشد",
+            },
+        ) from None
+
+    result = await market_intelligence_service.run_market_monitoring_cycle(
+        market_service, limit=limit, persist=False
+    )
+    try:
+        clustering = build_opportunity_clusters(
+            result.opportunities,
+            run_id=run_id,
+            created_at_utc=created,
+            declared_context=context,
+        )
+    except OpportunityClusteringRefusal as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "OPPORTUNITY_CLUSTERING_REFUSED",
+                "reason": exc.reason,
+                "message_en": f"opportunity clustering refused: {exc.reason}",
+                "message_fa": "خوشه‌بندی فرصت‌ها رد شد (شیء طبقه‌بندی‌نشده یا ورودی نامعتبر)",
+                "detail": exc.detail,
+            },
+        ) from exc
+    payload = clustering.model_dump(mode="json")
+    return {
+        "ok": True,
+        "clustering_version": OPPORTUNITY_CLUSTERING_VERSION,
+        "run_id": run_id,
+        "created_at_utc": payload["created_at_utc"],
+        "opportunity_clusters": payload["clusters"],
+        "opportunity_objects": payload["objects"],
+        "cluster_count": payload["cluster_count"],
+        "object_count": payload["object_count"],
+        "declared_context": context,
+        "governance": {
+            "run_id_required": True,
+            "unclassified_refused": True,
+            "ma_signal_requires_declared_evidence": True,
+            "no_wall_clock": "هر لحظه زمانی ورودیِ فراخوان است؛ سرور ساعت دیواری نمی‌خواند",
+        },
+        "data_trust": result.snapshot.data_trust,
+        "honesty": {
+            "synthetic_note": "خوشه‌ها فقط از ردیف‌های اعلامی/سینتتیک همین چرخه ساخته می‌شوند؛ مبنای تصمیم واقعی نیستند",
+            "missing_data_disclosed": True,
+            "advisory_only": True,
+        },
+    }
+
+
 @router.post("/backtest/run", dependencies=SENSITIVE_DEPENDENCIES)
 async def backtest_run(body: BacktestBody = Body(default_factory=BacktestBody)) -> dict[str, Any]:
     await market_service.get_analysis(force=False)

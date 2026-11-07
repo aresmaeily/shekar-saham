@@ -436,11 +436,27 @@ class DurablePredictionStore:
                         "prediction": record,
                         "outcome": (
                             self._decode_outcome(outcome_row[0])
-                            if outcome_row
+                            if outcome_row is not None
                             else None
                         ),
                     }
                 )
+            return rows
+
+    def list_evaluations(self) -> List[PredictionEvaluation]:
+        """WAVE-AB5 (WP-I, additive): every durable evaluation row, decoded.
+
+        Append-only read path (no UPDATE/DELETE semantics); rows are returned
+        in insertion order, decoded verbatim — nothing is synthesized. Used
+        by the regime-sliced calibration surface to bind only EVALUATED
+        predictions.
+        """
+        with self._lock:
+            rows: List[PredictionEvaluation] = []
+            for payload, in self._conn.execute(
+                "SELECT payload FROM evaluations ORDER BY seq ASC"
+            ).fetchall():
+                rows.append(PredictionEvaluation.model_validate_json(payload))
             return rows
 
     def snapshot_registry(self) -> PredictionRegistry:
@@ -675,6 +691,17 @@ class MemoryPredictionStore:
             }
             for p in self._registry.predictions
         ]
+
+    def list_evaluations(self) -> List[PredictionEvaluation]:
+        """WAVE-AB5 (WP-I, additive): mirror of the durable read path.
+
+        The process-local value object carries no evaluation history (see
+        :meth:`counts`: evaluations are structurally 0 here) — evaluations
+        produced by :meth:`evaluate` are returned to the caller only, so
+        this read path honestly reports an EMPTY evaluation history rather
+        than pretending to persist one.
+        """
+        return []
 
     def snapshot_registry(self) -> PredictionRegistry:
         return self._registry
