@@ -1,3 +1,7 @@
+## 2026-11-07 — WAVE-AC CI-observed installer FAILURE root-caused and fixed (forward-only; failure kept on record)
+
+- The S05 payload-verifier absence sweep (delivered in `1c07099`) was unscoped and matched the third-party pip-bundled `site-packages/certifi/cacert.pem` (legitimate CA bundle pulled by `httpx==0.28.1`) → `build-installer` FAILURE at `0ccee1d` step 9 (steps 1–8 green). ROOT-CAUSED and FIXED by `11dcb73`: the recursive credential sweep now covers FIRST-PARTY payload areas only (backend sources + resources top level); third-party PyPI content excluded by documented scope; explicit forbidden-path assertions unchanged. CI on the FINAL HEAD `11dcb73`: **ALL 4 REQUIRED CHECKS SUCCESS** (build-installer job 128453112700). The failure remains on record (WS1 §20 + artifact manifest `ci_incidents_on_record`).
+
 ## 2026-11-07 — WAVE-AB..AH (MASTER CONTINUOUS CLOSURE): CI CURRENCY + 17-ROLE MATRIX + FULL BROWSER EVIDENCE + ARTIFACT MANIFEST + PARITY + GOVERNANCE
 
 - **WAVE-AB:** exact-SHA CI currency at `b1d1c3c` — ALL 4 required checks SUCCESS with build-installer verified at STEP level (12/12 steps green); artifact identity recorded (114.4 MB, retention 30d); the `445e4fb` build-installer FAILURE remains on record, never converted; Vercel combined-status failure recorded as the optional non-gating pipeline.
