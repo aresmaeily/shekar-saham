@@ -252,6 +252,24 @@ class RoleClassification(BaseModel):
         return self
 
 
+class DeclaredMetricRow(BaseModel):
+    """WAVE-AB4: one declared metric row (valuation/capital-structure).
+
+    unit+currency discipline mirrors FundamentalFact: a value-bearing row
+    MUST declare its unit and currency; scale-free rows (e.g. P/E as a
+    ratio) may use a scale-free unit with currency "N/A". Nothing inferred.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    metric: str = Field(min_length=1, max_length=128)
+    value: Decimal
+    unit: str = Field(min_length=1, max_length=32)
+    currency: str = Field(default="N/A", max_length=8)
+    period: str | None = Field(default=None, max_length=64)
+    source_evidence_ids: tuple[str, ...] = Field(min_length=1)
+
+
 class CompanyDossier(BaseModel):
     """Point-in-time company dossier (06 charter §4 content list).
 
@@ -276,6 +294,16 @@ class CompanyDossier(BaseModel):
     missing_data: tuple[str, ...] = ()
     auditor_opinion: str | None = None
     going_concern_warning: bool = False
+    # WAVE-AB4 (WP-G/G4): first-class declared content sections. All optional
+    # and DECLARED-ONLY: the dossier never synthesizes business narratives,
+    # valuation metrics or capital-structure rows — absent sections stay
+    # absent (None/()) exactly like missing_data, and any supplied content is
+    # the caller's declared, source-grounded responsibility (R-3/R-7 for real
+    # filings). confidence is a CLOSED vocabulary, not a fabricated score.
+    business_overview: str | None = Field(default=None, max_length=4000)
+    valuation_metrics: tuple["DeclaredMetricRow", ...] = ()
+    capital_structure: tuple["DeclaredMetricRow", ...] = ()
+    confidence: Literal["HIGH", "MEDIUM", "LOW", "INSUFFICIENT_DATA"] | None = None
     data_trust_ref: str = Field(min_length=1)
     pit_eligible: bool
     limitations: tuple[str, ...] = Field(min_length=1)

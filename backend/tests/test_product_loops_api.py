@@ -548,7 +548,12 @@ def test_route_surface_scoped_to_governed_prefix() -> None:
     assert product_paths, "productloops routes must be registered"
     for path in product_paths:
         assert path.startswith("/api/v10/productloops")
-    assert len(product_paths) == 10  # manifest + dossier + research(2) + audit + predictions(5)
+    # COUNTER-PIN BUMP (recorded, WAVE-AB4 2026-11-08): 10 -> 11 — NEW
+    # GET /api/v10/productloops/intel/coverage (WP-G/G1): the honest
+    # CoverageReport contract finally surfaced at runtime (it had ZERO
+    # production callers; declared fixture descriptors, all kill switches
+    # ENGAGED, no uptime evidence invented). See test_wpg_gap_closure.py.
+    assert len(product_paths) == 11  # manifest + dossier + coverage + research(2) + audit + predictions(5)
 
 
 def test_gates_unchanged_in_default_settings() -> None:

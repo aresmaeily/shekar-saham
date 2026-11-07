@@ -322,6 +322,54 @@ def _research_run_provenance() -> RunProvenance:
     )
 
 
+@router.get("/intel/coverage")
+async def intel_coverage(
+    now_utc: str = Query(..., description="caller-supplied evaluation instant (ISO-8601)"),
+) -> Dict[str, Any]:
+    """WAVE-AB4 (WP-G/G1): the honest source-coverage report, finally surfaced.
+
+    The audit recorded that CoverageReport/coverage_report_from had ZERO
+    production callers. This endpoint folds the DECLARED fixture descriptors
+    (all kill switches ENGAGED — nothing is runnable) with the (empty)
+    runtime uptime evidence into the verbatim CoverageReport contract.
+    Honesty: universal coverage stays structurally false; never-retrieved
+    lists every declared source (no retrieval has ever happened); staleness
+    is evaluated only against declared freshness targets.
+    """
+    from app.data.registry_uptime import coverage_report_from
+    from app.domain.declared_source_fixtures import (
+        DECLARED_SOURCES_VERSION,
+        declared_source_descriptors,
+    )
+
+    now = _parse_instant(now_utc, "now_utc")
+    descriptors = declared_source_descriptors()
+    report = coverage_report_from(
+        descriptors,
+        {},  # no runtime uptime evidence exists — nothing is invented
+        now_utc=now,
+        known_gaps=(
+            "real retrieval requires R-3/R-7 authorization (owner gate)",
+            "all declared sources are kill-switch ENGAGED; none runnable",
+        ),
+    )
+    return {
+        "ok": True,
+        "declared_sources_version": DECLARED_SOURCES_VERSION,
+        "report": report.model_dump(mode="json"),
+        "runnable_sources": [
+            d.source_id for d in descriptors if d.is_runnable()
+        ],
+        "kill_switch_states": {d.source_id: d.kill_switch for d in descriptors},
+        "honesty": {
+            "universal_coverage_claimed": False,
+            "no_uptime_evidence_invented": "the uptime map is empty; counters are never fabricated",
+            "activation": "R-3/R-7 owner gate + per-source kill switch release required",
+        },
+        "trust_envelope": _trust_envelope(),
+    }
+
+
 @router.get("/research/status")
 async def research_status() -> Dict[str, Any]:
     from app.core.config import get_settings

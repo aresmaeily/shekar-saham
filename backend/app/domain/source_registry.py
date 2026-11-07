@@ -74,6 +74,9 @@ class RateLimit(BaseModel):
     notes: str = ""
 
 
+SourceKillSwitchState = Literal["ENGAGED", "RELEASED"]
+
+
 class SourceDescriptor(BaseModel):
     """One declared source in the registry.
 
@@ -100,6 +103,10 @@ class SourceDescriptor(BaseModel):
     status: SourceStatus = "CONFIGURED"
     last_success_utc: datetime | None = None
     last_failure_utc: datetime | None = None
+    # WAVE-AB4 (WP-G/G1): per-source kill switch, DEFAULT ENGAGED (fail-closed
+    # — a source is runnable only when explicitly released). Job-level kill
+    # switches (monitoring/proactive/alert-ops) remain independent layers.
+    kill_switch: SourceKillSwitchState = "ENGAGED"
     notes: str = ""
 
     @field_validator("last_success_utc", "last_failure_utc")
@@ -118,7 +125,17 @@ class SourceDescriptor(BaseModel):
     def _consistency(self) -> "SourceDescriptor":
         if self.precedence_class != default_precedence_for_tier(self.tier):
             raise ValueError("precedence_class_inconsistent_with_tier")
+        if self.status == "RETIRED" and self.kill_switch == "RELEASED":
+            raise ValueError("retired_source_cannot_be_kill_switch_released")
         return self
+
+    def is_runnable(self) -> bool:
+        """WAVE-AB4: deterministic runnability — fail-closed at every layer.
+
+        A source may run only when it is not RETIRED and its own kill switch
+        is RELEASED. RETIRED is terminal (mirror of registry_uptime's
+        retirement discipline)."""
+        return self.status != "RETIRED" and self.kill_switch == "RELEASED"
 
 
 class CoverageReport(BaseModel):

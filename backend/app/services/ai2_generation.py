@@ -72,6 +72,19 @@ GOVERNANCE CONTRACT (fail-closed by construction):
   (bounded); process restart clears them by design until an owner-approved
   persistence decision exists — same honesty posture as the strategy-lab
   version registry (recorded in every listing payload).
+- Deep evaluation (WAVE-B, WP-B work item 1 — additive composition, MVRL
+  stages 9-12): after the existing backtest + paper-replay stages the
+  pipeline composes a bounded deterministic deep-evaluation block — pinned
+  small walk-forward over the SAME seeded series, holdout attestation for
+  the declared evaluation-window split, caller-declared regime slices, and
+  a comparison against the DECLARED buy-and-hold baseline on the same
+  seeded path. The block is fail-honest (any engine refusal becomes a
+  refusal row on the candidate's ``deep_evaluation`` record — never a
+  silent skip, never a raise that changes the pipeline's 200/422 contract)
+  and deterministic (no clock/RNG). Composition lives in
+  ``app/services/ai2_deep_evaluation.py``; the typed record family lives in
+  ``app/domain/ai2_deep_evaluation.py``. Version constants below are NOT
+  bumped: no existing test pins them and this wave is purely additive.
 """
 
 from __future__ import annotations
@@ -90,6 +103,7 @@ from typing import Any, Callable, Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 from app.core.config import get_settings
+from app.domain.ai2_deep_evaluation import AI2DeepEvaluation
 from app.domain.ai2_governance import AI2RunLedger, AI2RunRecord
 from app.domain.ai_provider import invoke_ai_provider, resolve_ai_provider
 from app.domain.g2_gate import execution_mode
@@ -97,6 +111,7 @@ from app.engines.strategy_dsl import DSL_VERSION, compile_source
 from app.engines.strategy_dsl.ast_nodes import SERIES_BASES
 from app.engines.strategy_dsl.errors import DSLError
 from app.engines.strategy_dsl.types import FUNCTION_ARITY, INDICATOR_FNS
+from app.services.ai2_deep_evaluation import build_deep_evaluation
 from app.services.strategy_lab_service import (
     run_backtest_on_seeded,
     run_paper_replay_on_seeded,
@@ -426,6 +441,11 @@ class GenerationCandidate(BaseModel):
     backtest_digest: str
     paper_summary_digest: str
     metrics_headline: dict[str, Any]
+    # WAVE-B (WP-B work item 1): the deep-evaluation record composed after
+    # the backtest + paper-replay stages (MVRL stages 9-12). None means the
+    # candidate predates this wave; the record itself carries honest refusal
+    # rows for any deep-evaluation engine that refused (never silent).
+    deep_evaluation: AI2DeepEvaluation | None = None
     status: Literal["DRAFT", "APPROVED", "PROMOTED"] = "DRAFT"
     created_at_utc: str
     approved_by: str | None = None
@@ -1388,6 +1408,17 @@ class AI2GenerationService:
                 warnings=["Generation exceeded its wall-time budget after provider return; nothing was committed."],
             )
 
+        # Stage 5.5 — deep evaluation (WAVE-B, MVRL stages 9-12; additive,
+        # fail-honest, deterministic): walk-forward + holdout + regime
+        # slices + declared-baseline comparison over the SAME seeded series.
+        # The builder cannot raise and cannot refuse the run: any engine
+        # refusal is recorded on the candidate's deep_evaluation record, so
+        # the pipeline's 200/422 contract is untouched. Runs in a worker
+        # thread like stage 5 (pure CPU, bounded by the pinned constants).
+        deep_evaluation = await asyncio.to_thread(
+            build_deep_evaluation, program, request, backtest
+        )
+
         # Stage 6 — versioned candidate (DRAFT; the registry assigns the
         # versioned id) + append-only governance record.
         #
@@ -1412,6 +1443,7 @@ class AI2GenerationService:
             backtest_digest=str(backtest.get("result_digest") or ""),
             paper_summary_digest=str(paper.get("summary_digest") or ""),
             metrics_headline=headline,
+            deep_evaluation=deep_evaluation,
             created_at_utc=provenance.created_at_utc,
         )
         winner_id: str | None = None
