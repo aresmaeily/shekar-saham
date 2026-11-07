@@ -27,6 +27,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 MAIN_JS = (ROOT / "electron" / "main.js").read_text(encoding="utf-8")
 INDEX_HTML = (ROOT / "frontend" / "index.html").read_text(encoding="utf-8")
+WORKFLOW_INSTALLER = (ROOT / ".github" / "workflows" / "windows-installer.yml").read_text(encoding="utf-8")
+LICENSE_PYTHON = (ROOT / "electron" / "resources" / "python-runtime" / "LICENSE_PYTHON.txt").read_text(encoding="utf-8")
 
 
 def test_chartpro_menu_item_and_route_present():
@@ -221,3 +223,115 @@ def test_supervised_backend_payload_is_unpacked_not_asar():
     assert "process.resourcesPath" in BACKEND_SERVICE_JS
     # the payload must NOT ride inside app.asar
     assert "resources/**/*" not in pkg
+
+
+# ---------------------------------------------------------------------------
+# WAVE-T3 (MR-I-02, 2026-11-07) — embedded Python runtime bundling (static
+# contract pins). The installer ships a PINNED embedded CPython 3.12.10
+# (python.org embeddable amd64, MD5-verified against the official published
+# value) plus a LOCAL dependency bundle; the shell prefers the bundled
+# python.exe; the PSF license notice is bundled in-repo. The shell is never
+# executed in pytest; nothing here runs or downloads the runtime.
+# ---------------------------------------------------------------------------
+
+
+def test_embedded_runtime_pinned_url_and_published_checksum():
+    """The installer workflow pins the EXACT runtime artifact and the MD5
+    published on the official python.org release page (fe8ef205f2e9c3ba44d0
+    cf9954e1abd3 for python-3.12.10-embed-amd64.zip) — and FAILS the build
+    on mismatch instead of bundling an unverified runtime."""
+    assert "python-3.12.10-embed-amd64.zip" in WORKFLOW_INSTALLER
+    assert "fe8ef205f2e9c3ba44d0cf9954e1abd3" in WORKFLOW_INSTALLER
+    assert "MD5 mismatch" in WORKFLOW_INSTALLER
+    assert "refusing to bundle an unverified runtime" in WORKFLOW_INSTALLER
+
+
+def test_embedded_runtime_version_pin_is_the_last_windows_binary():
+    """3.12.16+ is security-source-only (no embeddable package exists) — the
+    workflow must DISCLOSE that 3.12.10 is the last 3.12.x shipping Windows
+    binaries, so the pin is documented as deliberate, not accidental."""
+    assert "3.12.16" in WORKFLOW_INSTALLER
+    assert "security-source-only" in WORKFLOW_INSTALLER
+    assert "no embeddable package exists after 3.12.10" in WORKFLOW_INSTALLER
+
+
+def test_embedded_runtime_local_dependency_bundle_offline_first_launch():
+    """Dependencies resolve from the pinned requirements into a LOCAL
+    site-packages tree (--only-binary=:all:, cp312/win_amd64) — first launch
+    needs NO pip, NO venv, NO network; the bundle completeness is verified
+    (core packages) and the file count recorded."""
+    assert "--only-binary=:all:" in WORKFLOW_INSTALLER
+    assert "--target electron/resources/site-packages" in WORKFLOW_INSTALLER
+    assert "--python-version 3.12" in WORKFLOW_INSTALLER
+    for pkg in ("fastapi", "uvicorn", "pydantic", "numpy", "orjson", "httpx", "tzdata"):
+        assert f"'{pkg}'" in WORKFLOW_INSTALLER, pkg
+    assert "site_packages_files_bundled=" in WORKFLOW_INSTALLER
+
+
+def test_embedded_runtime_pth_wiring_is_the_only_correct_mechanism():
+    """The embeddable distribution runs in ISOLATED mode and ignores
+    PYTHONPATH — the wiring must go through the runtime's own python312._pth
+    (append-only '../site-packages'), with a build-stop if the file is
+    missing or the wiring fails."""
+    assert "python312._pth missing" in WORKFLOW_INSTALLER
+    assert "Add-Content -Path $pth" in WORKFLOW_INSTALLER
+    assert "'../site-packages'" in WORKFLOW_INSTALLER
+    assert "._pth wiring failed" in WORKFLOW_INSTALLER
+    assert "isolated mode" in WORKFLOW_INSTALLER  # rationale disclosed
+
+
+def test_embedded_runtime_import_smoke_proves_the_wiring_in_ci():
+    """The strongest CI verification: the EXTRACTED python.exe must run
+    against the EXTRACTED bundle and import the core stack; the build fails
+    otherwise. This is the recorded evidence that interpreter+deps wiring
+    works BEFORE an installer exists."""
+    assert "IMPORT-SMOKE-OK" in WORKFLOW_INSTALLER
+    assert "import smoke FAILED" in WORKFLOW_INSTALLER
+    assert "python_runtime_import_smoke" in WORKFLOW_INSTALLER
+
+
+def test_embedded_runtime_provenance_recorded_fail_closed():
+    """Runtime provenance is recorded per build: pinned version, source URL,
+    published MD5 + verification verdict, recorded SHA-256, license label —
+    and the payload verification REQUIRES the runtime files + license +
+    dependency bundle before electron-builder runs."""
+    for token in (
+        "python_runtime_version=3.12.10",
+        "python_runtime_url=$pyUrl",
+        "python_runtime_md5_published=$pyMd5",
+        "python_runtime_md5_verified=PASS",
+        "python_runtime_sha256_recorded=$sha",
+        "python_runtime_license=PSF LICENSE VERSION 2",
+    ):
+        assert token in WORKFLOW_INSTALLER, token
+    for required in (
+        "electron/resources/python-runtime/python.exe",
+        "electron/resources/python-runtime/python312._pth",
+        "electron/resources/python-runtime/LICENSE_PYTHON.txt",
+        "electron/resources/site-packages/numpy",
+    ):
+        assert f"'{required}'" in WORKFLOW_INSTALLER, required
+
+
+def test_backend_service_prefers_bundled_python_with_honest_fallback():
+    """The supervised backend resolves the BUNDLED python.exe first (real
+    filesystem path under process.resourcesPath); the system py launcher is
+    the explicit FALLBACK for development checkouts. Nothing is fetched at
+    runtime — no unverified download is ever claimed."""
+    assert "path.join(resPath, 'python-runtime', 'python.exe')" in BACKEND_SERVICE_JS
+    assert "bundled: true" in BACKEND_SERVICE_JS
+    assert "FALLBACK (development only)" in BACKEND_SERVICE_JS
+    assert "an unverified runtime is never fetched" in BACKEND_SERVICE_JS
+    # the pre-WAVE-T3 fallback behavior is preserved byte-identically
+    assert "cmd: 'py', args: ['-3']" in BACKEND_SERVICE_JS
+
+
+def test_embedded_runtime_license_notice_bundled_in_repo():
+    """The PSF LICENSE VERSION 2 notice ships INSIDE the runtime payload
+    directory (shipped via extraResources) with the authoritative full-text
+    pointer — redistribution complies with the retained-notice condition."""
+    assert "PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2" in LICENSE_PYTHON
+    assert "docs.python.org/3/license.html" in LICENSE_PYTHON
+    assert "python-3.12.10-embed-amd64.zip" in LICENSE_PYTHON
+    assert "fe8ef205f2e9c3ba44d0cf9954e1abd3" in LICENSE_PYTHON
+    assert "3.12.10" in LICENSE_PYTHON

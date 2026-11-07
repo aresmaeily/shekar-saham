@@ -10,8 +10,16 @@ name: Windows installer artifact (OA-1)
 # - the Electron shell STARTS and SUPERVISES the bundled backend (WAVE-N
 #   remainder, 2026-11-06: bounded startup + /api/health health-check +
 #   graceful shutdown + bounded crash recovery + honest degraded status page;
-#   loopback-only binding). Residual disclosed in provenance: a Python 3.11+
-#   interpreter must exist on the target machine.
+#   loopback-only binding).
+# - WAVE-T3 (MR-I-02, 2026-11-07): the interpreter prerequisite residual is
+#   CLOSED — the installer bundles a PINNED embedded CPython 3.12.10 runtime
+#   (python.org embeddable amd64, MD5-verified against the official release
+#   page, PSF-2.0 license notice bundled) plus a LOCAL dependency bundle
+#   (pip --only-binary --target site-packages). First launch on the target
+#   machine needs NO system Python, NO pip, NO venv, NO network. The bundled
+#   runtime + dependency wiring is proven IN THIS WORKFLOW by running the
+#   extracted python.exe against the bundled site-packages (import smoke).
+#   The target-machine install itself remains owner R-1/R-2.
 # - the SHA-256 is printed to the public build log AND recorded in
 #   installer_provenance.txt (artifact zip download may be auth-gated; the
 #   log line is the verifiable public evidence);
@@ -48,6 +56,67 @@ jobs:
         with:
           node-version: 20
 
+      - name: Fetch pinned embedded Python runtime (PSF-licensed, checksum-verified) — WAVE-T3 (MR-I-02)
+        shell: pwsh
+        run: |
+          # Pinned to the LAST 3.12.x that ships Windows binaries (3.12.16+ is
+          # security-source-only; no embeddable package exists after 3.12.10).
+          $pyUrl = 'https://www.python.org/ftp/python/3.12.10/python-3.12.10-embed-amd64.zip'
+          # Official published MD5 (python.org release page python-31210).
+          $pyMd5 = 'fe8ef205f2e9c3ba44d0cf9954e1abd3'
+          New-Item -ItemType Directory -Force -Path electron/resources/python-runtime | Out-Null
+          $zip = 'electron/resources/python-runtime/python-embed.zip'
+          Invoke-WebRequest -Uri $pyUrl -OutFile $zip
+          $md5 = (Get-FileHash $zip -Algorithm MD5).Hash
+          if (-not ($md5 -ieq $pyMd5)) { Write-Error "embedded python MD5 mismatch: got $md5 want $pyMd5 — refusing to bundle an unverified runtime"; exit 1 }
+          $sha = (Get-FileHash $zip -Algorithm SHA256).Hash
+          Expand-Archive -Path $zip -DestinationPath electron/resources/python-runtime -Force
+          Remove-Item -Force $zip
+          if (-not (Test-Path 'electron/resources/python-runtime/python.exe')) { Write-Error 'embedded python.exe missing after extraction'; exit 1 }
+          # Wire the LOCAL dependency bundle through the runtime's own ._pth
+          # (the embeddable runs in isolated mode; PYTHONPATH is ignored — the
+          # ._pth file is the only correct wiring mechanism).
+          $pth = 'electron/resources/python-runtime/python312._pth'
+          if (-not (Test-Path $pth)) { Write-Error 'python312._pth missing — cannot wire site-packages'; exit 1 }
+          Add-Content -Path $pth -Value '../site-packages'
+          if (-not (Select-String -Path $pth -Pattern '../site-packages' -Quiet)) { Write-Error '._pth wiring failed'; exit 1 }
+          "python_runtime_version=3.12.10" | Out-File -Append installer_provenance.txt
+          "python_runtime_url=$pyUrl" | Out-File -Append installer_provenance.txt
+          "python_runtime_md5_published=$pyMd5" | Out-File -Append installer_provenance.txt
+          "python_runtime_md5_verified=PASS" | Out-File -Append installer_provenance.txt
+          "python_runtime_sha256_recorded=$sha" | Out-File -Append installer_provenance.txt
+          "python_runtime_license=PSF LICENSE VERSION 2 (bundled at python-runtime/LICENSE_PYTHON.txt)" | Out-File -Append installer_provenance.txt
+          Write-Host "embedded runtime 3.12.10 fetched, MD5-verified, ._pth wired"
+
+      - name: Bundle local dependency site-packages (offline first launch)
+        shell: pwsh
+        run: |
+          # Resolve the EXACT pinned requirements into a LOCAL site-packages
+          # tree for cp312/win_amd64 — no sdist builds (--only-binary), so the
+          # bundle is reproducible byte-for-byte from the pinned wheel set.
+          python -m pip install --disable-pip-version-check `
+            -r backend/requirements.txt `
+            --target electron/resources/site-packages `
+            --only-binary=:all: --platform win_amd64 --python-version 3.12 --abi cp312 --implementation cp
+          foreach ($pkg in @('fastapi','uvicorn','pydantic','numpy','orjson','httpx','tzdata')) {
+            if (-not (Test-Path "electron/resources/site-packages/$pkg")) { Write-Error "dependency bundle incomplete: $pkg missing"; exit 1 }
+          }
+          $n = (Get-ChildItem -Recurse -File electron/resources/site-packages).Count
+          "site_packages_files_bundled=$n" | Out-File -Append installer_provenance.txt
+          Write-Host "dependency bundle OK — $n files"
+
+      - name: Bundled-runtime import smoke (real interpreter against the real bundle)
+        shell: pwsh
+        run: |
+          # The strongest verification possible in CI: run the EXTRACTED
+          # python.exe against the EXTRACTED dependency bundle and import the
+          # core stack. This proves the ._pth wiring end-to-end before the
+          # installer is ever produced.
+          $out = & electron/resources/python-runtime/python.exe -c "import fastapi, uvicorn, pydantic, numpy, orjson, httpx, tzdata; print('IMPORT-SMOKE-OK')"
+          Write-Host "$out"
+          if ("$out" -notmatch 'IMPORT-SMOKE-OK') { Write-Error 'bundled runtime import smoke FAILED'; exit 1 }
+          "python_runtime_import_smoke=PASS (fastapi uvicorn pydantic numpy orjson httpx tzdata)" | Out-File -Append installer_provenance.txt
+
       - name: Bundle backend sources + frontend assets + embed release provenance (unsigned)
         shell: pwsh
         run: |
@@ -69,7 +138,14 @@ jobs:
             electron_version = '3.0.0'
             signing = 'UNSIGNED_NO_CERTIFICATE'
             smartscreen_note = 'Windows SmartScreen may warn for unsigned installers'
-            backend_supervision = 'SUPERVISED (WAVE-N remainder, 2026-11-06): the shell starts and supervises the bundled backend as a local loopback-only child process — bounded startup (90s) + /api/health health-check + graceful shutdown + bounded crash recovery (max 3 restarts) + honest degraded status page; narrower residual: a Python 3.11+ interpreter must exist on the target machine (honest python-not-found page if absent)'
+            python_runtime = [ordered]@{
+              version = '3.12.10'
+              distribution = 'python.org Windows embeddable package (64-bit), UNMODIFIED'
+              integrity = 'MD5 verified at build time against python.org published value; SHA-256 recorded in installer_provenance.txt'
+              license = 'PSF LICENSE VERSION 2 — bundled at python-runtime/LICENSE_PYTHON.txt; full text at https://docs.python.org/3/license.html'
+              dependency_bundle = 'resources/site-packages — local pip resolution of the pinned requirements (--only-binary cp312/win_amd64); first launch needs NO system Python, NO pip, NO venv, NO network'
+            }
+            backend_supervision = 'SUPERVISED (WAVE-N remainder, 2026-11-06): the shell starts and supervises the bundled backend as a local loopback-only child process — bounded startup (90s) + /api/health health-check + graceful shutdown + bounded crash recovery (max 3 restarts) + honest degraded status page. Interpreter prerequisite CLOSED (WAVE-T3, MR-I-02, 2026-11-07): a pinned embedded CPython 3.12.10 runtime + local dependency bundle ship INSIDE the installer; the shell prefers the bundled python.exe and falls back to the system py launcher only when it is absent. Target-machine install remains owner R-1/R-2'
           }
           $meta | ConvertTo-Json | Out-File -Encoding utf8 electron/resources/RELEASE_PROVENANCE.json
           Get-Content electron/resources/RELEASE_PROVENANCE.json
@@ -85,7 +161,13 @@ jobs:
             'electron/resources/backend/app/main.py',
             'electron/resources/backend/requirements.txt',
             'electron/resources/frontend/index.html',
-            'electron/resources/RELEASE_PROVENANCE.json'
+            'electron/resources/RELEASE_PROVENANCE.json',
+            'electron/resources/python-runtime/python.exe',
+            'electron/resources/python-runtime/python312._pth',
+            'electron/resources/python-runtime/LICENSE_PYTHON.txt',
+            'electron/resources/site-packages/uvicorn',
+            'electron/resources/site-packages/fastapi',
+            'electron/resources/site-packages/numpy'
           )
           $missing = @($required | Where-Object { -not (Test-Path $_) })
           if ($missing.Count -gt 0) { Write-Error ("incomplete payload: " + ($missing -join ', ')); exit 1 }

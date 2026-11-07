@@ -68,13 +68,32 @@ function getState() {
   return { state, restarts, pid: child ? child.pid : null, host: LOCAL_HOST, port: DEFAULT_PORT };
 }
 
-// Resolve a Python interpreter HONESTLY: prefer the Windows py launcher,
-// then python. Nothing is fetched; no bundled runtime is claimed.
+// Resolve a Python interpreter HONESTLY — WAVE-T3 (MR-I-02, 2026-11-07):
+// 1) PREFERRED: the installer bundles a PINNED embedded CPython runtime at
+//    <resources>/python-runtime/python.exe (python.org 3.12.10 embeddable
+//    amd64, MD5-verified against python.org's published value at build time;
+//    PSF LICENSE VERSION 2 notice bundled at
+//    python-runtime/LICENSE_PYTHON.txt). Its dependency bundle lives at
+//    <resources>/site-packages and is wired through the runtime's own
+//    python312._pth (append-only, done at build time and proven by a CI
+//    import smoke). First launch therefore needs NO system Python, NO pip,
+//    NO venv, and NO network.
+// 2) FALLBACK (development only): the Windows py launcher / RADAR_PYTHON /
+//    python3 on PATH — the pre-WAVE-T3 behavior, kept byte-identical so a
+//    dev checkout still boots without a bundled runtime present.
+// Nothing is fetched at runtime; an unverified runtime is never fetched or claimed.
 function resolvePythonCommand() {
   const isWin = process.platform === 'win32';
+  const resPath = process.resourcesPath;
+  if (resPath) {
+    const bundledExe = path.join(resPath, 'python-runtime', 'python.exe');
+    if (fs.existsSync(bundledExe)) {
+      return { cmd: bundledExe, args: [], bundled: true };
+    }
+  }
   return isWin
-    ? { cmd: 'py', args: ['-3'] }
-    : { cmd: process.env.RADAR_PYTHON || 'python3', args: [] };
+    ? { cmd: 'py', args: ['-3'], bundled: false }
+    : { cmd: process.env.RADAR_PYTHON || 'python3', args: [], bundled: false };
 }
 
 // Locate the bundled backend directory (OA-1 WAVE-N remainder).

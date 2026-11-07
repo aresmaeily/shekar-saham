@@ -14,6 +14,13 @@ What this validator asserts (and what it deliberately does NOT):
   (contextIsolation true / nodeIntegration false / enableRemoteModule false
   — the same strings pinned by test_wda_electron_shell_gates.py);
 - build scripts + icon asset present;
+- WAVE-T3 (MR-I-02, 2026-11-07): EMBEDDED-RUNTIME bundling contract — the
+  installer workflow must pin the embedded CPython runtime (URL + published
+  MD5 + fail-closed verification), wire the local dependency bundle through
+  the runtime's own ._pth, prove the wiring with a real import smoke, and
+  record runtime provenance; the shell must prefer the bundled python.exe
+  with the system launcher only as fallback; the PSF license notice must be
+  present in-repo;
 - startup-health contract documented: the shell loads the backend origin and
   the backend exposes /api/health (documented in the runbook);
 - SIGNING: the runbook must DISCLOSE that no signing certificate exists and
@@ -41,6 +48,8 @@ ELECTRON_BACKEND_SERVICE_PATH = ELECTRON_DIR / "backend_service.js"
 ICON_PATH = ELECTRON_DIR / "icon.ico"
 RUNBOOK_PATH = ROOT / "docs" / "active" / "WINDOWS_PACKAGING_RUNBOOK_2026-11-05.md"
 BACKEND_CONFIG = ROOT / "backend" / "app" / "core" / "config.py"
+WORKFLOW_INSTALLER_PATH = ROOT / ".github" / "workflows" / "windows-installer.yml"
+LICENSE_PYTHON_PATH = ELECTRON_DIR / "resources" / "python-runtime" / "LICENSE_PYTHON.txt"
 
 EXPECTED_VERSION = "3.0.0"
 _SECURITY_GATES = (
@@ -158,6 +167,53 @@ def validate() -> dict:
     else:
         results.append(_fail("SUPERVISED_BACKEND_PRESENT", "electron/backend_service.js missing"))
 
+    # 3c) WAVE-T3 (MR-I-02, 2026-11-07): embedded-runtime bundling contract.
+    # The installer ships a PINNED embedded CPython (3.12.10 embeddable amd64)
+    # MD5-verified against python.org's published value, plus a LOCAL
+    # dependency bundle — first launch needs NO system Python, NO pip, NO
+    # venv, NO network. The wiring must be proven by a real import smoke in
+    # CI. Honest scope: still NOT claimed here — execution on a target
+    # machine (owner R-1/R-2).
+    if WORKFLOW_INSTALLER_PATH.is_file():
+        wf = WORKFLOW_INSTALLER_PATH.read_text(encoding="utf-8")
+        runtime_gates = {
+            "EMBEDDED_RUNTIME_PINNED_URL": "python-3.12.10-embed-amd64.zip" in wf,
+            "EMBEDDED_RUNTIME_PINNED_MD5": "fe8ef205f2e9c3ba44d0cf9954e1abd3" in wf,
+            "EMBEDDED_RUNTIME_FAIL_CLOSED": "MD5 mismatch" in wf and "refusing to bundle an unverified runtime" in wf,
+            "EMBEDDED_RUNTIME_PTH_WIRING": "Add-Content -Path $pth" in wf and "'../site-packages'" in wf,
+            "EMBEDDED_RUNTIME_LOCAL_DEPS": "--only-binary=:all:" in wf and "--target electron/resources/site-packages" in wf,
+            "EMBEDDED_RUNTIME_IMPORT_SMOKE": "IMPORT-SMOKE-OK" in wf and "import smoke FAILED" in wf,
+            "EMBEDDED_RUNTIME_PAYLOAD_VERIFY": "python-runtime/python.exe" in wf and "python-runtime/LICENSE_PYTHON.txt" in wf and "site-packages/numpy" in wf,
+            "EMBEDDED_RUNTIME_PROVENANCE": "python_runtime_version=3.12.10" in wf and "python_runtime_sha256_recorded" in wf and "python_runtime_import_smoke" in wf,
+            "EMBEDDED_RUNTIME_LICENSE_META": "PSF LICENSE VERSION 2" in wf and "python_runtime = [ordered]@{" in wf,
+        }
+        for code, ok in runtime_gates.items():
+            results.append(_pass(code, "pinned") if ok else _fail(code, "installer workflow gate missing"))
+    else:
+        results.append(_fail("EMBEDDED_RUNTIME_WORKFLOW", f"{WORKFLOW_INSTALLER_PATH.name} missing"))
+
+    if ELECTRON_BACKEND_SERVICE_PATH.is_file():
+        svc_text = ELECTRON_BACKEND_SERVICE_PATH.read_text(encoding="utf-8")
+        shell_gates = {
+            "EMBEDDED_RUNTIME_SHELL_PREFER": "'python-runtime', 'python.exe'" in svc_text,
+            "EMBEDDED_RUNTIME_SHELL_HONEST_FALLBACK": "FALLBACK (development only)" in svc_text,
+            "EMBEDDED_RUNTIME_NO_RUNTIME_FETCH": "bundled: true" in svc_text and "an unverified runtime is never fetched" in svc_text,
+        }
+        for code, ok in shell_gates.items():
+            results.append(_pass(code, "present") if ok else _fail(code, "shell runtime-resolution gate missing"))
+    else:
+        results.append(_fail("EMBEDDED_RUNTIME_SHELL", "electron/backend_service.js missing"))
+
+    if LICENSE_PYTHON_PATH.is_file():
+        lic = LICENSE_PYTHON_PATH.read_text(encoding="utf-8")
+        results.append(
+            _pass("EMBEDDED_RUNTIME_LICENSE_FILE", "PSF v2 text present")
+            if "PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2" in lic and "docs.python.org/3/license.html" in lic
+            else _fail("EMBEDDED_RUNTIME_LICENSE_FILE", "PSF license text incomplete")
+        )
+    else:
+        results.append(_fail("EMBEDDED_RUNTIME_LICENSE_FILE", f"{LICENSE_PYTHON_PATH.name} missing"))
+
     # 4) runbook present with the mandatory honest disclosures
     if RUNBOOK_PATH.is_file():
         rb = RUNBOOK_PATH.read_text(encoding="utf-8")
@@ -169,6 +225,7 @@ def validate() -> dict:
             "RUNBOOK_HEALTH_STEP": "/api/health" in rb,
             "RUNBOOK_NO_SIGNING_CLAIM": "امضا نشده" in rb or "NOT SIGNED" in rb or "NOT-SIGNED" in rb,
             "RUNBOOK_TARGET_MACHINE_GATED": "R-1" in rb and "R-2" in rb,
+            "RUNBOOK_EMBEDDED_RUNTIME": "3.12.10" in rb and "EMBEDDED_RUNTIME" in rb and "._pth" in rb,
         }
         for code, ok in disclosures.items():
             results.append(_pass(code, "disclosed") if ok else _fail(code, "runbook disclosure missing"))

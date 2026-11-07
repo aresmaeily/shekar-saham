@@ -97,6 +97,32 @@ executed repo-side (see the unified matrix row MR-I-02). Static contract pins:
 `backend/tests/test_wda_electron_shell_gates.py` (WAVE-N remainder section)
 + `scripts/windows_package_readiness.py` section 3b (SUPERVISED_BACKEND_*).
 
+**WAVE-T3 update (2026-11-07, MR-I-02): the interpreter prerequisite is
+CLOSED — the installer now SHIPS the runtime and the dependencies.** The
+installer workflow fetches the PINNED embedded CPython **3.12.10** (the
+python.org Windows embeddable amd64 package — the LAST 3.12.x shipping
+Windows binaries; 3.12.16+ is security-source-only and has no embeddable
+package), verifies its MD5 against the official published value
+(`fe8ef205f2e9c3ba44d0cf9954e1abd3`) with a fail-closed build stop on any
+mismatch, records the computed SHA-256 of the exact downloaded archive into
+`installer_provenance.txt`, and bundles the LOCAL dependency tree
+(`pip --only-binary=:all: --target resources/site-packages`, cp312/win_amd64).
+The runtime's own `python312._pth` is append-wired to `../site-packages`
+(the embeddable distribution runs in isolated mode and ignores PYTHONPATH —
+the ._pth file is the only correct wiring mechanism). CI proves the wiring
+END-TO-END by running the extracted `python.exe` against the extracted
+bundle (`IMPORT-SMOKE-OK`; build fails otherwise). `backend_service.js`
+prefers the bundled `python.exe` and falls back to the system `py` launcher
+only when it is absent (development checkouts unchanged). First launch on
+the target machine now needs NO system Python, NO pip, NO venv, and NO
+network. The PSF LICENSE VERSION 2 notice is bundled in-repo at
+`electron/resources/python-runtime/LICENSE_PYTHON.txt` (with the
+authoritative full-license pointer). Honest scope: the real-install smoke
+on a Windows target machine remains owner R-1/R-2; the runtime payload
+itself is unmodified upstream distribution. Static contract pins:
+`scripts/windows_package_readiness.py` section 3c (13 × EMBEDDED_RUNTIME_*)
++ `backend/tests/test_wda_electron_shell_gates.py` (WAVE-T3 section).
+
 Dependency/asset checks are automated repo-side:
 `python3 scripts/windows_package_readiness.py` (green = NSIS config,
 security gates, icon, build scripts, runbook disclosures all present).

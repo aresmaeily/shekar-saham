@@ -1,0 +1,75 @@
+PYTHON SOFTWARE FOUNDATION LICENSE BUNDLING NOTICE — WAVE-T3 (MR-I-02, 2026-11-07)
+====================================================================================
+
+This installer bundles a PINNED embedded CPython runtime for local execution:
+
+    Version  : 3.12.10 (Windows embeddable package, 64-bit)
+    Source   : https://www.python.org/ftp/python/3.12.10/python-3.12.10-embed-amd64.zip
+    Integrity: the archive MD5 (fe8ef205f2e9c3ba44d0cf9954e1abd3) is verified
+               at build time against the value published on the official
+               python.org release page
+               (https://www.python.org/downloads/release/python-31210/),
+               and the computed SHA-256 of the exact downloaded archive is
+               recorded into installer_provenance.txt and the public build log.
+
+Redistribution terms: the Python Software Foundation License Version 2
+(reproduced verbatim below) permits reproduction and redistribution of Python
+in binary form, provided the PSF license text and copyright notice are
+retained. The complete Python distribution license (including the CNRI and
+other historical sections that apply to parts of the CPython source tree) is
+published at: https://docs.python.org/3/license.html — the PSF Version 2 text
+below is the license under which the Windows embeddable package itself is
+redistributed.
+
+Third-party dependency bundles shipped alongside this runtime (under
+site-packages/) carry their own licenses inside their dist-info directories,
+installed verbatim at build time by pip from the pinned requirements file.
+Nothing in this installer's runtime payload was modified, patched, or rebuilt
+from source.
+
+====================================================================================
+
+PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2
+
+1. This LICENSE AGREEMENT is between the Python Software Foundation ("PSF"), and
+the Individual or Organization ("Licensee") accessing and otherwise using this
+software ("Python") in source or binary form and its associated documentation.
+2. Subject to the terms and conditions of this License Agreement, PSF hereby
+grants Licensee a nonexclusive, royalty-free, world-wide license to reproduce,
+analyze, test, perform and/or display publicly, prepare derivative works,
+distribute, and otherwise use Python alone or in any derivative
+version, provided, however, that PSF's License Agreement and PSF's notice of
+copyright, i.e., "Copyright © 2001 Python Software Foundation; All Rights
+Reserved" are retained in Python alone or in any derivative version
+prepared by Licensee.
+3. In the event Licensee prepares a derivative work that is based on or
+incorporates Python or any part thereof, and wants to make the
+derivative work available to others as provided herein, then Licensee hereby
+agrees to include in any such work a brief summary of the changes made to Python.
+4. PSF is making Python available to Licensee on an "AS IS" basis.
+PSF MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED.  BY WAY
+OF EXAMPLE, BUT NOT LIMITATION, PSF MAKES NO AND DISCLAIMS ANY REPRESENTATION OR
+WARRANTY OF MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE
+USE OF PYTHON WILL NOT INFRINGE ANY THIRD PARTY RIGHTS.
+5. PSF SHALL NOT BE LIABLE TO LICENSEE OR ANY OTHER USERS OF PYTHON
+FOR ANY INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES OR LOSS AS A RESULT OF
+MODIFYING, DISTRIBUTING, OR OTHERWISE USING PYTHON, OR ANY DERIVATIVE
+THEREOF, EVEN IF ADVISED OF THE POSSIBILITY THEREOF.
+6. This License Agreement will automatically terminate upon a material breach of
+its terms and conditions.
+7. Nothing in this License Agreement shall be deemed to create any relationship
+of agency, partnership, or joint venture between PSF and Licensee.  This License
+Agreement does not grant permission to use PSF trademarks or trade name in a
+trademark sense to endorse or promote products or services of Licensee, or any
+third party.
+8. By copying, installing or otherwise using Python, Licensee agrees
+to be bound by the terms and conditions of this License Agreement.
+
+====================================================================================
+
+NOTE ON THE COMPLETE DISTRIBUTION LICENSE: the full historical grant sections
+that complete the CPython distribution license (PSF v2 continuity, "BE OPEN",
+CNRI, CWI, and other contributor sections) are published verbatim at
+https://docs.python.org/3/license.html and are retained unmodified inside the
+distributed runtime; they are deliberately not duplicated here to avoid any
+transcription drift from the authoritative source.
