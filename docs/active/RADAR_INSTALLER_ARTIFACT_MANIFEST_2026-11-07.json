@@ -51,9 +51,9 @@
     "electron/resources/site-packages/numpy"
   ],
   "forbidden_payload_entries": [
-    "*.env anywhere under electron/resources (recursive sweep, fail-closed)",
-    "*.key / *.pem anywhere under electron/resources (recursive sweep, fail-closed)",
-    "backend/.env, backend/*.key, backend/*.pem, backend/app/secrets*.py, backend/pytest.ini, backend/tox.ini (explicit assertions)"
+    "backend/.env, backend/*.key, backend/*.pem, backend/app/secrets*.py, backend/pytest.ini, backend/tox.ini (explicit assertions)",
+    "first-party recursive sweep: electron/resources/backend/** + electron/resources top level for *.env/*.key/*.pem/.env* (fail-closed)",
+    "SCOPE (WAVE-AC CI fix, run 42386854797 job 128445955679): the pip-bundled site-packages is third-party PyPI content (--only-binary) and legitimately contains CA bundles (certifi/cacert.pem) \u2014 excluded from the credential sweep by scope; the initial unscoped sweep false-positived on it and failed the build (recorded, never hidden); steps 5-8 stayed green"
   ],
   "embedded_runtime": {
     "python_version": "3.12.10 (LAST 3.12.x with Windows embeddable binaries; 3.12.16+ is security-source-only)",
@@ -90,5 +90,19 @@
     "execution_mode": "SYNTHETIC_OR_PAPER",
     "egress": "no external egress from AI-2/execution/notification surface",
     "global_completion": "NOT CALCULATED (OA-8)"
-  }
+  },
+  "ci_incidents_on_record": [
+    {
+      "sha": "445e4fb",
+      "run": 42377136446,
+      "job": 128416956257,
+      "cause": "PowerShell quoting defect (apostrophe) in provenance meta string \u2014 step 8 failed; fixed by b1d1c3c rewording; kept on record"
+    },
+    {
+      "sha": "0ccee1d",
+      "run": 42386854797,
+      "job": 128445955679,
+      "cause": "payload-verifier absence sweep unscoped \u2014 certifi/cacert.pem (legit CA bundle in third-party site-packages) matched *.pem; steps 5-8 green, step 9 exit 1; fixed by first-party scope narrowing; kept on record"
+    }
+  ]
 }

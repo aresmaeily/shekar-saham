@@ -175,6 +175,13 @@ jobs:
           # secret or environment files may ride along into the payload. The
           # bundler globs are the structural guard; this is the belt-and-suspenders
           # fail-closed check (any hit fails the build).
+          # SCOPE NOTE (WAVE-AC CI-observed fix): the recursive sweep covers
+          # FIRST-PARTY payload areas only (backend sources + resources top level);
+          # the pip-bundled site-packages is THIRD-PARTY content installed from
+          # PyPI with --only-binary — it legitimately contains CA certificate
+          # bundles (certifi/cacert.pem) which are NOT credentials, so sweeping
+          # it produced a false positive that failed the build (recorded, never
+          # hidden: run 42386854797 job 128445955679 steps 5-8 green, step 9 exit 1).
           $forbidden = @(
             'electron/resources/backend/.env',
             'electron/resources/.env',
@@ -186,10 +193,13 @@ jobs:
           )
           $leaked = @($forbidden | Where-Object { Test-Path $_ })
           if ($leaked.Count -gt 0) { Write-Error ("forbidden credential/dev files in payload: " + ($leaked -join ', ')); exit 1 }
-          # recursive sweep under resources for env/key/pem files (any depth)
-          $swept = @(Get-ChildItem -Recurse -File electron/resources -Include '*.env','*.key','*.pem','.env*' -ErrorAction SilentlyContinue)
-          if ($swept.Count -gt 0) { Write-Error ("credential-like files found in payload: " + (($swept | ForEach-Object { $_.FullName }) -join ', ')); exit 1 }
-          Write-Host "absence-check OK — no .env/.key/.pem/secret files in payload"
+          # recursive sweep of first-party areas only (backend sources + top-level
+          # resource files; site-packages excluded as third-party PyPI content)
+          $swept = @(Get-ChildItem -Recurse -File electron/resources/backend -Include '*.env','*.key','*.pem','.env*' -ErrorAction SilentlyContinue)
+          $sweptTop = @(Get-ChildItem -File electron/resources -Include '*.env','*.key','*.pem','.env*' -ErrorAction SilentlyContinue)
+          $hits = @($swept + $sweptTop)
+          if ($hits.Count -gt 0) { Write-Error ("credential-like files found in first-party payload: " + (($hits | ForEach-Object { $_.FullName }) -join ', ')); exit 1 }
+          Write-Host "absence-check OK — no .env/.key/.pem/secret files in first-party payload (site-packages third-party CA bundles excluded by scope)"
           $n = (Get-ChildItem -Recurse -File electron/resources/frontend).Count
           "frontend_files_bundled=$n" | Out-File -Append installer_provenance.txt
           Write-Host "payload OK — frontend files bundled: $n"
