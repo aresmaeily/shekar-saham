@@ -1,0 +1,94 @@
+{
+  "manifest": "RADAR_INSTALLER_ARTIFACT_MANIFEST",
+  "version": "WAVE-AE-1",
+  "generated_utc": "2026-11-07",
+  "source_repo": "aresmaeily/shekar-saham",
+  "code_sha": "b1d1c3c0dc08c038b90b7570ca2f6a668bbaaaad",
+  "artifact": {
+    "gh_artifact_id": 13576616229,
+    "name": "windows-installer-unsigned-b1d1c3c0dc08c038b90b7570ca2f6a668bbaaaad",
+    "run_id": 42378045074,
+    "run_url": "https://github.com/aresmaeily/shekar-saham/actions/runs/42378045074",
+    "job_id": 128419608107,
+    "workflow": ".github/workflows/windows-installer.yml",
+    "size_in_bytes": 114397087,
+    "size_human": "~114.4 MB",
+    "created_utc": "2026-11-07T13:42:35Z",
+    "expired": false,
+    "retention_days": 30,
+    "signature": "UNSIGNED (electron-builder NSIS; CSC_IDENTITY_AUTO_DISCOVERY=false)",
+    "sha256_of_zip": "OWNER-VERIFIABLE (anonymous download is HTTP 401; download with an authenticated session or owner account, then verify against the workflow step-11 recorded hash and the embedded RELEASE_PROVENANCE.json)",
+    "sha256_of_inner_installer": "RECORDED BY CI BUILD in step 11 public log + embedded provenance; owner re-verifies after download"
+  },
+  "ci_step_level_verification": {
+    "job_conclusion": "success",
+    "all_12_steps": "success",
+    "steps": [
+      "1 Set up job",
+      "2 checkout (pinned SHA)",
+      "3 Record provenance (source SHA / runner toolchain)",
+      "4 setup-node v4.1.0 (pinned SHA) node 20",
+      "5 Fetch pinned embedded Python runtime (PSF-licensed, checksum-verified) - WAVE-T3 (MR-I-02)",
+      "6 Bundle local dependency site-packages (offline first launch)",
+      "7 Bundled-runtime import smoke (real interpreter against the real bundle)",
+      "8 Bundle backend sources + frontend assets + embed release provenance (unsigned)",
+      "9 Payload verification (fail the build on an incomplete payload) - WAVE-AC: + absence assertions for .env/.key/.pem/secret sweep",
+      "10 Build NSIS installer (electron-builder, unsigned)",
+      "11 SHA-256 + size recording (public log evidence)",
+      "12 Upload installer artifact (retention 30 days)"
+    ]
+  },
+  "required_payload_entries": [
+    "electron/resources/backend/app/main.py",
+    "electron/resources/backend/requirements.txt",
+    "electron/resources/frontend/index.html",
+    "electron/resources/RELEASE_PROVENANCE.json",
+    "electron/resources/python-runtime/python.exe",
+    "electron/resources/python-runtime/python312._pth",
+    "electron/resources/python-runtime/LICENSE_PYTHON.txt",
+    "electron/resources/site-packages/uvicorn",
+    "electron/resources/site-packages/fastapi",
+    "electron/resources/site-packages/numpy"
+  ],
+  "forbidden_payload_entries": [
+    "*.env anywhere under electron/resources (recursive sweep, fail-closed)",
+    "*.key / *.pem anywhere under electron/resources (recursive sweep, fail-closed)",
+    "backend/.env, backend/*.key, backend/*.pem, backend/app/secrets*.py, backend/pytest.ini, backend/tox.ini (explicit assertions)"
+  ],
+  "embedded_runtime": {
+    "python_version": "3.12.10 (LAST 3.12.x with Windows embeddable binaries; 3.12.16+ is security-source-only)",
+    "official_md5": "fe8ef205f2e9c3ba44d0cf9954e1abd3",
+    "fail_closed": true,
+    "deps_bundle": "pip --only-binary=:all: --target resources/site-packages (cp312/win_amd64)",
+    "pth_wiring": "python312._pth appends '../site-packages' (embeddable isolated mode ignores PYTHONPATH)",
+    "import_smoke": "CI runs the EXTRACTED python.exe against the EXTRACTED bundle (IMPORT-SMOKE-OK or build fails)",
+    "license_notice": "electron/resources/python-runtime/LICENSE_PYTHON.txt (PSF LICENSE VERSION 2) bundled in-repo at the exact SHA"
+  },
+  "first_launch_requirements": {
+    "system_python": "NOT REQUIRED",
+    "pip": "NOT REQUIRED",
+    "venv": "NOT REQUIRED",
+    "network": "NOT REQUIRED at first launch (embedded runtime + local deps)",
+    "admin_rights": "NSIS per-user install; no silent elevation recorded"
+  },
+  "ci_proven_at_b1d1c3c": {
+    "windows_validation_job": "128419608276 success (boot W1, health W2, browser E2E W6 7/7, runtime log posture W7, shutdown)",
+    "build_installer_job": "128419608107 success (all 12 steps incl. runtime fetch/verify/bundle/smoke/payload/build/hash/upload)",
+    "test_backend_job": "128419608536 success",
+    "build_docker_job": "128419844457 success"
+  },
+  "not_claimed": [
+    "binary SHA-256 independently recomputed from the downloaded zip (owner action; authenticated download required)",
+    "installer executed on any Windows machine (owner R-1/R-2; INSTALL NOT ISSUED)",
+    "upgrade/rollback/user-data-preservation drill on a real Windows profile (owner R-1/R-2)",
+    "code signature (artifact is UNSIGNED by design; signing is an owner decision)"
+  ],
+  "gates": {
+    "AI2_ENABLED": 0,
+    "SCHEDULER_ENABLED": 0,
+    "verified": false,
+    "execution_mode": "SYNTHETIC_OR_PAPER",
+    "egress": "no external egress from AI-2/execution/notification surface",
+    "global_completion": "NOT CALCULATED (OA-8)"
+  }
+}

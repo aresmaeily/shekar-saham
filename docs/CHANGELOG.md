@@ -1,3 +1,14 @@
+## 2026-11-07 — WAVE-AB..AH (MASTER CONTINUOUS CLOSURE): CI CURRENCY + 17-ROLE MATRIX + FULL BROWSER EVIDENCE + ARTIFACT MANIFEST + PARITY + GOVERNANCE
+
+- **WAVE-AB:** exact-SHA CI currency at `b1d1c3c` — ALL 4 required checks SUCCESS with build-installer verified at STEP level (12/12 steps green); artifact identity recorded (114.4 MB, retention 30d); the `445e4fb` build-installer FAILURE remains on record, never converted; Vercel combined-status failure recorded as the optional non-gating pipeline.
+- **WAVE-AC:** full 17-role acceptance matrix (`MASTER_RADAR_WAVEAC_17_ROLE_ACCEPTANCE_2026-11-07.md`) from 4 parallel read-only agent auditors (honest reviewer count; not 17 humans): 13 COMPLETE / 4 COMPLETE-UP-TO-OWNER-GATE / 0 FAIL; 6 MEDIUM findings dispositioned in-wave (matrix citations+named commands; size_pct unit-comment fix; vendor-comparative wording incl. API payload note; live-path scoping; G2 dual-source + ai2-router corrections; payload-verifier absence assertions .env/.key/.pem).
+- **WAVE-AD:** 12/12 journeys at real browser level (0 console errors; 17 screenshots; 16 DOM snapshots): UIDL-1 full lifecycle, optimizer IN_SAMPLE winner, backtest+exports, paper-replay chain_ok, grid sync channel live both directions, AI-2 honest refusal + append-only total=0, palette, deep links, reload/empty/error/recovery; deployment runbook + readiness report (public deployment NOT claimed).
+- **WAVE-AE:** machine-readable installer artifact manifest + Persian owner installation guide (post-install verification table); binary hash = owner-verifiable (auth-gated download); INSTALL NOT ISSUED.
+- **WAVE-AF:** roadmap parity audit — 20/23 capability rows browser-RUNTIME-VERIFIED; real-vs-synthetic data coverage matrix; precise quant fidelity (bar-based).
+- **WAVE-AG:** AI-2/scheduler/security boundary audit — all invariants unchanged; owner-gated register with 8 packets (incl. NEW zero-risk G2-wording clarification + signing decision).
+- **WAVE-AH:** docs currency (STATUS/CHANGELOG/INDEX) + Persian report continuation + English directive update; WS1 §18–§19 exact-SHA records.
+- Remediation diff: 11 files +46/−20 (comments/strings/docs/workflow only); battery after remediation **3026/1s/0f (45.19s)** — zero tests weakened/skipped/deleted; readiness 47/47; global completion NOT CALCULATED (OA-8).
+
 # Changelog — RADAR BOURSE
 
 ## 2026-11-07 — WAVE-T (MASTER directive §14 closure): SITE-2 FLEET E2E + EMBEDDED RUNTIME + INDEPENDENT AUDIT
