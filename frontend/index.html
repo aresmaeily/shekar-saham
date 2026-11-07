@@ -98,6 +98,7 @@
     <button class="tab" data-tab="dataquality">🔬 مرکز کیفیت داده</button>
     <button class="tab" data-tab="loops">🔄 حلقه‌های محصول</button>
     <button class="tab" data-tab="aistudio">🤖 استودیو AI-2</button>
+    <button class="tab" data-tab="aima">🧠 هوش چندعاملی</button>
     <button class="tab" data-tab="excellent">✨ عالی</button>
     <button class="tab" data-tab="guide">📖 راهنما</button>
   </nav>
@@ -1468,6 +1469,34 @@
       <h3>دفتر کل اجراها (فقط-الحاقی)</h3>
       <div class="cp-toolbar"><button class="btn tiny" id="ai2RunsReload">خواندن دفتر کل</button></div>
       <div id="ai2RunsOut" class="muted">دُم دفتر کل اجراها (append-only؛ بی‌اعتب‌سازی با رکورد جدید) اینجا رندر می‌شود…</div>
+    </section>
+
+    <!-- WAVE-AI (2026-11-08, WP-C): پنل هوش چندعاملی — وضعیت واقعی زمان اجرای
+         AI-MA از /api/v10/aima (posture + orchestrate)؛ اجرای موازی محدود دو
+         شاخه مستقل مشورتی؛ artifact-first با شاخص محتوایی؛ سنتز قطعی؛ فقط
+         SYNTHETIC_OR_PAPER؛ بدون LLM و بدون فراخوانی شبکه؛ هر فراخوان فقط با
+         کنش صریح کاربر؛ برچسب اعتماد فقط از فیلدهای سرور -->
+    <section class="panel" id="tab-aima">
+      <div class="panel-head">
+        <div>
+          <h2>🧠 هوش چندعاملی — ارکستراسیون مشورتی حاکمیت‌شده (AI-MA)</h2>
+          <p class="muted">سه متخصص حکم‌محور (پیش‌نویس فرضیه · تفسیر · چالش یادگیری) با اجرای موازی محدود دو شاخه مستقل؛ تبادل artifact-first با digest محتوایی؛ سنتز قطعی با ردیف‌های ردِ قابل‌مشاهده؛ همه چیز ADVISORY_ONLY و SYNTHETIC_OR_PAPER — بدون LLM، بدون شبکه، بدون تغییر وضعیت تولید؛ سقف خودمختاری L2 درون زمان اجرا اعمال می‌شود؛ هر فراخوان فقط با کنش صریح کاربر و برچسب اعتماد فقط از فیلدهای سرور خوانده می‌شود.</p>
+        </div>
+        <div class="filters">
+          <span class="cp-badge" id="amTrustBadge">اعتماد: —</span>
+        </div>
+      </div>
+
+      <h3>وضعیت زمان اجرا (سه متخصص، ابزار قطعی، پاکت صداقت)</h3>
+      <div class="cp-toolbar"><button class="btn tiny" id="amPostureReload">خواندن وضعیت</button></div>
+      <div id="amPostureOut" class="muted">وضعیت سه متخصص (قرارداد، ابزار مجاز، سقف فراخوانی، timeout)، واژگان بسته ابزار قطعی و پاکت صداقت سرور اینجا رندر می‌شود…</div>
+
+      <h3>اجرای ارکستراسیون (پلن ثابت سرور: فرضیه → {تفسیر ∥ چالش})</h3>
+      <div class="cp-toolbar">
+        <textarea class="text-input" id="amQuestion" rows="2" style="max-width:560px;font-size:12px" placeholder="پرسش پژوهشی (۳ تا ۳۰۰ نویسه) — مثلاً: آیا فملی در فاز صعودی است؟"></textarea>
+        <button class="btn tiny" id="amRunBtn">اجرای ارکستراسیون</button>
+      </div>
+      <div id="amRunOut" class="muted">رکورد اجرا (موج‌ها، شاخه‌ها با artifact و digest، سنتز قطعی، ردیف‌های رد، ردگیری گام‌به‌گام، رکورد حاکمیت) اینجا رندر می‌شود…</div>
     </section>
     <section class="panel" id="tab-excellent">
       <div class="panel-head">

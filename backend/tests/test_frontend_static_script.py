@@ -31,9 +31,11 @@ def test_frontend_static_validator_contract():
     # prior chain 26 -> 29 (WAVE-2 three product tabs) / 25 -> 26 (analytics tab)
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): 30 -> 31 —
     # one new governed tab «استودیو AI-2» (aistudio) added WITH this wave;
+    # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): 31 -> 32 — one new
+    # governed tab «هوش چندعاملی» (aima) added WITH this wave (WP-C UI);
     # structural invariants unchanged (every tab keeps its panel, no orphans/duplicates).
-    assert data["tabs"]["tabs_count"] == 31
-    assert data["tabs"]["panels_count"] == 31
+    assert data["tabs"]["tabs_count"] == 32
+    assert data["tabs"]["panels_count"] == 32
     assert data["tabs"]["missing_panels"] == []
     assert data["tabs"]["orphan_panels"] == []
     assert data["duplicate_ids"]["index"] == []

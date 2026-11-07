@@ -65,9 +65,11 @@ def test_waveo_tab_placement_after_loops_before_excellent():
 
 def test_waveo_tab_count_bumped_30_to_31():
     """COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): 30 -> 31 —
-    the new governed AI-2 studio tab; prior chain 26 -> 29 (WAVE-2) -> 30."""
+    the new governed AI-2 studio tab; prior chain 26 -> 29 (WAVE-2) -> 30.
+    COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): 31 -> 32 — the new governed
+    AI-MA tab (aima, WP-C UI); additive, no tab removed."""
     html = _read(INDEX)
-    assert len(re.findall(r'class="tab[^"]*" data-tab=', html)) == 31
+    assert len(re.findall(r'class="tab[^"]*" data-tab=', html)) == 32
 
 
 # ---------------------------------------------------------------------------
@@ -154,7 +156,8 @@ def test_sw_bumped_to_v3_0_15_with_waveo_precache():
     # precache extended with ai2_studio.js (governed AI-2 studio panel).
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
     # COUNTER-PIN BUMP (recorded, WAVE-AB2 2026-11-08): v3-0-16 -> v3-0-17 — walk-forward UI trigger in forward_center.js + index.html + dead-control wiring (hunt/tablo/hot filters, btnWsRefresh/btnValueReload/btnPfAdd, excellent tab activation)
-    assert "radar-bourse-static-v3-0-17" in sw
+    # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): v3-0-17 -> v3-0-18 — AI-MA tab (render/ai_ma_ui.js + index.html panel + main.js lazy activation)
+    assert "radar-bourse-static-v3-0-18" in sw
     assert "radar-bourse-static-v3-0-14" not in sw
     assert "/static/js/modules/render/ai2_studio.js" in sw
 

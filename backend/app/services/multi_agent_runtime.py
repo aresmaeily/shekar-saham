@@ -286,6 +286,13 @@ class MultiAgentRuntime:
         self._now_utc = now_utc if now_utc is not None else (lambda: datetime.now(timezone.utc))
         self._ceiling = max(1, min(int(max_parallel_ceiling), MAX_PARALLEL_BRANCHES))
 
+    @property
+    def max_parallel_ceiling(self) -> int:
+        """The effective per-wave concurrency ceiling of THIS runtime instance
+        (never above the global MAX_PARALLEL_BRANCHES). Exposed read-only so
+        honest surfaces can disclose the actual bound (WAVE-AI WP-C)."""
+        return self._ceiling
+
     # -- public API ---------------------------------------------------------
 
     async def execute_plan(

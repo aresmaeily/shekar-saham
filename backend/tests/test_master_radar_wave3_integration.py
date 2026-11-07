@@ -85,7 +85,8 @@ def test_sw_bumped_to_v3_0_8_with_wave3_precache():
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-16 — precache extended with ai2_studio.js (WAVE-O governed AI-2 studio panel)
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
     # COUNTER-PIN BUMP (recorded, WAVE-AB2 2026-11-08): v3-0-16 -> v3-0-17 — walk-forward UI trigger in forward_center.js + index.html + dead-control wiring (hunt/tablo/hot filters, btnWsRefresh/btnValueReload/btnPfAdd, excellent tab activation)
-    assert "radar-bourse-static-v3-0-17" in sw
+    # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): v3-0-17 -> v3-0-18 — AI-MA tab (render/ai_ma_ui.js + index.html panel + main.js lazy activation)
+    assert "radar-bourse-static-v3-0-18" in sw
     assert "radar-bourse-static-v3-0-9" not in sw
     assert "/static/js/modules/render/chart_grid.js" in sw
     assert "/static/js/modules/command_palette.js" in sw
@@ -98,7 +99,8 @@ def test_tabs_count_unchanged_29():
     29 (WAVE-2) -> 30."""
     html = _read(INDEX)
     # class="tab" (default active state varies: class="tab active" on the first)
-    assert len(re.findall(r'class="tab[^"]*" data-tab=', html)) == 31
+    # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): 31 -> 32 — AI-MA tab (aima)
+    assert len(re.findall(r'class="tab[^"]*" data-tab=', html)) == 32
 
 
 def test_wave3_files_pass_node_syntax_check():

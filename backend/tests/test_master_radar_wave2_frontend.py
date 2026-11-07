@@ -80,9 +80,11 @@ def test_static_validator_contract_still_green_with_wave2():
     # prior chain 26 -> 29 (WAVE-2 three product tabs) / 25 -> 26 (analytics tab)
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): 30 -> 31 —
     # one new governed tab «استودیو AI-2» (aistudio) added WITH this wave;
+    # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): 31 -> 32 — one new
+    # governed tab «هوش چندعاملی» (aima) added WITH this wave (WP-C UI);
     # structural invariants unchanged (every tab keeps its panel, no orphans/duplicates).
-    assert data["tabs"]["tabs_count"] == 31
-    assert data["tabs"]["panels_count"] == 31
+    assert data["tabs"]["tabs_count"] == 32
+    assert data["tabs"]["panels_count"] == 32
     assert data["tabs"]["missing_panels"] == []
     assert data["tabs"]["orphan_panels"] == []
     assert data["duplicate_ids"]["index"] == []
@@ -194,7 +196,8 @@ def test_sw_precache_includes_wave2_modules_and_bumped():
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): v3-0-14 -> v3-0-16 — precache extended with ai2_studio.js (WAVE-O governed AI-2 studio panel)
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
     # COUNTER-PIN BUMP (recorded, WAVE-AB2 2026-11-08): v3-0-16 -> v3-0-17 — walk-forward UI trigger in forward_center.js + index.html + dead-control wiring (hunt/tablo/hot filters, btnWsRefresh/btnValueReload/btnPfAdd, excellent tab activation)
-    assert "radar-bourse-static-v3-0-17" in sw
+    # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): v3-0-17 -> v3-0-18 — AI-MA tab (render/ai_ma_ui.js + index.html panel + main.js lazy activation)
+    assert "radar-bourse-static-v3-0-18" in sw
     assert "radar-bourse-static-v3-0-9" not in sw
     for name in WAVE2_MODULE_NAMES:
         assert f"/static/js/modules/render/{name}" in sw

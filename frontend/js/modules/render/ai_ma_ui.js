@@ -1,0 +1,234 @@
+/**
+ * render/ai_ma_ui.js — WAVE-AI (2026-11-08, WP-C): هوش چندعاملی AI-MA
+ *
+ * افزودنی (additive-only): تب «هوش چندعاملی» — وضعیت واقعی زمان اجرای
+ * ارکستراسیون مشورتی حاکمیت‌شده از /api/v10/aima (posture + orchestrate).
+ *
+ * قرارداد صداقت (هم‌الگو با product_loops_ui.js):
+ * - همه HTTP از core/api.js (api()) می‌گذرد — هیچ واکشی مستقیمی مجاز نیست.
+ * - هیچ اجرای پویای کد مجاز نیست — فقط innerHTML از متن فرارکننده‌شده (esc).
+ * - برچسب اعتماد فقط از فیلدهای سرور خوانده می‌شود (data_trust_label)؛
+ *   هیچ کلاسی ارتقا یا جعل نمی‌شود. اجرای AI-MA فقط SYNTHETIC_OR_PAPER است.
+ * - پلن ثابت سرور است (فرضیه → {تفسیر ∥ چالش})؛ کلاینت فقط پرسش را می‌فرستد
+ *   و نمی‌تواند گام/متخصص/بودجه تزریق کند.
+ * - هیچ اجرای خودکاری وجود ندارد؛ هر فراخوان با کنش صریح کاربر انجام می‌شود.
+ * - محدودیت‌های مشورتی همیشه با پاسخ سرور اعلام می‌شود (honesty envelope).
+ */
+import { api, toast } from "../../core/api.js";
+import { esc } from "../../core/format.js";
+
+let bound = false;
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+function on(id, fn) {
+  const el = $(id);
+  if (el) el.addEventListener("click", fn);
+}
+
+function setOut(id, html) {
+  const el = $(id);
+  if (el) el.innerHTML = html;
+}
+
+function failText(err) {
+  const d = err && err.detail ? err.detail : err;
+  if (d && typeof d === "object") {
+    const fa = d.message_fa || d.reason || d.message_en || d.error || "";
+    return `${esc(String(d.error || "خطا"))} — ${esc(String(fa))}`;
+  }
+  const msg = (err && err.message) || "";
+  let inner = msg;
+  try {
+    const parsed = JSON.parse(msg);
+    if (parsed && typeof parsed === "object") {
+      inner = parsed.message_fa || parsed.reason || parsed.message_en || parsed.error || msg;
+    }
+  } catch {
+    /* not JSON — use the raw message */
+  }
+  return esc(String(inner || err || "خطای ناشناخته"));
+}
+
+function statusChip(status) {
+  const s = String(status || "—");
+  const cls = s === "SUCCEEDED" ? "ok" : s === "DEGRADED" ? "warn" : "err";
+  return `<span class="cp-badge ${cls}">${esc(s)}</span>`;
+}
+
+function renderHonesty(honesty) {
+  if (!honesty || typeof honesty !== "object") return "";
+  const rows = Object.entries(honesty)
+    .map(
+      ([k, v]) =>
+        `<li><b>${esc(k)}</b>: ${esc(String(v))}</li>`
+    )
+    .join("");
+  return `<ul class="muted" style="font-size:12px">${rows}</ul>`;
+}
+
+async function loadPosture() {
+  setOut("amPostureOut", `<p class="muted">⏳ در حال خواندن وضعیت زمان اجرا…</p>`);
+  try {
+    const data = await api("/api/v10/aima/posture");
+    const specialists = Array.isArray(data.specialists) ? data.specialists : [];
+    const rows = specialists
+      .map(
+        (s) => `
+        <tr>
+          <td>${esc(s.specialist_id)}</td>
+          <td>${esc(s.capability)}</td>
+          <td style="max-width:280px;font-size:11px">${esc(s.authority_boundary)}</td>
+          <td>${esc((s.allowed_tools || []).join("، "))}</td>
+          <td>${esc(String(s.max_invocations_per_run))}</td>
+          <td>${esc(String(s.timeout_seconds))}s</td>
+          <td>${esc(s.interaction_pattern)}</td>
+        </tr>`
+      )
+      .join("");
+    const tools = data.deterministic_tools || {};
+    const toolRows = Object.entries(tools)
+      .map(([k, v]) => `<li><b>${esc(k)}</b> — ${esc(String(v))}</li>`)
+      .join("");
+    setOut(
+      "amPostureOut",
+      `
+      <p class="muted" style="font-size:12px">registry_version: ${esc(String(data.registry_version))}</p>
+      <div style="overflow:auto"><table class="cp-table">
+        <thead><tr><th>متخصص</th><th>توانایی</th><th>مرز اختیار</th><th>ابزارهای مجاز</th><th>سقف فراخوانی/اجرا</th><th>timeout</th><th>الگوی تعامل</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+      <h4 style="margin:8px 0 4px">ابزارهای قطعی بسته (تنها مسیر دسترسی متخصص‌ها)</h4>
+      <ul class="muted" style="font-size:12px">${toolRows}</ul>
+      <h4 style="margin:8px 0 4px">پاکت صداقت سرور</h4>
+      ${renderHonesty(data.honesty)}`
+    );
+  } catch (err) {
+    setOut("amPostureOut", `<p class="err-text">خطا در خواندن وضعیت: ${failText(err)}</p>`);
+  }
+}
+
+function renderWaveSchedule(plan) {
+  if (!plan || !Array.isArray(plan.wave_schedule)) return "";
+  const waves = plan.wave_schedule
+    .map((w, i) => `<b>موج ${i + 1}:</b> ${esc((w || []).join(" ∥ "))}`)
+    .join(" · ");
+  return `<p class="muted" style="font-size:12px">برنامه موج‌ها (پلن ثابت سرور): ${waves} — max_parallel=${esc(
+    String(plan.max_parallel)
+  )} / سقف زمان اجرا=${esc(String(plan.runtime_parallel_ceiling))}</p>`;
+}
+
+function renderSynthesis(syn) {
+  if (!syn) return "";
+  const sources = Array.isArray(syn.sources) ? syn.sources : [];
+  const refused = Array.isArray(syn.refused) ? syn.refused : [];
+  const srcRows = sources
+    .map(
+      (s) =>
+        `<li><b>${esc(s.step_id)}</b> ← ${esc(s.specialist_id)} — artifact: ${esc(
+          (s.artifact && s.artifact.artifact_id) || "—"
+        )} · sha256: <code>${esc((s.artifact && s.artifact.sha256) || "—")}</code></li>`
+    )
+    .join("");
+  const refRows = refused.length
+    ? refused
+        .map(
+          (r) =>
+            `<li class="err-text">رد شده: ${esc(r.branch_id)} (${esc(
+              r.step_id || "—"
+            )}) — ${esc(r.reason)}</li>`
+        )
+        .join("")
+    : `<li class="muted">هیچ ردیفی رد نشده است</li>`;
+  return `
+    <h4 style="margin:8px 0 4px">سنتز قطعی (${esc(syn.authority)})</h4>
+    <ul class="muted" style="font-size:12px">${srcRows}</ul>
+    <h4 style="margin:8px 0 4px">ردیف‌های ردِ سنتز</h4>
+    <ul class="muted" style="font-size:12px">${refRows}</ul>`;
+}
+
+function renderTrace(trace) {
+  if (!Array.isArray(trace)) return "";
+  const rows = trace
+    .map(
+      (e) =>
+        `<tr><td>${esc(e.step_id || "—")}</td><td>${esc(e.kind)}</td><td style="max-width:420px;font-size:11px">${esc(
+          String(e.detail || "")
+        )}</td></tr>`
+    )
+    .join("");
+  return `<div style="overflow:auto"><table class="cp-table">
+    <thead><tr><th>گام</th><th>رخداد</th><th>جزئیات</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+async function runOrchestration() {
+  const q = ($("amQuestion") && $("amQuestion").value || "").trim();
+  setOut("amRunOut", `<p class="muted">⏳ در حال اجرای ارکستراسیون مشورتی (سه گام، دو شاخه موازی محدود)…</p>`);
+  try {
+    const data = await api("/api/v10/aima/orchestrate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: q }),
+    });
+    // trust label only from server fields
+    const trust = String(data.data_trust_label || "—");
+    const badge = $("amTrustBadge");
+    if (badge) badge.textContent = `اعتماد: ${trust}`;
+    const steps = Array.isArray(data.steps) ? data.steps : [];
+    const stepRows = steps
+      .map(
+        (s) => `
+        <tr>
+          <td>${esc(s.step_id)}</td>
+          <td>${esc(s.specialist_id)}</td>
+          <td>${statusChip(s.status)}</td>
+          <td style="max-width:260px;font-size:11px">${esc(String(s.summary || ""))}</td>
+          <td style="font-size:11px"><code>${esc((s.artifact && s.artifact.sha256) || "—")}</code></td>
+          <td style="font-size:11px">${esc(String(s.failure_code || "—"))}</td>
+        </tr>`
+      )
+      .join("");
+    const gov = data.governance || {};
+    setOut(
+      "amRunOut",
+      `
+      <p class="muted" style="font-size:12px">
+        run_id: <code>${esc(String(data.run_id || "—"))}</code> · plan_id: <code>${esc(
+        String(data.plan_id || "—")
+      )}</code> · برچسب اعتماد (سرور): <b>${esc(trust)}</b> · موج‌های اجراشده: ${esc(
+        String(data.waves_executed)
+      )}/${esc(String(data.waves_total))} · وضعیت: ${esc(
+        data.terminated ? `خاتمه (${esc(String(data.termination_reason || ""))})` : "تکمیل"
+      )}
+      </p>
+      ${renderWaveSchedule(data.plan)}
+      <div style="overflow:auto"><table class="cp-table">
+        <thead><tr><th>گام</th><th>متخصص</th><th>وضعیت</th><th>خلاصه</th><th>digest محتوا</th><th>کد خطا</th></tr></thead>
+        <tbody>${stepRows}</tbody>
+      </table></div>
+      ${renderSynthesis(data.synthesis)}
+      <h4 style="margin:8px 0 4px">ردگیری اجرا (کامل و گام‌به‌گام)</h4>
+      ${renderTrace(data.trace)}
+      <h4 style="margin:8px 0 4px">رکورد حاکمیت</h4>
+      <p class="muted" style="font-size:12px">run_kind=${esc(String(gov.run_kind))} · autonomy=${esc(
+        String(gov.autonomy_level)
+      )} · policy=${esc(String(gov.policy_version))} · provenance_missing=${esc(
+        JSON.stringify(gov.provenance_missing || [])
+      )} · governed_acceptance_blocked=${esc(String(gov.governed_acceptance_blocked))}</p>
+      <h4 style="margin:8px 0 4px">محدودیت‌ها و صداقت (از سرور)</h4>
+      ${renderHonesty(data.honesty)}`
+    );
+  } catch (err) {
+    setOut("amRunOut", `<p class="err-text">خطا در اجرا: ${failText(err)}</p>`);
+  }
+}
+
+export function bindAiMa() {
+  if (bound) return;
+  bound = true;
+  on("amPostureReload", loadPosture);
+  on("amRunBtn", runOrchestration);
+}

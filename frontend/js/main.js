@@ -26,6 +26,7 @@ import "./modules/command_palette.js"; // MASTER-RADAR WAVE-3 (2026-11-04): پا
 import "./modules/render/user_indicator_ui.js"; // MASTER-RADAR WAVE-B (2026-11-04): اندیکاتور شخصی UIDL-1 — بایند-on-demand، اجرا فقط سمت سرور
 import "./modules/render/product_loops_ui.js"; // MASTER-RADAR WAVE-F (2026-11-05): حلقه‌های محصول §5 — بایند-on-demand، همه داده SYNTHETIC/DECLARED
 import "./modules/render/ai2_studio.js"; // MASTER-RADAR WAVE-O (2026-11-06): استودیو AI-2 — سطح UX خط لوله تولید حاکمیت‌شده /api/v10/ai2 — بایند-on-demand، برچسب‌ها فقط از سرور، بدون polling
+import { bindAiMa } from "./modules/render/ai_ma_ui.js"; // WAVE-AI (2026-11-08): هوش چندعاملی AI-MA — وضعیت و اجرای ارکستراسیون مشورتی /api/v10/aima — بایند-on-demand، اجرای موازی محدود، برچسب‌ها فقط از سرور
 import "./modules/render/watchlist_excellent.js";
 import { renderAnalyticsFlow } from "./modules/render/analytics_flow.js"; // WDA-3 (2026-11-02): پنل افزودنی جمع‌بندی جریان در تب تحرکات بزرگان
 
@@ -448,6 +449,20 @@ function bindExcellentTab() {
   observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ["class"] });
 }
 
+/* WAVE-AI (WP-C 2026-11-08): فعال‌سازی تب «هوش چندعاملی» — بایند-on-demand
+ * هنگام باز شدن تب (فقط با کنش کاربر؛ هیچ polling و هیچ درخواست خودکاری). */
+function bindAiMaTab() {
+  let activated = false;
+  const observer = new MutationObserver(() => {
+    const panel = $("#tab-aima");
+    if (panel && panel.classList.contains("active") && !activated) {
+      activated = true;
+      bindAiMa();
+    }
+  });
+  observer.observe(document.body, { attributes: true, subtree: true, attributeFilter: ["class"] });
+}
+
 function setupTimer() {
   if (window.__timer) clearInterval(window.__timer);
   if (store.get().auto) window.__timer = setInterval(() => refreshApp(false), 30000);
@@ -460,6 +475,7 @@ async function boot() {
   bindGlobalDelegation();
   bindDataFilters(); // WAVE-AB2: سیم‌کشی کنترل‌های مرده (شکار/تابلو/پول داغ/زنده/ارزش‌گذاری/پورتفو)
   bindExcellentTab(); // WAVE-AB2: فعال‌سازی تب «عالی» هنگام باز شدن
+  bindAiMaTab(); // WAVE-AI: فعال‌سازی تب هوش چندعاملی هنگام باز شدن
   bindSettings();
   bindBacktest();
   bindOptions();

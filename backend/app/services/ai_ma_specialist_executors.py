@@ -22,13 +22,42 @@ truth or production state.
 
 from __future__ import annotations
 
+import hashlib
+import json
 from typing import Any, Mapping
 
 from app.domain.ai_intelligence import trust_confidence_cap_for_state
 from app.domain.ai_ma_specialists import DETERMINISTIC_TOOLS
 from app.domain.multi_agent import OrchestrationStep, SpecialistContract
 from app.domain.multi_agent_failure_model import detect_duplicate_branch_results
+from app.domain.run_governance import ArtifactRef
 from app.services.multi_agent_runtime import SpecialistOutcome
+
+
+def _artifact_ref(step: OrchestrationStep, payload, content: Mapping[str, Any]) -> ArtifactRef:
+    """Mint the artifact-first reference for one specialist output.
+
+    WAVE-AI (2026-11-08, WP-C): the shipped executors previously returned
+    summary-only outcomes, so every BranchResult they produced was refused by
+    ``deterministic_synthesis`` (``summary_only_without_artifact``) and the
+    artifact-first branch-exchange rule (02 rule 9) was never exercised by
+    the shipped specialists. Now each executor binds its payload content to
+    a verifiable ArtifactRef: ``sha256`` is the digest of the canonical JSON
+    of the CONTENT (never the run id or a wall clock), so the same question
+    yields byte-identical artifact digests across runs (pinned by test) while
+    ``artifact_id``/``ref`` keep per-run identity. Content stays small and
+    bounded; the ref — not the blob — travels through BranchResults.
+    """
+    canonical = json.dumps(
+        content, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    )
+    digest = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    return ArtifactRef(
+        artifact_id=f"{payload.run_id}:{step.step_id}",
+        kind=f"aima.{step.capability}"[:64],
+        ref=f"inmem://aima/{payload.run_id}/{step.step_id}.json",
+        sha256=digest,
+    )
 
 # ---------------------------------------------------------------------------
 # Deterministic tools (pure functions; the closed seam's implementations)
@@ -195,7 +224,7 @@ class HypothesisDraftExecutor(_ToolBoundedExecutor):
         return SpecialistOutcome(
             ok=True,
             summary=_artifact_summary(summary),
-            artifact=None,  # the runtime mints the ArtifactRef-addressed record
+            artifact=_artifact_ref(step, payload, {"drafts": drafts}),
         )
 
 
@@ -240,6 +269,7 @@ class InterpretationExecutor(_ToolBoundedExecutor):
         return SpecialistOutcome(
             ok=True,
             summary=_artifact_summary(summary),
+            artifact=_artifact_ref(step, payload, {"readings": readings}),
         )
 
 
@@ -294,6 +324,11 @@ class LearningChallengeExecutor(_ToolBoundedExecutor):
         return SpecialistOutcome(
             ok=True,
             summary=_artifact_summary(summary),
+            artifact=_artifact_ref(
+                step,
+                payload,
+                {"duplicate_groups": duplicate_groups, "challenges": challenges},
+            ),
         )
 
 

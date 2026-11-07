@@ -6,11 +6,23 @@ posture and orchestration endpoints. Bounded, honest, synthetic/paper-only:
 - The runtime behind this router executes the THREE shipped advisory
   specialists (hypothesis-draft / interpretation / learning-challenge) over
   a FIXED bounded plan — no client-supplied plan, no arbitrary specialists,
-  no dynamic agent spawning (arch rule 6). Executors are deterministic and
-  synthetic-safe: no network, no LLM, no production mutation.
+  no dynamic agent spawning (arch rule 6). WAVE-AI (WP-C, 2026-11-08): the
+  plan's two genuinely independent advisory branches (interpretation,
+  learning-challenge — both consume ONLY the hypothesis artifact) now
+  execute in a BOUNDED PARALLEL wave (max_parallel=2 ≤ runtime ceiling
+  MAX_PARALLEL_BRANCHES=4); per-run concurrency, timeouts and invocation
+  ceilings stay explicit and enforced inside the runtime. Executors are
+  deterministic and synthetic-safe: no network, no LLM, no production
+  mutation.
 - Every step's authority boundary is ADVISORY_ONLY: specialists never alter
   financial truth, never approve or promote anything, and deterministic
-  synthesis stays pinned DETERMINISTIC_ONLY.
+  synthesis stays pinned DETERMINISTIC_ONLY. WAVE-AI: the run record now
+  carries the ACTUAL deterministic synthesis over the artifact-first
+  branch results (sources + visibly-refused rows) — synthesis was pinned
+  but never surfaced before.
+- Branch exchange is artifact-first (02 rule 9): each shipped specialist
+  binds its output to a verifiable ArtifactRef (sha256 of the canonical
+  content; run-independent digest — pinned by test).
 - The autonomy ceiling (L2) is enforced INSIDE the runtime
   (``assert_autonomy_permitted``); this endpoint mints L1 runs only.
 - Trace + branch results are returned verbatim as the honest record; nothing
@@ -36,6 +48,7 @@ from app.domain.ai_ma_specialists import (
     shipped_capability_registry,
     shipped_specialist_posture,
 )
+from app.domain.multi_agent import execution_waves
 from app.domain.run_governance import (
     RunContext,
     RunProvenance,
@@ -45,6 +58,7 @@ from app.services.ai_ma_specialist_executors import shipped_specialist_executors
 from app.services.multi_agent_runtime import (
     MultiAgentRuntime,
     SpecialistExecutorRegistry,
+    deterministic_synthesis,
 )
 
 router = APIRouter(prefix="/api/v10/aima", tags=["ai-ma"])
@@ -71,9 +85,11 @@ def _honesty_envelope() -> Dict[str, Any]:
         "advisory_only": "all specialists are advisory; nothing here computes financial truth",
         "synthetic_paper_only": "execution domain is SYNTHETIC_OR_PAPER; no live data, no LLM, no provider call",
         "no_production_mutation": "specialists cannot mutate production state by construction",
-        "fixed_plan": "plan shape is fixed server-side (hypothesis → interpretation → challenge); no client-supplied plans",
+        "fixed_plan": "plan shape is fixed server-side (hypothesis → {interpretation ∥ learning-challenge}); no client-supplied plans",
+        "bounded_parallel": "the two independent advisory branches run in one bounded wave: max_parallel=2 ≤ runtime ceiling 4; per-run concurrency, per-step timeouts and per-specialist invocation ceilings are enforced in the runtime",
         "no_agent_spawning": "AGENT_AS_TOOL only; no autonomous agent spawning (arch rule 6)",
-        "deterministic_synthesis": "synthesis is pinned DETERMINISTIC_ONLY by the runtime",
+        "deterministic_synthesis": "synthesis is pinned DETERMINISTIC_ONLY by the runtime and returned with its visible refusals",
+        "artifact_first": "branch exchange travels by ArtifactRef (sha256 of canonical content); artifacts are returned verbatim and never persisted",
         "autonomy_ceiling": "L2 enforced inside the runtime via assert_autonomy_permitted; this API mints L1 runs only",
         "no_persistence": "branch results and trace are returned verbatim and not persisted or ledgered",
     }
@@ -82,6 +98,13 @@ def _honesty_envelope() -> Dict[str, Any]:
 def _build_fixed_plan(run_id: str, question: str):
     from app.domain.multi_agent import OrchestrationPlan, OrchestrationStep
 
+    # WAVE-AI (WP-C): interpretation and learning-challenge are genuinely
+    # independent advisory branches — BOTH consume only the hypothesis
+    # artifact (the challenger's own tools — duplicate detection +
+    # invalidation completeness — operate on the hypothesis drafts it is
+    # handed). They therefore execute as ONE bounded parallel wave while
+    # s1→s2/s3 keeps the DAG honest. No step was added, no specialist was
+    # added, no contract changed; only the plan wiring and its ceiling.
     steps = (
         OrchestrationStep(
             step_id="s1_hypothesis",
@@ -103,11 +126,8 @@ def _build_fixed_plan(run_id: str, question: str):
             specialist_id="AIMA-LEARNING-CHALLENGE",
             capability="learning_challenge",
             produces="radar.artifact.aima.s3_challenge.v1",
-            depends_on=("s1_hypothesis", "s2_interpretation"),
-            consumes=(
-                "radar.artifact.aima.s1_hypothesis.v1",
-                "radar.artifact.aima.s2_interpretation.v1",
-            ),
+            depends_on=("s1_hypothesis",),
+            consumes=("radar.artifact.aima.s1_hypothesis.v1",),
         ),
     )
     return OrchestrationPlan(
@@ -115,7 +135,7 @@ def _build_fixed_plan(run_id: str, question: str):
         run_id=run_id,
         steps=steps,
         policy_version=_POLICY_VERSION,
-        max_parallel=1,  # the fixed plan is a chain; parallelism is moot
+        max_parallel=2,  # bounded parallel wave for the two independent branches
     )
 
 
@@ -180,6 +200,9 @@ async def aima_orchestrate(body: OrchestrateBody) -> Dict[str, Any]:
                 "summary": branch.summary,
                 "failure_code": branch.failure_code,
                 "branch_id": branch.branch_id,
+                "artifact": (
+                    branch.artifact.model_dump(mode="json") if branch.artifact else None
+                ),
             }
         )
     trace_payload = [
@@ -190,6 +213,18 @@ async def aima_orchestrate(body: OrchestrateBody) -> Dict[str, Any]:
         }
         for e in result.trace.events
     ]
+    # WAVE-AI (WP-C): the ACTUAL deterministic synthesis over the run's
+    # artifact-first branch results — sources folded, refusals visible.
+    synthesis = deterministic_synthesis(result.results)
+    plan_steps = [
+        {
+            "step_id": s.step_id,
+            "specialist_id": s.specialist_id,
+            "depends_on": list(s.depends_on),
+            "consumes": list(s.consumes),
+        }
+        for s in plan.steps
+    ]
     return {
         "ok": True,
         "run_id": result.run_id,
@@ -198,7 +233,14 @@ async def aima_orchestrate(body: OrchestrateBody) -> Dict[str, Any]:
         "termination_reason": result.termination_reason,
         "waves_executed": result.waves_executed,
         "waves_total": result.waves_total,
+        "plan": {
+            "max_parallel": plan.max_parallel,
+            "runtime_parallel_ceiling": runtime.max_parallel_ceiling,
+            "wave_schedule": [list(w) for w in execution_waves(plan)],
+            "steps": plan_steps,
+        },
         "steps": steps_payload,
+        "synthesis": synthesis.model_dump(mode="json"),
         "trace": trace_payload,
         "governance": {
             "run_kind": _RUN_KIND,

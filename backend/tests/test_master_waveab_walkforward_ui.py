@@ -109,5 +109,7 @@ def test_walkforward_ui_never_self_declares_live():
 
 
 def test_forward_center_tab_count_stays_31():
+    # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): 31 -> 32 — the new governed
+    # AI-MA tab (aima, WP-C UI) added after the walk-forward section shipped here.
     tab_count = INDEX.count('data-tab="')
-    assert tab_count == 31, f"tab count changed: {tab_count} (must stay 31)"
+    assert tab_count == 32, f"tab count changed: {tab_count} (pinned at 32)"

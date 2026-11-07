@@ -159,9 +159,11 @@ class TestIntegrationPins:
         # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-O 2026-11-06): 30 -> 31 — the
         # new governed AI-2 studio tab (frontend-only, additive); prior chain
         # 26 -> 29 (WAVE-2) -> 30.
+        # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): 31 -> 32 — the new
+        # governed AI-MA tab (aima, WP-C UI); additive, no tab removed.
         html = _read(INDEX_HTML)
         tabs = re.findall(r'class="tab[^"]*" data-tab="', html)
-        assert len(tabs) == 31
+        assert len(tabs) == 32
 
     def test_main_js_imports_new_panel(self) -> None:
         text = _read(MAIN_JS)
@@ -173,7 +175,8 @@ class TestIntegrationPins:
         sw = _read(SW_JS)
         # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
     # COUNTER-PIN BUMP (recorded, WAVE-AB2 2026-11-08): v3-0-16 -> v3-0-17 — walk-forward UI trigger in forward_center.js + index.html + dead-control wiring (hunt/tablo/hot filters, btnWsRefresh/btnValueReload/btnPfAdd, excellent tab activation)
-        assert "radar-bourse-static-v3-0-17" in sw
+    # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): v3-0-17 -> v3-0-18 — AI-MA tab (render/ai_ma_ui.js + index.html panel + main.js lazy activation)
+        assert "radar-bourse-static-v3-0-18" in sw
         assert "radar-bourse-static-v3-0-12" not in sw
         assert "/static/js/modules/user_indicator.js" in sw
         assert "/static/js/modules/render/user_indicator_ui.js" in sw
@@ -195,7 +198,8 @@ class TestIntegrationPins:
         text = _read(ROOT / path)
         # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
         # COUNTER-PIN BUMP (recorded, WAVE-AB2 2026-11-08): v3-0-16 -> v3-0-17 — walk-forward UI trigger + dead-control wiring (all five pinned files re-bumped)
-        assert "radar-bourse-static-v3-0-17" in text
+        # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): v3-0-17 -> v3-0-18 — AI-MA tab (all pinned files re-bumped)
+        assert "radar-bourse-static-v3-0-18" in text
         assert "radar-bourse-static-v3-0-8" not in re.sub(
             r"#.*COUNTER-PIN BUMP[^\n]*\n?", "", text
         ) or "v3-0-13 -> v3-0-14" in text or "v3-0-12 -> v3-0-13" in text or "v3-0-14 -> v3-0-16" in text  # bump comment may name the old pin
