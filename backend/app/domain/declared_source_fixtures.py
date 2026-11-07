@@ -10,14 +10,21 @@ WITHOUT activating anything:
   source switch and the R-3/R-7 entitlement);
 - no credentials, no URLs with secrets, no access methods beyond the
   declared permission state;
-- the set is versioned (DECLARED-SOURCES-1) and appended-to-only.
+- WAVE-AI (2026-11-08, WP-E): every descriptor now declares its FRESHNESS
+  TARGET — a policy declaration (how old may cached data get before the
+  source is classified stale), NOT a measurement and never evidence of any
+  retrieval; staleness stays honestly unevaluated until real uptime
+  evidence exists;
+- the set is versioned (DECLARED-SOURCES-2) and appended-to-only.
 """
 
 from __future__ import annotations
 
+from datetime import timedelta
+
 from app.domain.source_registry import SourceDescriptor
 
-DECLARED_SOURCES_VERSION = "DECLARED-SOURCES-1"
+DECLARED_SOURCES_VERSION = "DECLARED-SOURCES-2"
 
 _DECLARED_SOURCES: tuple[SourceDescriptor, ...] = (
     SourceDescriptor(
@@ -31,6 +38,7 @@ _DECLARED_SOURCES: tuple[SourceDescriptor, ...] = (
         refresh_policy="SCHEDULED",
         respects_robots=True,
         credentials_required=False,
+        freshness_target=timedelta(minutes=15),  # DECLARED policy target — board/symbol pages are expected stale after 15min
         notes="DECLARED fixture — no retrieval performed; kill switch ENGAGED",
     ),
     SourceDescriptor(
@@ -44,6 +52,7 @@ _DECLARED_SOURCES: tuple[SourceDescriptor, ...] = (
         refresh_policy="EVENT_DRIVEN",
         respects_robots=True,
         credentials_required=False,
+        freshness_target=timedelta(hours=1),  # DECLARED policy target — disclosures polled at most hourly once activated
         notes="DECLARED fixture — real filings require R-3/R-7 authorization",
     ),
     SourceDescriptor(
@@ -57,6 +66,7 @@ _DECLARED_SOURCES: tuple[SourceDescriptor, ...] = (
         refresh_policy="SCHEDULED",
         respects_robots=True,
         credentials_required=False,
+        freshness_target=timedelta(hours=6),  # DECLARED policy target — IR pages expected stale after 6h
         notes="DECLARED fixture — per-issuer robots.txt respected at runtime",
     ),
     SourceDescriptor(
@@ -70,6 +80,7 @@ _DECLARED_SOURCES: tuple[SourceDescriptor, ...] = (
         refresh_policy="SCHEDULED",
         respects_robots=True,
         credentials_required=False,
+        freshness_target=timedelta(minutes=30),  # DECLARED policy target — news corroboration expected stale after 30min
         notes="DECLARED fixture — secondary corroboration only, never primary",
     ),
 )
