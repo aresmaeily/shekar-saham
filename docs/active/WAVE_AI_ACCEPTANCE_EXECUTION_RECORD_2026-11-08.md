@@ -320,6 +320,27 @@ root-cause against this wave's diff (additive tests + AI-MA UI module +
 index.html panel + main.js import + sw bump — no boot-path, no engine, no
 workflow deltas).
 
+**DISCRIMINATOR VERDICT (2026-11-08):** the docs-only discriminator
+`9dcf8f68374f1ec259ec49c0c02c428d49f41184` (pushed ALONE, byte-identical
+runtime code) ran the SAME four checks:
+
+| Required check | Conclusion |
+|---|---|
+| test-backend | SUCCESS |
+| build-docker | SUCCESS |
+| build-installer | SUCCESS |
+| windows-validation | **SUCCESS** |
+
+→ the `1a48725` windows-validation FAILURE is classified ENVIRONMENTAL
+RECURRENCE of the recorded flake class (4th occurrence; consistent with the
+7a85528/99e9da1/a6402cd precedent). NOTHING was converted — the failure
+remains ON RECORD at 1a48725 (run 42416450242) and the classification
+evidence is this discriminator run. Stage CI status: ALL 4 REQUIRED CHECKS
+SUCCESS at `9dcf8f6` (the exact-SHA evidence), and this final currency
+commit's own CI is verified post-publication per the WS1 discipline
+(docs-only; any recurrence would be classified by the same procedure, never
+converted).
+
 ## §11 — Security/governance invariants (verified unchanged)
 
 AI2_ENABLED=0 default (config.py:118 byte-pinned by test) ·
