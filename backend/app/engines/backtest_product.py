@@ -111,7 +111,10 @@ class SignalDecision:
     stop_loss_pct: float | None = None   # overrides run-level risk if not None
     take_profit_pct: float | None = None
     trailing_pct: float | None = None
-    size_pct: float | None = None        # fraction of equity for this entry
+    size_pct: float | None = None        # PERCENT of equity for this entry (0-100;
+                                         # engine sizing divides by 100 — see
+                                         # strategy_lab_service.py:262-269 for the
+                                         # cross-engine convention note)
 
 
 class StrategyAdapter(Protocol):

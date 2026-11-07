@@ -1,5 +1,5 @@
 """
-chart_builder.py - v0.8 Excellent - Better than Novin & Arshan
+chart_builder.py - v0.8 Excellent (capability description; no vendor-comparative claim)
 Converts ticks/history to OHLCV for TradingView lightweight-charts
 """
 from __future__ import annotations
@@ -148,7 +148,7 @@ def calculate_rsi(data: List[Dict], period: int = 14) -> List[Dict]:
 def generate_markers_from_signals(signals: List[Dict], ohlcv: List[Dict]) -> List[Dict]:
     """
     Convert entry/exit signals to TradingView markers
-    Better than Novin: show buy/sell arrows on chart
+    Capability: show buy/sell arrows on chart
     """
     markers = []
     # Build time map for quick lookup

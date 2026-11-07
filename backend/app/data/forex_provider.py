@@ -24,7 +24,7 @@ import httpx
 logger = logging.getLogger("shekar.forex")
 
 # ---------------------------------------------------------------------------
-# Brokers / venues (like faraz.io broker list but better)
+# Brokers / venues (declared venue list; no vendor-comparative claim)
 # ---------------------------------------------------------------------------
 BROKERS: Dict[str, Dict[str, Any]] = {
     "blackbull": {
@@ -512,7 +512,7 @@ async def fetch_forex_ohlcv(
     broker: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Main entry - like faraz.io but better.
+    Main entry (capability description; no vendor-comparative claim).
     Returns OHLCV in lightweight-charts format.
     """
     symbol = symbol.upper()

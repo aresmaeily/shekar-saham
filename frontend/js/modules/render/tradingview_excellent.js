@@ -1,5 +1,5 @@
 /**
- * tradingview_excellent.js - v1.0 Excellent + Volume Profile - Better than Novin/Arshan
+ * tradingview_excellent.js - v1.0 Excellent + Volume Profile (capability description; no vendor-comparative claim)
  */
 import { escapeHtml } from "../security.js";
 import { toTehranTime } from "../utils/timezone.js";

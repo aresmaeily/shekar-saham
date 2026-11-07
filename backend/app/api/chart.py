@@ -1,5 +1,5 @@
 """
-chart.py - v0.8 Excellent - TradingView-like chart API - Better than Novin/Arshan
+chart.py - v0.8 Excellent - TradingView-style chart API (capability description; no vendor-comparative claim)
 """
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ async def chart_data(
     with_indicators: bool = Query(True, description="Include MA, EMA, RSI")
 ) -> Dict[str, Any]:
     """
-    Excellent chart data - Better than Novin/Arshan:
+    Excellent chart data (capability list, no comparative claim):
     - Real OHLCV from tick history (not just synthetic)
     - MA20, MA50, EMA20, RSI, Volume
     - Buy/Sell markers from confluence
@@ -114,7 +114,7 @@ async def chart_data(
         "risk_levels": risk_levels,
         "last_price": last_close,
         "count": len(ohlcv),
-        "note": "Excellent v0.8 - Better than Novin/Arshan: MA, RSI, Volume, Markers, Risk, Quality"
+        "note": "Excellent v0.8: MA, RSI, Volume, Markers, Risk, Quality"
     }
 
 @router.get("/chart/{symbol}/ai-overlay")

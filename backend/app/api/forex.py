@@ -35,7 +35,7 @@ TIMEFRAMES = "^(1m|5m|15m|30m|1h|1D|10R|100R|1000R)$"
 
 @router.get("/forex/symbols")
 async def forex_symbols():
-    """List all forex/gold/index symbols + brokers like faraz.io"""
+    """List all forex/gold/index symbols + broker venues (capability description)"""
     return {
         "symbols": get_forex_symbols_list(),
         "brokers": get_broker_list(),
@@ -56,7 +56,7 @@ async def forex_chart(
     with_indicators: bool = Query(True),
 ):
     """
-    Forex/gold/index chart - like faraz.io but better.
+    Forex/gold/index chart (capability description; no vendor-comparative claim).
     - symbol: XAUUSD | GC1 | DXY | US500 | US100 | US30 | UKOIL | EURUSD | ...
     - broker: blackbull | pepperstone | fxcm | comex | tvc | capital.com
     """
@@ -145,7 +145,7 @@ async def forex_chart(
 
 @router.get("/forex/{symbol}/ai-explain")
 async def forex_ai_explain(symbol: str):
-    """AI explanation for forex - feature faraz.io doesn't have"""
+    """AI explanation for forex (product capability description)"""
     ohlcv = await fetch_forex_ohlcv(symbol.upper(), "1m", limit=50)
     if not ohlcv:
         return {"error": "No data"}

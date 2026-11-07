@@ -171,6 +171,25 @@ jobs:
           )
           $missing = @($required | Where-Object { -not (Test-Path $_) })
           if ($missing.Count -gt 0) { Write-Error ("incomplete payload: " + ($missing -join ', ')); exit 1 }
+          # WAVE-AC hardening (AUDIT-D S05): ABSENCE assertions — no credential,
+          # secret or environment files may ride along into the payload. The
+          # bundler globs are the structural guard; this is the belt-and-suspenders
+          # fail-closed check (any hit fails the build).
+          $forbidden = @(
+            'electron/resources/backend/.env',
+            'electron/resources/.env',
+            'electron/resources/backend/*.key',
+            'electron/resources/backend/*.pem',
+            'electron/resources/backend/app/secrets*.py',
+            'electron/resources/backend/pytest.ini',
+            'electron/resources/backend/tox.ini'
+          )
+          $leaked = @($forbidden | Where-Object { Test-Path $_ })
+          if ($leaked.Count -gt 0) { Write-Error ("forbidden credential/dev files in payload: " + ($leaked -join ', ')); exit 1 }
+          # recursive sweep under resources for env/key/pem files (any depth)
+          $swept = @(Get-ChildItem -Recurse -File electron/resources -Include '*.env','*.key','*.pem','.env*' -ErrorAction SilentlyContinue)
+          if ($swept.Count -gt 0) { Write-Error ("credential-like files found in payload: " + (($swept | ForEach-Object { $_.FullName }) -join ', ')); exit 1 }
+          Write-Host "absence-check OK — no .env/.key/.pem/secret files in payload"
           $n = (Get-ChildItem -Recurse -File electron/resources/frontend).Count
           "frontend_files_bundled=$n" | Out-File -Append installer_provenance.txt
           Write-Host "payload OK — frontend files bundled: $n"

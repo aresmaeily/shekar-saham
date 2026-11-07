@@ -1,5 +1,5 @@
 /**
- * forex.js - v1.0 Forex + Gold + Brokers like faraz.io but better
+ * forex.js - v1.0 Forex + Gold + Brokers (capability description; no vendor-comparative claim)
  * - نمادها: طلا XAUUSD (بروکرهای BlackBull/Pepperstone/FXCM) · GC1 کومکس · DXY (TVC)
  *           S&P500 (US500) · US100 · US30 · نفت برنت (UKOIL) — همگی از Capital.com
  * - اندیکاتور: ولیو پرفایل (POC / VAH / VAL) + MA/EMA/RSI + اندیکاتور شخصی

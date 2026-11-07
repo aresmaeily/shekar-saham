@@ -321,7 +321,7 @@ def create_app() -> FastAPI:
     app.include_router(chart_router)  # v0.8
     app.include_router(chart_pro_router)  # v1.0 chart-pro (WS-10) — deterministic seeded series, SYNTHETIC/Paper only
     app.include_router(analytics_router)  # WDA-3 (2026-11-02) — additive analytics router next to chart_pro; reuses market_service trust envelope, never "live"
-    app.include_router(forex_router)  # v0.9 Forex like faraz.io Chart Excellent Excellent features
+    app.include_router(forex_router)  # v0.9 Forex router (capability description; no vendor-comparative claim)
     app.include_router(auth_router)  # v1.5 حالت خصوصی (فقط مالک)
     app.include_router(alert_ops_router)  # GOV-41 D-AI-30 — Synthetic/Paper in-product alert inbox (no external egress)
     app.include_router(strategy_lab_router)  # MASTER-RADAR (2026-11-04) — additive Strategy Lab; synthetic-only, approval state machine, no live egress

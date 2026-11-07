@@ -249,6 +249,10 @@ class PaperDecision:
     stop_loss_pct: float | None = None
     take_profit_pct: float | None = None
     trailing_pct: float | None = None
+    # FRACTION of equity here (1.0 = 100%) — deliberately DIFFERENT from the
+    # backtest engine's PERCENT semantics for the same field name; the adapter
+    # layer converts (strategy_lab_service.py:262-269). Do not copy values
+    # across engines without the documented conversion.
     size_pct: float | None = None
 
 
