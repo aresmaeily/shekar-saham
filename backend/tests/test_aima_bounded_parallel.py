@@ -58,6 +58,16 @@ def client():
     return TestClient(app, client=("aima-wp-c-test", 12402))
 
 
+def _run(coro):
+    """Run a coroutine on a FRESH event loop (get_event_loop has no current
+    loop once other suites close it — order-independent by construction)."""
+    loop = asyncio.new_event_loop()
+    try:
+        return loop.run_until_complete(coro)
+    finally:
+        loop.close()
+
+
 def _runtime_context(run_id: str = "aima-wpc-run") -> RunContext:
     return RunContext(
         run_id=run_id,
@@ -203,7 +213,7 @@ def test_observed_branch_concurrency_is_two_and_bounded(client):
     registry = _shipped_registry()
     probe = _ConcurrencyProbe(registry)
     runtime = MultiAgentRuntime()
-    result = asyncio.get_event_loop().run_until_complete(
+    result = _run(
         runtime.execute_plan(plan, probe.probed_registry(), _runtime_context(run_id))
     )
     assert result.terminated is False
@@ -330,7 +340,7 @@ def test_failure_isolation_in_parallel_wave_keeps_independent_branch():
 
     reg = _isolate_registry_for(base, {"AIMA-INTERPRETATION": failing})
     runtime = MultiAgentRuntime()
-    result = asyncio.get_event_loop().run_until_complete(
+    result = _run(
         runtime.execute_plan(plan, reg, _runtime_context(run_id))
     )
     statuses = {b.step_id: (b.status, b.failure_code) for b in result.results}
@@ -358,7 +368,7 @@ def test_parallel_timeout_discards_straggler_and_keeps_other_branch():
         timeout_overrides={"AIMA-INTERPRETATION": 1},  # shipped contracts untouched
     )
     runtime = MultiAgentRuntime()  # real monotonic clock
-    result = asyncio.get_event_loop().run_until_complete(
+    result = _run(
         runtime.execute_plan(plan, reg, _runtime_context(run_id))
     )
     statuses = {b.step_id: b.status for b in result.results}
@@ -378,7 +388,7 @@ def test_retry_within_budget_in_parallel_wave_charges_invocation_budget():
     flaky = _FlakyExecutor(base.executor_for("AIMA-INTERPRETATION"), fail_times=1)
     reg = _isolate_registry_for(base, {"AIMA-INTERPRETATION": flaky})
     runtime = MultiAgentRuntime()
-    result = asyncio.get_event_loop().run_until_complete(
+    result = _run(
         runtime.execute_plan(plan, reg, _runtime_context(run_id))
     )
     statuses = {b.step_id: b.status for b in result.results}
@@ -400,7 +410,7 @@ def test_retry_budget_ceiling_holds_across_retries():
     )  # always fails transiently
     reg = _isolate_registry_for(base, {"AIMA-INTERPRETATION": flaky})
     runtime = MultiAgentRuntime()
-    result = asyncio.get_event_loop().run_until_complete(
+    result = _run(
         runtime.execute_plan(plan, reg, _runtime_context(run_id))
     )
     # ceiling 2: one initial + ONE retry — never more, despite transient failures
@@ -432,7 +442,7 @@ def test_cancellation_propagates_cleanly_from_parallel_wave():
             return "cancelled-cleanly"
         return "not-cancelled"
 
-    outcome = asyncio.new_event_loop().run_until_complete(scenario())
+    outcome = _run(scenario())
     assert outcome == "cancelled-cleanly"
 
 
@@ -443,7 +453,7 @@ def test_plan_run_context_binding_is_idempotent_checked():
     runtime = MultiAgentRuntime()
     # a mismatched RunContext (different run_id) is a caller error — refused
     with pytest.raises(ValueError):
-        asyncio.get_event_loop().run_until_complete(
+        _run(
             runtime.execute_plan(plan, base, _runtime_context("aima-other-run"))
         )
 
