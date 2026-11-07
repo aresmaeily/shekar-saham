@@ -1,3 +1,24 @@
+## [2026-11-08] WAVE-AI-ACCEPTANCE stage
+
+### Added
+- AI-MA bounded parallel execution: fixed plan v2 runs interpretation ∥ learning-challenge as ONE bounded wave (max_parallel=2 ≤ runtime ceiling 4); observed-concurrency probes pin max_inflight==2; failure isolation keeps independent branches alive; timeout cancels only the late branch; retry-within-budget stays budget-charged; cancellation propagates cleanly; +12 runtime/API tests.
+- Artifact-first branch exchange made real: the three shipped AI-MA executors mint verifiable ArtifactRefs (sha256 over canonical content, run-independent digests pinned); the API returns the ACTUAL deterministic synthesis (sources + visible refusals).
+- New UI tab #32 «هوش چندعاملی» (render/ai_ma_ui.js): /api/v10/aima posture + orchestrate on the api() boundary; server-field trust labels only; user-action-only; honest loading/empty/error states; sw v3-0-18.
+- AI-3 access/operation audit trail (memory_access_audit.py): append-only SHA-256 hash chain with verify-before-accept (fail-closed on tamper), closed operation×layer vocabulary preserving the RunContext/Episodic/Semantic triad, actor+authorization context, object refs (never content), caller-supplied instants, OK/REFUSED pairing with mandatory refusal reasons, credential-marker refusal at construction; AuditedResearchMemoryStore composes any store implementation untouched; +19 tests.
+- Golden Set v2 (golden_set_v2.py + GS2-2026-11-08 fixture): five capability kinds (market interpretation with FP/FN accounting, source conflicts incl. same-precedence refusal, fundamental extraction incl. restatement linkage, declared regime slices, calibration with hand-verified Brier 0.375); digest-bound inputs; explicit expected outputs AND invalidation conditions; baseline/candidate reported separately; superiority_claimed=False; +8 tests.
+- WP-D evidence battery (+9): AI-2 stage refusal paths (holdout/comparison/walk-forward/regime), baseline provenance (AI2-BASELINE-BUY-HOLD-1 declared, never fitted), declared-vs-inferred regimes pinned both ways, dormant adapter pragma probe (journal_mode=wal, synchronous=FULL) + independent dormancy re-proof.
+- WP-E evidence battery (+6) + freshness FIX: declared per-source freshness policy targets (DECLARED-SOURCES-2); coverage-endpoint freshness/kill-switch disclosures pinned end-to-end.
+
+### Changed (recorded counter-pin bumps only)
+- Tabs 31→32 (AI-MA tab) ×7 pinned files; sw v3-0-17→v3-0-18 ×6 pinned files; DECLARED-SOURCES-1→DECLARED-SOURCES-2 (freshness targets added — policy declarations, not measurements).
+- AI-MA UI failText prefers err.message (the typed-422 detail now renders verbatim; verified in-browser after a stale-SW/max-age incident was root-caused).
+- WP-C test suite runs coroutines on fresh event loops (order-independence in the full battery; zero assertion changes).
+
+### Verified
+- Full battery 3193/1s/0f (53.23s) = 3130 baseline + 63 new tests exact; AI-MA/AI-2/WP-G/golden-v1 suites unchanged and green; JS syntax 5/5; workflow YAML 3/3; secret scan clean; windows readiness 47/47 (all_ok, --claim-signed refused); pyflakes clean.
+- Exact-SHA CI at b773aee: ALL 4 REQUIRED CHECKS SUCCESS (jobs 128505575233 / 128505905298 / 128505575217 / 128505575400; method: commit-checks-page aria-labels — API rate-limited, recorded honestly).
+- Browser acceptance: Walk-Forward UI lifecycle + exports, Excellent tab activation (4 panels), NEW AI-MA tab (posture/orchestration/trace/synthesis/honesty/typed-422) — 15 screenshots, ZERO console errors / zero page errors across two sessions.
+
 ## 2026-11-07 — WAVE-AC CI-observed installer FAILURE root-caused and fixed (forward-only; failure kept on record)
 
 - The S05 payload-verifier absence sweep (delivered in `1c07099`) was unscoped and matched the third-party pip-bundled `site-packages/certifi/cacert.pem` (legitimate CA bundle pulled by `httpx==0.28.1`) → `build-installer` FAILURE at `0ccee1d` step 9 (steps 1–8 green). ROOT-CAUSED and FIXED by `11dcb73`: the recursive credential sweep now covers FIRST-PARTY payload areas only (backend sources + resources top level); third-party PyPI content excluded by documented scope; explicit forbidden-path assertions unchanged. CI on the FINAL HEAD `11dcb73`: **ALL 4 REQUIRED CHECKS SUCCESS** (build-installer job 128453112700). The failure remains on record (WS1 §20 + artifact manifest `ci_incidents_on_record`).
