@@ -1,5 +1,13 @@
 # AI-3 PERSISTENCE OWNER DECISION PACKET — D1–D7 (consolidated)
 
+**DECISION-CURRENCY NOTE (recorded 2026-11-08, WAVE-AB6): the header below
+said "ALL SEVEN DECISIONS PENDING (2026-11-02)" — that state is now
+SUPERSEDED by `OWNER_DECISIONS_RECORDED_2026-11-02.md` (D1–D7 recorded:
+SQLite-WAL engine, deferred runtime wiring, retention table, keyring+AESGCM,
+local keep=14 backup, single-user, RPO≤24h/RTO≤15m). The original packet text
+is preserved verbatim below as the decision-brief record; the recorded
+decisions document is authoritative.**
+
 **ALL SEVEN DECISIONS PENDING — no owner decision recorded as of 2026-11-02;
 none assumed; the PREFERRED-CANDIDATE ranking in
 `AI3_PERSISTENCE_CANDIDATE_EVALUATION.md` is an engineering ranking, not a

@@ -2,6 +2,24 @@
 
 - The S05 payload-verifier absence sweep (delivered in `1c07099`) was unscoped and matched the third-party pip-bundled `site-packages/certifi/cacert.pem` (legitimate CA bundle pulled by `httpx==0.28.1`) → `build-installer` FAILURE at `0ccee1d` step 9 (steps 1–8 green). ROOT-CAUSED and FIXED by `11dcb73`: the recursive credential sweep now covers FIRST-PARTY payload areas only (backend sources + resources top level); third-party PyPI content excluded by documented scope; explicit forbidden-path assertions unchanged. CI on the FINAL HEAD `11dcb73`: **ALL 4 REQUIRED CHECKS SUCCESS** (build-installer job 128453112700). The failure remains on record (WS1 §20 + artifact manifest `ci_incidents_on_record`).
 
+## [2026-11-08] MASTER-CONTINUOUS-EXECUTION WAVE-AB stage
+
+### Added
+- Walk-Forward UI trigger in the forward-test center (full section + JSON/CSV/PDF exports) binding the tested `/api/v10/strategylab/walkforward(+export)` API — closes the WAVE-AD recorded residual.
+- Dead-control wiring: hunt filters, tablo/hot segmented controls + sliders, live-tab refresh button (POST /api/refresh caller added), value-tab reload, portfolio inline add form; excellent tab activated (module lazy-import, fetch()→api() boundary migration, portfolio-optimization renderer).
+- AI-MA: three shipped specialist contracts (hypothesis-draft / interpretation / learning-challenge) + deterministic synthetic-safe executors + closed evaluator-tool seam + bounded retry-within-budget recovery + autonomy ceiling enforcement + `/api/v10/aima` posture/orchestrate surface (fixed bounded advisory plan).
+- AI-2: deep-evaluation composition (walk-forward + holdout + declared regime slices + baseline comparison) wired additively into the generation pipeline; persistence decision packet D-A2-1..7 + dormant SQLite/WAL ledger adapter (no runtime caller).
+- AI-6/WP-G: deterministic primary-precedence conflict resolver; per-source kill switch (default ENGAGED); `/api/v10/productloops/intel/coverage` surface + declared source fixtures; declared unit/currency normalization; deterministic filing extraction for statements/notes/material events/guidance; dossier first-class content sections + closed confidence vocabulary.
+- AI-7/WP-H: ACCESSIBILITY / FEATURE_ADOPTION / TASK_COMPLETION audit domains with privacy-locked declared metric rows + proposal generator (15/15 domains represented).
+- WP-I: per-regime prediction performance (exact-rational Brier/ECE) + `GET /predictions/calibration/by-regime` + deterministic research-proposal drafts (preregistered=False, no adoption path).
+- WP-A: opportunity-clustering runtime producer + `GET /api/ai/opportunity-clusters`; HOLD emitted under the documented technical-vs-fundamental sole-conflict condition (6-label vocabulary fully exercised).
+
+### Changed (recorded counter-pin bumps only)
+- sw.js cache version v3-0-16 → v3-0-17 (walk-forward UI + dead-control wiring); productloops route-surface pin 10 → 11 → 12 (coverage + by-regime endpoints); AI3 persistence packet header currency note (decisions recorded 2026-11-02 supersede the "pending" header; original preserved).
+
+### Verified
+- Final battery 3130/1s/0f; pyflakes clean; node --check green; workflow YAML 3/3; windows_package_readiness 47/47 all_ok (unsigned/NOT ISSUED); security scan clean; forward-only push verified; exact-SHA CI at 2b038a1: ALL 4 REQUIRED CHECKS SUCCESS.
+
 ## 2026-11-07 — WAVE-AB..AH (MASTER CONTINUOUS CLOSURE): CI CURRENCY + 17-ROLE MATRIX + FULL BROWSER EVIDENCE + ARTIFACT MANIFEST + PARITY + GOVERNANCE
 
 - **WAVE-AB:** exact-SHA CI currency at `b1d1c3c` — ALL 4 required checks SUCCESS with build-installer verified at STEP level (12/12 steps green); artifact identity recorded (114.4 MB, retention 30d); the `445e4fb` build-installer FAILURE remains on record, never converted; Vercel combined-status failure recorded as the optional non-gating pipeline.
