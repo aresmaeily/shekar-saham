@@ -291,11 +291,34 @@ clarification (one-line owner act; runtime fail-closed under either).
 
 ## §10 — Publication + exact-SHA CI at the final HEAD
 
-Forward-only push `b773aee..WAVE-AI-final` (paramiko deploy-key wrapper,
-read-back verified; remote ref == local HEAD after push). Post-publication,
-exact-SHA CI verified at the FINAL HEAD — see §13 for the recorded run/job
-IDs (appended after CI completed; the verification method is the same
-commit-checks-page aria-label binding; API rate-limit recorded honestly).
+Forward-only push `b773aee2..1a48725b15aed42cecf9bdb0eae08be68eb32b99`
+(full-duplex paramiko GIT_SSH shim — stdin/stdout/stderr pumped so the pack
+protocol stays interactive; ls-remote read-back == local HEAD after push).
+
+Exact-SHA CI at `1a48725` (verified from the commit-checks page, aria-label
+binding; API rate-limited — recorded honestly):
+
+| Required check | Workflow run | Job ID | Conclusion |
+|---|---|---|---|
+| test-backend | 42416449976 | 128535476304 | SUCCESS |
+| build-docker | 42416449976 | 128535719529 | SUCCESS |
+| build-installer | 42416450087 | 128535476346 | SUCCESS |
+| windows-validation | 42416450242 | 128535477131 | **FAILURE** (job observed "This job failed") |
+
+**windows-validation FAILURE at 1a48725 — recorded as a FAILURE, nothing
+converted.** This is the 4th occurrence of the recorded windows-only failure
+class (7a85528 job 127049014619, 99e9da1 job 127057399816, a6402cd job
+127286685937 — each classified environmental via the docs-only discriminator
+procedure). The failing step is not publicly extractable (artifact download
+auth-gated per GOV-49). The established classification procedure is now
+repeated: a DOCS-ONLY discriminator commit (this commit) is pushed ALONE so
+its windows run classifies the 1a48725 failure — PASS on byte-identical
+runtime code = environmental recurrence of the recorded flake class
+(candidate environmental factor stays the recorded runner-forced Node.js 24
+plus Windows-runner variance); FAIL = escalate as a real regression and
+root-cause against this wave's diff (additive tests + AI-MA UI module +
+index.html panel + main.js import + sw bump — no boot-path, no engine, no
+workflow deltas).
 
 ## §11 — Security/governance invariants (verified unchanged)
 
