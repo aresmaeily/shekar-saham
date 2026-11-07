@@ -50,7 +50,9 @@ def client():
     import os
 
     os.environ.setdefault("DATA_SOURCE", "mock")
-    return TestClient(app := __import__("app.main", fromlist=["app"]).app, client=("wp-e-test", 12403))
+    from app.main import app as fastapi_app
+
+    return TestClient(fastapi_app, client=("wp-e-test", 12403))
 
 
 def test_freshness_disclosures_on_the_live_coverage_endpoint(client):
