@@ -1,5 +1,13 @@
 # Changelog — RADAR BOURSE
 
+## 2026-11-07 — WAVE-T (MASTER directive §14 closure): SITE-2 FLEET E2E + EMBEDDED RUNTIME + INDEPENDENT AUDIT
+
+- **WAVE-T1:** NEW `backend/tests/test_website_journeys_e2e.py` — twelve real-backend user journeys (directive §3.1) over the real FastAPI app with a distinct rate-limit identity; every journey asserts the honest trust surface (synthetic labels verbatim, `live_verified` never true, the AI-2 gate CLOSED with the runs ledger unchanged by the refusal). Closes the SITE-2 fleet row → RUNTIME-VERIFIED.
+- **WAVE-T2:** browser-level runtime evidence — 7 journeys driven at DOM level on the booted real app (real tab clicks, accessibility snapshots, 8 screenshots) + the AI-2 Studio generate flow via real UI inputs rendering the server's honest refusal verbatim.
+- **WAVE-T3:** MR-I-02 embedded Python runtime IMPLEMENTED — pinned 3.12.10 embeddable (the LAST 3.12.x shipping Windows binaries), fail-closed MD5 verification against the official published value, per-build SHA-256 recording, LOCAL dependency bundle (`--only-binary=:all:` cp312/win_amd64), `python312._pth` wiring, CI import smoke (extracted interpreter against the extracted bundle), bundled-first resolution in `backend_service.js`, PSF LICENSE VERSION 2 notice in-repo; first launch needs NO system Python/pip/venv/network; +14 readiness checks (47/47); +8 static pins; CI build-installer SUCCESS @b456570 proves the whole pipeline in the authorized environment.
+- **Independent audit (§12):** 4 read-only auditors ALL PASS 0 FAIL + clean-checkout battery reproduction; remediation `445e4fb` (J02 honest-empty-state fix after root-causing a genuine 30-second-RNG flake; wording precision; one false-positive dismissed with byte-level evidence).
+- Battery 3026/1s/0f = 3006+12+8 exact; record: `docs/active/MASTER_RADAR_WAVET_COMPLETION_RECORD_2026-11-07.md`; Persian report §51–§54; English next-stage directive: `docs/active/ENGLISH_NEXT_STAGE_DIRECTIVE_2026-11-07.md`.
+
 ## 2026-11-07 — WAVE-S (MASTER directive): WEBSITE/DESKTOP/CHARTING GAP CLOSURE
 
 - **WAVE-S2:** cross-window crosshair/range sync for the multi-chart grid + detached popups (closed the recorded WAVE-B residual): 3 NEW fail-closed BroadcastChannel validators, dual echo guards, sync toggles govern cross-window, pane→primary crosshair, values always from local data (no fabricated prices).
