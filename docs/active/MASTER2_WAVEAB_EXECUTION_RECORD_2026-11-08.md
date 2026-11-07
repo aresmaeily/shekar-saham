@@ -241,6 +241,7 @@ Closes the runtime audit's P0/P1 set:
 | Browser journeys (12/12 backend-level) | re-ran as part of battery — `test_website_journeys_e2e.py` green incl. J06 walk-forward legs |
 | Publication | forward-only push verified: `1aaa4fe..2b038a1` on origin/main (paramiko/dulwich receive-pack, unpack ok, ref ok, remote ref read-back == local HEAD) |
 | **Exact-SHA CI at `2b038a1`** | **ALL 4 REQUIRED CHECKS SUCCEEDED** — test-backend ✓, build-docker ✓, windows-validation ✓, build-installer ✓ (verified from the commit checks page per-check aria-labels "This job succeeded"; all three workflow badges passing). Separate from the OPTIONAL Vercel preview pipeline (non-gating, unchanged). |
+| **Exact-SHA CI at the docs-only HEAD `373623fd69eff688d9fe90160e6e361d8ec7dd88`** | **ALL 4 REQUIRED CHECKS SUCCEEDED** (same verification method) — docs currency commits carry zero code delta; CI re-verified on the exact final SHA so the stage closes with no unverified published commit. |
 
 ---
 
