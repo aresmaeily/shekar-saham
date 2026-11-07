@@ -79,8 +79,9 @@ function getState() {
 //    import smoke). First launch therefore needs NO system Python, NO pip,
 //    NO venv, and NO network.
 // 2) FALLBACK (development only): the Windows py launcher / RADAR_PYTHON /
-//    python3 on PATH — the pre-WAVE-T3 behavior, kept byte-identical so a
-//    dev checkout still boots without a bundled runtime present.
+//    python3 on PATH — the pre-WAVE-T3 spawn behavior preserved (same cmd
+//    and args; the returned object merely gains the bundled:false metadata
+//    flag) so a dev checkout still boots without a bundled runtime present.
 // Nothing is fetched at runtime; an unverified runtime is never fetched or claimed.
 function resolvePythonCommand() {
   const isWin = process.platform === 'win32';

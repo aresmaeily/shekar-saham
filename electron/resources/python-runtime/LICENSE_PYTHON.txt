@@ -24,8 +24,11 @@ redistributed.
 Third-party dependency bundles shipped alongside this runtime (under
 site-packages/) carry their own licenses inside their dist-info directories,
 installed verbatim at build time by pip from the pinned requirements file.
-Nothing in this installer's runtime payload was modified, patched, or rebuilt
-from source.
+The runtime payload is the unmodified upstream distribution except ONE
+additive line appended to python312._pth wiring the LOCAL dependency bundle
+('../site-packages') — the embeddable distribution's own documented
+configuration mechanism. Nothing is patched, rebuilt from source, or
+otherwise altered.
 
 ====================================================================================
 

@@ -140,7 +140,7 @@ jobs:
             smartscreen_note = 'Windows SmartScreen may warn for unsigned installers'
             python_runtime = [ordered]@{
               version = '3.12.10'
-              distribution = 'python.org Windows embeddable package (64-bit), UNMODIFIED'
+              distribution = 'python.org Windows embeddable package (64-bit), UNMODIFIED except the documented python312._pth path-wiring line (python.org's own configuration mechanism for the embeddable distribution)'
               integrity = 'MD5 verified at build time against python.org published value; SHA-256 recorded in installer_provenance.txt'
               license = 'PSF LICENSE VERSION 2 — bundled at python-runtime/LICENSE_PYTHON.txt; full text at https://docs.python.org/3/license.html'
               dependency_bundle = 'resources/site-packages — local pip resolution of the pinned requirements (--only-binary cp312/win_amd64); first launch needs NO system Python, NO pip, NO venv, NO network'
