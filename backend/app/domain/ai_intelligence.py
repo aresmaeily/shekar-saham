@@ -105,6 +105,18 @@ def _trust_confidence_cap(data_trust: dict[str, Any]) -> tuple[float, list[str],
     return 0.25, warnings, invalidations
 
 
+def trust_confidence_cap_for_state(state: str) -> float:
+    """WAVE-AB3: public deterministic wrapper over the private state→cap table.
+
+    Exposes the SAME table (no duplicated logic) for bounded read-only uses
+    such as the AI-MA deterministic tool seam (``trust_cap_lookup``). Takes a
+    bare trust state string; unknown states fall through to the private
+    function's honest unknown-state cap.
+    """
+    cap, _warnings, _invalidations = _trust_confidence_cap({"state": state})
+    return cap
+
+
 class AIIntelligenceCore:
     """Deterministic AI Brain foundation over controlled context."""
 

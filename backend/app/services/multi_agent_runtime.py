@@ -79,11 +79,12 @@ from app.domain.multi_agent import (
     isolate_failure,
 )
 from app.domain.multi_agent_failure_model import (
+    FAILURE_BEHAVIOR,
     FAILURE_RUN_CONTAINMENT,
     FailureKind,
     classify_step_failure,
 )
-from app.domain.run_governance import ArtifactRef, RunContext
+from app.domain.run_governance import ArtifactRef, RunContext, assert_autonomy_permitted
 
 __all__ = [
     "StepPayload",
@@ -302,6 +303,12 @@ class MultiAgentRuntime:
         Every other failure is contained into visible frozen records.
         """
         bind_run_context(plan, run_context)
+        # WAVE-AB3 (WP-C): the autonomy-ceiling gate is now enforced INSIDE the
+        # orchestration path (was only enforced at RunContext construction — the
+        # runtime itself never checked). Advisory orchestration runs at ceiling
+        # L2: a run minted above the ceiling is refused before ANY step
+        # dispatches (fail-closed; nothing executes, nothing is recorded).
+        assert_autonomy_permitted(run_context, "L2")
         events = trace_sink if trace_sink is not None else []
         self._emit(
             events,
@@ -404,6 +411,58 @@ class MultiAgentRuntime:
                 )
                 for outcome in run_outcomes:
                     outcomes[outcome.branch_result.step_id] = outcome
+
+                # --- WAVE-AB3 recovery: bounded RETRY_WITHIN_BUDGET ---------
+                # The failure model declares PROVIDER_ERROR / MALFORMED_OUTPUT /
+                # TIMEOUT as retryable. The runtime previously left that mapping
+                # advisory — it never retried (recorded P1 gap). Now: exactly ONE
+                # deterministic immediate retry per step per run, each retry a
+                # NEW invocation charged to the specialist's own budget ceiling
+                # (no silent budget bypass), traced as STEP_RETRY, and the final
+                # outcome recorded is the RETRIED attempt's outcome (fail-honest:
+                # a retry that fails again is recorded as failed, never as the
+                # original transient error). Non-retryable kinds, exhausted
+                # budgets and already-retried steps pass through untouched.
+                dispatch_map = {step.step_id: (step, contract, executor) for step, contract, executor, _a, _d in dispatchable}
+                retried_this_wave: dict[str, _StepOutcome] = {}
+                for step_id in chunk:
+                    if step_id not in outcomes or step_id in retried_this_wave:
+                        continue
+                    outcome = outcomes[step_id]
+                    if outcome.branch_result.status == "SUCCEEDED":
+                        continue
+                    if outcome.kind is None or FAILURE_BEHAVIOR.get(outcome.kind) != "RETRY_WITHIN_BUDGET":
+                        continue
+                    entry = dispatch_map.get(step_id)
+                    if entry is None:
+                        continue  # blocked/budget/refused outcomes never retry
+                    retry_step, retry_contract, retry_executor = entry
+                    next_attempt = invocation_counts.get(retry_contract.specialist_id, 0) + 1
+                    if next_attempt > retry_contract.max_invocations_per_run:
+                        continue  # budget ceiling holds across retries too
+                    retry_deadline = self._clock() + retry_contract.timeout_seconds
+                    self._emit(
+                        events,
+                        run_id=plan.run_id,
+                        step_id=step_id,
+                        trace_prefix=retry_contract.trace_prefix,
+                        kind="STEP_RETRY",
+                        detail=(
+                            f"failure_kind={outcome.kind}; attempt={next_attempt}; "
+                            f"max_invocations_per_run={retry_contract.max_invocations_per_run}"
+                        ),
+                    )
+                    retry_outcomes = await self._run_dispatched(
+                        plan,
+                        results_by_step,
+                        [(retry_step, retry_contract, retry_executor, next_attempt, retry_deadline)],
+                    )
+                    if retry_outcomes:
+                        invocation_counts[retry_contract.specialist_id] = next_attempt
+                        scheduled.append(step_id)
+                        retried_this_wave[step_id] = retry_outcomes[0]
+                        outcomes[step_id] = retry_outcomes[0]
+
                 for step_id in chunk:
                     outcome = outcomes[step_id]
                     results_by_step[step_id] = outcome.branch_result
@@ -722,6 +781,9 @@ class MultiAgentRuntime:
             depends_on=step.depends_on,
             consumes=step.consumes,
             consumed_results=consumed,
+            notes=step.notes,  # WAVE-AB3: step-level notes (e.g. the hypothesis
+            # specialist's 'question:' input) now reach the executor verbatim —
+            # previously the runtime dropped them, leaving the field always empty
         )
 
     @staticmethod

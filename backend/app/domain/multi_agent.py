@@ -369,6 +369,7 @@ class BranchResult(BaseModel):
 TraceKind = Literal[
     "PLAN_CREATED",
     "STEP_DISPATCHED",
+    "STEP_RETRY",
     "STEP_SUCCEEDED",
     "STEP_FAILED",
     "STEP_DEGRADED",

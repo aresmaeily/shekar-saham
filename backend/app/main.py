@@ -27,7 +27,8 @@ from app.api.user_indicator_api import router as user_indicator_api_router  # MA
 from app.api.data_quality_api import router as data_quality_api_router  # MASTER-RADAR WAVE-2 (2026-11-04): /api/v10/dataquality — fixture-universe coverage/audit center (declared SYNTHETIC_FIXTURE, canonical non-live provenance, no network)
 from app.api.product_loops_api import router as product_loops_api_router  # MASTER-RADAR WAVE-F (2026-11-05): /api/v10/productloops — governed five product-loop surface (declared dossiers + research permission + on-demand audit + prediction registry); SYNTHETIC/DECLARED only, no scheduler/egress
 from app.api.ai2_generation_api import router as ai2_generation_api_router  # WAVE-K (OA-3, 2026-11-05): /api/v10/ai2 — governed AI-2 generation seam (NL→clarification→typed spec→RSL-1→deterministic eval→versioned candidate); fail-closed AI2_ENABLED gate, synthetic/paper-only, human-approval-only transitions
-from app.api.scheduler_api import router as scheduler_api_router  # WAVE-M (OA-4, 2026-11-06): /api/v10/scheduler — bounded LOCAL internal scheduler (fail-closed SCHEDULER_ENABLED default 0, append-only run history, pause/resume/stop/kill-switch, no egress, no broker, no promotion authority)
+from app.api.scheduler_api import router as scheduler_api_router
+from app.api.ai_ma_api import router as ai_ma_api_router  # WAVE-AB3 (WP-C, 2026-11-08): /api/v10/aima — governed multi-agent runtime surface (three shipped advisory specialists, fixed bounded plan, deterministic executors, L2 autonomy ceiling enforced in-runtime, SYNTHETIC_OR_PAPER, no mutation/no promotion/no egress)  # WAVE-M (OA-4, 2026-11-06): /api/v10/scheduler — bounded LOCAL internal scheduler (fail-closed SCHEDULER_ENABLED default 0, append-only run history, pause/resume/stop/kill-switch, no egress, no broker, no promotion authority)
 from app.core.config import ROOT, get_settings
 from app.core.security import (
     is_public_path,
@@ -332,6 +333,7 @@ def create_app() -> FastAPI:
     app.include_router(product_loops_api_router)  # MASTER-RADAR WAVE-F (2026-11-05) — additive five product-loop surface; declared fixtures + live governed checks, no scheduler/egress, gates unchanged
     app.include_router(ai2_generation_api_router)  # WAVE-K (OA-3, 2026-11-05) — additive governed AI-2 generation seam; fail-closed gates (AI2_ENABLED default 0), typed-spec-only model surface, deterministic emitter, human-approval-only transitions, no egress
     app.include_router(scheduler_api_router)  # WAVE-M (OA-4, 2026-11-06) — additive bounded LOCAL internal scheduler; fail-closed (SCHEDULER_ENABLED default 0), append-only run history, pause/resume/stop/kill-switch, no egress/no broker/no promotion authority
+    app.include_router(ai_ma_api_router)  # WAVE-AB3 (WP-C, 2026-11-08) — additive governed AI-MA orchestration; fixed 3-step advisory plan, deterministic synthetic-safe executors, autonomy ceiling L2, no egress/no mutation/no promotion
 
     @app.websocket("/ws/live")
     async def ws_live(ws: WebSocket):
