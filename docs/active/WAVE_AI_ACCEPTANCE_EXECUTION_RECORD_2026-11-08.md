@@ -371,3 +371,38 @@ deltas.
    the trail ships in-memory (deterministic reference) this stage.
 6. All R-1..R-11 / OA-1..OA-8 owner acts (§9).
 7. Global completion % — NOT CALCULATED (OA-8).
+
+---
+
+## §14 — 17-role responsibility currency addendum (this stage's deltas)
+
+The standing matrix is `MASTER_RADAR_WAVEAC_17_ROLE_ACCEPTANCE_2026-11-07.md`
+(extended, never rewritten). This addendum maps the 17 governance roles to
+THIS stage's evidence pointers only (disposition: COMPLETE for all 17 within
+scope; two parallel read-only auditor passes were run in-wave — the battery
+root-cause pass and the browser-acceptance pass — honestly NOT 17 humans):
+
+| # | Role | This stage's evidence pointer |
+|---|---|---|
+| 1 | Owner authority / gate keeper | §9 owner-gated register untouched; zero owner-only actions performed |
+| 2 | Governance / policy gate | §11 invariants sweep; gates byte-pinned (AI2_ENABLED=0 config.py:118, SCHEDULER_ENABLED=0 :158) |
+| 3 | Central orchestration (AI-MA) | §3 plan v2 bounded parallel; autonomy ceiling L2 enforced; §7 browser journey |
+| 4 | Specialist qualification | §3: same 3 specialists, contracts unchanged; no arbitrary agents added |
+| 5 | Financial truth (deterministic services) | zero product-engine deltas; §11 |
+| 6 | Evidence & artifact management | §3 artifact-first ArtifactRefs with run-independent digests; §5 Golden Set v2 digests |
+| 7 | Research loop governance | §4 AI-2 refusal paths + provenance; deep-eval composition unchanged |
+| 8 | Memory (AI-3) governance | §5 tamper-evident access audit trail; triad preserved (audit ledger = 4th record kind) |
+| 9 | External intelligence (AI-6) | §5 kill switches ENGAGED; DECLARED-SOURCES-2 freshness targets; zero activation |
+| 10 | Prediction & calibration | §5 GS2 calibration case (Brier 0.375 hand-verified); registry untouched |
+| 11 | Product intelligence (AI-7) | nothing scheduled; OA-4 standing; §12 residual |
+| 12 | Security & secrets | §6 secret scan clean; audit-trail credential-marker refusal; no credentials touched |
+| 13 | Windows / installer | §6 readiness 47/47; INSTALL NOT ISSUED; R-1/R-2 standing |
+| 14 | QA & release engineering | §6 battery 3193/1s/0f = 3130+63 exact; order-independence fix a771f22 (no assertion changes) |
+| 15 | Browser / frontend journey QA | §7: 15 screenshots, 0 console errors, two sessions; honest SW-cache incident recorded |
+| 16 | Documentation & traceability | this record + Persian report + next directive + STATUS/CHANGELOG/INDEX currency |
+| 17 | Independent review | §6 order-independence root-cause pass + §7 browser-acceptance pass (read-only, adversarial; count honestly disclosed) |
+
+Status levels used precisely: this stage's CI closure = OPERATIONALLY-VERIFIED
+(exact-SHA check-run evidence at the published HEADs); implementation items =
+IMPLEMENTED + TESTED; browser surfaces = RUNTIME-VERIFIED; owner-gated items
+= OWNER-GATED (decision packets standing, nothing bypassed).
