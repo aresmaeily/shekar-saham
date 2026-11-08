@@ -283,3 +283,33 @@ zero product-engine deltas this stage (docs-only commits) · no global completio
   ALL-4-SUCCESS); ANY failure again ⇒ ESCALATED as persistent runner-side breakage for
   owner-side investigation with authenticated log access. Nothing is skipped, retried
   inside a job, weakened or converted in either case.
+
+## §15 — DISCRIMINATOR-2 verdict: build-installer FAILED AGAIN (same step) ⇒ ESCALATED per the recorded rule
+
+- At discriminator-2 `9c44bc3…` (docs-only, ALONE, byte-identical runtime): test-backend
+  SUCCESS · build-docker SUCCESS · **windows-validation SUCCESS** · **build-installer
+  FAILED** (run 42465284385, job 128683269238). Public annotations: the failing step is
+  AGAIN **«Build NSIS installer (electron-builder, unsigned)» — "Process completed with
+  exit code 1."** (1 error + 1 warning; the warning is the standing GitHub
+  node20-deprecation changelog link — present on green runs too, not by itself a failure).
+- **Verdict per the recorded §14 rule — ESCALATED:** two consecutive failures of the SAME
+  step at two different SHAs, on a runtime BYTE-IDENTICAL to the ALL-4-SUCCESS baseline
+  `2e6d0fb4` (06:57Z), plus one earlier windows-validation transient — classified as
+  **runner/CI-infrastructure instability (windows-family), NOT a product-code property**.
+  The instability window opens between ~08:20Z (d62781c ALL-4-SUCCESS) and ~08:47Z
+  (044daa3 first failure) on 2026-11-08.
+- **Honest end-state: the four required checks are NOT all-green at the current final
+  SHA** `9c44bc3` (3/4 SUCCESS; build-installer FAILURE ON RECORD). The last ALL-4-SUCCESS
+  SHAs are `d62781c` (docs+1 over the baseline, verified 4×"This job succeeded") and the
+  owner-confirmed baseline `2e6d0fb4` itself — the runtime is byte-identical across all
+  of them, so no product regression can hide in the delta (0 non-docs files changed).
+- **Root-cause boundary (honest):** raw job logs are auth-gated (GOV-49; anonymous raw-log
+  endpoint 404; step list JS-rendered). Engineering cannot extract the electron-builder
+  stderr from here. Blind changes to the workflow without the real error text are
+  refused (they would be guesswork and could green-wash a real failure).
+- **Owner actions offered (any one suffices):** (a) authenticated download of the failing
+  job log (`runs/42465284385/job/128683269238`) — the electron-builder error line is the
+  root cause artifact; (b) a manual re-run from the owner's session once the runner window
+  stabilizes (the 06:57Z run proves the toolchain works on this exact code); (c) grant an
+  engineering token with `actions:read` so the log can be fetched and fixed forward-only.
+  NOTHING was skipped, retried inside a job, weakened or converted.
