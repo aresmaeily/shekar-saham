@@ -91,7 +91,7 @@ async def memory_posture() -> Dict[str, Any]:
         "trust_envelope": _trust_envelope(),
         "disclosures": {
             "no_purge_path": "هیچ مسیر حذف/پاک‌سازی در این سطح وجود ندارد (D3: PERMANENT)",
-            "audit_refs_only": "ردیف‌های حسابرسی فقط REFERENSE هستند؛ محتوای خصوصی هرگز وارد دفتر نمی‌شود",
+            "audit_refs_only": "ردیف‌های حسابرسی فقط REFERENCE هستند؛ محتوای خصوصی هرگز وارد دفتر نمی‌شود",
             "fail_closed_key": "بدون کلید (env یا OS keyring) سطح با رد تایپ‌شده بسته می‌شود",
         },
     }

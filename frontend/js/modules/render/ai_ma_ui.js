@@ -205,6 +205,7 @@ async function runOrchestration() {
       })),
     });
     if (runHistory.length > RUN_HISTORY_MAX) runHistory.length = RUN_HISTORY_MAX;
+    renderRunHistory();  // refresh the session-history panel after every run
     const steps = Array.isArray(data.steps) ? data.steps : [];
     // 2026-11-08 (§4): نمایشگر محتوای artifact هر گام — فقط payloadهای
     // فراهم‌شده از سرور (artifact_contents)؛ verbatim و esc-شده
