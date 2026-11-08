@@ -126,7 +126,9 @@
 | `044daa3…` (بستن زنجیرهٔ WS1) | SUCCESS | SUCCESS | **FAILURE** (42464136720) | SUCCESS |
 | `8286cc9…` (تفکیک‌گر ۱) | SUCCESS | SUCCESS | SUCCESS | **FAILURE** (42464634806 — گام «Build NSIS installer» exit 1) |
 | `9c44bc3…` (تفکیک‌گر ۲) | SUCCESS | SUCCESS | SUCCESS | **FAILURE** (42465284385 — همان گام) |
-| `7c3cf02…` (رکورد تشدید) | — | — | — | — (CI این کامیت پس از انتشار راستی‌آزمایی و در رکورد بعدی ثبت می‌شود) |
+| `7c3cf02…` (رکورد تشدید) | SUCCESS | SUCCESS | SUCCESS | **FAILURE** (همان گام) |
+| `c01375b…` (واحد پول CI) | SUCCESS | SUCCESS | SUCCESS | **FAILURE** (همان گام) |
+| `27f4ac8…` (تأیید پایداری + فرضیه) | SUCCESS | SUCCESS | SUCCESS | **FAILURE** (همان گام — پنجمین متوالی؛ راستی‌آزمایی‌شده پس از انتشار) |
 
 - **راستی‌آزمایی روی SHA دقیق مالک (`2e6d0fb4`): هر ۴ چک SUCCESS** — با شمارهٔ ران/job (بند بالا) و از API صفحهٔ عمومی.
 - **وضعیت پایانی صادقانه:** در پنجرهٔ ناپایداری فعلی runner (از ~08:47Z)، خانوادهٔ چک‌های ویندوزی **ناپایدار** است: دو شکست متوالیِ همان گامِ «Build NSIS installer (electron-builder)» و یک شکست windows-validation، همگی روی runtime بایت‌به‌بایت یکسان با SHA تمام-سبز. طبق قاعدهٔ تفکیک‌گر ثبت‌شده، این **ESCALATED** شد: ناپایداری زیرساخت CI، نه خاصیت کد محصول.
