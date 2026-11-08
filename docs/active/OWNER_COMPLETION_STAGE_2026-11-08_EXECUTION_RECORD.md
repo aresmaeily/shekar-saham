@@ -313,3 +313,26 @@ zero product-engine deltas this stage (docs-only commits) · no global completio
   stabilizes (the 06:57Z run proves the toolchain works on this exact code); (c) grant an
   engineering token with `actions:read` so the log can be fetched and fixed forward-only.
   NOTHING was skipped, retried inside a job, weakened or converted.
+
+## §16 — Persistence confirmation + diagnostic analysis (hypothesis labeled NOT-VERIFIED; nothing patched blind)
+
+- The build-installer failure PERSISTED on every subsequent SHA: `7c3cf02` (run of the
+  escalation record) and `c01375b` (CI-truth currency) both show 3/4 SUCCESS with
+  **build-installer FAILURE** — the SAME «Build NSIS installer (electron-builder,
+  unsigned)» step, exit 1. windows-validation passed on both (so the earlier 044daa3
+  windows-validation failure stays classified environmental). Four consecutive
+  build-installer failures on a byte-identical runtime = **persistent runner-side
+  breakage of that step, on record**.
+- Diagnostic facts gathered repo-side (for the owner's authenticated root-cause):
+  `electron/package.json` declares `"electron": "^28.0.0"` / `"electron-builder": "^24.0.0"`
+  BUT `electron/package-lock.json` exists pinning **electron 28.3.3 / electron-builder
+  24.13.3**, and the workflow runs `npm install` (line 212) — so the npm dependency drift
+  vector is WEAK (lock respected). The strongest remaining hypothesis: electron-builder
+  downloads its NSIS toolchain resources (nsis-*.7z / winCodeSign) from GitHub releases
+  AT BUILD TIME — those fetches are NOT lock-pinned and are a documented transient/persistent
+  failure mode of the toolchain; a GitHub-side asset/CDN change in the 08:15Z–08:47Z window
+  would deterministically break exactly this step on identical code. **NOT-VERIFIED without
+  the authenticated log** — recorded as a named hypothesis, never as fact.
+- No workflow change was made (no blind patching, no green-washing). The recorded owner
+  actions of §15 stand. If the log confirms the NSIS-fetch hypothesis, the forward fix is
+  a pinned offline NSIS-resources cache in the workflow — proposed, NOT implemented.
