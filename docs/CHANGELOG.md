@@ -1,3 +1,6 @@
+## [2026-11-08] OWNER COMPLETION STAGE — post-publication CI truth (WS1)
+- d62781c ALL-4-SUCCESS; then windows-family instability on byte-identical runtime: 044daa3 windows-validation FAILURE (discriminated environmental by 8286cc9 PASS) + build-installer FAILURE at 8286cc9 AND 9c44bc3 (same step 'Build NSIS installer' exit 1, public annotations) => ESCALATED as runner/CI-infrastructure instability (0 non-docs deltas across all SHAs, proven); failures ON RECORD, nothing converted; raw logs auth-gated (GOV-49); blind workflow changes refused; owner actions offered (log fetch / re-run / actions:read token). Details: execution record §13-§15.
+
 ## [2026-11-08] OWNER COMPLETION STAGE (رفع نواقص، تکمیل مستندات، اعتبارسنجی نهایی)
 
 ### Docs (zero code delta — verification stage)

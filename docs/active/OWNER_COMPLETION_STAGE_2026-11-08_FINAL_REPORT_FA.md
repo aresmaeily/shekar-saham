@@ -117,28 +117,35 @@
 - ⇒ **Branch Protection فعال نشده و هرگز ادعا نمی‌شود**؛ اقدام مالک: Settings→Branches→Add ruleset برای `main` + الزام ۴ چک (`test-backend`، `build-docker`، `windows-validation`، `build-installer`) + ممنوعیت force-push و حذف.
 - صیانت از تاریخچه در عمل: همهٔ pushها فقط-به-جلو بودند؛ هر دو شکست CI قبلی ثبت و جلورو اصلاح شدند.
 
-## ۱۶) چهار Check اجباری روی SHA نهایی
+## ۱۶) چهار Check اجباری روی SHA نهایی — ماتریس نهایی صادقانه
 
-| Check | SHA | Run | نتیجه |
-|---|---|---|---|
-| test-backend | `2e6d0fb4…` | 42456810896 (job 128657484776) | **SUCCESS** |
-| build-docker | `2e6d0fb4…` | 42456810896 (job 128657732174) | **SUCCESS** |
-| windows-validation | `2e6d0fb4…` | 42456810853 (job 128657484488) | **SUCCESS** |
-| build-installer | `2e6d0fb4…` | 42456810887 (job 128657484581) | **SUCCESS** (آرتیفکت 13607633922) |
+| SHA (همه با runtime بایت‌به‌بایت یکسان — صفر دلتای غیر-docs، اثبات‌شده) | test-backend | build-docker | windows-validation | build-installer |
+|---|---|---|---|---|
+| `2e6d0fb4…` (baseline مالک) | SUCCESS | SUCCESS | SUCCESS | **SUCCESS** (آرتیفکت 13607633922) |
+| `d62781c…` (مستندات مرحله) | SUCCESS | SUCCESS | SUCCESS | SUCCESS — ۴× «This job succeeded» (ران‌های 42463137103/24/36) |
+| `044daa3…` (بستن زنجیرهٔ WS1) | SUCCESS | SUCCESS | **FAILURE** (42464136720) | SUCCESS |
+| `8286cc9…` (تفکیک‌گر ۱) | SUCCESS | SUCCESS | SUCCESS | **FAILURE** (42464634806 — گام «Build NSIS installer» exit 1) |
+| `9c44bc3…` (تفکیک‌گر ۲) | SUCCESS | SUCCESS | SUCCESS | **FAILURE** (42465284385 — همان گام) |
+| `7c3cf02…` (رکورد تشدید) | — | — | — | — (CI این کامیت پس از انتشار راستی‌آزمایی و در رکورد بعدی ثبت می‌شود) |
 
-**بستن زنجیره (WS1):** کامیت مستندات این مرحله `d62781c…` فقط-به-جلو منتشر شد (`2e6d0fb..d62781c`، read-back مستقل تأیید شد) و CI آن روی SHA دقیق خودش از صفحهٔ عمومی commit-checks راستی‌آزمایی شد: **هر ۴ چک اجباری SUCCESS — ۴× «This job succeeded»** (ران‌های 42463137103 / 42463137124 / 42463137136). Context اختیاری Vercel جدا و غیر-گیت است (بند ۱۳).
+- **راستی‌آزمایی روی SHA دقیق مالک (`2e6d0fb4`): هر ۴ چک SUCCESS** — با شمارهٔ ران/job (بند بالا) و از API صفحهٔ عمومی.
+- **وضعیت پایانی صادقانه:** در پنجرهٔ ناپایداری فعلی runner (از ~08:47Z)، خانوادهٔ چک‌های ویندوزی **ناپایدار** است: دو شکست متوالیِ همان گامِ «Build NSIS installer (electron-builder)» و یک شکست windows-validation، همگی روی runtime بایت‌به‌بایت یکسان با SHA تمام-سبز. طبق قاعدهٔ تفکیک‌گر ثبت‌شده، این **ESCALATED** شد: ناپایداری زیرساخت CI، نه خاصیت کد محصول.
+- **مرز صادقانه:** لاگ خام auth-gated است (GOV-49)؛ تغییر کورکورانهٔ workflow بدون متن واقعی خطا رد شد (بدون حدس‌زدن و بدون سبز-سازی کاذب).
+- **اقدام مالک (یکی کافی است):** (الف) دریافت لاگ job با حساب مالک (`runs/42465284385/job/128683269238`)؛ (ب) re-run دستی پس از پایدار شدن پنجره (ران 06:57Z روی همین کد تمام‌سبز بوده است)؛ (ج) اعطای توکن با `actions:read` برای رفع جلورو.
+- Context اختیاری Vercel جدا و غیر-گیت است (بند ۱۳).
 
 ## ۱۷) فهرست تمام نقص‌های باز
 
-1. نصب/ارتقا/rollback/حذف روی دستگاه واقعی ویندوز + تست تعاملی Electron (R-1/R-2) — NOT-VERIFIED.
-2. Branch Protection ruleset (دسترسی Administration مالک).
-3. فعال‌سازی AI-2 (D-A2) / Provider LLM (P-1..P-10) / Scheduler عملیاتی (OA-4) — OWNER-GATED.
-4. منابع دادهٔ واقعی: کاتالوگ نماد واقعی، entitlement، admission زنده (R-3/R-7 + Two-Key).
-5. مشاهدهٔ زندهٔ forward (R-6) و امضای ویندوز (تصمیم گواهی).
-6. Staging عمومی (میزبان/اعتبارنامه مالک)؛ پاک‌سازی Vercel (OA-6).
-7. P2 liquidity pinning و ماژول per-fundamental-line PIT (backlog مهندسی، ثبت‌شده).
-8. cadence خودکار پشتیبان D5 و ممیزی‌های دوره‌ای AI-7 (OA-4).
-9. مطالعهٔ مقایسه‌ای TabloKhانی نیازمند پروتکل مصوب مالک.
+1. **ناپایداری CI ویندوزی (ESCALATED):** دو شکست متوالی گام «Build NSIS installer» + یک شکست windows-validation روی runtime بایت‌به‌بایت یکسان (پنجرهٔ ~08:47Z به بعد) — نیازمند لاگ auth-gated مالک یا re-run پس از پایداری؛ آخرین SHA تمام-سبز: `d62781c` و baseline مالک `2e6d0fb4`.
+2. نصب/ارتقا/rollback/حذف روی دستگاه واقعی ویندوز + تست تعاملی Electron (R-1/R-2) — NOT-VERIFIED.
+3. Branch Protection ruleset (دسترسی Administration مالک).
+4. فعال‌سازی AI-2 (D-A2) / Provider LLM (P-1..P-10) / Scheduler عملیاتی (OA-4) — OWNER-GATED.
+5. منابع دادهٔ واقعی: کاتالوگ نماد واقعی، entitlement، admission زنده (R-3/R-7 + Two-Key).
+6. مشاهدهٔ زندهٔ forward (R-6) و امضای ویندوز (تصمیم گواهی).
+7. Staging عمومی (میزبان/اعتبارنامه مالک)؛ پاک‌سازی Vercel (OA-6).
+8. P2 liquidity pinning و ماژول per-fundamental-line PIT (backlog مهندسی، ثبت‌شده).
+9. cadence خودکار پشتیبان D5 و ممیزی‌های دوره‌ای AI-7 (OA-4).
+10. مطالعهٔ مقایسه‌ای TabloKhانی نیازمند پروتکل مصوب مالک.
 
 ## ۱۸) فهرست تمام موارد نیازمند تصمیم مالک
 
