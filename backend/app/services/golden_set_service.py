@@ -34,10 +34,7 @@ from app.domain.filing_extraction import (
     DeclaredFilingDocument,
     extract_filing_document,
 )
-from app.domain.golden_set import (
-    GoldenSetIntegrityError,
-    parse_golden_set_version,
-)
+from app.domain.golden_set import parse_golden_set_version
 from app.domain.golden_set_v2 import (
     GoldenV2CaseResult,
     GoldenV2Version,
