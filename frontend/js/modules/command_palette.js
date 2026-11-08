@@ -151,6 +151,20 @@ function buildActions() {
     }
   }
 
+  /* (۴-ب) 2026-11-08 owner directive (§4 keyboard/palette integration):
+     هر عنصری که data-palette-label دارد (مثلاً دکمه‌های هوش چندعاملی و
+     حافظه پژوهش) به پالت اضافه می‌شود؛ اجرا = کلیک واقعی همان دکمه —
+     هیچ API جدیدی صدا زده نمی‌شود و هیچ فرمانی خودکار اجرا نمی‌شود. */
+  document.querySelectorAll("[data-palette-label]").forEach((el) => {
+    const label = String(el.getAttribute("data-palette-label") || "").trim();
+    if (!label) return;
+    acts.push({
+      id: "palette-label:" + label,
+      label_fa: label,
+      run: () => el.click(),
+    });
+  });
+
   /* (۵) میان‌برهای مفید محصول — فقط پیمایش تب از طریق خود دکمه‌های tab؛
      هر اقدامی که API جدید لازم داشت عمداً حذف شده است. */
 

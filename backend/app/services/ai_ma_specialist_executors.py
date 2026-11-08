@@ -221,10 +221,12 @@ class HypothesisDraftExecutor(_ToolBoundedExecutor):
                 }
             )
         summary = f"drafted {len(drafts)} preregistered hypotheses (explicit invalidations)"
+        content = {"drafts": drafts}
         return SpecialistOutcome(
             ok=True,
             summary=_artifact_summary(summary),
-            artifact=_artifact_ref(step, payload, {"drafts": drafts}),
+            artifact=_artifact_ref(step, payload, content),
+            content=content,  # bounded server-provided payload for the UI viewer
         )
 
 
@@ -266,10 +268,12 @@ class InterpretationExecutor(_ToolBoundedExecutor):
             )
         ok_count = sum(1 for r in readings if r["status"] == "SUCCEEDED")
         summary = f"interpreted {len(readings)} consumed artifact(s); {ok_count} SUCCEEDED"
+        content = {"readings": readings}
         return SpecialistOutcome(
             ok=True,
             summary=_artifact_summary(summary),
-            artifact=_artifact_ref(step, payload, {"readings": readings}),
+            artifact=_artifact_ref(step, payload, content),
+            content=content,  # bounded server-provided payload for the UI viewer
         )
 
 
@@ -321,14 +325,12 @@ class LearningChallengeExecutor(_ToolBoundedExecutor):
                 }
             )
         summary = f"challenged {len(consumed)} result(s): {len(challenges)} challenge note(s), {duplicate_groups} duplicate group(s)"
+        content = {"duplicate_groups": duplicate_groups, "challenges": challenges}
         return SpecialistOutcome(
             ok=True,
             summary=_artifact_summary(summary),
-            artifact=_artifact_ref(
-                step,
-                payload,
-                {"duplicate_groups": duplicate_groups, "challenges": challenges},
-            ),
+            artifact=_artifact_ref(step, payload, content),
+            content=content,  # bounded server-provided payload for the UI viewer
         )
 
 

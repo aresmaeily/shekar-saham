@@ -385,6 +385,31 @@ async def intel_coverage(
     }
 
 
+@router.get("/goldenset/v2/report")
+async def golden_set_v2_report() -> Dict[str, Any]:
+    """2026-11-08 owner directive (§3 AI-7) + next-stage item 5b: the
+    versioned Golden Set v2 report behind a READ-ONLY endpoint.
+
+    Deterministic (no wall clock, no RNG — the same corpus bytes yield the
+    same report), corpus digests pinned and fail-closed, v2 cases run
+    against the REAL deterministic engines, baseline (v1 re-verification)
+    and candidate (v2) reported SEPARATELY, FP/FN totals included, and the
+    structural no-superiority pin carried verbatim (a TabloKhani
+    comparative study requires the owner-approved benchmark protocol first).
+    """
+    from app.services.golden_set_service import GoldenSetReportError, run_golden_set_v2_report
+
+    try:
+        payload = run_golden_set_v2_report()
+    except GoldenSetReportError as exc:
+        raise _typed_422(
+            "golden_set_corpus_digest_mismatch",
+            str(exc),
+            "کورپوس Golden Set با digest پین‌شده مطابقت ندارد (fail-closed)",
+        )
+    return payload
+
+
 @router.get("/research/status")
 async def research_status() -> Dict[str, Any]:
     from app.core.config import get_settings

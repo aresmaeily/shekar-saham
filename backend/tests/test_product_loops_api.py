@@ -558,7 +558,12 @@ def test_route_surface_scoped_to_governed_prefix() -> None:
     # regime-sliced prediction performance over caller-DECLARED regime
     # labels (closed regime_slices vocabulary); empty regimes are honest
     # empty slices, never fabricated. See test_wpi_regime_and_proposals.py.
-    assert len(product_paths) == 12  # manifest + dossier + coverage + research(2) + audit + predictions(6)
+    # COUNTER-PIN BUMP (recorded, 2026-11-08 owner directive §3 AI-7): 12 -> 13 —
+    # NEW GET /api/v10/productloops/goldenset/v2/report: the versioned
+    # Golden Set v2 report behind a read-only endpoint (corpus digests
+    # pinned fail-closed; baseline/candidate separated; structural
+    # no-superiority pin). See test_golden_set_v2_endpoint.py.
+    assert len(product_paths) == 13  # manifest + dossier + coverage + research(2) + audit + predictions(6) + goldenset
 
 
 def test_gates_unchanged_in_default_settings() -> None:

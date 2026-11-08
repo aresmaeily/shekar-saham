@@ -11,7 +11,7 @@ product_loops_ui / ai2_studio):
 - no dynamic code execution, no polling/auto-run (user action only);
 - trust label read ONLY from server fields (data_trust_label);
 - no live/promotion claims minted client-side;
-- sw v3-0-18 with the module precached;
+- sw v3-0-19 with the module precached;
 - main.js lazy-activates the module on tab open.
 """
 
@@ -102,7 +102,7 @@ def test_main_js_lazy_activation():
 
 def test_sw_v3_0_18_precaches_the_module():
     sw = _read(SW_JS)
-    assert "radar-bourse-static-v3-0-18" in sw
+    assert "radar-bourse-static-v3-0-19" in sw
     assert "/static/js/modules/render/ai_ma_ui.js" in sw
 
 

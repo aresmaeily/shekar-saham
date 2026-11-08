@@ -1414,6 +1414,26 @@
         <button class="btn tiny" id="plCalRun">محاسبه Brier/ECE</button>
       </div>
       <div id="plCalOut" class="muted">Brier، ECE و سطوح قابلیت اعتماد اینجا رندر می‌شود…</div>
+
+      <!-- 2026-11-08 owner directive (AI-3 real integration): حافظه پژوهش
+           ماندگار + ردیف حسابرسی دسترسی — همه چیز فقط-خواندنی و سرور-محور؛
+           بدون مسیر حذف؛ هر کنش فقط با کلیک صریح کاربر -->
+      <h3>۶) حافظه پژوهش ماندگار و ردیف حسابرسی دسترسی (AI-3)</h3>
+      <div class="cp-toolbar">
+        <button class="btn tiny" id="plMemPosture" data-palette-label="حافظه پژوهش: خواندن وضعیت">وضعیت و پشتوانه ماندگاری</button>
+        <button class="btn tiny" id="plMemIntegrity" data-palette-label="حافظه پژوهش: بررسی صحت">بررسی صحت (محتوا + زنجیره حسابرسی)</button>
+        <button class="btn tiny" id="plMemAudit" data-palette-label="حافظه پژوهش: ردیف حسابرسی">ردیف حسابرسی دسترسی</button>
+        <button class="btn tiny" id="plMemBackup" data-palette-label="حافظه پژوهش: پشتیبان تأییدشده">پشتیبان تأییدشده (D5)</button>
+      </div>
+      <div id="plMemOut" class="muted">وضعیت حافظه پژوهش ماندگار (SQLite/WAL + AES-GCM، زنجیره حسابرسی SHA-256، وضعیت گیت) اینجا رندر می‌شود…</div>
+
+      <!-- 2026-11-08 owner directive (AI-7): گزارش نسخه‌دار Golden Set v2 —
+           baseline و candidate جدا؛ بدون هیچ ادعای برتری -->
+      <h3>۷) گزارش Golden Set v2 (baseline و candidate جدا؛ بدون ادعای برتری)</h3>
+      <div class="cp-toolbar">
+        <button class="btn tiny" id="plGs2Report" data-palette-label="حلقه‌های محصول: گزارش Golden Set v2">خواندن گزارش نسخه‌دار</button>
+      </div>
+      <div id="plGs2Out" class="muted">گزارش نسخه‌دار GS2 (کورپس با digest پین‌شده، FP/FN، پنج نوع توانایی) اینجا رندر می‌شود…</div>
     </section>
     <section class="panel" id="tab-aistudio">
       <div class="panel-head">
@@ -1488,15 +1508,18 @@
       </div>
 
       <h3>وضعیت زمان اجرا (سه متخصص، ابزار قطعی، پاکت صداقت)</h3>
-      <div class="cp-toolbar"><button class="btn tiny" id="amPostureReload">خواندن وضعیت</button></div>
+      <div class="cp-toolbar"><button class="btn tiny" id="amPostureReload" data-palette-label="هوش چندعاملی: خواندن وضعیت متخصص‌ها">خواندن وضعیت</button></div>
       <div id="amPostureOut" class="muted">وضعیت سه متخصص (قرارداد، ابزار مجاز، سقف فراخوانی، timeout)، واژگان بسته ابزار قطعی و پاکت صداقت سرور اینجا رندر می‌شود…</div>
 
       <h3>اجرای ارکستراسیون (پلن ثابت سرور: فرضیه → {تفسیر ∥ چالش})</h3>
       <div class="cp-toolbar">
         <textarea class="text-input" id="amQuestion" rows="2" style="max-width:560px;font-size:12px" placeholder="پرسش پژوهشی (۳ تا ۳۰۰ نویسه) — مثلاً: آیا فملی در فاز صعودی است؟"></textarea>
-        <button class="btn tiny" id="amRunBtn">اجرای ارکستراسیون</button>
+        <button class="btn tiny" id="amRunBtn" data-palette-label="هوش چندعاملی: اجرای ارکستراسیون">اجرای ارکستراسیون</button>
+        <button class="btn tiny" id="amHistoryReload" data-palette-label="هوش چندعاملی: تاریخچه اجرای نشست">تاریخچه اجرای نشست</button>
       </div>
-      <div id="amRunOut" class="muted">رکورد اجرا (موج‌ها، شاخه‌ها با artifact و digest، سنتز قطعی، ردیف‌های رد، ردگیری گام‌به‌گام، رکورد حاکمیت) اینجا رندر می‌شود…</div>
+      <div id="amRunOut" class="muted">رکورد اجرا (موج‌ها، شاخه‌ها با artifact و digest و نمایشگر محتوای هر artifact، سنتز قطعی، ردیف‌های رد، ردگیری گام‌به‌گام، رکورد حاکمیت) اینجا رندر می‌شود…</div>
+      <h4 style="margin:8px 0 4px">تاریخچه اجراهای این نشست (فقط حافظه نشست — بدون persist)</h4>
+      <div id="amHistoryOut" class="muted">تاریخچه اجراهای این نشست اینجا رندر می‌شود…</div>
     </section>
     <section class="panel" id="tab-excellent">
       <div class="panel-head">

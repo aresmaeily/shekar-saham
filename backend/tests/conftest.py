@@ -75,3 +75,31 @@ def _prediction_store_isolation(tmp_path, monkeypatch):
     reset_prediction_store_cache()
     yield
     reset_prediction_store_cache()
+
+
+# ---------------------------------------------------------------------------
+# AI-3 research-memory durable integration (owner directive 2026-11-08 §3):
+# the application default backend is the DURABLE SQLite/WAL + AES-256-GCM
+# carrier; tests get a throwaway directory per test, an explicit test key
+# via the D4 env override (keyring is never touched in tests), and the
+# service cache is reset so env changes take effect. Skips nothing.
+# ---------------------------------------------------------------------------
+@pytest.fixture(autouse=True)
+def _research_memory_isolation(tmp_path, monkeypatch):
+    from app.core.config import get_settings
+    from app.services.research_memory_service import (
+        reset_research_memory_service_cache,
+    )
+
+    monkeypatch.setenv("RESEARCH_MEMORY_DB_DIR", str(tmp_path / "research_memory"))
+    monkeypatch.setenv(
+        "RADAR_RESEARCH_MEMORY_KEY", "aa" * 32
+    )  # 64-hex test key (D4 env override)
+    monkeypatch.delenv("RESEARCH_MEMORY_BACKEND", raising=False)
+    # settings-cache hygiene (same discipline as the prediction-store suite):
+    # env changes must be visible to the cached settings object.
+    get_settings.cache_clear()
+    reset_research_memory_service_cache()
+    yield
+    get_settings.cache_clear()
+    reset_research_memory_service_cache()

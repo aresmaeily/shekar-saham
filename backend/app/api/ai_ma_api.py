@@ -216,6 +216,11 @@ async def aima_orchestrate(body: OrchestrateBody) -> Dict[str, Any]:
     # WAVE-AI (WP-C): the ACTUAL deterministic synthesis over the run's
     # artifact-first branch results — sources folded, refusals visible.
     synthesis = deterministic_synthesis(result.results)
+    # 2026-11-08 owner directive (§4 Multi-Agent UI): per-step artifact
+    # CONTENT — the server-provided bounded payloads for the UI viewers
+    # (what each branch actually produced; refs not blobs is still the
+    # BranchResult contract — content rides the run result only).
+    artifact_contents = result.artifact_contents or {}
     plan_steps = [
         {
             "step_id": s.step_id,
@@ -240,6 +245,22 @@ async def aima_orchestrate(body: OrchestrateBody) -> Dict[str, Any]:
             "steps": plan_steps,
         },
         "steps": steps_payload,
+        "artifact_contents": {
+            step_id: {
+                "artifact_id": (
+                    next(
+                        (
+                            s["artifact"]["artifact_id"]
+                            for s in steps_payload
+                            if s["step_id"] == step_id and s.get("artifact")
+                        ),
+                        None,
+                    )
+                ),
+                "content": content,
+            }
+            for step_id, content in artifact_contents.items()
+        },
         "synthesis": synthesis.model_dump(mode="json"),
         "trace": trace_payload,
         "governance": {

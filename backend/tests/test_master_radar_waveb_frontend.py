@@ -175,8 +175,8 @@ class TestIntegrationPins:
         sw = _read(SW_JS)
         # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
     # COUNTER-PIN BUMP (recorded, WAVE-AB2 2026-11-08): v3-0-16 -> v3-0-17 — walk-forward UI trigger in forward_center.js + index.html + dead-control wiring (hunt/tablo/hot filters, btnWsRefresh/btnValueReload/btnPfAdd, excellent tab activation)
-    # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): v3-0-17 -> v3-0-18 — AI-MA tab (render/ai_ma_ui.js + index.html panel + main.js lazy activation)
-        assert "radar-bourse-static-v3-0-18" in sw
+    # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): v3-0-17 -> v3-0-19 — AI-MA tab (render/ai_ma_ui.js + index.html panel + main.js lazy activation)
+        assert "radar-bourse-static-v3-0-19" in sw
         assert "radar-bourse-static-v3-0-12" not in sw
         assert "/static/js/modules/user_indicator.js" in sw
         assert "/static/js/modules/render/user_indicator_ui.js" in sw
@@ -198,8 +198,8 @@ class TestIntegrationPins:
         text = _read(ROOT / path)
         # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
         # COUNTER-PIN BUMP (recorded, WAVE-AB2 2026-11-08): v3-0-16 -> v3-0-17 — walk-forward UI trigger + dead-control wiring (all five pinned files re-bumped)
-        # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): v3-0-17 -> v3-0-18 — AI-MA tab (all pinned files re-bumped)
-        assert "radar-bourse-static-v3-0-18" in text
+        # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): v3-0-17 -> v3-0-19 — AI-MA tab (all pinned files re-bumped)
+        assert "radar-bourse-static-v3-0-19" in text
         assert "radar-bourse-static-v3-0-8" not in re.sub(
             r"#.*COUNTER-PIN BUMP[^\n]*\n?", "", text
         ) or "v3-0-13 -> v3-0-14" in text or "v3-0-12 -> v3-0-13" in text or "v3-0-14 -> v3-0-16" in text  # bump comment may name the old pin

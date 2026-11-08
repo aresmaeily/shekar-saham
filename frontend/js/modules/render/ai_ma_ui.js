@@ -18,6 +18,11 @@ import { api, toast } from "../../core/api.js";
 import { esc } from "../../core/format.js";
 
 let bound = false;
+// 2026-11-08 owner directive (§4): تاریخچه اجرا فقط در نشست کلاینت (حافظه
+// ماژول) — هیچ persist و هیچ ledger سمت کلاینت وجود ندارد؛ سرور هم چیزی
+// ذخیره نمی‌کند (no_persistence در پاکت صداقت).
+const runHistory = [];
+const RUN_HISTORY_MAX = 8;
 
 function $(id) {
   return document.getElementById(id);
@@ -185,7 +190,36 @@ async function runOrchestration() {
     const trust = String(data.data_trust_label || "—");
     const badge = $("amTrustBadge");
     if (badge) badge.textContent = `اعتماد: ${trust}`;
+    // 2026-11-08 (§4): تاریخچه اجرا — فقط نشست کلاینت؛ هر رکورد فقط از
+    // فیلدهای سرور (run_id, وضعیت, خلاصه، digest)؛ بدون محتوای خصوصی
+    runHistory.unshift({
+      run_id: String(data.run_id || "—"),
+      at: new Date().toISOString(),
+      status: data.terminated ? `خاتمه (${String(data.termination_reason || "")})` : "تکمیل",
+      waves: `${String(data.waves_executed)}/${String(data.waves_total)}`,
+      trust,
+      steps: (Array.isArray(data.steps) ? data.steps : []).map((s) => ({
+        step_id: String(s.step_id || ""),
+        status: String(s.status || ""),
+        sha256: String((s.artifact && s.artifact.sha256) || ""),
+      })),
+    });
+    if (runHistory.length > RUN_HISTORY_MAX) runHistory.length = RUN_HISTORY_MAX;
     const steps = Array.isArray(data.steps) ? data.steps : [];
+    // 2026-11-08 (§4): نمایشگر محتوای artifact هر گام — فقط payloadهای
+    // فراهم‌شده از سرور (artifact_contents)؛ verbatim و esc-شده
+    const contents = data.artifact_contents && typeof data.artifact_contents === "object" ? data.artifact_contents : {};
+    const contentBlocks = Object.entries(contents)
+      .map(([stepId, wrap]) => {
+        const c = wrap && wrap.content;
+        if (!c) return "";
+        return `
+        <details style="margin:4px 0">
+          <summary style="cursor:pointer;font-size:12px">محتوای artifact گام <b>${esc(stepId)}</b> — artifact_id: <code>${esc(String((wrap && wrap.artifact_id) || "—"))}</code></summary>
+          <pre style="direction:ltr;text-align:left;font-size:10px;max-height:220px;overflow:auto;background:rgba(127,127,127,0.08);padding:6px;border-radius:4px">${esc(JSON.stringify(c, null, 2))}</pre>
+        </details>`;
+      })
+      .join("");
     const stepRows = steps
       .map(
         (s) => `
@@ -217,6 +251,7 @@ async function runOrchestration() {
         <thead><tr><th>گام</th><th>متخصص</th><th>وضعیت</th><th>خلاصه</th><th>digest محتوا</th><th>کد خطا</th></tr></thead>
         <tbody>${stepRows}</tbody>
       </table></div>
+      ${contentBlocks ? `<h4 style="margin:8px 0 4px">محتوای artifactها (payload سرور — فقط خواندنی)</h4>${contentBlocks}` : ""}
       ${renderSynthesis(data.synthesis)}
       <h4 style="margin:8px 0 4px">ردگیری اجرا (کامل و گام‌به‌گام)</h4>
       ${renderTrace(data.trace)}
@@ -234,9 +269,40 @@ async function runOrchestration() {
   }
 }
 
+function renderRunHistory() {
+  const out = $("amHistoryOut");
+  if (!out) return;
+  if (!runHistory.length) {
+    out.innerHTML = `<p class="muted">تاریخچه اجراهای این نشست خالی است — هر اجرا با کنش صریح شما اینجا ثبت می‌شود (فقط حافظه نشست؛ هیچ persist سمت کلاینت/سرور).</p>`;
+    return;
+  }
+  const rows = runHistory
+    .map(
+      (r) => `
+      <tr>
+        <td style="font-size:11px"><code>${esc(r.run_id)}</code></td>
+        <td style="font-size:11px">${esc(r.at)}</td>
+        <td>${esc(r.status)}</td>
+        <td>${esc(r.waves)}</td>
+        <td>${esc(r.trust)}</td>
+        <td style="font-size:10px">${r.steps
+          .map((s) => `${esc(s.step_id)}:${esc(s.status)}${s.sha256 ? ` <code>${esc(s.sha256.slice(0, 10))}…</code>` : ""}`)
+          .join("<br/>")}</td>
+      </tr>`
+    )
+    .join("");
+  out.innerHTML = `
+    <p class="muted" style="font-size:12px">تعداد اجراهای این نشست: ${esc(String(runHistory.length))} (سقف ${esc(String(RUN_HISTORY_MAX))} — قدیمی‌ترین‌ها حذف می‌شوند)</p>
+    <div style="overflow:auto"><table class="cp-table">
+      <thead><tr><th>run_id</th><th>زمان نشست</th><th>وضعیت</th><th>موج‌ها</th><th>اعتماد (سرور)</th><th>گام‌ها</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+}
+
 export function bindAiMa() {
   if (bound) return;
   bound = true;
   on("amPostureReload", loadPosture);
   on("amRunBtn", runOrchestration);
+  on("amHistoryReload", renderRunHistory);
+  renderRunHistory();
 }

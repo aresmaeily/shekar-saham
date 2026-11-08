@@ -139,6 +139,19 @@ class Settings(BaseSettings):
     prediction_store_backend: str = os.getenv("PREDICTION_STORE_BACKEND", "sqlite")
     prediction_db_path: str = os.getenv("PREDICTION_DB_PATH", "")
 
+    # AI-3 research-memory durable integration (owner directive 2026-11-08 §3:
+    # «اتصال SQLite/WAL به چرخه واقعی برنامه» + D1..D7 recorded 2026-11-02).
+    # "sqlite" = DURABLE SQLite/WAL + AES-256-GCM carrier on the REAL
+    # application path (append-only, per-row digests, durable tamper-evident
+    # audit trail, verified backup/restore, restart recovery, fail-closed on
+    # tamper). "memory" = process-local adapter for UNIT TESTS ONLY, never a
+    # default. Directory override via RESEARCH_MEMORY_DB_DIR; empty = the
+    # repo DATA_DIR default (research_memory/). Key source per D4: the
+    # RADAR_RESEARCH_MEMORY_KEY env override first, else the OS keyring —
+    # NO key = fail-closed refusal posture (never an unencrypted fallback).
+    research_memory_backend: str = os.getenv("RESEARCH_MEMORY_BACKEND", "sqlite")
+    research_memory_db_dir: str = os.getenv("RESEARCH_MEMORY_DB_DIR", "")
+
     # OA-3 (owner directive 2026-11-05) — WAVE-K governed generation knobs.
     # Additive, bounded engineering-authority ceilings (D-AI-24 class); the
     # fail-closed AI2_ENABLED gate above governs whether generation runs at

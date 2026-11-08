@@ -403,6 +403,154 @@ async function runCalibration() {
 // bind
 // ---------------------------------------------------------------------------
 
+
+// ---------------------------------------------------------------------------
+// 2026-11-08 owner directive (AI-3 real integration + AI-7 Golden Set v2):
+// حافظه پژوهش ماندگار + ردیف حسابرسی دسترسی + گزارش نسخه‌دار GS2 — همه
+// فقط-خواندنی/کنش-صریح؛ هیچ مسیر حذفی وجود ندارد؛ برچسب اعتماد فقط از سرور
+// ---------------------------------------------------------------------------
+
+async function loadMemoryPosture() {
+  setOut("plMemOut", `<p class="muted">⏳ در حال خواندن وضعیت حافظه پژوهش…</p>`);
+  try {
+    const data = await api("/api/v10/memory/posture");
+    const p = data.posture || {};
+    const trust = String((data.trust_envelope && data.trust_envelope.data_trust_label) || "—");
+    const badge = $("plTrustBadge");
+    if (badge) badge.textContent = `اعتماد: ${trust}`;
+    const gate = p.audit_gate_closed_reason
+      ? `<span class="cp-badge err">گیت حسابرسی: بسته (${esc(String(p.audit_gate_closed_reason))})</span>`
+      : `<span class="cp-badge ok">گیت حسابرسی: باز و سالم</span>`;
+    setOut("plMemOut", `
+      <p class="muted" style="font-size:12px">
+        backend: <b>${esc(String(p.backend))}</b> · ماندگار: <b>${esc(String(p.persistence_durable))}</b> ·
+        رمزنگاری در حالت سکون (AES-256-GCM/D4): <b>${esc(String(p.encryption_at_rest))}</b> ·
+        زنجیره حسابرسی ماندگار: <b>${esc(String(p.audit_trail_durable))}</b> ·
+        تعداد ردیف‌های حسابرسی: ${esc(String(p.audit_entries))} ·
+        برچسب اعتماد (سرور): <b>${esc(String(p.data_trust_label))}</b>
+        ${p.refused_reason ? ` · <span class="err-text">وضعیت رد fail-closed: ${esc(String(p.refused_reason))}</span>` : ""}
+      </p>
+      <p>${gate}</p>
+      <p class="muted" style="font-size:12px">${esc(String(p.retention_policy || ""))}</p>
+      <ul class="muted" style="font-size:12px">
+        <li>${esc(String((data.disclosures && data.disclosures.no_purge_path) || ""))}</li>
+        <li>${esc(String((data.disclosures && data.disclosures.audit_refs_only) || ""))}</li>
+        <li>${esc(String((data.disclosures && data.disclosures.fail_closed_key) || ""))}</li>
+      </ul>`);
+  } catch (err) {
+    setOut("plMemOut", `<p class="err-text">خطا در وضعیت حافظه پژوهش: ${failText(err)}</p>`);
+  }
+}
+
+async function loadMemoryIntegrity() {
+  setOut("plMemOut", `<p class="muted">⏳ در حال بررسی صحت محتوا و زنجیره حسابرسی…</p>`);
+  try {
+    const data = await api("/api/v10/memory/integrity");
+    const integ = data.integrity || {};
+    const chain = data.audit_chain || {};
+    const verdictOk = chain.verdict === "INTACT";
+    setOut("plMemOut", `
+      <p class="muted" style="font-size:12px">صحت محتوا (هش هر رکورد): verify_ok=<b>${esc(String(integ.verify_ok))}</b> · تعداد رکوردهای اپیزودیک: ${esc(String(integ.entry_count))} · نسخه‌های درس معنایی: ${esc(String((integ.lesson_version_counts || []).length))}</p>
+      <p>${verdictOk ? `<span class="cp-badge ok">زنجیره حسابرسی: INTACT</span>` : `<span class="cp-badge err">زنجیره حسابرسی: ${esc(String(chain.verdict))} — گیت بسته شد (fail-closed)</span>`}</p>
+      <p class="muted" style="font-size:12px">head_digest: <code>${esc(String(chain.head_digest || "—"))}</code> · first_broken_sequence: ${esc(String(chain.first_broken_sequence))} · gate_closed_reason: ${esc(String(chain.gate_closed_reason || "—"))}</p>`);
+  } catch (err) {
+    setOut("plMemOut", `<p class="err-text">خطا در بررسی صحت: ${failText(err)}</p>`);
+  }
+}
+
+async function loadMemoryAudit() {
+  setOut("plMemOut", `<p class="muted">⏳ در حال خواندن ردیف حسابرسی دسترسی…</p>`);
+  try {
+    const data = await api("/api/v10/memory/audit");
+    const rows = Array.isArray(data.entries) ? data.entries : [];
+    const trust = String((data.trust_envelope && data.trust_envelope.data_trust_label) || "—");
+    const badge = $("plTrustBadge");
+    if (badge) badge.textContent = `اعتماد: ${trust}`;
+    const trs = rows
+      .map(
+        (e) => `
+        <tr>
+          <td>${esc(String(e.sequence))}</td>
+          <td>${esc(String(e.actor))}</td>
+          <td>${esc(String(e.operation))}</td>
+          <td>${esc(String(e.memory_layer))}</td>
+          <td style="max-width:200px;font-size:11px">${esc(String(e.object_ref))}</td>
+          <td>${e.outcome === "OK" ? `<span class="cp-badge ok">OK</span>` : `<span class="cp-badge err">REFUSED — ${esc(String(e.refusal_reason || ""))}</span>`}</td>
+          <td style="font-size:10px"><code>${esc(String(e.entry_digest || "").slice(0, 16))}…</code></td>
+        </tr>`
+      )
+      .join("");
+    const chain = data.chain || {};
+    setOut("plMemOut", `
+      <p class="muted" style="font-size:12px">تعداد ردیف‌ها: ${esc(String(data.count))} · زنجیره ماندگار: ${esc(String(chain.durable))} · head: <code>${esc(String(chain.head_digest || "—")).slice(0, 24)}…</code>${chain.gate_closed_reason ? ` · <span class="err-text">گیت بسته: ${esc(String(chain.gate_closed_reason))}</span>` : ""}</p>
+      ${rows.length ? `<div style="overflow:auto"><table class="cp-table">
+        <thead><tr><th>#</th><th>فعّال</th><th>عملیات</th><th>لایه</th><th>ارجاع (بدون محتوا)</th><th>نتیجه</th><th>digest</th></tr></thead>
+        <tbody>${trs}</tbody></table></div>` : `<p class="muted">هنوز ردیفی ثبت نشده است (هر عملیات واقعی یک ردیف ثبت می‌کند).</p>`}
+      <p class="muted" style="font-size:11px">ردیف‌های حسابرسی فقط ارجاع دارند و محتوای خصوصی هرگز وارد دفتر نمی‌شود؛ زنجیره SHA-256 هر تغییر تک‌بایتی را کشف می‌کند.</p>`);
+  } catch (err) {
+    setOut("plMemOut", `<p class="err-text">خطا در ردیف حسابرسی: ${failText(err)}</p>`);
+  }
+}
+
+async function runMemoryBackup() {
+  setOut("plMemOut", `<p class="muted">⏳ در حال پشتیبان‌گیری تأییدشده (D5)…</p>`);
+  try {
+    const data = await api("/api/v10/memory/backup", { method: "POST" });
+    const parts = (data.backup && data.backup.parts) || {};
+    const rows = Object.entries(parts)
+      .map(
+        ([k, v]) =>
+          `<li><b>${esc(k)}</b>: <code>${esc(String(v.path || ""))}</code> — sha256: <code>${esc(String(v.sha256 || "")).slice(0, 32)}…</code> (${esc(String(v.byte_size))} bytes، verified=${esc(String(v.verified))})</li>`
+      )
+      .join("");
+    setOut("plMemOut", `
+      <p class="muted" style="font-size:12px">${esc(String(data.destination || ""))}</p>
+      <ul class="muted" style="font-size:12px">${rows || `<li>پشتوانه‌ای ماندگار برای پشتیبان‌گیری نیست (backend غیرماندگار).</li>`}</ul>`);
+  } catch (err) {
+    setOut("plMemOut", `<p class="err-text">خطا در پشتیبان‌گیری: ${failText(err)}</p>`);
+  }
+}
+
+async function loadGoldenSetV2Report() {
+  setOut("plGs2Out", `<p class="muted">⏳ در حال خواندن گزارش نسخه‌دار Golden Set v2…</p>`);
+  try {
+    const data = await api("/api/v10/productloops/goldenset/v2/report");
+    const rep = data.report || {};
+    const trust = String(data.data_trust_label || "—");
+    const badge = $("plTrustBadge");
+    if (badge) badge.textContent = `اعتماد: ${trust}`;
+    const kinds = Object.entries(rep.per_kind || {})
+      .map(
+        ([k, v]) =>
+          `<tr><td>${esc(k)}</td><td>${esc(String(v.cases))}</td><td>${esc(String(v.passed))}</td><td>${esc(String(v.failed))}</td><td>${esc(String(v.false_positives))}</td><td>${esc(String(v.false_negatives))}</td></tr>`
+      )
+      .join("");
+    const cases = (Array.isArray(data.cases) ? data.cases : [])
+      .map(
+        (c) =>
+          `<tr><td>${esc(c.case_id)}</td><td>${esc(c.kind)}</td><td>${c.passed ? `<span class="cp-badge ok">PASS</span>` : `<span class="cp-badge err">FAIL</span>`}</td><td style="font-size:10px">${esc((c.failure_reasons || []).join("؛ ") || "—")}</td></tr>`
+      )
+      .join("");
+    setOut("plGs2Out", `
+      <p class="muted" style="font-size:12px">
+        نسخه: <b>${esc(String(rep.version_id))}</b> · cases_digest: <code>${esc(String(rep.cases_digest)).slice(0, 24)}…</code> ·
+        مجموع: ${esc(String(rep.total_cases))} · گذرانده: <b>${esc(String(rep.passed))}</b> · رد شده: ${esc(String(rep.failed))} ·
+        FP: <b>${esc(String(rep.false_positives_total))}</b> · FN: <b>${esc(String(rep.false_negatives_total))}</b>
+      </p>
+      <div style="overflow:auto"><table class="cp-table">
+        <thead><tr><th>نوع توانایی</th><th>موارد</th><th>گذرانده</th><th>رد</th><th>FP</th><th>FN</th></tr></thead>
+        <tbody>${kinds}</tbody></table></div>
+      <div style="overflow:auto"><table class="cp-table">
+        <thead><tr><th>مورد</th><th>نوع</th><th>نتیجه</th><th>دلایل رد</th></tr></thead>
+        <tbody>${cases}</tbody></table></div>
+      <p class="muted" style="font-size:12px">baseline (v1): corpus=${esc(String(rep.baseline_results && rep.baseline_results.corpus))} · version=${esc(String(rep.baseline_results && rep.baseline_results.version_id))} · cases=${esc(String(rep.baseline_results && rep.baseline_results.cases))}</p>
+      <p class="muted" style="font-size:12px">candidate (v2): corpus=${esc(String(rep.candidate_results && rep.candidate_results.corpus))} · version=${esc(String(rep.candidate_results && rep.candidate_results.version_id))} · cases=${esc(String(rep.candidate_results && rep.candidate_results.cases))}</p>
+      <p><span class="cp-badge warn">بدون ادعای برتری</span> <span class="muted" style="font-size:12px">${esc(String(rep.note || ""))}</span></p>`);
+  } catch (err) {
+    setOut("plGs2Out", `<p class="err-text">خطا در گزارش Golden Set v2: ${failText(err)}</p>`);
+  }
+}
+
 function bindProductLoopsUI() {
   if (bound) return;
   bound = true;
@@ -417,6 +565,11 @@ function bindProductLoopsUI() {
   on("plOutcomeRecord", recordOutcome);
   on("plPredList", loadPredictionList);
   on("plCalRun", runCalibration);
+  on("plMemPosture", loadMemoryPosture);
+  on("plMemIntegrity", loadMemoryIntegrity);
+  on("plMemAudit", loadMemoryAudit);
+  on("plMemBackup", runMemoryBackup);
+  on("plGs2Report", loadGoldenSetV2Report);
 
   const observer = new MutationObserver(() => {
     const panel = $("tab-loops");

@@ -53,6 +53,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import (
     Any,
+    Dict,
     Callable,
     Iterable,
     Literal,
@@ -151,6 +152,11 @@ class SpecialistOutcome(BaseModel):
     summary: str = Field(default="", max_length=_SUMMARY_MAX)
     failure_code: str | None = None
     failure_kind: FailureKind | None = None
+    # 2026-11-08 owner directive (§4 Multi-Agent UI): the executor may attach
+    # its own bounded content payload so honest UIs can show WHAT a branch
+    # produced (server-provided payloads only). The ref — not the blob —
+    # still travels through BranchResults; content rides the run result only.
+    content: Dict[str, Any] | None = None
 
 
 @runtime_checkable
@@ -254,6 +260,10 @@ class RuntimeRunResult:
     termination_reason: str | None
     steps_scheduled: tuple[str, ...]
     steps_unscheduled: tuple[str, ...]
+    # 2026-11-08 owner directive (§4): per-step artifact CONTENT (bounded,
+    # server-provided) keyed by step_id — the honest material for UI artifact
+    # viewers. Empty when no executor attached content. Never persisted.
+    artifact_contents: Dict[str, Dict[str, Any]] | None = None
 
 
 @dataclass(frozen=True)
@@ -265,6 +275,7 @@ class _StepOutcome:
     trace_prefix: str
     detail: str
     kind: FailureKind | None = None  # set for FAILED / DEGRADED outcomes
+    content: Dict[str, Any] | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -332,6 +343,7 @@ class MultiAgentRuntime:
         step_map = {s.step_id: s for s in plan.steps}
         waves = execution_waves(plan)
         results_by_step: dict[str, BranchResult] = {}
+        collected_contents: dict[str, dict[str, Any]] = {}
         invocation_counts: dict[str, int] = {}
         scheduled: list[str] = []
         terminated = False
@@ -473,6 +485,15 @@ class MultiAgentRuntime:
                 for step_id in chunk:
                     outcome = outcomes[step_id]
                     results_by_step[step_id] = outcome.branch_result
+                    # 2026-11-08 owner directive (§4): accumulate content
+                    # across wave chunks (the per-chunk outcomes dict is
+                    # scoped); only the FINAL succeeded attempt is kept.
+                    if (
+                        outcome.branch_result.status == "SUCCEEDED"
+                        and outcome.branch_result.artifact is not None
+                        and outcome.content is not None
+                    ):
+                        collected_contents[step_id] = dict(outcome.content)
                     self._emit(
                         events,
                         run_id=plan.run_id,
@@ -520,6 +541,10 @@ class MultiAgentRuntime:
             results_by_step[s.step_id] for s in plan.steps if s.step_id in results_by_step
         )
         unscheduled = tuple(s.step_id for s in plan.steps if s.step_id not in results_by_step)
+        # 2026-11-08 owner directive (§4): keep ONLY the final succeeded
+        # attempt's content per step (a retried failure's stale content is
+        # never surfaced); content without an artifact ref is never collected.
+        artifact_contents = dict(collected_contents)
         return RuntimeRunResult(
             plan_id=plan.plan_id,
             run_id=plan.run_id,
@@ -531,6 +556,7 @@ class MultiAgentRuntime:
             termination_reason=termination_reason,
             steps_scheduled=tuple(scheduled),
             steps_unscheduled=unscheduled,
+            artifact_contents=artifact_contents,
         )
 
     # -- step execution -------------------------------------------------------
@@ -655,6 +681,7 @@ class MultiAgentRuntime:
                     trace_prefix=contract.trace_prefix,
                     detail="ok (artifact-first)",
                     kind=outcome.failure_kind,
+                    content=outcome.content,
                 )
             if outcome.summary.strip():
                 branch = self._branch_result(

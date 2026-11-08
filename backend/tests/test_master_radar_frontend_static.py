@@ -101,8 +101,8 @@ def test_sw_precache_includes_strategy_lab_and_bumped():
 
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
     # COUNTER-PIN BUMP (recorded, WAVE-AB2 2026-11-08): v3-0-16 -> v3-0-17 — walk-forward UI trigger added to the forward-test center (precached forward_center.js + index.html changed; see test_master_waveab_walkforward_ui.py)
-    # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): v3-0-17 -> v3-0-18 — AI-MA tab (precached render/ai_ma_ui.js + index.html panel + main.js lazy activation; see test_aima_ui_tab.py)
-    assert "radar-bourse-static-v3-0-18" in sw
+    # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): v3-0-17 -> v3-0-19 — AI-MA tab (precached render/ai_ma_ui.js + index.html panel + main.js lazy activation; see test_aima_ui_tab.py)
+    assert "radar-bourse-static-v3-0-19" in sw
 
 
 def test_new_frontend_modules_pass_node_syntax_check():
