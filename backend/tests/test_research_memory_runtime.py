@@ -314,8 +314,12 @@ def test_service_module_has_no_delete_or_purge_path() -> None:
             up = node.value.upper()
             assert "DELETE FROM" not in up
             assert "DROP TABLE" not in up
-    # the HTTP surface exposes no delete/purge route
-    route_paths = [getattr(r, "path", "") for r in app.routes]
-    memory_routes = [p for p in route_paths if p.startswith("/api/v10/memory")]
-    assert memory_routes
+    # the HTTP surface exposes no delete/purge route. The PATH SOURCE is the
+    # OpenAPI schema — the version-stable contract surface (raw app.routes
+    # introspection is fragile across starlette versions: newer starlette
+    # wraps included routers in composite objects without a .path attribute,
+    # which is exactly how this test failed once in CI and was fixed here).
+    schema_paths = set(app.openapi()["paths"])
+    memory_routes = [p for p in schema_paths if p.startswith("/api/v10/memory")]
+    assert memory_routes, "the /api/v10/memory surface must be mounted"
     assert not any(p.endswith("/purge") or p.endswith("/delete") for p in memory_routes)
