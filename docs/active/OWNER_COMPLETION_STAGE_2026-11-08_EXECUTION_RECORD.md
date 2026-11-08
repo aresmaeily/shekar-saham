@@ -239,3 +239,24 @@ no production mutation · no external notification egress · no credential expos
 intact · kill switches effective · no test bypass · no weakened assertions · no deletion of
 historical failures · forward-only history (ff-only recovery; no force-push/reset/rebase) ·
 zero product-engine deltas this stage (docs-only commits) · no global completion percentage.
+
+## §13 — CI event AFTER §2.1 closure: windows-validation FAILURE at `044daa3` (recorded verbatim, nothing converted)
+
+- At the CI-closure commit `044daa3…` the **windows-validation** check FAILED
+  (workflow run 42464136720, job 128679613556) while the other three required
+  checks succeeded. The failure remains ON RECORD.
+- **Zero-code-delta proof:** `git diff 2e6d0fb4..044daa3 --name-only` = 9 files,
+  ALL under `docs/` (0 non-docs deltas) — the entire runtime (backend/app,
+  frontend, electron, workflows) is BYTE-IDENTICAL between the PASSing
+  `2e6d0fb4` (windows-validation SUCCESS, run 42456810853) and the FAILing
+  `044daa3`. Byte-identical runtime + opposite verdicts across two pushes is
+  the recorded signature of the windows-only environmental flake class
+  (prior occurrences: 7a85528, 99e9da1, a6402cd, 1a48725 — each discriminated).
+- Step-level detail is not publicly extractable (GOV-49 artifact/log gating —
+  same as every prior occurrence; honest limitation, not an assumption).
+- **Discriminator procedure (recorded WAVE-I/J + WAVE-AI protocol)**: this §13
+  block itself is pushed ALONE as a docs-only discriminator commit. Per the
+  standing rule: PASS ⇒ the `044daa3` failure is classified ENVIRONMENTAL
+  RECURRENCE (5th occurrence of the recorded class); FAIL ⇒ escalate as a real
+  regression. NOTHING is converted either way; the verdict is recorded in the
+  next currency line.
