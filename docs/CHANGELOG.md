@@ -1,3 +1,26 @@
+## [2026-11-08] STAGE-3 — بنیادین بازطراحی بصری و UI/UX (RADAR Design System)
+
+### Added (design system + evidence)
+- NEW frontend/css/tokens.css — single-source design tokens (primitives + semantic light/dark + typography scale 11–28px + 4px spacing scale + radius/shadow/motion/z + focus-ring); legacy var aliases preserved (surface1/2/3, primary, radius).
+- NEW docs/design/: BEFORE_DESIGN_AUDIT_FA.md (audit with 15 real before screenshots), RADAR_DESIGN_SYSTEM_FA.md (brand/typography/color/spacing/components/icons/motion/a11y + token reference + component inventory), APPLE_HIG_COMPLIANCE_MATRIX_FA.md (8 principles, evidence-based PASS + honest PARTIALs), RADAR_UI_UX_TRANSFORMATION_REPORT_FA.md; evidence bundles docs/design/evidence/before|after (29 real-browser screenshots: desktop/tablet/mobile × light/dark).
+- Grouped navigation: 32 routes in 6 logical clusters (بازار/تحلیل/سیگنال/استراتژی/هوش و داده/سیستم) — ZERO hidden routes (before: 20/32 invisible behind a 3770px horizontal scroll); desktop dropdown + mobile bottom-sheet; Esc/outside-click close; aria-expanded/haspopup; current-cluster radar indicator (markCurrentNavGroup); deep-links auto-mark the current cluster.
+- SVG icon sprite (35 line symbols, stroke 1.8) replacing ALL emoji in nav + topbar; new radar logo mark (#i-logo).
+- Skeleton/empty states: tbody:empty::after «در حال دریافت داده…» + .empty + .skeleton + .btn.loading + prefers-reduced-motion respect.
+
+### Changed (frontend only — zero backend logic delta)
+- frontend/css/app.css v2.0 full token-based rewrite (712 lines): topbar, buttons, inputs, nav, stats cards, tables (light sticky header, tabular numerals, row density), cards, trust banner (calm amber, AA), modal/toast, thermo/heat/flow, responsive 1280/1024/768/560, print, scrollbar.
+- chart_pro.css + symbol.css retokenized (literal colors → tokens); cp-badge/side-pill AA-safe.
+- index.html: tokens.css link, html[data-theme=light] default (FOUC fix), grouped nav, SVG sprite + logo; version strings and panel ids untouched (validator 32/32 ok).
+- main.js: +bindNavGroups/markCurrentNavGroup/closeNavGroups (~50 lines, additive only).
+- sw.js: CACHE_NAME v3-0-19 → v3-0-20 (tokens.css precache; header note appended) — all SW counter-pin tests updated with recorded bump notes (established discipline, nothing weakened).
+
+### Verified
+- Full backend battery 3231 passed / 1 skipped / 0 failed (unchanged vs baseline); frontend-contract + E2E subset 100/100; scripts/validate_frontend_static.py ok:true (32 tabs / 32 panels, no orphans/dupes/stale).
+- Real-browser sweep of ALL 32 tabs: 0 console errors, 0 page errors, 0 horizontal overflow (1440/768/390).
+- WCAG 2.2 AA contrast measured with real alpha compositing in BOTH themes — fixed 3 real failures: btn primary (3.68→6.7 dark), trust banner (1.94→10.9 dark), thead/stat-label (3.56/3.82→5.06/5.43 light); keyboard focus ring visible (Tab walk-through).
+- UX: reach «مرکز فوروارد تست» = 2 clicks / 1.7ms (before: undiscoverable hidden-tab scroll).
+- Gates unchanged AI2_ENABLED=0 / SCHEDULER_ENABLED=0 / verified=False / SYNTHETIC_OR_PAPER; mock never presented as live.
+
 ## [2026-11-08] OWNER COMPLETION STAGE — post-publication CI truth (WS1)
 - d62781c ALL-4-SUCCESS; then windows-family instability on byte-identical runtime: 044daa3 windows-validation FAILURE (discriminated environmental by 8286cc9 PASS) + build-installer FAILURE at 8286cc9 AND 9c44bc3 (same step 'Build NSIS installer' exit 1, public annotations) => ESCALATED as runner/CI-infrastructure instability (0 non-docs deltas across all SHAs, proven); failures ON RECORD, nothing converted; raw logs auth-gated (GOV-49); blind workflow changes refused; owner actions offered (log fetch / re-run / actions:read token). Details: execution record §13-§15.
 
