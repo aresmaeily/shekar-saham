@@ -260,3 +260,26 @@ zero product-engine deltas this stage (docs-only commits) · no global completio
   RECURRENCE (5th occurrence of the recorded class); FAIL ⇒ escalate as a real
   regression. NOTHING is converted either way; the verdict is recorded in the
   next currency line.
+
+## §14 — Discriminator verdict at `8286cc9` + SECOND transient on record (nothing converted)
+
+- Discriminator `8286cc9` (docs-only, ALONE, byte-identical runtime): **windows-validation
+  PASSED** (so the `044daa3` windows-validation failure is classified ENVIRONMENTAL
+  RECURRENCE — 5th occurrence of the recorded class) — BUT a DIFFERENT required check
+  failed at the same SHA: **build-installer FAILED** (run 42464634806, job 128681173491),
+  failing step per the public annotations: **«Build NSIS installer (electron-builder,
+  unsigned)» — "Process completed with exit code 1."** — the electron-builder step that
+  downloads its NSIS toolchain resources at build time on the runner (a recorded transient
+  failure mode of that toolchain; the workflow code, runner image pinning and the 12-step
+  sequence are BYTE-IDENTICAL to the 06:57Z PASS at `2e6d0fb4`, run 42456810887).
+- Cross-SHA matrix on byte-identical runtime (all docs-only deltas, 0 non-docs):
+  `2e6d0fb4` ALL-4-SUCCESS (06:57Z) → `044daa3` windows-validation FAIL / build-installer
+  PASS (~08:47Z) → `8286cc9` windows-validation PASS / build-installer FAIL (~09:05Z).
+  Two DIFFERENT checks failing transiently at different SHAs on the same bytes ⇒ runner/
+  network-side instability window, not a code property. Both failures remain ON RECORD.
+- **Second discriminator pushed ALONE (this §14 docs-only commit).** Verdict rule
+  (recorded protocol): BOTH windows-family checks PASS on it ⇒ both `044daa3` and
+  `8286cc9` failures classified environmental transients (each kept on record; final SHA
+  ALL-4-SUCCESS); ANY failure again ⇒ ESCALATED as persistent runner-side breakage for
+  owner-side investigation with authenticated log access. Nothing is skipped, retried
+  inside a job, weakened or converted in either case.
