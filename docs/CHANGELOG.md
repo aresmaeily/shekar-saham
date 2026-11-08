@@ -1,3 +1,20 @@
+## [2026-11-08] OWNER-DIRECTIVE-2026-11-08 stage
+
+### Added
+- AI-3 research memory REAL integration (owner act §3): durable SQLite/WAL + AES-256-GCM carrier on the real application path (default backend; keyless = fail-closed typed refusal, never an unencrypted downgrade); durable hash-chained access/operation audit trail (memory_access_audit_sqlite.py: pinned-digest migrations, per-row digests, full-chain re-verification at open, fail-closed closed-gate posture, verified backup, restore-refuses-unverified, restart recovery, no wall clock, no delete/update AST-pinned); /api/v10/memory surface (posture/episodic/lessons/integrity/audit/backup); +20 tests.
+- Golden Set v2 versioned read-only endpoint GET /api/v10/productloops/goldenset/v2/report: runtime corpora shipped as module resources (digest-pinned fail-closed == suite pins), REAL deterministic engines, baseline/candidate separated, FP/FN totals, structural no-superiority pin, deterministic double-run equality; route-surface counter-pin 12→13; +2 tests.
+- AI-MA per-step artifact CONTENT viewers: runtime threads bounded executor content (SpecialistOutcome.content → RuntimeRunResult.artifact_contents → API artifact_contents); UI renders verbatim server payloads (esc'd); session run-history panel (client-session only, bounded 8, no storage APIs); command-palette keyboard integration via [data-palette-label]; +4 tests.
+- AI-MA provider seam OWNER-GATED prep: SyntheticProviderTransport contract tests (same protocol through the real runtime; fail-closed ToolNotPermitted; invocation ceiling; deadline-jump straggler discard; honest SYNTHETIC_OR_PAPER labeling) + AIMA_PROVIDER_ACTIVATION_DECISION_PACKET.md (P-1..P-10, Two-Key coupling; nothing activated); +6 tests.
+
+### Fixed
+- AI-MA session run-history panel did not refresh after a run (found by the REAL browser journey pass; fixed in b17e108; verified live: 1 run → 1 row, 2 runs → 2 rows).
+- CI-observed test-backend FAILURE at b17e108: pyflakes unused import in golden_set_service.py (fixed 0b6190f; CI-parity lint over the whole app/ adopted as the local pre-push step).
+- CI-observed test-backend FAILURE at 0b6190f: test asserted on raw app.routes introspection — version-fragile (starlette 1.3.1 wraps included routers in composite objects without .path); the test now reads app.openapi()['paths'] (fixed 1aa0eea; full battery re-verified under the EXACT CI dependency matrix in a clean venv: 3231/1s/0f).
+
+### Verified
+- Exact-SHA CI at 1aa0eea: ALL 4 REQUIRED CHECKS SUCCESS (run/job IDs in the execution record); both intermediate failures remain ON RECORD.
+- pip-audit clean; repo-wide secret scan clean; browser XSS probe NOT executed; walk-forward full journey + 3 exports; excellent/dashboard journeys; 0 console/page errors; installer artifact built from the exact SHA with name/size/SHA-256 recorded (UNSIGNED; install=R-1/R-2); windows readiness 47/47; sw v3-0-18→v3-0-19 ×9 files recorded; gates unchanged (AI2_ENABLED=0 / SCHEDULER_ENABLED=0 / verified=False / SYNTHETIC_OR_PAPER / no egress / no purge / Two-Key intact); global completion NOT CALCULATED (OA-8).
+
 ## [2026-11-08] WAVE-AI-ACCEPTANCE stage
 
 ### Added
