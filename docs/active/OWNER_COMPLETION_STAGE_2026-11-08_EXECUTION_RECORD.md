@@ -38,6 +38,16 @@ ALL 4 REQUIRED CHECKS SUCCESS at the exact owner-confirmed SHA `2e6d0fb4…`:
 Job IDs (check-runs): test-backend 128657484776 · build-docker 128657732174 · windows-validation 128657484488 · build-installer 128657484581.
 The OPTIONAL Vercel pipeline shows `failure` on the same commit-status context (`dpl_5FY7Yfc26iDnnm8s9PJ4ejQvuWim`) — see §5; it is NOT one of the required checks.
 
+### §2.1 — Post-publication CI closure (WS1 discipline) — 2026-11-08
+
+This stage's documentation commit `d62781c936388efe5166fcd333dee68851365ede` was pushed
+forward-only (`2e6d0fb..d62781c`, independent fetch read-back verified) and its OWN CI was
+verified at that exact SHA from the public commit-checks page:
+**ALL 4 REQUIRED CHECKS SUCCESS — 4× "This job succeeded"**
+(test-backend / build-docker / windows-validation / build-installer; workflow runs
+42463137103 / 42463137124 / 42463137136). Nothing inferred across SHAs; the OPTIONAL
+Vercel context is separate and non-gating (§5).
+
 ## §3 — Re-verification at the exact owner SHA (zero code delta)
 
 1. **Full backend battery:** 3231 passed / 1 skipped / 0 failed (53.87s) — exactly the recorded totals; no regression at `2e6d0fb4`.
