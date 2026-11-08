@@ -1,3 +1,16 @@
+## [2026-11-08] OWNER COMPLETION STAGE (رفع نواقص، تکمیل مستندات، اعتبارسنجی نهایی)
+
+### Docs (zero code delta — verification stage)
+- Documentation reconciliation per the owner's completion directive §2: AI3_PERSISTENCE_IMPLEMENTATION_PLAN.md gains a dated currency header (D1-D7 recorded 2026-11-02; adapter + audit carrier IMPLEMENTED; real integration commit ad5d978; runtime re-verified 2026-11-08; historical PENDING/BLOCKED text preserved verbatim); MASTER_RADAR_CAPABILITY_MATRIX_2026-11-04.md gains a dated addendum superseding rows 7/11/15/19/20/21/23/24 (walk-forward UI trigger CLOSED by cbfa028 — the WAVE-AF row described the pre-cbfa028 tree) + the three-way classification (completed-with-evidence / engineering-fixable / owner-gated); RADAR_INSTALLER_ARTIFACT_MANIFEST updated to artifact 13607633922 @ run 42456810887 (SHA 2e6d0fb4, 114,504,341 bytes, UNSIGNED, expires 2026-12-08) with an explicit hash_discipline separating the archive-ZIP digest from the inner-exe SHA-256 + artifact_history preserving prior artifacts; OWNER_WINDOWS_INSTALL_GUIDE_FA rewritten to the new artifact with prerequisites/upgrade/rollback/uninstall/backup sections + unsigned-version limitations.
+- New stage records: docs/active/OWNER_COMPLETION_STAGE_2026-11-08_EXECUTION_RECORD.md + OWNER_COMPLETION_STAGE_2026-11-08_FINAL_REPORT_FA.md (the directive's mandatory 20-item Persian report).
+
+### Verified (no new code, everything re-proven at the exact owner SHA 2e6d0fb4)
+- Full battery 3231/1s/0f; AI-3 clean-checkout suite 186/186; NEW AI-3 behavioral probe 10/10 (restart recovery, verified backup→destroy→restore, per-row tamper⇒write-gate CLOSED, keyless/invalid-key/garbage fail-closed, SIGKILL→WAL recovery, store isolation, audit-chain tamper⇒reopen refused).
+- E2E directive-§6 battery 25/25 PASS on the real stack (uvicorn + same-origin transport + real browser): 8 screenshots, 0 console/page errors; durable prediction registry survives a real backend restart; CSRF foreign-Origin POST→403; PDF export 200 application/pdf (format is a BODY field — recorded so the report does not conflate the archive/exe hashes class of mistakes).
+- Security: pip-audit clean; secrets clean (xoxb- hit = ai2 _SECRET_MARKERS deny-list control); CORS/CSRF runtime probes; no .env/.key/.pem in tree.
+- CI at 2e6d0fb4: ALL 4 REQUIRED CHECKS SUCCESS (runs 42456810896/42456810853/42456810887). Vercel dpl_5FY7Yfc… failure confirmed + NON-GATING determination with architectural reasoning (no vercel config; same-origin FastAPI monolith; static-split would break session/CSRF) — owner packet: disconnect vercel[bot] (recommended) / static-split (NOT recommended) / owner-provided staging (OWNER-GATED).
+- Gates unchanged AI2_ENABLED=0 / SCHEDULER_ENABLED=0 / verified=False / SYNTHETIC_OR_PAPER / Two-Key / no purge; branch protection remains the owner action (no Administration scope); global completion NOT CALCULATED (OA-8).
+
 ## [2026-11-08] OWNER-DIRECTIVE-2026-11-08 stage
 
 ### Added

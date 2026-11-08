@@ -1,5 +1,34 @@
 # AI-3 PERSISTENCE IMPLEMENTATION PLAN — CONDITIONAL ON OWNER DECISIONS D1–D7 (PREPARE ONLY)
 
+> ## ⚠️ CURRENCY UPDATE — 2026-11-08 (completion stage; historical text below PRESERVED verbatim)
+>
+> **This document's "D1–D7 ALL PENDING / Adapter BLOCKED" statements describe the state
+> as of 2026-11-02 BEFORE the owner's decisions were recorded. They are kept below as
+> history; the current state is:**
+>
+> | Item | Current state (2026-11-08) | Evidence (date + SHA) |
+> |---|---|---|
+> | D1 engine class | **DECIDED 2026-11-02: SQLite-WAL + content-addressed blobs** (the Option-1 incumbent candidate WAS selected by the owner's explicit 2026-11-02 delegation) | `docs/active/OWNER_DECISIONS_RECORDED_2026-11-02.md` (answer key `D1=A`), recorded on top of `209ec620…` chain; implementation commit `ad5d978` (2026-11-08) |
+> | D2 deployment target | **DECIDED 2026-11-02: DEFER, dated 2026-11-02** — target-machine evidence collection stays owner-executed (R-2) | same register, `D2=DEFER-2026-11-02` |
+> | D3 immutability class | **DECIDED 2026-11-02: per-class retention table** — episodic PERMANENT (no-purge), lesson history PERMANENT (retire ≠ delete) | same register, `D3=TABLE-BELOW` |
+> | D4 access control + key | **DECIDED 2026-11-02: OS keyring + AES-256-GCM at rest**, env override `RADAR_RESEARCH_MEMORY_KEY`, fail-closed without a key | same register, `D4=OS-KEYRING+AESGCM` |
+> | D5 backup/retention/DR | **DECIDED 2026-11-02: local destination `data/backups/research-memory/`, daily cadence, keep=14**; offsite deferred until owner provides destination | same register, `D5=LOCAL-DAILY-KEEP14` |
+> | D6 access model | **DECIDED 2026-11-02: single-user** | same register, `D6=SINGLE-USER` |
+> | D7 RPO/RTO | **DECIDED 2026-11-02: RPO ≤ 24h, RTO ≤ 15 min** | same register, `D7=RPO24h-RTO15m` |
+> | Adapter implementation | **IMPLEMENTED** — `app/data/research_memory_sqlite.py` (`SqliteWalResearchMemoryStore`: WAL, `synchronous=FULL`-class discipline, per-row SHA-256 tamper evidence verified at open, AES-256-GCM payloads, verified backup + fail-closed restore drill, restart recovery, no delete/update/purge — AST-pinned) registered in the acceptance-scaffold factory | commit `ad5d978`; suite `test_research_memory_sqlite_adapter.py` |
+> | Audit-trail carrier | **IMPLEMENTED** — `app/data/memory_access_audit_sqlite.py` (`DurableMemoryAccessAuditTrail`: append-only hash-chained ledger, row digests, full-chain re-verification at open, corruption ⇒ typed `MemoryAuditStoreCorruption`, verified backup/restore) | WAVE-AI WP-G commit `14836a4`; suite `test_memory_audit_sqlite.py` |
+> | REAL application-path integration | **DONE** — `app/services/research_memory_service.py` factory defaults to the DURABLE sqlite backend on the real app cycle; `/api/v10/memory` router (posture/episodic/lessons/integrity/audit/backup); every operation audited OK-or-REFUSED | owner directive 2026-11-08 §3 is the explicit dated act ordering real integration; commit `ad5d978` |
+> | Runtime verification at HEAD `2e6d0fb4…` | **RE-VERIFIED 2026-11-08** — clean-checkout AI-3 suite 186 passed; independent behavioral probe 10/10 PASS (cross-process restart recovery, verified backup → destroy → restore, per-row tamper ⇒ gate CLOSED + row refused, keyless ⇒ typed refusal, invalid key ⇒ fail-closed, garbage DB file ⇒ typed `db_unreadable` refusal, SIGKILL mid-process ⇒ WAL recovery, two-directory isolation, audit-chain tamper ⇒ reopen refused) | completion-stage execution record §AI-3 |
+> | Still OWNER-GATED (unchanged) | D2 target-machine evidence drill (R-2); D5 automated daily cadence (needs scheduler authorisation OA-4/R-6 — nothing scheduled) and offsite destination/credentials | OA register |
+>
+> **Everything below the horizontal rule is the original pre-decision plan, preserved
+> byte-for-byte as history (per the documentation-currency rule: never delete past
+> status statements — supersede them with a dated pointer).** Sections 3–5 below were
+> the decision→variant mapping used to implement the selected variants; the implemented
+> adapter matches the Option-1/D1 column of §3.1 plus the §4 cross-cutting requirements.
+
+---
+
 **D1–D7 ALL PENDING.** Per `AI3_PERSISTENCE_DECISION_PACKET.md` line 3:
 "**ALL SEVEN DECISIONS PENDING — no owner decision recorded as of 2026-11-02;
 none assumed; the PREFERRED-CANDIDATE ranking in

@@ -1,5 +1,30 @@
 # MASTER-RADAR CAPABILITY MATRIX (supersedes WDA_CAPABILITY_MATRIX_2026-11-03 additively) — 2026-11-04
 
+> ## ⚠️ CURRENCY ADDENDUM — 2026-11-08 (completion stage; original rows below PRESERVED verbatim)
+>
+> The table in §1 is the 2026-11-04 snapshot. Rows whose state moved SINCE then are
+> superseded here (history kept below; per the documentation-currency rule):
+>
+> | # (old row) | Old state (2026-11-04) | Current state (2026-11-08) | Evidence |
+> |---|---|---|---|
+> | 7 AI proposal generation | NOT-VERIFIED → OWNER-GATED seam (disconnected) | **UNCHANGED — OWNER-GATED seam (disconnected)**; governed surface shipped + browser-verified refusal (`gated_not_executed`, ledger total unchanged); `AI2_ENABLED=0` | config.py:118; E2E 2026-11-08 S21a |
+> | 15 LLM narration | OWNER-GATED seam (disconnected) | **UNCHANGED — OWNER-GATED**; provider-activation decision packet P-1..P-10 delivered; nothing activated | AIMA_PROVIDER_ACTIVATION_DECISION_PACKET.md |
+> | 19 Data Quality Center UI | MISSING | **EXISTS** — DQ Center tab shipped; markets/coverage/audit + DECLARED calendars + session-state panels browser-RUNTIME-VERIFIED (WAVE-E) and re-verified 2026-11-08 (screenshot) | WAVE-E record; S09_dataquality.png |
+> | 20 Multi-chart layouts / detachable monitors | PARTIAL | **EXISTS (grid + cross-window sync)** — layouts ۱/۲/۴ + range/crosshair/symbol-follow sync browser-RUNTIME-VERIFIED both directions at channel level (WAVE-S2); popup-class detach INTEGRATION-VERIFIED (same-origin popup + two-way sync; OS placement/multi-monitor visual check = owner R-2) | WAVE-S record; WAVE-AD J11; parity audit §1 |
+> | 21 Renko/range/Kagi/LineBreak/PnF | MISSING | **EXISTS** — derived chart types shipped (`derived_charts.py`, `/chartpro/{symbol}/derived`); RENKO browser-RUNTIME-VERIFIED; 32 tests | parity audit §1 row «Derived chart types»; test_derived_charts |
+> | 23 Windows installer/upgrade/rollback/signing | NOT-VERIFIED | **ARTIFACT BUILT (repository-side)** — unsigned NSIS artifact built in CI from exact SHAs, provenance recorded (latest: id 13607633922 @ run 42456810887, SHA 2e6d0fb4); actual install/upgrade/rollback = still **OWNER-GATED (R-1/R-2)** = NOT-VERIFIED until owner device evidence; signing = owner decision | manifest COMPLETION-STAGE-2026-11-08; install guide 2026-11-08 |
+> | 11 Walk-forward (product-level) | EXISTS (engine) | **EXISTS + UI TRIGGER CLOSED** — the WAVE-AF parity-audit row «UI trigger NOT PRESENT» described the pre-cbfa028 tree; WAVE-AB2 commit `cbfa028` wired the full walk-forward section into the Forward Center (static gates `test_master_waveab_walkforward_ui.py`), browser journey + exports verified (WAVE-AI WP-B; re-verified 2026-11-08: POST /walkforward 3 folds + digest + csv/pdf exports 200) | cbfa028; test_master_waveab_walkforward_ui.py; E2E S15 2026-11-08 |
+> | 24 Version chain | EXISTS (v3-0-6) | **EXISTS** — sw chain advanced through v3-0-19 with recorded counter-pin bumps | STATUS chain |
+>
+> ### Three-way classification of the old open items (directive §2.4)
+>
+> 1. **تکمیل‌شده با شواهد معتبر (completed with valid evidence):** rows 5, 6, 8, 9, 10, 11, 12, 14, 16, 17, 18, 19, 20 (grid/sync/popup subset), 21, 22 (in-product inbox), 24 — each carries code+tests and, where marked, browser-RUNTIME-VERIFIED evidence.
+> 2. **ناقص و قابل رفع توسط مهندسی (partial, engineering-fixable):** P2 liquidity pinning (honestly NOT ADDRESSED — ROADMAP_TRACEABILITY_DELTA_2026-11-03 line 12); per-fundamental-line PIT module (event/membership-layer PIT DONE; the per-line module remains PARTIAL); popup detach beyond popup scope (multi-monitor OS placement cannot be verified from a headless sandbox — test-bundle prepared, needs a Windows session).
+> 3. **نیازمند تصمیم/دسترسی/اقدام مالک (owner-gated):** 13 live forward observation (R-6 deliberate); real symbol catalog + provider entitlement (R-3/R-7 Two-Key); live source admission (R-3 KEEP-DENIED); 7/15 AI-2 + LLM provider activation (D-A2-1..7 / P-1..P-10 + OA-3); 23 target-machine install/upgrade/rollback + Windows signing (R-1/R-2 + signing decision); interactive Electron testing on the owner's device; scheduler operational enablement (OA-4); Vercel housekeeping (OA-6); branch-protection ruleset (Administration scope).
+>
+> Nothing PARTIAL/MISSING/NOT-VERIFIED is re-labelled COMPLETE without new evidence. Global
+> completion remains NOT CALCULATED (OA-8).
+
 Vocabulary: `EXISTS` (implemented in-repo with tests) / `PARTIAL` / `MISSING` / `NOT-VERIFIED` (requires target machine / authorized data / owner act). NO parity or superiority claims against Faraz Chart / TradingView / MetaTrader are made anywhere in this file (directive §A, §N).
 
 ## 1. WDA capability matrix — updated rows

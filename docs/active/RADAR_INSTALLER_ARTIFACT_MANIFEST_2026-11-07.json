@@ -1,24 +1,49 @@
 {
   "manifest": "RADAR_INSTALLER_ARTIFACT_MANIFEST",
-  "version": "WAVE-AE-1",
-  "generated_utc": "2026-11-07",
+  "version": "COMPLETION-STAGE-2026-11-08",
+  "generated_utc": "2026-11-08",
+  "supersedes": "WAVE-AE-1 (code_sha b1d1c3c… artifact 13576616229 — preserved in artifact_history)",
   "source_repo": "aresmaeily/shekar-saham",
-  "code_sha": "b1d1c3c0dc08c038b90b7570ca2f6a668bbaaaad",
+  "code_sha": "2e6d0fb47c823be58dc9acc6c3579789cf330376",
+  "hash_discipline": {
+    "rule": "The ARCHIVE (zip) digest and the INNER installer (.exe) SHA-256 are TWO DIFFERENT hashes. Never report one as the other.",
+    "archive_zip_sha256": {
+      "value": "ffa13cd11f56f0c306b832284a39f1ad693770b11ddc9d35d798b1159addee1f",
+      "what_it_covers": "the downloadable GitHub Actions artifact ZIP (exe + nsis.zip + installer_provenance.txt)",
+      "source": "owner's 2026-11-08 check of the artifact record (GitHub artifact digest format sha256:…); engineering re-verification from the API blocked by the unauthenticated rate-limit window at record time — owner re-verifies after authenticated download",
+      "verify_after_download": "sha256sum <downloaded zip> must equal the digest above"
+    },
+    "inner_installer_sha256": {
+      "value": "RECORDED BY CI step 11 in the PUBLIC build log (artifact_sha256= line of installer_provenance.txt) for the exact SHA; owner re-verifies the extracted exe against that line",
+      "what_it_covers": "the NSIS .exe INSIDE the zip (the file that is actually executed)"
+    },
+    "provenance_file": "RELEASE_PROVENANCE.json ships inside the payload and records source_sha + build_run_url + signing=UNSIGNED_NO_CERTIFICATE"
+  },
   "artifact": {
-    "gh_artifact_id": 13576616229,
-    "name": "windows-installer-unsigned-b1d1c3c0dc08c038b90b7570ca2f6a668bbaaaad",
-    "run_id": 42378045074,
-    "run_url": "https://github.com/aresmaeily/shekar-saham/actions/runs/42378045074",
-    "job_id": 128419608107,
+    "gh_artifact_id": 13607633922,
+    "name": "windows-installer-unsigned-2e6d0fb47c823be58dc9acc6c3579789cf330376",
+    "run_id": 42456810887,
+    "run_name": "Windows installer artifact (OA-1)",
+    "run_url": "https://github.com/aresmaeily/shekar-saham/actions/runs/42456810887",
+    "job_id": 128657484581,
+    "job_conclusion": "success",
     "workflow": ".github/workflows/windows-installer.yml",
-    "size_in_bytes": 114397087,
-    "size_human": "~114.4 MB",
-    "created_utc": "2026-11-07T13:42:35Z",
+    "size_in_bytes": 114504341,
+    "size_human": "~114.5 MB",
+    "created_utc": "2026-11-08T06:57:31Z",
+    "expires_utc": "2026-12-08T06:59:30Z",
     "expired": false,
     "retention_days": 30,
-    "signature": "UNSIGNED (electron-builder NSIS; CSC_IDENTITY_AUTO_DISCOVERY=false)",
-    "sha256_of_zip": "OWNER-VERIFIABLE (anonymous download is HTTP 401; download with an authenticated session or owner account, then verify against the workflow step-11 recorded hash and the embedded RELEASE_PROVENANCE.json)",
+    "signature": "UNSIGNED (electron-builder NSIS; CSC_IDENTITY_AUTO_DISCOVERY=false; signing is a separate owner decision)",
+    "sha256_of_zip": "ffa13cd11f56f0c306b832284a39f1ad693770b11ddc9d35d798b1159addee1f (owner-observed; see hash_discipline)",
     "sha256_of_inner_installer": "RECORDED BY CI BUILD in step 11 public log + embedded provenance; owner re-verifies after download"
+  },
+  "required_checks_at_code_sha": {
+    "sha": "2e6d0fb47c823be58dc9acc6c3579789cf330376",
+    "test_backend": "SUCCESS (CI run 42456810896)",
+    "build_docker": "SUCCESS (CI run 42456810896)",
+    "windows_validation": "SUCCESS (run 42456810853)",
+    "build_installer": "SUCCESS (run 42456810887)"
   },
   "ci_step_level_verification": {
     "job_conclusion": "success",
@@ -28,13 +53,13 @@
       "2 checkout (pinned SHA)",
       "3 Record provenance (source SHA / runner toolchain)",
       "4 setup-node v4.1.0 (pinned SHA) node 20",
-      "5 Fetch pinned embedded Python runtime (PSF-licensed, checksum-verified) - WAVE-T3 (MR-I-02)",
+      "5 Fetch pinned embedded Python runtime (PSF-licensed, MD5 fail-closed; SHA-256 recorded) - WAVE-T3 (MR-I-02)",
       "6 Bundle local dependency site-packages (offline first launch)",
       "7 Bundled-runtime import smoke (real interpreter against the real bundle)",
       "8 Bundle backend sources + frontend assets + embed release provenance (unsigned)",
-      "9 Payload verification (fail the build on an incomplete payload) - WAVE-AC: + absence assertions for .env/.key/.pem/secret sweep",
+      "9 Payload verification (fail the build on an incomplete payload) - WAVE-AC: + absence assertions for .env/.key/.pem/secret sweep (first-party scope)",
       "10 Build NSIS installer (electron-builder, unsigned)",
-      "11 SHA-256 + size recording (public log evidence)",
+      "11 SHA-256 + size recording (public log evidence) — records the INNER exe hash",
       "12 Upload installer artifact (retention 30 days)"
     ]
   },
@@ -53,7 +78,7 @@
   "forbidden_payload_entries": [
     "backend/.env, backend/*.key, backend/*.pem, backend/app/secrets*.py, backend/pytest.ini, backend/tox.ini (explicit assertions)",
     "first-party recursive sweep: electron/resources/backend/** + electron/resources top level for *.env/*.key/*.pem/.env* (fail-closed)",
-    "SCOPE (WAVE-AC CI fix, run 42386854797 job 128445955679): the pip-bundled site-packages is third-party PyPI content (--only-binary) and legitimately contains CA bundles (certifi/cacert.pem) \u2014 excluded from the credential sweep by scope; the initial unscoped sweep false-positived on it and failed the build (recorded, never hidden); steps 5-8 stayed green"
+    "SCOPE (WAVE-AC CI fix, run 42386854797 job 128445955679): the pip-bundled site-packages is third-party PyPI content (--only-binary) and legitimately contains CA bundles (certifi/cacert.pem) — excluded from the credential sweep by scope; the initial unscoped sweep false-positived on it and failed the build (recorded, never hidden); steps 5-8 stayed green"
   ],
   "embedded_runtime": {
     "python_version": "3.12.10 (LAST 3.12.x with Windows embeddable binaries; 3.12.16+ is security-source-only)",
@@ -71,17 +96,42 @@
     "network": "NOT REQUIRED at first launch (embedded runtime + local deps)",
     "admin_rights": "NSIS per-user install; no silent elevation recorded"
   },
-  "ci_proven_at_b1d1c3c": {
-    "windows_validation_job": "128419608276 success (boot W1, health W2, browser E2E W6 7/7, runtime log posture W7, shutdown)",
-    "build_installer_job": "128419608107 success (all 12 steps incl. runtime fetch/verify/bundle/smoke/payload/build/hash/upload)",
-    "test_backend_job": "128419608536 success",
-    "build_docker_job": "128419844457 success"
-  },
+  "unsigned_version_limitations": [
+    "SmartScreen/Windows Defender may show 'Unknown publisher' — the ONLY integrity mechanism is the hash discipline above; if any hash mismatches, DO NOT install",
+    "no auto-update channel; upgrades are manual (new installer over the old one; user data preserved per runbook)",
+    "no code-signing revocation surface (nothing signed) — signing is an owner decision (separate gate)"
+  ],
+  "artifact_history": [
+    {
+      "code_sha": "b1d1c3c0dc08c038b90b7570ca2f6a668bbaaaad",
+      "gh_artifact_id": 13576616229,
+      "run_id": 42378045074,
+      "size_in_bytes": 114397087,
+      "created_utc": "2026-11-07T13:42:35Z",
+      "recorded_by_version": "WAVE-AE-1"
+    },
+    {
+      "code_sha": "1aa0eea3046a393ef2034cd49198962fc84e81e7",
+      "inner_installer_name": "رادار بورس Setup 3.0.0.exe",
+      "size_in_bytes": 114603344,
+      "inner_sha256": "9D32124B93A11D890B42FC6DDDB6BEF953E893BBD6A4A390F1FDF030070A04D6",
+      "run_id": 42456154126,
+      "recorded_by_version": "OWNER-DIRECTIVE-2026-11-08 record §6"
+    },
+    {
+      "code_sha": "2e6d0fb47c823be58dc9acc6c3579789cf330376",
+      "gh_artifact_id": 13607633922,
+      "run_id": 42456810887,
+      "size_in_bytes": 114504341,
+      "created_utc": "2026-11-08T06:57:31Z",
+      "recorded_by_version": "COMPLETION-STAGE-2026-11-08 (current)"
+    }
+  ],
   "not_claimed": [
-    "binary SHA-256 independently recomputed from the downloaded zip (owner action; authenticated download required)",
     "installer executed on any Windows machine (owner R-1/R-2; INSTALL NOT ISSUED)",
     "upgrade/rollback/user-data-preservation drill on a real Windows profile (owner R-1/R-2)",
-    "code signature (artifact is UNSIGNED by design; signing is an owner decision)"
+    "code signature (artifact is UNSIGNED by design; signing is an owner decision)",
+    "archive digest independently recomputed from the downloaded zip by engineering (anonymous download is HTTP 401; owner action)"
   ],
   "gates": {
     "AI2_ENABLED": 0,
@@ -96,13 +146,13 @@
       "sha": "445e4fb",
       "run": 42377136446,
       "job": 128416956257,
-      "cause": "PowerShell quoting defect (apostrophe) in provenance meta string \u2014 step 8 failed; fixed by b1d1c3c rewording; kept on record"
+      "cause": "PowerShell quoting defect (apostrophe) in provenance meta string — step 8 failed; fixed by b1d1c3c rewording; kept on record"
     },
     {
       "sha": "0ccee1d",
       "run": 42386854797,
       "job": 128445955679,
-      "cause": "payload-verifier absence sweep unscoped \u2014 certifi/cacert.pem (legit CA bundle in third-party site-packages) matched *.pem; steps 5-8 green, step 9 exit 1; fixed by first-party scope narrowing; kept on record"
+      "cause": "payload-verifier absence sweep unscoped — certifi/cacert.pem (legit CA bundle in third-party site-packages) matched *.pem; steps 5-8 green, step 9 exit 1; fixed by first-party scope narrowing; kept on record"
     }
   ]
 }
