@@ -86,7 +86,8 @@ def test_sw_bumped_to_v3_0_8_with_wave3_precache():
     # COUNTER-PIN BUMP (recorded, MASTER-RADAR WAVE-S2 2026-11-07): v3-0-15 -> v3-0-16 — cross-window crosshair/range sync in chart_grid.js
     # COUNTER-PIN BUMP (recorded, WAVE-AB2 2026-11-08): v3-0-16 -> v3-0-17 — walk-forward UI trigger in forward_center.js + index.html + dead-control wiring (hunt/tablo/hot filters, btnWsRefresh/btnValueReload/btnPfAdd, excellent tab activation)
     # COUNTER-PIN BUMP (recorded, WAVE-AI 2026-11-08): v3-0-17 -> v3-0-19 — AI-MA tab (render/ai_ma_ui.js + index.html panel + main.js lazy activation)
-    assert "radar-bourse-static-v3-0-19" in sw
+    # COUNTER-PIN BUMP (recorded, STAGE-3 REDESIGN 2026-11-08): v3-0-19 -> v3-0-20 — tokens.css precache + design-system rewrite (grouped nav, SVG sprite, skeleton/empty states, unified themes)
+    assert "radar-bourse-static-v3-0-20" in sw
     assert "radar-bourse-static-v3-0-9" not in sw
     assert "/static/js/modules/render/chart_grid.js" in sw
     assert "/static/js/modules/command_palette.js" in sw

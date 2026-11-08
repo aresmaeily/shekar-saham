@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,11 +7,53 @@
   <meta name="description" content="رادار بورس — لایو WebSocket، تلگرام، بک‌تست، اختیار معامله" />
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="/static/manifest.json" />
+  <link rel="stylesheet" href="/static/css/tokens.css" />
   <link rel="stylesheet" href="/static/css/app.css" />
   <link rel="stylesheet" href="/static/css/symbol.css" />
   <link rel="stylesheet" href="/static/css/chart_pro.css" />
 </head>
 <body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <defs>
+    <symbol id="i-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><path d="M12 12L18.5 5.5" stroke-width="1.2"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4c4-2 7 2 11 0v8c-4 2-7-2-11 0"/></symbol>
+    <symbol id="i-crosshair" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></symbol>
+    <symbol id="i-live" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M7.5 7.5a6.4 6.4 0 0 0 0 9M16.5 7.5a6.4 6.4 0 0 1 0 9M4.6 4.6a10.5 10.5 0 0 0 0 14.8M19.4 4.6a10.5 10.5 0 0 1 0 14.8"/></symbol>
+    <symbol id="i-chart-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5l6 6 4-4 8 8"/><path d="M21 10v5h-5"/></symbol>
+    <symbol id="i-ticket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4Z"/><path d="M13 6v2M13 11v2M13 16v2"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Z"/><path d="M9 4v14M15 6v14"/></symbol>
+    <symbol id="i-flask" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v6L4.5 18a2 2 0 0 0 1.7 3h11.6a2 2 0 0 0 1.7-3L14 9V3"/><path d="M8 3h8M7.5 14h9"/></symbol>
+    <symbol id="i-nodes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="6" cy="6" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M7.8 7.5 10.5 16M16.2 7.5 13.5 16M8.2 6h7.6"/></symbol>
+    <symbol id="i-bars" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-8M21 20H3"/></symbol>
+    <symbol id="i-gem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M7 4h10l4 5-9 11L3 9l4-5Z"/><path d="M3 9h18M12 20 8.5 9l2-5M12 20l3.5-11-2-5"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L9.5 22 19 10h-6.5L13 2Z"/></symbol>
+    <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M12 10v10"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c1 3-2.5 4.5-2.5 8a4.5 4.5 0 0 0 9 .3C18.5 8 15 7 15 3c2 1 5 4.5 5 9a8 8 0 1 1-16 0c0-4 3-8 8-9Z"/></symbol>
+    <symbol id="i-dice" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="15" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="9" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="15" r="1.2" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-factory" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V9l6 4V9l6 4V9l6 4v8H3Z"/><path d="M7 17h2M13 17h2M18 17h1"/></symbol>
+    <symbol id="i-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 12h18"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 9a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.5-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.5 2 1.5A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.5 2 3.5 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.5-2-1.5c.06-.4.1-.8.1-1.2Z"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-fx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13M14 4.5 17.5 8 14 11.5M20 16H7M10 12.5 6.5 16l3.5 3.5"/></symbol>
+    <symbol id="i-candle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 4v3M7 17v3M5 7h4v10H5zM17 3v4M17 15v4M15 7h4v8h-4z"/></symbol>
+    <symbol id="i-beaker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6l-1 8a8 8 0 0 0 2 6l1 2H6a4 4 0 0 1-4-4l2-12Z"/><path d="M14 4h7l-2 12a4 4 0 0 1-4 3"/></symbol>
+    <symbol id="i-layers-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/><path d="m9.5 13.5 2 2 3.5-3.5"/></symbol>
+    <symbol id="i-ff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5v13l8-6.5-8-6.5ZM13 5.5v13l8-6.5-8-6.5Z"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/><path d="M4 12h3M17 12h3"/></symbol>
+    <symbol id="i-loop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a8 8 0 0 1 14-3l2 2M20 15a8 8 0 0 1-14 3l-2-2"/><path d="M20 4v4h-4M4 20v-4h4"/></symbol>
+    <symbol id="i-robot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="8" width="14" height="11" rx="2.5"/><path d="M12 8V4M9 4h6"/><circle cx="9.5" cy="13" r="1.2" fill="currentColor" stroke="none"/><circle cx="14.5" cy="13" r="1.2" fill="currentColor" stroke="none"/><path d="M9.5 16.5h5"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/><path d="M19 16l.9 2.1L22 19l-2.1.9L19 22l-.9-2.1L16 19l2.1-.9L19 16Z"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19a2 2 0 0 1 2-2h14"/><path d="M6 3h14v18H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 14a8 8 0 1 1 16 0"/><path d="M12 14 15.5 9.5"/><path d="M2.5 19h19"/></symbol>
+    <symbol id="i-chart-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 19l6-6 4 4 8-8"/><path d="M21 14V9h-5"/></symbol>
+    <symbol id="i-radar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12 17 7"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-chev-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+  </defs>
+</svg>
+
   <div class="bg-grid"></div>
   <div class="bg-glow"></div>
 
@@ -37,7 +79,7 @@
 
   <header class="topbar">
     <div class="brand">
-      <div class="logo">🎯</div>
+      <div class="logo" aria-hidden="true"><svg><use href="#i-logo"/></svg></div>
       <div>
         <h1>رادار بورس <span class="ver">v3.0.0</span></h1>
         <p class="tagline">لایو · تلگرام · بک‌تست · اختیار</p>
@@ -68,40 +110,72 @@
     </div>
   </header>
 
-  <nav class="tabs" id="mainTabs">
-    <button class="tab active" data-tab="final">🏁 جمع‌بندی نهایی</button>
-    <button class="tab" data-tab="hunt">🎯 شکار ورود</button>
-    <button class="tab" data-tab="exit">🚪 خروج</button>
-    <button class="tab" data-tab="live">📡 لایو</button>
-    <button class="tab" data-tab="backtest">📉 بک‌تست</button>
-    <button class="tab" data-tab="options">🎟 اختیار</button>
-    <button class="tab" data-tab="notify">📨 اعلان‌ها</button>
-    <button class="tab" data-tab="map">🗺 نقشه بازار</button>
-    <button class="tab" data-tab="filter">🧪 فیلترنویسی</button>
-    <button class="tab" data-tab="filter-intel">🧠 هوش فیلتر</button>
-    <button class="tab" data-tab="fund">📊 بنیادی</button>
-    <button class="tab" data-tab="value">💎 سهام ارزنده</button>
-    <button class="tab" data-tab="big">⚡ تحرکات بزرگان</button>
-    <button class="tab" data-tab="tablo">📐 تابلو کستیک</button>
-    <button class="tab" data-tab="hot">🔥 پول داغ</button>
-    <button class="tab" data-tab="game">🎲 بازی بازار</button>
-    <button class="tab" data-tab="industry">🏭 صنعت</button>
-    <button class="tab" data-tab="portfolio">💼 پورتفو</button>
-    <button class="tab" data-tab="alerts">🔔 هشدارها</button>
-    <button class="tab" data-tab="settings">⚙️ تنظیمات</button>
-    <button class="tab" data-tab="watch">👁 دیده‌بان</button>
-    <button class="tab" data-tab="forex">💱 فارکس</button>
-    <button class="tab" data-tab="chartpro">📈 چارت حرفه‌ای</button>
-    <button class="tab" data-tab="strategylab">🧪 آزمایشگاه استراتژی</button>
-    <button class="tab" data-tab="backtestcenter">🧪 مرکز بک‌تست</button>
-    <button class="tab" data-tab="forwardcenter">⏩ مرکز فوروارد تست</button>
-    <button class="tab" data-tab="dataquality">🔬 مرکز کیفیت داده</button>
-    <button class="tab" data-tab="loops">🔄 حلقه‌های محصول</button>
-    <button class="tab" data-tab="aistudio">🤖 استودیو AI-2</button>
-    <button class="tab" data-tab="aima">🧠 هوش چندعاملی</button>
-    <button class="tab" data-tab="excellent">✨ عالی</button>
-    <button class="tab" data-tab="guide">📖 راهنما</button>
-  </nav>
+  <nav class="tabs" id="mainTabs" aria-label="ناوبری اصلی">
+<div class="nav-groups">
+    <div class="nav-group" data-group="g-market">
+      <button type="button" class="nav-group-btn" aria-expanded="false" aria-haspopup="true"><svg class="ic" aria-hidden="true"><use href="#i-gauge"/></svg>بازار و دیده‌بانی<svg class="chev" aria-hidden="true"><use href="#i-chev-down"/></svg></button>
+      <div class="nav-group-menu" role="group" aria-label="بازار و دیده‌بانی">
+        <button type="button" class="tab active" data-tab="final"><svg class="ic" aria-hidden="true"><use href="#i-flag"/></svg>جمع‌بندی نهایی</button>
+        <button type="button" class="tab" data-tab="watch"><svg class="ic" aria-hidden="true"><use href="#i-eye"/></svg>دیده‌بان</button>
+        <button type="button" class="tab" data-tab="tablo"><svg class="ic" aria-hidden="true"><use href="#i-board"/></svg>تابلو کستیک</button>
+        <button type="button" class="tab" data-tab="hot"><svg class="ic" aria-hidden="true"><use href="#i-flame"/></svg>پول داغ</button>
+        <button type="button" class="tab" data-tab="map"><svg class="ic" aria-hidden="true"><use href="#i-map"/></svg>نقشه بازار</button>
+        <button type="button" class="tab" data-tab="big"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg>تحرکات بزرگان</button>
+        <button type="button" class="tab" data-tab="game"><svg class="ic" aria-hidden="true"><use href="#i-dice"/></svg>بازی بازار</button>
+        <button type="button" class="tab" data-tab="live"><svg class="ic" aria-hidden="true"><use href="#i-live"/></svg>لایو</button>
+      </div>
+    </div>
+    <div class="nav-group" data-group="g-analysis">
+      <button type="button" class="nav-group-btn" aria-expanded="false" aria-haspopup="true"><svg class="ic" aria-hidden="true"><use href="#i-chart-up"/></svg>تحلیل و ارزش<svg class="chev" aria-hidden="true"><use href="#i-chev-down"/></svg></button>
+      <div class="nav-group-menu" role="group" aria-label="تحلیل و ارزش">
+        <button type="button" class="tab" data-tab="chartpro"><svg class="ic" aria-hidden="true"><use href="#i-candle"/></svg>چارت حرفه‌ای</button>
+        <button type="button" class="tab" data-tab="fund"><svg class="ic" aria-hidden="true"><use href="#i-bars"/></svg>بنیادی</button>
+        <button type="button" class="tab" data-tab="value"><svg class="ic" aria-hidden="true"><use href="#i-gem"/></svg>سهام ارزنده</button>
+        <button type="button" class="tab" data-tab="industry"><svg class="ic" aria-hidden="true"><use href="#i-factory"/></svg>صنعت</button>
+        <button type="button" class="tab" data-tab="options"><svg class="ic" aria-hidden="true"><use href="#i-ticket"/></svg>اختیار</button>
+        <button type="button" class="tab" data-tab="forex"><svg class="ic" aria-hidden="true"><use href="#i-fx"/></svg>فارکس</button>
+      </div>
+    </div>
+    <div class="nav-group" data-group="g-signal">
+      <button type="button" class="nav-group-btn" aria-expanded="false" aria-haspopup="true"><svg class="ic" aria-hidden="true"><use href="#i-crosshair"/></svg>سیگنال و هشدار<svg class="chev" aria-hidden="true"><use href="#i-chev-down"/></svg></button>
+      <div class="nav-group-menu" role="group" aria-label="سیگنال و هشدار">
+        <button type="button" class="tab" data-tab="hunt"><svg class="ic" aria-hidden="true"><use href="#i-crosshair"/></svg>شکار ورود</button>
+        <button type="button" class="tab" data-tab="exit"><svg class="ic" aria-hidden="true"><use href="#i-logout"/></svg>خروج</button>
+        <button type="button" class="tab" data-tab="filter"><svg class="ic" aria-hidden="true"><use href="#i-flask"/></svg>فیلترنویسی</button>
+        <button type="button" class="tab" data-tab="filter-intel"><svg class="ic" aria-hidden="true"><use href="#i-nodes"/></svg>هوش فیلتر</button>
+        <button type="button" class="tab" data-tab="alerts"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg>هشدارها</button>
+        <button type="button" class="tab" data-tab="notify"><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg>اعلان‌ها</button>
+      </div>
+    </div>
+    <div class="nav-group" data-group="g-strategy">
+      <button type="button" class="nav-group-btn" aria-expanded="false" aria-haspopup="true"><svg class="ic" aria-hidden="true"><use href="#i-beaker"/></svg>استراتژی و آزمون<svg class="chev" aria-hidden="true"><use href="#i-chev-down"/></svg></button>
+      <div class="nav-group-menu" role="group" aria-label="استراتژی و آزمون">
+        <button type="button" class="tab" data-tab="strategylab"><svg class="ic" aria-hidden="true"><use href="#i-beaker"/></svg>آزمایشگاه استراتژی</button>
+        <button type="button" class="tab" data-tab="backtest"><svg class="ic" aria-hidden="true"><use href="#i-chart-down"/></svg>بک‌تست</button>
+        <button type="button" class="tab" data-tab="backtestcenter"><svg class="ic" aria-hidden="true"><use href="#i-layers-check"/></svg>مرکز بک‌تست</button>
+        <button type="button" class="tab" data-tab="forwardcenter"><svg class="ic" aria-hidden="true"><use href="#i-ff"/></svg>مرکز فوروارد تست</button>
+      </div>
+    </div>
+    <div class="nav-group" data-group="g-ai">
+      <button type="button" class="nav-group-btn" aria-expanded="false" aria-haspopup="true"><svg class="ic" aria-hidden="true"><use href="#i-robot"/></svg>هوش و داده<svg class="chev" aria-hidden="true"><use href="#i-chev-down"/></svg></button>
+      <div class="nav-group-menu" role="group" aria-label="هوش و داده">
+        <button type="button" class="tab" data-tab="loops"><svg class="ic" aria-hidden="true"><use href="#i-loop"/></svg>حلقه‌های محصول</button>
+        <button type="button" class="tab" data-tab="aistudio"><svg class="ic" aria-hidden="true"><use href="#i-robot"/></svg>استودیو AI-2</button>
+        <button type="button" class="tab" data-tab="aima"><svg class="ic" aria-hidden="true"><use href="#i-nodes"/></svg>هوش چندعاملی</button>
+        <button type="button" class="tab" data-tab="dataquality"><svg class="ic" aria-hidden="true"><use href="#i-scan"/></svg>مرکز کیفیت داده</button>
+        <button type="button" class="tab" data-tab="excellent"><svg class="ic" aria-hidden="true"><use href="#i-spark"/></svg>عالی</button>
+      </div>
+    </div>
+    <div class="nav-group" data-group="g-system">
+      <button type="button" class="nav-group-btn" aria-expanded="false" aria-haspopup="true"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg>سیستم<svg class="chev" aria-hidden="true"><use href="#i-chev-down"/></svg></button>
+      <div class="nav-group-menu" role="group" aria-label="سیستم">
+        <button type="button" class="tab" data-tab="portfolio"><svg class="ic" aria-hidden="true"><use href="#i-briefcase"/></svg>پورتفو</button>
+        <button type="button" class="tab" data-tab="settings"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg>تنظیمات</button>
+        <button type="button" class="tab" data-tab="guide"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg>راهنما</button>
+      </div>
+    </div>
+  </div>
+</nav>
 
   <section class="stats" id="statsBar">
     <div class="stat thermo-stat" id="thermoStat" title="دماسنج بازار — ترکیب عرض بازار، ارزش، پول داغ، هشدارها و خالص حقیقی">

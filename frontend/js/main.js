@@ -297,6 +297,58 @@ function bindNav() {
   activateFromHash(); // دیپ‌لینک اولیه (باز شدن مستقیم /#/forex و مانند آن)
 }
 
+/* ----------------------------- ناوبری گروهی (بازطراحی مرحله ۳) -----------------------------
+   ۳۲ مسیر در ۶ خوشه — هیچ مسیری مخفی نمی‌شود؛ خوشهٔ حاوی تب فعال با نشان رادار برجسته می‌شود.
+   قواعد: کلیک بیرون/Esc می‌بندد؛ دیپ‌لینک hash خوشهٔ فعال را باز و مشخص می‌کند.
+-------------------------------------------------------------------------------------------- */
+function markCurrentNavGroup() {
+  const active = $("#mainTabs .tab.active");
+  $$("#mainTabs .nav-group").forEach((g) => {
+    g.classList.toggle("current", !!(active && g.contains(active)));
+  });
+}
+
+function closeNavGroups(except) {
+  $$("#mainTabs .nav-group.open").forEach((g) => {
+    if (g !== except) {
+      g.classList.remove("open");
+      const b = g.querySelector(".nav-group-btn");
+      if (b) b.setAttribute("aria-expanded", "false");
+    }
+  });
+}
+
+function bindNavGroups() {
+  const nav = $("#mainTabs");
+  if (!nav) return;
+  $$("#mainTabs .nav-group").forEach((group) => {
+    const btn = group.querySelector(".nav-group-btn");
+    if (!btn) return;
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const willOpen = !group.classList.contains("open");
+      closeNavGroups(group);
+      group.classList.toggle("open", willOpen);
+      btn.setAttribute("aria-expanded", String(willOpen));
+    });
+  });
+  // انتخاب تب → بستن همهٔ خوشه‌ها + به‌روزرسانی خوشهٔ جاری
+  nav.addEventListener("click", (e) => {
+    if (e.target.closest(".tab[data-tab]")) {
+      closeNavGroups();
+      markCurrentNavGroup();
+    }
+  });
+  // کلیک بیرون و Escape
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#mainTabs")) closeNavGroups();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeNavGroups();
+  });
+  markCurrentNavGroup();
+}
+
 function bindGlobalDelegation() {
   document.addEventListener("click", async (e) => {
     const deepBtn = e.target.closest("[data-deep-sym]");
@@ -472,6 +524,7 @@ function setupTimer() {
 async function boot() {
   bindTopbar();
   bindNav();
+  bindNavGroups();
   bindGlobalDelegation();
   bindDataFilters(); // WAVE-AB2: سیم‌کشی کنترل‌های مرده (شکار/تابلو/پول داغ/زنده/ارزش‌گذاری/پورتفو)
   bindExcellentTab(); // WAVE-AB2: فعال‌سازی تب «عالی» هنگام باز شدن

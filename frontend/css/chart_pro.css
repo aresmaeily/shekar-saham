@@ -9,10 +9,10 @@
   display: flex;
   flex-direction: column;
   gap: .45rem;
-  background: var(--surface1);
+  background: var(--surface-1);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: .55rem .75rem;
+  border-radius: var(--r-xl);
+  padding: .5rem .7rem;
   margin-bottom: .75rem;
 }
 .cp-row {
@@ -32,8 +32,8 @@
 
 /* دکمه‌های ابزار رسم در حالت فعال */
 #cpDrawSeg button.active {
-  background: linear-gradient(135deg, rgba(41, 98, 255, .35), rgba(156, 39, 176, .35));
-  color: var(--text);
+  background: var(--brand-soft);
+  color: var(--brand);
   font-weight: 600;
 }
 
@@ -42,24 +42,24 @@
   display: inline-flex;
   align-items: center;
   gap: .35rem;
-  font-size: .74rem;
+  font-size: var(--fs-11);
   font-weight: 600;
-  padding: .3rem .65rem;
-  border-radius: 999px;
-  border: 1px solid rgba(251, 191, 36, .45);
-  background: rgba(251, 191, 36, .12);
-  color: #fbbf24;
+  padding: .26rem .6rem;
+  border-radius: var(--r-full);
+  border: 1px solid var(--border);
+  background: var(--warn-soft);
+  color: var(--warn-strong);
   white-space: nowrap;
 }
 [data-theme="light"] .cp-badge {
-  border-color: rgba(217, 119, 6, .4);
-  background: rgba(217, 119, 6, .1);
-  color: #b45309;
+  border-color: var(--border);
+  background: var(--warn-soft);
+  color: var(--warn-strong);
 }
 .cp-badge.live {
-  border-color: rgba(34, 197, 94, .45);
-  background: rgba(34, 197, 94, .12);
-  color: #22c55e;
+  border-color: var(--border);
+  background: var(--up-soft);
+  color: var(--up);
 }
 
 /* ---------- چیدمان اصلی: دیده‌بان راست + چارت ---------- */
@@ -72,9 +72,9 @@
 
 .cp-chart-wrap {
   position: relative;
-  background: var(--surface1);
+  background: var(--surface-1);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--r-xl);
   padding: .35rem;
   min-width: 0;
 }
@@ -101,17 +101,17 @@
 .cp-osc {
   height: 150px;
   margin-top: .75rem;
-  background: var(--surface1);
+  background: var(--surface-1);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--r-xl);
   padding: .35rem;
 }
 
 /* ---------- دیده‌بان سمت راست ---------- */
 .cp-watchlist {
-  background: var(--surface1);
+  background: var(--surface-1);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--r-xl);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -150,7 +150,7 @@
 }
 .cp-watch-row:hover { background: var(--surface2); border-color: var(--border); }
 .cp-watch-row.active {
-  background: linear-gradient(135deg, rgba(34, 211, 238, .14), rgba(129, 140, 248, .2));
+  background: var(--brand-soft);
   border-color: var(--border);
   font-weight: 700;
 }

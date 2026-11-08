@@ -102,7 +102,8 @@ def test_main_js_lazy_activation():
 
 def test_sw_v3_0_18_precaches_the_module():
     sw = _read(SW_JS)
-    assert "radar-bourse-static-v3-0-19" in sw
+    # COUNTER-PIN BUMP (recorded, STAGE-3 REDESIGN 2026-11-08): v3-0-19 -> v3-0-20 — tokens.css precache + design-system rewrite; module precache assertion unchanged
+    assert "radar-bourse-static-v3-0-20" in sw
     assert "/static/js/modules/render/ai_ma_ui.js" in sw
 
 

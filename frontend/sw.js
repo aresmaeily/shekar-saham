@@ -1,10 +1,11 @@
-// Service Worker v3.0.8 — هماهنگ با معماری جدید (WS-HARDEN-1/W3: مسیر legacy حذف شد؛ WS-10: چارت حرفه‌ای؛ MASTER-RADAR: آزمایشگاه استراتژی؛ MASTER-RADAR WAVE-2: مراکز بک‌تست/فوروارد تست/کیفیت داده؛ MASTER-RADAR WAVE-3: شبکه چندچارتی + پالت فرمان؛ WAVE-B: اندیکاتور کاربر UIDL-1؛ v3-0-10: رفع نیت جداسازی popup؛ v3-0-11: خروجی PDF گزارش‌ها (بک‌تست/بهینه‌ساز)؛ v3-0-12: تقویم‌های اعلامی بازار (DECLARED)؛ v3-0-13: نصب SW با cache:reload (دور زدن تازگی-اکتشافی HTTP)؛ v3-0-14: پنل حلقه‌های محصول WAVE-F؛ v3-0-15: پنل استودیو AI-2 (WAVE-O — مسیر تولید حاکمیت‌شده)؛ v3-0-16: همگام‌سازی بازه/کراس‌هیر بین‌پنجره‌ای گرید (WAVE-S2)؛ v3-0-17: تریگر UI walk-forward در مرکز فوروارد تست (WAVE-AB2)؛ v3-0-19: پنل هوش چندعاملی AI-MA (WAVE-AI)؛ 2026-11-08 (دستور مالک): نمایشگر محتوای artifact + تاریخچه اجرای نشست + پالت فرمان + بخش حافظه پژوهش/حسابرسی و گزارش Golden Set v2 در حلقه‌های محصول)
+// Service Worker v3.0.8 — هماهنگ با معماری جدید (WS-HARDEN-1/W3: مسیر legacy حذف شد؛ WS-10: چارت حرفه‌ای؛ MASTER-RADAR: آزمایشگاه استراتژی؛ MASTER-RADAR WAVE-2: مراکز بک‌تست/فوروارد تست/کیفیت داده؛ MASTER-RADAR WAVE-3: شبکه چندچارتی + پالت فرمان؛ WAVE-B: اندیکاتور کاربر UIDL-1؛ v3-0-10: رفع نیت جداسازی popup؛ v3-0-11: خروجی PDF گزارش‌ها (بک‌تست/بهینه‌ساز)؛ v3-0-12: تقویم‌های اعلامی بازار (DECLARED)؛ v3-0-13: نصب SW با cache:reload (دور زدن تازگی-اکتشافی HTTP)؛ v3-0-14: پنل حلقه‌های محصول WAVE-F؛ v3-0-15: پنل استودیو AI-2 (WAVE-O — مسیر تولید حاکمیت‌شده)؛ v3-0-16: همگام‌سازی بازه/کراس‌هیر بین‌پنجره‌ای گرید (WAVE-S2)؛ v3-0-17: تریگر UI walk-forward در مرکز فوروارد تست (WAVE-AB2)؛ v3-0-19: پنل هوش چندعاملی AI-MA (WAVE-AI)؛ 2026-11-08 (دستور مالک): نمایشگر محتوای artifact + تاریخچه اجرای نشست + پالت فرمان + بخش حافظه پژوهش/حسابرسی و گزارش Golden Set v2 در حلقه‌های محصول؛ v3-0-20 (بازطراحی بصری مرحله ۳): Design System توکن‌محور (tokens.css) + ناوبری گروهی ۶ خوشه‌ای ۳۲ مسیر + اسپرایت SVG جایگزین Emoji + Skeleton/Empty State + تم روشن/تیره یکدست)
 // - HTML: network-first با fallback به کش (نسخه جدید همیشه می‌رسد)
 // - استاتیک: stale-while-revalidate (سریع + به‌روز)
 // - API: network-only — هرگز payload بازار/احراز را کش نکن (stale ≠ current؛ logout نباید replay شود)
-const CACHE_NAME = "radar-bourse-static-v3-0-19";
+const CACHE_NAME = "radar-bourse-static-v3-0-20";
 const urlsToCache = [
   "/",
+  "/static/css/tokens.css",
   "/static/css/app.css",
   "/static/css/chart_pro.css",
   "/static/js/main.js",
