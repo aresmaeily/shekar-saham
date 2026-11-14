@@ -1,3 +1,18 @@
+## [2026-11-14] OSS-DOCS + LICENSING + RELEASE PREP — README انگلیسی حرفه‌ای، مجوز MIT، مستندات متن‌باز، آماده‌سازی Release رسمی
+
+### Added (docs-only, zero code delta, zero gate change)
+- NEW README.md انگلیسی حرفه‌ای (badges، قابلیت‌ها بر پایه ماژول‌های واقعی، شروع سریع سه‌گانه: نصب‌کننده ویندوز از Releases / Docker install.sh --docker / اجرا از سورس، جدول متغیرهای محیطی، منابع داده + افشای fallback، جدول ماژول‌های اصلی، ساختار پروژه شامل electron/android/e2e، توسعه و تست با دستورات دقیق CI، نمایه مستندات، سلب مسئولیت، بخش مجوز) + زبان‌سوییچ EN↔FA؛ محتوای فارسی کامل به README.fa.md منتقل و گسترش یافت (بدون از دست رفتن هیچ بخشی؛ جدول فازها از نماد به Done).
+- NEW LICENSE — MIT، SPDX قبلی ریپو خالی بود؛ copyright aresmaeily.
+- NEW CONTRIBUTING.md (راه‌اندازی، انضباط باتری تست، ممنوعیت تضعیف assertionها، جریان PR، فلگ‌ها خاموش می‌مانند)، SECURITY.md (گزارش خصوصی آسیب‌پذیری، نسخه پشتیبانی‌شده، نکات وضعیت امنیتی)، CODE_OF_CONDUCT.md (Contributor Covenant 2.1)، CHANGELOG.md ریشه (خلاصه انتشار 3.0.0 → نکات 0.6.0 → اشاره به 0.5.0؛ پیوند به docs/CHANGELOG.md و CHANGELOG_V06.md).
+- انتشار روی main: cd73081987620824a3ffe950261be7e98c0be1da (push 30d926f..cd73081، read-back مستقل via ls-remote).
+
+### CI truth روی SHA دقیق cd73081 (این مرحله)
+- build-installer: SUCCESS — artifact واقعی windows-installer-unsigned-cd73081* (114,512,281 bytes، id 14098074407، not expired) ساخته شد؛ run 43557522626.
+- test-backend: pytest خودِ باتری PASSED (تنها گام ناموفق: Dependency audit) — pip-audit تازه‌نصب 2.10.1 پیش از شروع هر اسکنی در گام self-upgrade خودش خطا داد: «ERROR:pip_audit._cli:Failed to upgrade pip» و exit 1؛ در کل لاگ 46KB هیچ vulnerability/advisory/PYSEC/GHSA یافت نشد ⇒ طبقه‌بندی: خطای ابزاری رانر (tooling)، نه یافته امنیتی و نه شکست تست. build-docker به‌دلیل needs رد شد (skipped).
+- windows-validation: گام W7 با «startup traceback detected» شکست خورد — عود همان کلاس flake بوت فقط-ویندوزِ ثبت‌شده در سابقه ریپو (کد بایت-یکسان در SHAهای دیگر سبز بوده؛ شبیه‌سازی محلی بدون Traceback)؛ run 43557522635.
+- تلاش برای rerun-failed-jobs هر دو run با توکن مالک: 403 «Resource not accessible by personal access token» (توکن Actions:write ندارد؛ Actions:read دارد) ⇒ طبق پیشینه ثبت‌شده ریپو (5c04719)، کامیت تشخیصی docs-only برای re-trigger هر ۴ چک روی SHA جدید push می‌شود؛ هیچ تغییر workflow/کد انجام نشد؛ هیچ شکستی به پاس تبدیل نشد.
+- اقدام پیشنهادی مالک: افزودن Actions:write به توکن یا rerun دستی از UI؛ و پیشنهاد پایدارکننده (نیازمند تأیید مالک، پیاده‌سازی نشده): pin کردن نسخه pip-audit یا افزودن --disable-pip به گام Dependency audit در ci.yml با ارجاع به همین لاگ.
+
 ## [2026-11-08] STAGE-3 — بنیادین بازطراحی بصری و UI/UX (RADAR Design System)
 
 ### Added (design system + evidence)
