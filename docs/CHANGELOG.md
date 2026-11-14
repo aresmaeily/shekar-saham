@@ -1,3 +1,24 @@
+## [2026-11-14] CLOSURE — e6a9238 چهار/چهار سبز + تحویل بسته شواهد P0 + وضعیت rerun و شفافیت فرایند مجوز
+
+### Verified (CI truth روی SHA دقیق e6a9238)
+- push پذیرفته شد: 91ba473..e6a9238 main (read-back مستقل via ls-remote = e6a9238fca8525812f8079057448cb28114ef31d).
+- API check-runs روی e6a9238fca8525812f8079057448cb28114ef31d: test-backend=success، build-docker=success، windows-validation=success، build-installer=success — هر ۴ چکِ الزامی completed+success ⇒ فیکس پایدارکننده (pin pip-audit==2.10.1 + retry ۳×۳۰s) همان‌طور که طراحی شده کار می‌کند؛ سه workflow run (CI / Windows validation / Windows installer artifact OA-1) همگی سبز.
+
+### Delivered (P0 evidence package, inherit-chain task)
+- فایل تحویلی: PHASE_0_1_FINAL_AUDIT_PACKAGE_2026-11-13.zip — 237,450 bytes؛ شامل 52 فایل شواهد واقعی (15 گزارش audit مستقل سطح‌بالا، درخت‌های خام 2026-10-18_p0amd1 و 2026-10-18_p0amd1a، PROJECT_EXECUTION_STATE.md) + README.txt + GIT/git_state.txt (HEAD/remote main/tag v3.0.0/اسنپ‌شات CI در لحظه بسته‌بندی) + MANIFEST.txt (هر فایل: مسیر | بایت | SHA-256)؛ صحت‌سنجی مستقل پس از ساخت: 54/54 خط manifest مطابق، صفر mismatch.
+- افشای صادقانه: فهرست «43 آیتم + 10 تحویلی» موروثِ تعریفِ اولیهٔ این بسته در محیط اجرای فعلی بازیافت‌پذیر نبود؛ به‌جای حدس/ساختگی، manifest از فایل‌های واقعاً بسته‌بندی‌شده تولید شد و همین محدودیت داخل README بسته ثبت شده است. هیچ محتوایی سنتز نشده — همهٔ فایل‌ها بایت‌به‌بایت از درخت کاری ریپو کپی شده‌اند.
+
+### Honest process record (authorization attempts for the rerun item)
+- هدف باقی‌مانده: rerun-failed-jobs دو run ناموفق روی cd73081 (43557522571 / 43557522635) برای امضای کلاس گذرا — تنها اقدام فهرست که Actions:write می‌خواهد.
+- سه تلاش device-flow: (۱) کد نخست A8AE-09B0 — مالک تأیید کرد و توکن صادر شد اما به‌دلیل اجرای اسکریپت در subshell پایپ‌لاین، export به محیط اجرای بعدی نرسید و device_code هم مصرف/حذف شد؛ درس: نگهداری توکن در tmpfs (/dev/shm، 0600) به‌جای متغیر محیطی بین‌فراخوانی، در اسکریپت اصلاح شد. (۲) کد دوم 8F11-88A4 — نزد مالک ثبت نشد و بی‌پاسخ منقضی شد (پروسهٔ poll پس‌زمینه هم در محیط اجرا بازیافت شد). (۳) کد سوم 28FA-223B — با poll فراروی همه‌جانبه تا انقضا بی‌پاسخ منقضی شد.
+- وضعیت: rerun موقتاً معلق به تأیید بعدی مالک؛ اسکریپت یک‌مرحله‌ای scripts/rerun_failed_runs.sh آماده است (توکن را فقط از /dev/shm/.ghdev_tok یا GHDEV_TOKEN می‌خواند؛ هرگز چاپ نمی‌کند).
+- تحلیل ارزش: هدفِ مادّی این rerun پیش‌تر محقق شده است — تعریف workflow در 91ba473 (docs-only، صفر تغییر workflow) و e6a9238 (فقط-فیکس همان گام) بایت‌به‌بایت همان تعریفِ موردِ cd73081 را اجرا کرده و هر دو 4/4 سبز شده‌اند ⇒ اثبات بازتولیدپذیری سبز برای همان تعریف روی SHAهای دیگر، منطبق با طبقه‌بندی ثبت‌شدهٔ «گذرای محیطی/ابزاری».
+
+### Housekeeping
+- بازگردانی فایل‌های untracked سندباکس (‎.claude، CLAUDE.md، scripts/r13_owner_repo_setup.sh، scripts/validate_bootstrap_config.py) از _sandbox_backup_untracked/ به درخت کاری؛ دو مورد دیگر (docs/governance/PROJECT_EXECUTION_STATE.md و docs/governance/evidence/) از پیش در ریپو بودند و کپیِ پشتیبان بایت-یکسان حذف شد؛ پوشهٔ پشتیبان حذف گردید.
+- ثبت‌کنندهٔ این رکورد از توکن مالک با scope repo (fine-grained، موجود در فایل آپلود مالک) فقط برای push/read استفاده کرد؛ توکن device-flow هرگز چاپ یا روی دیسک پایدار ذخیره نشد.
+- gates unchanged: AI2_ENABLED=0 / SCHEDULER_ENABLED=0 / verified=False / SYNTHETIC_OR_PAPER / Two-Key Rule — هیچ gate یا assertion تغییر نکرد؛ صفر delta کد محصول در این بستهٔ بستن.
+
 ## [2026-11-14] CI-STABILIZATION — فیکس پایدار گام Dependency audit (تأیید مالک از طریق device-flow authorization)
 
 ### Changed (workflow-only, zero code delta, fail-closed preserved)
