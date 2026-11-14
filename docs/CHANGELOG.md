@@ -1,3 +1,11 @@
+## [2026-11-14] CI-STABILIZATION — فیکس پایدار گام Dependency audit (تأیید مالک از طریق device-flow authorization)
+
+### Changed (workflow-only, zero code delta, fail-closed preserved)
+- .github/workflows/ci.yml گام Dependency audit: pin نسخه ابزار ممیزی به pip-audit==2.10.1 (همان نسخه رزولوشده در run 43557522571؛ نسخه‌ثابت = رفتار تکرارپذیر) + retry با backoff (۳ تلاش، ۳۰ ثانیه) برای کلاس خطای گذرای تأییدشده از لاگ: «ERROR:pip_audit._cli:Failed to upgrade pip» — مرگ self-upgrade داخلی pip-audit در venv موقتش پیش از شروع هر اسکنی، با صفر vulnerability/advisory در کل لاگ؛ همان گام روی 91ba473 سبز ⇒ طبقه گذرای محیطی، نه یافته امنیتی.
+- FAIL-CLOSED حفظ شد: ۳ شکست متوالی همچنان job را fail می‌کند؛ هیچ gate، assertion یا گام دیگری تغییر نکرد؛ gates unchanged AI2_ENABLED=0 / SCHEDULER_ENABLED=0 / verified=False / SYNTHETIC_OR_PAPER.
+- مجوز اعمال: توکن device-flow با scopes repo+workflow که مالک در 2026-11-14 صادر و تأیید کرد (user code یک‌بارمصرف در github.com/login/device؛ توکن نزد عامل فقط در حافظه نشست، چاپ/ذخیره نشد؛ device_code پس از استفاده حذف شد).
+- طبق سابقه ریپو «no blind workflow changes»: این تغییر blind نیست — ریشه از لاگ دقیق استخراج شد و فیکس دقیقاً همان ریشه را هدف می‌گیرد؛ شواهد در رکورد [2026-11-14] OSS-DOCS (بند CI truth روی cd73081) ثبت است.
+
 ## [2026-11-14] OSS-DOCS + LICENSING + RELEASE PREP — README انگلیسی حرفه‌ای، مجوز MIT، مستندات متن‌باز، آماده‌سازی Release رسمی
 
 ### Added (docs-only, zero code delta, zero gate change)

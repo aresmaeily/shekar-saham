@@ -42,11 +42,27 @@ jobs:
         working-directory: backend
         run: python -m pytest tests/ -q
 
+      # 2026-11-14 CI stabilization (owner-approved): on SHA cd73081 this step
+      # died in pip-audit's own pip self-upgrade BEFORE any scan
+      # ("ERROR:pip_audit._cli:Failed to upgrade pip", zero vulnerability
+      # findings in the full log; docs/CHANGELOG 2026-11-14) while the same
+      # step passed on 91ba473 => verified transient tooling class, not a
+      # security finding. Fix: pin the audit tool version (reproducible) and
+      # retry with backoff. FAIL-CLOSED PRESERVED: 3 consecutive failures
+      # still fail the job; no gate or assertion changed.
       - name: Dependency audit
         working-directory: backend
         run: |
-          pip install pip-audit
-          pip-audit -r requirements.txt
+          pip install "pip-audit==2.10.1"
+          for attempt in 1 2 3; do
+            if pip-audit -r requirements.txt; then
+              exit 0
+            fi
+            echo "pip-audit attempt $attempt/3 failed (verified transient pip-self-upgrade class) — retrying in 30s"
+            sleep 30
+          done
+          echo "pip-audit failed after 3 attempts — fail-closed"
+          exit 1
 
   build-docker:
     runs-on: ubuntu-latest
