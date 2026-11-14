@@ -1,86 +1,151 @@
-# رادار بورس (RADAR BOURSE)
+<div align="center">
 
-پلتفرم تحت‌وب تابلوخوانی و رصد حرفه‌ای سهام بورس ایران — الهام‌گرفته از [tablokhani.com](https://tablokhani.com)
+# RADAR BOURSE — رادار بورس
 
-## هدف
+**A professional, self-hosted board-reading and market-monitoring platform for the Tehran Stock Exchange (TSE).**
 
-شناسایی به‌موقع:
+Inspired by [tablokhani.com](https://tablokhani.com)
 
-- **ورود پول هوشمند** و افزایش حجم غیرعادی
-- سهم‌هایی که در **قیمت‌های منفی** احتمال ورود به **صف خرید** دارند
-- فیلتر **بنیادی** (P/E پایین، EPS مناسب، گزارش‌محور)
-- **هشدار خروج** بر اساس خروج پول، عرضه سنگین و تضعیف قدرت خریدار
+[![CI](https://github.com/aresmaeily/shekar-saham/actions/workflows/ci.yml/badge.svg)](https://github.com/aresmaeily/shekar-saham/actions/workflows/ci.yml)
+[![Windows validation](https://github.com/aresmaeily/shekar-saham/actions/workflows/windows.yml/badge.svg)](https://github.com/aresmaeily/shekar-saham/actions/workflows/windows.yml)
+[![Windows installer](https://github.com/aresmaeily/shekar-saham/actions/workflows/windows-installer.yml/badge.svg)](https://github.com/aresmaeily/shekar-saham/actions/workflows/windows-installer.yml)
+[![Release](https://img.shields.io/github/v/release/aresmaeily/shekar-saham)](https://github.com/aresmaeily/shekar-saham/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## معماری فازبندی
+**English** | [فارسی](README.fa.md)
 
-| فاز | محتوا | وضعیت |
-|-----|--------|--------|
-| **۱** | هسته شکار: پول هوشمند، حجم مشکوک، سیگنال ورود/خروج، بنیادی ساده، داشبورد | ✅ |
-| **۲** | اسنپ‌شات SQLite، تحرکات بزرگان، تابلو کستیک، پورتفو، هشدارها، تنظیمات UI | ✅ |
-| **۳** | صفحه نماد + نمودار، نقشه بازار، فیلترنویسی DSL، بنیادی، پول داغ ریزمعاملات | ✅ |
-| **۴** | WebSocket، تلگرام/بله، بک‌تست، اختیار معامله | ✅ |
-| **۵** | رفع P0/P1 بازرسی: trust level، flow coverage، امنیت API Key، قفل refresh، کش بنیادی | ✅ |
-| **۶** | فارکس پرو: طلا با بروکرهای BlackBull/Pepperstone/FXCM، GC1 (COMEX)، DXY (TVC)، S&P500/US100/US30/نفت برنت (Capital.com) + اندیکاتور ولیو پرفایل | ✅ |
+</div>
 
-## ساختار پروژه
+## What is RADAR BOURSE?
+
+RADAR BOURSE is a web-based analytical workbench for TSE traders. It continuously watches the market and surfaces what matters at the right time: smart-money entries, unusual trading volume, symbols likely to hit the buy limit (queue) from negative prices, report-driven fundamental candidates, and early exit warnings based on money outflow, heavy supply and weakening buyer strength.
+
+The system is fully self-hosted: a **FastAPI** backend with dedicated board-reading and signal engines, and an **RTL Persian dashboard** (32 analysis views, light/dark themes) served by the same process. A desktop experience is available as an Electron-based Windows installer, and the stack can also run under Docker. When the upstream market data sources are unreachable, the platform automatically falls back to a demo data generator so the entire UI and all algorithms remain testable — and the UI always discloses the current data trust level (live vs. demo) in a banner.
+
+## Key capabilities
+
+- **Smart-money radar** — hot-money detection for large retail trades (> 200M IRR), a "hot money plus" band (100–200M), and big-player in/out movements tracked on 10-minute windows.
+- **Signal hunting** — *entry hunt* combines suspicious volume, buyer power and near-limit negative prices; *exit alerts* track money outflow, elevated sell ratio and weakening per-capita buying.
+- **Custom screening** — a filter DSL for user-defined screens, a fundamental filter (P/E, EPS, market cap), and industry/sector group liquidity flow.
+- **Analysis views** — market map, per-symbol pages with Pro charts, suspicious-volume and supply/demand analysis, institutional vs. retail behavior breakdown.
+- **Alerts** — configurable alert rules with Telegram and Bale delivery.
+- **Strategy and research** — backtesting, an options module, and a prediction registry with calibration metrics (Brier score / ECE).
+- **Forex Pro** — gold and global instruments (GC1 / COMEX, DXY / TVC, S&P 500, US100, US30, Brent) via broker feeds, with a value-profile indicator.
+- **Delivery** — web dashboard, Windows installer (Electron), Docker image, and an experimental Android wrapper (Capacitor).
+
+> Note: the experimental AI Studio module ships **disabled by default** and only activates via an explicit owner-level configuration flag.
+
+## Quick start
+
+### Option A — Windows installer (desktop)
+
+Download the latest installer from [**Releases**](https://github.com/aresmaeily/shekar-saham/releases). The installer is built automatically by CI from an exact source SHA (build provenance — source SHA, size and SHA-256 — is recorded in the public build log and in `RELEASE_PROVENANCE.json` inside the app).
+
+> The installer is **unsigned** (no code-signing certificate), so Windows SmartScreen may show a warning: choose *More info → Run anyway*. The desktop shell bundles the FastAPI backend and serves the dashboard locally.
+
+### Option B — Docker
+
+```bash
+./install.sh --docker        # build and run with Docker Compose
+# or
+docker compose up --build
+```
+
+Then open `http://localhost:8000`.
+
+### Option C — From source (Python 3.10+)
+
+```bash
+cd backend
+pip install -r requirements.txt
+
+# start the server (automatically uses demo data if TSETMC is unreachable)
+python -m app.main
+
+# open http://127.0.0.1:8000
+```
+
+A one-shot helper is also available: `./install.sh` (native venv install + run), `./install.sh --check` (prerequisites only).
+
+### Configuration (optional environment variables)
+
+| Variable | Values | Purpose |
+|----------|--------|---------|
+| `DATA_SOURCE` | `mock` \| `tsetmc` \| `brsapi` | Market data source selection |
+| `BRSAPI_KEY` | your key | BrsApi access (free key from brsapi.ir) |
+| `TSETMC_BASE` | URL | TSETMC CDN base (default `https://cdn.tsetmc.com`) |
+| `POLL_SECONDS` | integer | Market data polling interval |
+
+## Data sources
+
+1. **Priority 1** — direct connection to the public TSETMC endpoints (`cdn.tsetmc.com` / MarketWatch).
+2. **Priority 2** — BrsApi (free API key).
+3. **Development mode** — a demo generator with a realistic Tehran Stock Exchange symbol structure.
+
+When neither source is reachable (for example outside Iran's network), the system switches to demo data automatically; the trust banner in the UI always states whether the displayed data is live or synthetic.
+
+## Core modules (tablokhani-style tools)
+
+| # | Module | Description |
+|---|--------|-------------|
+| 1 | Hot Money | Large retail trades > 200M IRR |
+| 2 | Hot Money Plus | 100–200M IRR band |
+| 3 | Market Play | Large / mid / small retail behavior |
+| 4 | Big Players Movements | Hot-money in/out on 10-minute windows |
+| 5 | Entry Hunt | Suspicious volume + buyer power + near-limit negative price |
+| 6 | Exit Alert | Money outflow, high sell ratio, weakening per-capita strength |
+| 7 | Fundamental Filter | P/E, EPS, market cap |
+| 8 | Industry Hunt | Group/sector liquidity flow |
+
+## Project structure
 
 ```
 radar-bourse/
-├── backend/          # FastAPI + موتورهای تحلیلی
+├── backend/          # FastAPI + analytical engines
 │   └── app/
 │       ├── api/      # REST endpoints
-│       ├── engines/  # الگوریتم‌های تابلوخوانی و سیگنال
-│       ├── data/     # منابع داده (TSETMC / Mock)
-│       ├── models/   # مدل‌های داده
-│       ├── core/     # تنظیمات
-│       └── services/ # سرویس‌های کسب‌وکار
-├── frontend/         # داشبورد RTL فارسی
-├── data/             # کش و داده نمونه
-├── docs/             # مستندات ساختاریافته: STATUS، معماری، active و archive
-└── scripts/          # اسکریپت‌های کمکی
+│       ├── engines/  # board-reading and signal algorithms
+│       ├── data/     # data sources (TSETMC / BrsApi / demo)
+│       ├── models/   # data models
+│       ├── core/     # settings and infrastructure
+│       └── services/ # business services
+├── frontend/         # RTL Persian dashboard (vanilla JS + design tokens)
+├── electron/         # Windows desktop shell + installer build
+├── android-app/      # experimental Capacitor wrapper
+├── e2e/              # end-to-end tests
+├── data/             # cache and sample data
+├── docs/             # structured docs: STATUS, architecture, design, governance
+├── scripts/          # helper and validation scripts
+├── Dockerfile / docker-compose.yml / entrypoint.sh
+├── install.sh / start.sh
+└── CHANGELOG.md      # release history (details: docs/CHANGELOG.md)
 ```
 
-## اجرا سریع
+## Development and testing
 
-```bash
-# نصب وابستگی‌ها
-cd backend && pip install -r requirements.txt
+The project runs a large automated test battery in CI on every push to `main`/`develop`:
 
-# اجرای سرور (با داده دمو اگر TSETMC در دسترس نباشد)
-python -m app.main
+- **test-backend** — pyflakes lint, the full pytest battery (3,200+ tests: unit + contract), and `pip-audit` dependency scanning (`cd backend && python -m pytest tests/ -q`).
+- **build-docker** — the Docker image is built on every push.
+- **windows-validation** — the Windows shell is validated end-to-end.
+- **build-installer** — the actual (unsigned) NSIS installer artifact is built, with provenance recorded in the public log.
 
-# مرورگر
-open http://127.0.0.1:8000
-```
+## Documentation
 
-### متغیرهای محیطی (اختیاری)
+| Document | Content |
+|----------|---------|
+| [docs/STATUS.md](docs/STATUS.md) | Current project status |
+| [docs/CHANGELOG.md](docs/CHANGELOG.md) | Detailed stage-by-stage change records |
+| [CHANGELOG.md](CHANGELOG.md) | Release history summary |
+| [docs/design/](docs/design/) | Design system, UI/UX audits and browser evidence |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Development setup and contribution workflow |
+| [SECURITY.md](SECURITY.md) | Security policy and vulnerability reporting |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community standards |
 
-```bash
-export DATA_SOURCE=mock          # mock | tsetmc | brsapi
-export BRSAPI_KEY=your_key
-export TSETMC_BASE=https://cdn.tsetmc.com
-export POLL_SECONDS=30
-```
+## Disclaimer
 
-## ابزارهای اصلی (مشابه تابلوخوانی)
+This software is an **analysis aid**, not a definitive buy/sell signal system. Trading decisions and their outcomes are the sole responsibility of the user.
 
-1. **پول داغ** — معاملات حقیقی درشت > ۲۰۰ میلیون تومان  
-2. **پول داغ پلاس** — بازه ۱۰۰–۲۰۰ میلیون  
-3. **بازی بازار** — رفتار حقیقی بزرگ / متوسط / خرد  
-4. **تحرکات بزرگان** — ورود/خروج پول داغ در بازه‌های ۱۰ دقیقه‌ای  
-5. **شکار ورود** — ترکیب حجم مشکوک + قدرت خریدار + قیمت منفی نزدیک صف  
-6. **هشدار خروج** — خروج پول، نسبت فروش بالا، تضعیف سرانه  
-7. **فیلتر بنیادی** — P/E، EPS، ارزش بازار  
-8. **شکار صنعت** — جریان نقدینگی گروهی  
+## License
 
-## منبع داده
-
-- **اولویت ۱:** اتصال مستقیم به APIهای عمومی `cdn.tsetmc.com` / MarketWatch  
-- **اولویت ۲:** BrsApi (کلید رایگان)  
-- **حالت توسعه:** ژنراتور دمو با ساختار واقعی نمادهای بورس تهران  
-
-> در محیط‌هایی که به اینترنت ایران/TSETMC دسترسی نیست، سیستم به‌صورت خودکار روی **داده دمو** سوئیچ می‌کند تا UI و الگوریتم‌ها کامل تست شوند.
-
-## هشدار مهم
-
-این نرم‌افزار **ابزار کمکی تحلیل** است و سیگنال قطعی خرید/فروش نیست. مسئولیت معاملات با کاربر است.
+Released under the [MIT License](LICENSE).
