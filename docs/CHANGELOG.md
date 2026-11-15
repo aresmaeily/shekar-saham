@@ -1,3 +1,23 @@
+## [2026-11-15] WEB RC1 — انشعاب release/web-rc1: پیاده‌سازی additive filter-compose (D-O2) + بستن گپ‌های P2 + مهندسی انتشار
+
+### Added
+- موتور `backend/app/engines/filter_compose.py`: کاتالوگ ۸ فیلتر مستند با برچسب منشأ (۴کلاسه) + rationale؛ شمارش تطبیق عطفی؛ رتبه‌بندی تعداد تطبیق؛ حالت رانتی ≥۲؛ افشای صادق خطا و degenerate؛ فقط-خواندنی روی کش ردیف‌ها.
+- `backend/app/engines/golden_set_comparison.py`: متریک‌های هم‌پوشانی overlap-only با برچسب اجباری `OVERLAP_ONLY_NO_SUPERIORITY_CLAIM` و `NOT_MEASURED`.
+- `backend/app/domain/liquidity_pinning.py` (P2): pin کردن نقدشوندگی ارزشی به جلسهٔ مشاهده + مقایسهٔ حجمی با حساب corporate-actions موجود + دو تاریخ صریح (price_date/query_date).
+- `backend/app/domain/fundamental_line_pit.py` (per-line PIT): حل خط-به-خط در cutoff صریح، زنجیرهٔ restatement، ظاهرسازی CONFLICTING_SOURCES و NOT_AVAILABLE.
+- API: `GET /api/filter/compose/presets` و `POST /api/filter/compose` (400 سمت-موتور؛ data_trust passthrough).
+- پنل «تحلیل چندبعدی» در تب فیلتر + sw v3-0-21؛ قالب `.env.production.example` (فقط placeholder)؛ راهنمای نصب/بهره‌بردار فارسی + یادداشت انتشار RC1.
+- ۷۹ تست جدید (compose 37 + فرانت 5 + liquidity 20 + line-PIT 17)؛ باتری کامل 3303/1s/0f.
+
+### Changed
+- `filter_dsl.py` additive runtime-field registry (`market_*`، فقط-عددی، ≤۳۲، بدون تغییر نحو؛ DSL suite بدون تغییر).
+- `windows-installer.yml` تریگر pull_request (هم‌ترازی)؛ هر سه workflow فیلتر push با `release/**`.
+- counter-pin‌های sw در ۸ فایل تست (v3-0-20 → v3-0-21، ثبت‌شده).
+
+### Honesty
+- کامیت‌های گم‌شدهٔ workstream (97da840/4ce812e) بازیافت‌نشده می‌مانند؛ هیچ کدی از حافظه بازسازی نشد؛ هیچ ادعای برابری/برتری با مرجع ثبت نشد.
+- نصب‌کنندهٔ ویندوز امضانشده است؛ Docker build فقط از مسیر CI روی SHA دقیق؛ PR انشعاب نیازمند توکن مجاز مالک.
+
 ## [2026-11-14] CLOSURE — e6a9238 چهار/چهار سبز + تحویل بسته شواهد P0 + وضعیت rerun و شفافیت فرایند مجوز
 
 ### Verified (CI truth روی SHA دقیق e6a9238)
