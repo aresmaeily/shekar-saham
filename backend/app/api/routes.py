@@ -333,6 +333,19 @@ class FilterRunBody(BaseModel):
     limit: int = Field(100, ge=1, le=200)
 
 
+class FilterComposeBody(BaseModel):
+    """D-O2 filter-compose: multi-filter conjunction board (read-only).
+
+    Range/limit validation is INTENTIONALLY left to the compose engine so that
+    violations return HTTP 400 (approved spec §9/§12.10), not pydantic 422.
+    """
+
+    filter_ids: list[str] = Field(default_factory=list)
+    exprs: list[str] = Field(default_factory=list)
+    min_matches: int = 1
+    limit: int = 50
+
+
 class FilterSaveBody(BaseModel):
     name: str = Field(..., max_length=100)
     expr: str = Field(..., max_length=2000)
@@ -448,6 +461,56 @@ async def filter_saved_delete(filter_id: int) -> dict[str, Any]:
     if not ok:
         raise HTTPException(404, "فیلتر یافت نشد")
     return {"ok": True, "filters": store.filters_list()}
+
+
+@router.get("/filter/compose/presets")
+async def filter_compose_presets() -> dict[str, Any]:
+    """D-O2: composed-filter catalog with provenance + rationale (additive)."""
+    from app.engines.filter_compose import compose_presets, UNSUPPORTED_DISCLOSURE
+    from app.engines.filter_dsl import fields_help, functions_help, runtime_fields_help
+
+    return {
+        "filters": compose_presets(),
+        "fields": fields_help(),
+        "functions": functions_help(),
+        "runtime_fields": runtime_fields_help(),
+        "ranking_rule": "match_count desc → golden_number desc → entry_score desc → symbol asc",
+        "unsupported": UNSUPPORTED_DISCLOSURE,
+    }
+
+
+@router.post("/filter/compose")
+async def filter_compose(body: FilterComposeBody) -> dict[str, Any]:
+    """D-O2: multi-filter composition + match-count ranking (additive, read-only).
+
+    Unknown filter_id ⇒ 400 with the offending id. Invalid custom expressions
+    are RECORDED per-filter (ok=true with filters[].error) — honesty over
+    silent drop. The board inherits the existing rate-limit/CSRF middleware;
+    no scheduler, no AI-2 path, no egress; data_trust passthrough only.
+    """
+    from app.engines.filter_compose import (
+        compose_filters,
+        ComposeValidationError,
+        UnknownFilterError,
+    )
+
+    await market_service.get_analysis(force=False)
+    rows = market_service.get_filter_rows()
+    try:
+        result = compose_filters(
+            rows,
+            filter_ids=body.filter_ids,
+            exprs=body.exprs,
+            min_matches=body.min_matches,
+            limit=body.limit,
+        )
+    except UnknownFilterError as exc:
+        raise HTTPException(400, str(exc))
+    except ComposeValidationError as exc:
+        raise HTTPException(400, str(exc))
+    result["data_trust"] = market_service.data_trust_context()
+    result["trust_level"] = market_service._trust_level
+    return result
 
 
 @router.get("/trade-hot/{symbol}")

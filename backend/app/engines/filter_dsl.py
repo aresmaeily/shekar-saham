@@ -137,6 +137,47 @@ MAX_EXPR_LEN = 1000
 MAX_AST_NODES = 160
 MAX_AST_DEPTH = 24
 
+# --- additive runtime-field registry (D-O2 filter-compose continuation, 2026-11-15) ---
+# Market-relative context values (e.g. market_buy_per_capita) are exposed to the
+# SAME safe validator/evaluator through a strictly bounded, numeric-only,
+# namespaced registry. Rules:
+#   * names must match ^market_[a-z0-9_]+$ (no aliasing of existing fields);
+#   * the registry can never override ALLOWED_FIELDS / ALLOWED_FUNCTIONS;
+#   * bounded to MAX_RUNTIME_FIELDS entries, registered once at import time by
+#     the compose engine (no per-request mutation, no race);
+#   * values are injected ONLY as int/float by the compose engine; a runtime
+#     field absent from the evaluated row resolves to the same missing-key
+#     semantics as any other field (no new AST node types, no grammar change).
+MAX_RUNTIME_FIELDS = 32
+_RUNTIME_FIELDS: dict[str, str] = {}
+_RUNTIME_FIELD_RE = re.compile(r"^market_[a-z0-9_]+$")
+
+
+def register_runtime_fields(fields: dict[str, str]) -> None:
+    """Register namespaced runtime context fields (compose engine only).
+
+    Fail-closed: rejects bad names, overrides of existing fields/functions and
+    unbounded growth. Existing expressions and the existing test suite are
+    unaffected when the registry is empty.
+    """
+    if len(fields) + len(_RUNTIME_FIELDS) > MAX_RUNTIME_FIELDS:
+        raise FilterError("تعداد فیلدهای زمان‌اجر بیش از حد مجاز است")
+    for k, label in fields.items():
+        if not _RUNTIME_FIELD_RE.match(str(k)):
+            raise FilterError(f"نام فیلد زمان‌اجر نامعتبر است: {str(k)[:60]}")
+        if k in ALLOWED_FIELDS or k in ALLOWED_FUNCTIONS or k in FIELD_ALIASES:
+            raise FilterError(f"فیلد زمان‌اجر نمی‌تواند نام موجود را بازنویسی کند: {k}")
+        _RUNTIME_FIELDS[str(k)] = str(label)
+
+
+def runtime_fields_help() -> list[dict[str, str]]:
+    return [{"key": k, "label": v} for k, v in sorted(_RUNTIME_FIELDS.items())]
+
+
+def _is_known_field(name: str) -> bool:
+    return name in ALLOWED_FIELDS or name in _RUNTIME_FIELDS
+
+
 NodeKind = Literal["bool", "compare", "field", "constant", "call", "arithmetic", "not"]
 
 
@@ -234,7 +275,7 @@ def _collect_and_validate(tree: ast.Expression) -> tuple[tuple[str, ...], tuple[
         if isinstance(node, ast.Name):
             if node.id in ALLOWED_FUNCTIONS:
                 continue
-            if node.id not in ALLOWED_FIELDS:
+            if not _is_known_field(node.id):
                 raise FilterError(f"فیلد ناشناخته: {str(node.id)[:60]}")
             fields.add(node.id)
             continue
@@ -373,7 +414,7 @@ class _SafeEval(ast.NodeVisitor):
                 return _indicator_value(name, _literal_period(node.args[0]), self.ctx)
             raise FilterError("تابع غیرمجاز")
         if isinstance(node, ast.Name):
-            if node.id not in ALLOWED_FIELDS:
+            if not _is_known_field(node.id):
                 raise FilterError(f"فیلد ناشناخته: {str(node.id)[:60]}")
             return self.ctx.get(node.id)
         if isinstance(node, ast.Constant):
@@ -392,6 +433,12 @@ class _SafeEval(ast.NodeVisitor):
 
 def _execution_context(row: dict[str, Any]) -> dict[str, Any]:
     ctx = {k: row.get(k) for k in ALLOWED_FIELDS}
+    # runtime (market_*) context: numeric-only injection, never arbitrary objects
+    for k in _RUNTIME_FIELDS:
+        if k in row:
+            v = row[k]
+            if isinstance(v, (int, float)) and not isinstance(v, bool):
+                ctx[k] = v
     # keep indicator extension keys even if not in fields list, but never expose arbitrary objects
     for k, v in row.items():
         if re.match(r"^(sma|ma|avg_volume|avg_vol|rsi|high|low)_?\d+$", str(k)) or k in {"rsi", "avg_vol_30d"}:

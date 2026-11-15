@@ -364,6 +364,107 @@ export function bindFilter() {
   });
 }
 
+/* ----------------- تحلیل چندبعدی (D-O2 filter-compose) ----------------- */
+/* فقط-خواندنی؛ بدون تایمر خودکار؛ بدون ارسال هشدار (GM-10 مالک-گیت). */
+export function bindFilterCompose() {
+  const box = $("#composeFilters");
+  if (!box) return;
+  let composePresets = [];
+  let composeReady = false;
+
+  async function loadPresets() {
+    if (composeReady) return;
+    composeReady = true;
+    try {
+      const res = await api("/api/filter/compose/presets");
+      composePresets = res.filters || [];
+      box.innerHTML = composePresets
+        .map(
+          (f) => `<label class="chip" data-fid="${esc(f.filter_id)}" title="${esc(f.rationale || "")}">
+            <input type="checkbox" checked value="${esc(f.filter_id)}" />
+            ${esc(f.name_fa)}
+            <span class="tag" title="منشأ: ${esc(f.provenance)}">${esc(provShort(f.provenance))}</span>
+          </label>`
+        )
+        .join("");
+    } catch (e) { /* toast */ }
+  }
+
+  function provShort(p) {
+    return {
+      DOCUMENTED_PUBLIC_SEMANTICS: "مستند",
+      RADAR_NATIVE: "RADAR",
+      INDEPENDENT_PROPOSAL: "پیشنهاد",
+      CUSTOM_OPERATOR_INPUT: "عملگر",
+    }[p] || p;
+  }
+
+  async function runCompose() {
+    const ids = $$('input[type="checkbox"]:checked', box).map((i) => i.value);
+    const exprs = ($("#composeExprs")?.value || "")
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .slice(0, 16);
+    const minMatches = Math.max(1, Math.min(8, parseInt($("#composeMinMatches")?.value || "2", 10) || 2));
+    $("#composeMsg").textContent = "در حال اجرا…";
+    $("#composeNotes").innerHTML = "";
+    try {
+      const res = await api("/api/filter/compose", {
+        method: "POST",
+        body: JSON.stringify({ filter_ids: ids, exprs, min_matches: minMatches, limit: 50 }),
+      });
+      renderCompose(res);
+    } catch (e) {
+      $("#composeMsg").textContent = "خطا در اجرای ترکیب";
+    }
+  }
+
+  function renderCompose(res) {
+    const dt = res.data_trust || {};
+    const live = dt.live_verified === true;
+    $("#composeTrust").innerHTML = live
+      ? `<span class="tag">دادهٔ زندهٔ تأییدشده</span>`
+      : `<span class="tag warn">دادهٔ شبیه‌سازی‌شده (mock) — زنده تأیید نشده؛ live_verified=false</span>`;
+
+    const notes = [];
+    const errFilters = (res.filters || []).filter((f) => f.error);
+    if (errFilters.length) {
+      notes.push(
+        `<span class="tag warn">خطای فیلترها (صادقانه ثبت شد، حذف نشد): ${errFilters
+          .map((f) => `${esc(f.filter_id)}: ${esc(f.error)}`)
+          .join(" | ")}</span>`
+      );
+    }
+    const mc = res.market_context || {};
+    if (mc.degenerate) notes.push(`<span class="tag warn">⚠ زمینهٔ بازار degenerate: میانگین سرانهٔ خرید صفر است — این سیگنال بازار نیست.</span>`);
+    notes.push(`<span class="muted">${esc(res.ranking_rule || "")}</span>`);
+    for (const [k, v] of Object.entries(res.unsupported || {})) {
+      notes.push(`<span class="tag">${esc(k)}: ${esc(v)}</span>`);
+    }
+    $("#composeNotes").innerHTML = notes.join(" ");
+
+    const rows = res.results || [];
+    $("#composeTable tbody").innerHTML = rows
+      .map(
+        (r) => `<tr data-symbol="${esc(r.symbol)}">
+          <td><span class="sym">${esc(r.symbol)}</span><span class="name">${esc(r.name || "")}</span></td>
+          <td>${esc(r.industry || "—")}</td>
+          <td><strong>${fmtNum(r.match_count)}</strong> / ${(res.filters || []).filter((f) => !f.error).length}</td>
+          <td>${(r.matched || []).map((m) => `<span class="tag" title="${esc(m.filter_id)}">${esc(m.name_fa)}</span>`).join(" ")}</td>
+          <td class="${(r.plp ?? 0) >= 0 ? "pct-up" : "pct-down"}">${fmtNum(r.plp, 2)}٪</td>
+          <td>${fmtNum(r.golden_number, 1)}</td>
+          <td>${fmtNum(r.entry_score, 1)}</td>
+        </tr>`
+      )
+      .join("") || `<tr><td colspan="7" class="empty">نتیجه‌ای نیست — فیلترها را انتخاب و اجرا کنید.</td></tr>`;
+    $("#composeMsg").textContent = `${fmtNum(res.symbols_matched)} نماد منطبق از ${fmtNum(res.symbols_evaluated)} ارزیابی‌شده`;
+  }
+
+  $("#btnComposeRun")?.addEventListener("click", runCompose);
+  loadPresets();
+}
+
 /* ----------------------------- هوش فیلتر / بازبینی انسانی ----------------------------- */
 export function bindFilterIntel() {
   $("#btnFiReload")?.addEventListener("click", () => loadFilterIntel({ create: false }));

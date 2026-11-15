@@ -457,6 +457,36 @@
           <tbody></tbody>
         </table>
       </div>
+      <div class="panel-head" style="margin-top:1rem">
+        <div>
+          <h2>🧭 تحلیل چندبعدی — ترکیب فیلترها و رتبه‌بندی تعداد تطبیق</h2>
+          <p class="muted">هشت فیلتر مستند + عبارت دلخواه؛ رتبه‌بندی: تعداد تطبیق ↓ → عدد طلایی ↓ → امتیاز ورود ↓ → نماد. حالت رانتی = حداقل ۲ تطبیق. ترکیب AND/OR سطح‌دوم عمداً پشتیبانی نمی‌شود (نیازمند بستهٔ تصمیم مالک).</p>
+        </div>
+        <div class="filters">
+          <button class="btn primary" id="btnComposeRun">▶ اجرای ترکیب</button>
+        </div>
+      </div>
+      <div class="filters" style="margin-bottom:.5rem" id="composeFilters"></div>
+      <textarea id="composeExprs" class="filter-editor" spellcheck="false" placeholder="عبارت سفارشی اختیاری — هر خط یک عبارت (حداکثر ۱۶ خط)"></textarea>
+      <div class="filters" style="margin:.5rem 0">
+        <label class="muted" for="composeMinMatches">حداقل تطبیق (رانتی ≥ ۲):</label>
+        <input type="number" id="composeMinMatches" min="1" max="8" value="2" style="width:5rem" />
+        <span class="muted" id="composeMsg">—</span>
+      </div>
+      <div class="filters" style="margin-bottom:.5rem">
+        <span class="muted" id="composeTrust"></span>
+      </div>
+      <div class="filters" style="margin-bottom:.5rem" id="composeNotes"></div>
+      <div class="table-wrap">
+        <table class="data-table" id="composeTable">
+          <thead>
+            <tr>
+              <th>نماد</th><th>صنعت</th><th>تعداد تطبیق</th><th>فیلترهای منطبق</th><th>% آخرین</th><th>طلایی</th><th>ورود</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </section>
 
     <section class="panel" id="tab-filter-intel">

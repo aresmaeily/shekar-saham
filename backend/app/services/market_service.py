@@ -864,6 +864,19 @@ class MarketService:
             "data_trust": self.data_trust_context(),
         }
 
+    def get_filter_rows(self) -> list[dict[str, Any]]:
+        """Public READ-ONLY accessor over the filter row cache (D-O2 compose).
+
+        The returned list is the live cache — consumers (filter-compose engine)
+        must treat it as immutable and never mutate rows or provider state.
+        """
+        if not self._row_cache and self._last_symbols:
+            try:
+                self._row_cache = self._rebuild_row_cache(self._last_symbols)
+            except Exception as exc:
+                logger.warning(f"row cache rebuild failed: {exc}")
+        return self._row_cache
+
     async def get_trade_hot(self, l18: str) -> Optional[dict[str, Any]]:
         s = self.get_snapshot(l18)
         if not s:
