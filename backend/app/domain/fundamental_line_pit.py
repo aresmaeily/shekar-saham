@@ -26,6 +26,18 @@ Resolution states (deterministic precedence):
                         restatement_version announced by cutoff, chain recorded)
   NOT_AVAILABLE       — the winning fact explicitly reports a NOT_AVAILABLE
                         value (missing datum surfaced, never invented)
+
+Statement-level contract (audit remediation 2026-11-16):
+  ``resolve_statement_at_cutoff`` resolves EVERY ``(metric, reporting_period)``
+  pair present in the fact set independently. A statement is more than its
+  latest period: older reporting periods are returned side by side, never
+  silently discarded; restatement chains and conflicts are scoped to their own
+  period, so a conflict in one period cannot hide a valid result in another.
+  ``resolve_line_at_cutoff`` without an explicit ``reporting_period`` remains a
+  SINGLE-line resolution across all periods present and collapses to the one
+  latest-available winner (its ``period_keys`` field always surfaces which
+  periods were considered) — consumers wanting the complete multi-period view
+  MUST use ``resolve_statement_at_cutoff``.
 """
 
 from __future__ import annotations
@@ -77,6 +89,7 @@ class LineResolution:
     auditor_status: str
     period_keys: tuple[str, ...]
     note: str
+    reporting_period: str | None = None
 
 
 def resolve_line_at_cutoff(
@@ -92,6 +105,18 @@ def resolve_line_at_cutoff(
     publication requires ``publication_time_utc <= cutoff``; otherwise the
     retrieval time must be ``<= cutoff``. Restatements win by version; the
     superseded chain is recorded, never deleted.
+
+    Period selection is EXPLICIT when ``reporting_period`` is given (a period
+    key as produced by ``_period_key``); with no selection the pool spans every
+    period present and the result collapses to the winner of the MOST RECENT
+    REPORTING PERIOD (period_end), ties broken by latest availability then
+    fact_id — a documented, deterministic refinement of the previous collapse,
+    which ordered by availability alone and could return an older period when
+    publication times coincided (audit remediation 2026-11-16; no pre-existing
+    test pinned the undefined tie case; single-period behavior unchanged). For
+    the complete multi-period statement view use ``resolve_statement_at_cutoff``,
+    which resolves every (metric, reporting_period) pair independently and
+    never discards older periods.
     """
     if cutoff.tzinfo is None:
         raise FundamentalLinePitError("cutoff_must_be_timezone_aware")
@@ -173,7 +198,15 @@ def resolve_line_at_cutoff(
             note="conflicting eligible values for the same line/period/version — surfaced, never silently resolved",
         )
 
-    win = winners[0] if len(winners) == 1 else max(winners, key=lambda f: _available_at(f, cutoff) or cutoff)
+    win = winners[0] if len(winners) == 1 else max(
+        winners,
+        key=lambda f: (
+            f.period.reporting_period.period_end
+            or dt.datetime.min.replace(tzinfo=dt.timezone.utc),
+            _available_at(f, cutoff) or dt.datetime.min.replace(tzinfo=dt.timezone.utc),
+            f.fact_id,
+        ),
+    )
     if win.value_status == "NOT_AVAILABLE" or win.value is None:
         return LineResolution(
             metric=metric,
@@ -206,14 +239,37 @@ def resolve_line_at_cutoff(
 def resolve_statement_at_cutoff(
     facts: Sequence[FundamentalFact], cutoff: dt.datetime
 ) -> dict[str, Any]:
-    """Per-line resolution over every metric present in the fact set.
+    """MULTI-PERIOD statement resolution: one independently resolved entry per
+    ``(metric, reporting_period)`` pair present in the fact set.
+
+    Audit remediation (2026-11-16): the previous implementation resolved each
+    metric once across all periods and kept only one fact per metric, silently
+    discarding older reporting periods. That contradicted this module's own
+    corpus discipline ("missing periods ... are SURFACED, never silently
+    resolved"), so the statement API now preserves every period:
+
+    * one separately resolved entry per (metric, reporting_period) pair;
+    * restatement chains preserved independently per period;
+    * conflicts surfaced independently per period — a conflict in one period
+      cannot hide a valid result in another;
+    * publication-time and retrieval-time cutoff rules reused verbatim
+      (unchanged financial semantics at line level);
+    * no older period is ever silently discarded.
 
     The returned record names the cutoff explicitly and keeps per-line states
     side by side, so a consumer cannot mix a resolved line with an unresolved
-    one without seeing it.
+    one without seeing it. Deterministic ordering: (metric, reporting_period).
     """
-    metrics = sorted({f.metric for f in facts})
-    lines = [resolve_line_at_cutoff(facts, m, cutoff).__dict__ for m in metrics]
+    if cutoff.tzinfo is None:
+        raise FundamentalLinePitError("cutoff_must_be_timezone_aware")
+    pairs = sorted({(f.metric, _period_key(f)) for f in facts})
+    lines: list[dict[str, Any]] = []
+    for metric, period_key in pairs:
+        r = resolve_line_at_cutoff(facts, metric, cutoff, reporting_period=period_key)
+        d = dict(r.__dict__)
+        d["reporting_period"] = period_key
+        lines.append(d)
+    lines.sort(key=lambda d: (d["metric"], d["reporting_period"] or ""))
     resolved = [l for l in lines if l["state"] == "RESOLVED"]
     unresolved = [l for l in lines if l["state"] != "RESOLVED"]
     return {
@@ -221,5 +277,11 @@ def resolve_statement_at_cutoff(
         "lines": lines,
         "resolved_count": len(resolved),
         "unresolved_count": len(unresolved),
-        "note": "every resolution names its cutoff; unresolved lines are surfaced with their honest state",
+        "metrics_count": len({m for m, _ in pairs}),
+        "reporting_periods_count": len({p for _, p in pairs}),
+        "note": (
+            "one independently resolved entry per (metric, reporting_period) pair; "
+            "older periods are never discarded; conflicts are scoped to their own "
+            "period; every resolution names its cutoff"
+        ),
     }

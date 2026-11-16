@@ -190,3 +190,117 @@ def test_dossier_fact_model_still_guarded():
     # restatement without a superseded id stays rejected at the model layer
     with pytest.raises(ValidationError):
         _fact(restatement_version=2)
+
+
+# ---------------------------------------------------------------------------
+# MULTI-PERIOD statement contract (audit remediation 2026-11-16).
+# The statement API must resolve EVERY (metric, reporting_period) pair
+# independently: older periods are never discarded, restatement chains and
+# conflicts are scoped per period, and a conflict in one period cannot hide
+# a valid result in another.
+# ---------------------------------------------------------------------------
+
+P2024_KEY = "2024-01-01T00:00:00+00:00:2024-12-31T00:00:00+00:00"
+P2025_KEY = "2025-01-01T00:00:00+00:00:2025-12-31T00:00:00+00:00"
+
+
+def _fact_2024(**over) -> FundamentalFact:
+    return _fact(
+        fact_id="fact-2024",
+        value=Decimal("500"),
+        period=_filing(
+            filing_id="f-2024",
+            reporting_period=Period(
+                period_start=dt.datetime(2024, 1, 1, tzinfo=UTC),
+                period_end=dt.datetime(2024, 12, 31, tzinfo=UTC),
+            ),
+        ),
+        **over,
+    )
+
+
+def test_statement_preserves_two_reporting_periods():
+    # same metric, two eligible periods — BOTH must come back, never collapsed
+    facts = [_fact_2024(), _fact()]  # fact-1 = 2025 revenue 1000.5
+    out = resolve_statement_at_cutoff(facts, CUT)
+    rev = [l for l in out["lines"] if l["metric"] == "revenue"]
+    assert len(rev) == 2, "older reporting period must not be silently discarded"
+    by_period = {l["reporting_period"]: l for l in rev}
+    assert set(by_period) == {P2024_KEY, P2025_KEY}
+    assert by_period[P2024_KEY]["state"] == "RESOLVED"
+    assert by_period[P2024_KEY]["fact"].fact_id == "fact-2024"
+    assert by_period[P2025_KEY]["state"] == "RESOLVED"
+    assert by_period[P2025_KEY]["fact"].fact_id == "fact-1"
+    assert out["resolved_count"] == 2 and out["unresolved_count"] == 0
+    assert out["metrics_count"] == 1 and out["reporting_periods_count"] == 2
+
+
+def test_statement_restatement_in_only_one_period_keeps_chains_independent():
+    # 2025 carries a v1→v2 restatement; 2024 has only its original fact.
+    v1 = _fact(fact_id="fact-v1", value=Decimal("900"), restatement_version=1)
+    v2 = _fact(
+        fact_id="fact-v2",
+        value=Decimal("950"),
+        restatement_version=2,
+        supersedes_fact_id="fact-v1",
+        period=_filing(filing_id="f-2", publication_time_utc=dt.datetime(2026, 2, 15, tzinfo=UTC)),
+    )
+    facts = [_fact_2024(), v1, v2]
+    out = resolve_statement_at_cutoff(facts, CUT)
+    by_period = {l["reporting_period"]: l for l in out["lines"] if l["metric"] == "revenue"}
+    assert len(by_period) == 2
+    p2025, p2024 = by_period[P2025_KEY], by_period[P2024_KEY]
+    assert p2025["state"] == "RESOLVED" and p2025["fact"].fact_id == "fact-v2"
+    assert p2025["superseded_chain"] == ("fact-v1",)
+    # the 2024 period resolves independently: own winner, own (empty) chain
+    assert p2024["state"] == "RESOLVED" and p2024["fact"].fact_id == "fact-2024"
+    assert p2024["superseded_chain"] == (), "chains must never bleed across periods"
+    assert out["resolved_count"] == 2 and out["unresolved_count"] == 0
+
+
+def test_statement_conflict_in_one_period_does_not_hide_other_period():
+    # 2025 has two same-version different-value facts (conflict);
+    # 2024 is a clean single fact and must still resolve.
+    a = _fact(fact_id="fact-a", value=Decimal("100"), source_evidence_ids=("ev-a",))
+    b = _fact(fact_id="fact-b", value=Decimal("200"), source_evidence_ids=("ev-b",))
+    facts = [_fact_2024(), a, b]
+    out = resolve_statement_at_cutoff(facts, CUT)
+    by_period = {l["reporting_period"]: l for l in out["lines"] if l["metric"] == "revenue"}
+    assert len(by_period) == 2
+    p2025, p2024 = by_period[P2025_KEY], by_period[P2024_KEY]
+    assert p2025["state"] == "CONFLICTING_SOURCES"
+    assert p2025["conflicting_fact_ids"] == ("fact-a", "fact-b")
+    assert p2025["fact"] is None
+    # the valid 2024 result survives the unrelated conflict
+    assert p2024["state"] == "RESOLVED" and p2024["fact"].fact_id == "fact-2024"
+    assert out["resolved_count"] == 1 and out["unresolved_count"] == 1
+
+
+def test_statement_counts_and_deterministic_ordering():
+    facts = [
+        _fact(),  # revenue 2025
+        _fact_2024(),  # revenue 2024
+        _fact(fact_id="fact-eps", metric="eps", value=Decimal("120"), unit="IRR"),
+    ]
+    out = resolve_statement_at_cutoff(facts, CUT)
+    assert out["resolved_count"] == 3 and out["unresolved_count"] == 0
+    assert out["metrics_count"] == 2 and out["reporting_periods_count"] == 2
+    order = [(l["metric"], l["reporting_period"]) for l in out["lines"]]
+    assert order == sorted(order), "lines must be deterministically ordered"
+
+
+def test_statement_naive_cutoff_refused_even_for_empty_fact_set():
+    naive = dt.datetime(2026, 3, 1)
+    with pytest.raises(FundamentalLinePitError):
+        resolve_statement_at_cutoff([_fact()], naive)
+    with pytest.raises(FundamentalLinePitError):
+        resolve_statement_at_cutoff([], naive)
+
+
+def test_line_level_multi_period_collapse_is_explicit_not_silent():
+    # the single-line API collapses by design, but never silently: both
+    # candidate periods stay visible via period_keys.
+    facts = [_fact_2024(), _fact()]
+    r = resolve_line_at_cutoff(facts, "revenue", CUT)
+    assert r.state == "RESOLVED" and r.fact.fact_id == "fact-1"
+    assert set(r.period_keys) == {P2024_KEY, P2025_KEY}

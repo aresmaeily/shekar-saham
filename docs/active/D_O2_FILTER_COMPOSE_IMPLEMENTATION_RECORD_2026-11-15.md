@@ -111,3 +111,66 @@ provider activation (GM-15), any trading/broker/scheduler/AI-2/production-mutati
 - Governance gates unchanged: `AI2_ENABLED=0` (`config.py:118` default), 
   `SCHEDULER_ENABLED=0` (default), `verified=False ⇒ SYNTHETIC_OR_PAPER` posture,
   no scheduler/egress/broker path added; compose is read-only over the row cache.
+
+## 6. Audit remediation (2026-11-16 — RC1 audit discrepancies resolved, forward-only)
+
+### 6.1 Multi-period fundamental-line PIT — contract determination and fix
+
+Independent audit finding: `resolve_statement_at_cutoff()` invoked the resolver
+once per metric without iterating reporting periods, so a metric with facts in
+several periods returned ONE fact and silently discarded older periods.
+
+**Intended contract determination (evidence-based):** Option A — the statement
+API is multi-period. Grounds: (a) this module's own corpus discipline says
+missing periods are SURFACED, never silently resolved; (b) the statement
+docstring promises per-line states "side by side", which is incomplete without
+every period; (c) `LineResolution.period_keys` already carried multi-period
+awareness; (d) no caller outside tests existed (grep at SHA 1d5d5621), so the
+reshape breaks no consumer.
+
+**Fix:** `resolve_statement_at_cutoff` now returns one independently resolved
+entry per `(metric, reporting_period)` pair: restatement chains preserved per
+period, conflicts surfaced per period (a conflict in one period cannot hide a
+valid result in another), publication/retrieval cutoff rules reused verbatim,
+older periods never discarded. Each entry names its `reporting_period`.
+
+**Recorded rationale for the single line-level semantic refinement:** without
+an explicit `reporting_period`, `resolve_line_at_cutoff` collapses to one
+winner. Previously the tie between period winners was ordered by availability
+alone, which could return an OLDER period when publication times coincided
+(`max` kept the first maximal element). The collapse now deterministically
+returns the winner of the most recent reporting period (period_end), ties
+broken by latest availability then fact_id. No pre-existing test pinned the
+undefined tie case; single-period behavior and eligibility rules are unchanged.
+
+**Tests:** +6 in `test_fundamental_line_pit.py` (two periods preserved; a
+restatement in only one period keeps chains independent; a conflict in one
+period does not hide the other period's valid result; counts + deterministic
+ordering; naive-cutoff refusal incl. empty fact set; explicit line-level
+collapse pin). File now 20 tests (was 14).
+
+### 6.2 Test-count reconciliation correction
+
+The §5 claim "+79 (37+5+20+17)" was an over-count. Measured with
+`pytest --collect-only -q` at the two exact SHAs: baseline `7a41563` collected
+3,232 (3,231 passed + 1 skipped); candidate `1d5d5621` collected 3,304
+(3,303 passed + 1 skipped). Actual added = **72** (compose 36, frontend 5,
+liquidity 17, line-PIT 14); removed/renamed/deselected = 0;
+3,231 + 72 = 3,303 exactly. The recorded passed/skipped counts were correct;
+only the prose "79" was wrong. §5 numbers above are kept as the historical
+record of that commit and are corrected here (no history rewrite).
+
+### 6.3 Production env template
+
+Commit 287f349 claimed `.env.production.example` but the file was absent from
+the committed tree (present in neither the four-commit diff nor the final
+GitHub tree — independently confirmed by the audit). Root cause (byte-level):
+the blanket `.gitignore` rule `.env.*` (W2-SEC C-5) silently ignored the
+template, so it never entered any commit. Fix: explicit whitelist exception
+`!.env.production.example` (only the exact template name; every other `.env.*`
+variant stays ignored). The template now exists at the exact documented path
+(repo root), placeholder-only, no real secrets, governance gates pinned
+(AI2_ENABLED=0 / SCHEDULER_ENABLED=0), and
+`backend/tests/test_production_env_template.py` (6 tests) pins: existence at
+the documented path, placeholder-only content, gates, production posture flags,
+verbatim-use refusal in production, and filled-template acceptance.

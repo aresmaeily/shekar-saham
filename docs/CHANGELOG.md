@@ -1,3 +1,20 @@
+## [2026-11-16] RC1 AUDIT REMEDIATION — انشعاب release/web-rc1 (forward-only): رفع ۴ مغایرت مستقل ممیزی
+
+### Fixed
+- **PIT چنددوره‌ای خط بنیادی** (`backend/app/domain/fundamental_line_pit.py`): `resolve_statement_at_cutoff` پیش‌تر برای هر metric فقط یک fact برمی‌گرداند و دوره‌های گزارشگری قدیمی‌تر را بی‌صدا کنار می‌گذاشت — نقض دیسیپلین خود ماژول («دوره‌های غایب SURFACED می‌شوند، هرگز بی‌صدا حل نمی‌شوند»). اکنون برای هر جفت `(metric, reporting_period)` یک نتیجهٔ مستقل برمی‌گردد؛ زنجیرهٔ restatement و CONFLICTING_SOURCES هر یک در دورهٔ خودشان؛ قواعد cutoff انتشار/بازیابی عیناً حفظ شده. Rationale تغییر معنایی فقط-سطح-statement در سند `D_O2_FILTER_COMPOSE_IMPLEMENTATION_RECORD_2026-11-15.md` §6 ثبت شده است. فروپاشی سطح-خط (بدون انتخاب دوره) اکنون صریح و قطعی است: برندهٔ آخرین دورهٔ گزارشگری با تای‌بریک availability سپس fact_id.
+- **قالب `.env.production.example` واقعاً اضافه شد** (ریشهٔ مخزن، فقط placeholder، بدون هیچ محرمانهٔ واقعی) — کامیت قبلی (287f349) آن را ادعا کرده بود اما فایل در درخت نهایی موجود نبود؛ **ریشهٔ دقیق: قاعدهٔ فراگیر `.env.*` در `.gitignore` فایل را بی‌صدا نادیده می‌گرفت**؛ اکنون با استثنای `!.env.production.example` اضافه شد (سایر واریانت‌های `.env.*` همچنان نادیده می‌مانند) و مستندات با درخت هم‌خوان است. رفتار fail-closed با تست جدید (`test_production_env_template.py`, ۶ تست) مهار شده: استفادهٔ عینی از قالب در production رد می‌شود؛ قالب پُرشده قبول می‌شود؛ گیت‌های حکمرانی در قالب پین هستند (AI2_ENABLED=0/SCHEDULER_ENABLED=0).
+
+### Corrected (record honesty)
+- **مغایرت شمارش تست برطرف و ثبت شد**: ادعای «+79 (37+5+20+17)» در کامیت 287f349 اضافه-شمارش بود. سنجش عینی با `pytest --collect-only` روی هر دو SHA دقیق: پایه `7a41563` = 3,232 جمع‌آوری (3,231 passed + 1 skipped)، کاندید `1d5d5621` = 3,304 جمع‌آوری (3,303 passed + 1 skipped)؛ **افزودهٔ واقعی = 72 (compose 36 + فرانت 5 + liquidity 17 + line-PIT 14)، حذفی/تغییرنامی/deselect = 0**؛ معادله: 3,231 + 72 = 3,303 ✓. شمارش‌های passed ثبت‌شده از ابتدا صحیح بودند؛ فقط عدد نثر «79» اشتباه بود.
+
+### Added
+- `backend/tests/test_fundamental_line_pit.py` +۶ تست (دو دورهٔ گزارشگری برای یک metric، restatement فقط در یک دوره با زنجیرهٔ مستقل، جداسازی conflict از دورهٔ سالم، شمارش/ترتیب قطعی، رد cutoff بدون timezone حتی با fact-set خالی، فروپاشی صریح سطح-خط).
+- `backend/tests/test_production_env_template.py` (۶ تست).
+- باتری کامل روی درخت نهایی پس از اصلاح: **3315 passed / 1 skipped / 0 failed** (3,303 کاندید ممیزی‌شده + 12 تست جدید، صفر رگرسیون).
+
+### Gates (unchanged)
+- `AI2_ENABLED=0` / `SCHEDULER_ENABLED=0` / `verified=False ⇒ SYNTHETIC_OR_PAPER` / بدون promo خودکار فیلتر / بدون فعال‌سازی production / بدون merge به main (پذیرش مالک لازم است).
+
 ## [2026-11-15] WEB RC1 — انشعاب release/web-rc1: پیاده‌سازی additive filter-compose (D-O2) + بستن گپ‌های P2 + مهندسی انتشار
 
 ### Added

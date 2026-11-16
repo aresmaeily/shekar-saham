@@ -2,7 +2,7 @@
 
 - **Date:** 2026-11-15 (Asia/Tehran)
 - **Branch:** `release/web-rc1` — forward-only from origin/main `7a41563968dc5ac5d57f5f3d7ac3a674e735ee58`
-- **Commits this RC:** `287f349` (D-O2 implementation + P2 gap closures) → `b8f27ba` (CI enablement for the RC branch) → docs commit (this file; the final SHA is recorded in the Persian final report)
+- **Commits this RC:** `287f349` (D-O2 implementation + P2 gap closures) → `b8f27ba` (CI enablement for the RC branch) → `61d384b` (release engineering docs) → `1d5d562` (docs currency) → audit-remediation commit (2026-11-16; the final SHA is recorded in the Persian final report)
 - **Release verdict:** see the Persian final report (`RELEASE_WEB_RC1_FINAL_REPORT_FA` in download/). Required checks: `test-backend`, `build-docker`, `windows-validation`, `build-installer` — all four run on every RC SHA and must be green on the exact final SHA.
 
 ## 1. What is new in RC1
@@ -30,11 +30,21 @@
 - `backend/app/domain/fundamental_line_pit.py` — per-fundamental-LINE point-in-time
   resolution: cutoff-explicit, restatement chains (history kept, never deleted),
   `CONFLICTING_SOURCES` surfaced (never silently resolved), `NOT_AVAILABLE` honesty,
-  `PUBLICATION_UNKNOWN` vs `NOT_YET_PUBLIC` precedence.
+  `PUBLICATION_UNKNOWN` vs `NOT_YET_PUBLIC` precedence. Audit remediation 2026-11-16:
+  the statement API resolves EVERY `(metric, reporting_period)` pair independently —
+  older reporting periods are returned side by side and never silently discarded;
+  chains and conflicts are scoped per period.
+- Test-count correction (record honesty): the audited commit message said "+79";
+  the measured, reconciled delta at the two exact SHAs is **+72**
+  (3,231 + 72 = 3,303; zero removed/renamed/deselected). Raw collect-only and full
+  execution logs for both SHAs are archived in the evidence package.
 
 ### Release engineering
-- `.env.production.example` — production posture template, placeholders only, gates
-  documented; the app refuses insecure placeholder values at startup (fail-closed).
+- `.env.production.example` — production posture template at the repo root, placeholders
+  only, no real credentials, governance gates pinned (AI2_ENABLED=0 / SCHEDULER_ENABLED=0);
+  the app refuses insecure placeholder values at startup (fail-closed) and
+  `backend/tests/test_production_env_template.py` pins the contract (template exists at
+  the documented path; verbatim use is refused in production; a filled template passes).
 - `windows-installer.yml` gains the `pull_request` trigger (parity) and all three
   workflows gain `release/**` in their push filters so every RC SHA gets all four
   required checks.
@@ -59,7 +69,7 @@
 - Runtime data posture: with `DATA_SOURCE=mock` every payload is
   `mock/synthetic/live_verified=false`. No LIVE label can be minted by configuration.
 - Pull request for the RC branch requires an authorized GitHub API token (none exists
-  in the engineering environment; none was fabricated). GitHub's suggested PR URL is
-  recorded in the publication evidence.
+  in the engineering environment; none was fabricated). The branch comparison URL is
+  recorded instead: `https://github.com/aresmaeily/shekar-saham/compare/main...release/web-rc1`.
 - Comparison to the Tablokhani reference requires owner-observed reference data under
   protocol P1–P6; not measured.

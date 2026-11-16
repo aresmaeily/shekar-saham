@@ -31,7 +31,13 @@ Thumbs.db
 
 # MASTER-WAVE-2 hardening (W2-SEC C-5): secret-material patterns — never
 # tracked, defense-in-depth beyond the explicit .env above.
+# RC1 audit remediation 2026-11-16: the placeholder-only production TEMPLATE is
+# explicitly whitelisted — the previous blanket `.env.*` rule silently ignored
+# it (root cause of the RC1 audit discrepancy where commit 287f349 claimed the
+# template while it never entered the committed tree). Only the exact template
+# name is un-ignored; every other .env.* variant stays ignored.
 .env.*
+!.env.production.example
 *.key
 *.pem
 *.p12
