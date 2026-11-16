@@ -1,3 +1,7 @@
+## [2026-11-16 RC1-D] DISCRIMINATOR (docs-only, zero code delta) — طبق پیش‌آینهٔ ثبت‌شدهٔ 5c04719
+
+- windows-validation #97 روی SHA دقیق `78ad3144511412748ce292afacdc36b3b33e0f17` FAILURE شد: گام ۱۰ «Runtime log posture (W7 — fail-closed evidence)» با exit code 1؛ گام‌های ۷-۹ (Boot backend W1 / Health+version W2 / Browser E2E 7/7) همگی PASS. 注解: warning «Node.js 20 ... forced to run on Node.js 24» (عامل محیطیِ کاندیدِ ثبت‌شده در پیش‌آینهٔ WAVE-I/J) + «Process completed with exit code 1» (ناموثق مانند ۴ رخداد قبلی). لاگ job طبق GOV-49 محدود به مجوز admin است و از محیط مهندسی استخراج نشد.
+- این پنجمین رخدادِ کلاس خطای فقط-ویندوزِ ثبت‌شده است (7a85528، 99e9da1، a6402cd، 1a4825، اکنون 78ad314). طبق دیسیپلین ثبت‌شده، این کامیت docs-only به‌تنهایی push می‌شود تا اجرای windows روی آن، شکست 78ad314 را طبقه‌بندی کند: PASS = تکرار محیطی کلاس ثبت‌شده (هیچ چیزی سبز تبدیل نمی‌شود)؛ FAIL = ارتقا به نقص واقعی. کد runtime بین دو SHA بایت-به‌بایت یکسان است.
 ## [2026-11-16] RC1 AUDIT REMEDIATION — انشعاب release/web-rc1 (forward-only): رفع ۴ مغایرت مستقل ممیزی
 
 ### Fixed
