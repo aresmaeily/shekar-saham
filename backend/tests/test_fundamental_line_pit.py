@@ -204,6 +204,24 @@ P2024_KEY = "2024-01-01T00:00:00+00:00:2024-12-31T00:00:00+00:00"
 P2025_KEY = "2025-01-01T00:00:00+00:00:2025-12-31T00:00:00+00:00"
 
 
+def _fact_2024_kw(**over) -> FundamentalFact:
+    """2024-period fact builder accepting full keyword overrides (kw-merge,
+    unlike _fact_2024 which pins value/fact_id positionally)."""
+    base = dict(
+        fact_id="fact-2024",
+        value=Decimal("500"),
+        period=_filing(
+            filing_id="f-2024",
+            reporting_period=Period(
+                period_start=dt.datetime(2024, 1, 1, tzinfo=UTC),
+                period_end=dt.datetime(2024, 12, 31, tzinfo=UTC),
+            ),
+        ),
+    )
+    base.update(over)
+    return _fact(**base)
+
+
 def _fact_2024(**over) -> FundamentalFact:
     return _fact(
         fact_id="fact-2024",
@@ -303,4 +321,113 @@ def test_line_level_multi_period_collapse_is_explicit_not_silent():
     facts = [_fact_2024(), _fact()]
     r = resolve_line_at_cutoff(facts, "revenue", CUT)
     assert r.state == "RESOLVED" and r.fact.fact_id == "fact-1"
+    assert set(r.period_keys) == {P2024_KEY, P2025_KEY}
+
+
+# ---------------------------------------------------------------------------
+# LINE-LEVEL selected-period contract (final RC1 audit remediation 2026-11-17).
+# Contract documented BEFORE implementation in
+# docs/active/RC1_LINE_PIT_CONTRACT_RECORD_2026-11-17.md:
+#   C1 exact-key period selection, fail-closed on unknown keys;
+#   C2 collapse to the most recent reporting period (period_end, ties by
+#      latest availability then fact_id);
+#   C3 conflict detection scoped to the SELECTED period only — an older-period
+#      conflict can never mask the selected period's result (and is still
+#      surfaced by the statement-level API);
+#   C4 LineResolution.reporting_period populated on every return path;
+#   C5 superseded_chain scoped to the selected period; cutoff semantics and
+#      the statement-level API unchanged.
+# ---------------------------------------------------------------------------
+
+
+def test_line_collapse_older_period_conflict_does_not_mask_latest_period():
+    # 2024 (older) carries a same-version two-source conflict; 2025 (latest)
+    # is a clean single fact. The documented collapse must return the valid
+    # 2025 result — the older-period conflict may not mask it.
+    a = _fact_2024_kw(fact_id="fact-2024-a", value=Decimal("500"), source_evidence_ids=("ev-a",))
+    b = _fact_2024_kw(fact_id="fact-2024-b", value=Decimal("600"), source_evidence_ids=("ev-b",))
+    facts = [a, b, _fact()]  # fact-1 = clean 2025 revenue
+    r = resolve_line_at_cutoff(facts, "revenue", CUT)
+    assert r.state == "RESOLVED" and r.fact.fact_id == "fact-1"
+    assert r.reporting_period == P2025_KEY, "collapse must name the period it selected"
+    assert r.conflicting_fact_ids == (), "conflict ids are scoped to the selected period"
+    assert set(r.period_keys) == {P2024_KEY, P2025_KEY}
+    # the older-period conflict is NOT silently resolved: the statement-level
+    # API still surfaces it, scoped to its own period.
+    out = resolve_statement_at_cutoff(facts, CUT)
+    by_period = {l["reporting_period"]: l for l in out["lines"] if l["metric"] == "revenue"}
+    assert by_period[P2024_KEY]["state"] == "CONFLICTING_SOURCES"
+    assert by_period[P2024_KEY]["conflicting_fact_ids"] == ("fact-2024-a", "fact-2024-b")
+    assert by_period[P2025_KEY]["state"] == "RESOLVED"
+    assert by_period[P2025_KEY]["fact"].fact_id == "fact-1"
+
+
+def test_line_conflict_in_selected_period_surfaced_with_metadata():
+    # explicit selection of the conflicting period → CONFLICTING_SOURCES,
+    # metadata names the conflicting period, nothing silently chosen.
+    a = _fact_2024_kw(fact_id="fact-2024-a", value=Decimal("500"), source_evidence_ids=("ev-a",))
+    b = _fact_2024_kw(fact_id="fact-2024-b", value=Decimal("600"), source_evidence_ids=("ev-b",))
+    r = resolve_line_at_cutoff([a, b], "revenue", CUT, reporting_period=P2024_KEY)
+    assert r.state == "CONFLICTING_SOURCES"
+    assert r.conflicting_fact_ids == ("fact-2024-a", "fact-2024-b")
+    assert r.reporting_period == P2024_KEY and r.fact is None
+    # same discipline when the conflicting period is the latest and no
+    # explicit selection is made: the collapse surfaces it, metadata named.
+    c = _fact(fact_id="fact-2025-a", value=Decimal("100"), source_evidence_ids=("ev-c",))
+    d = _fact(fact_id="fact-2025-b", value=Decimal("200"), source_evidence_ids=("ev-d",))
+    r2 = resolve_line_at_cutoff([c, d], "revenue", CUT)
+    assert r2.state == "CONFLICTING_SOURCES"
+    assert r2.conflicting_fact_ids == ("fact-2025-a", "fact-2025-b")
+    assert r2.reporting_period == P2025_KEY
+
+
+def test_line_explicit_period_metadata_populated_in_every_state():
+    facts = [_fact_2024(), _fact()]
+    r = resolve_line_at_cutoff(facts, "revenue", CUT, reporting_period=P2024_KEY)
+    assert r.state == "RESOLVED" and r.fact.fact_id == "fact-2024"
+    assert r.reporting_period == P2024_KEY
+    r2 = resolve_line_at_cutoff(facts, "revenue", CUT, reporting_period=P2025_KEY)
+    assert r2.state == "RESOLVED" and r2.fact.fact_id == "fact-1"
+    assert r2.reporting_period == P2025_KEY
+    # NOT_AVAILABLE state also carries the selected-period metadata
+    na = _fact_2024_kw(value=None, value_status="NOT_AVAILABLE")
+    r3 = resolve_line_at_cutoff([na], "revenue", CUT, reporting_period=P2024_KEY)
+    assert r3.state == "NOT_AVAILABLE"
+    assert r3.reporting_period == P2024_KEY
+
+
+def test_line_missing_or_ambiguous_period_fails_closed_named():
+    facts = [_fact_2024(), _fact()]
+    # a well-formed key that matches no reporting period: NO_FACT, the
+    # requested key stays named in the metadata, never guessed.
+    unknown = "2099-01-01T00:00:00+00:00:2099-12-31T00:00:00+00:00"
+    r = resolve_line_at_cutoff(facts, "revenue", CUT, reporting_period=unknown)
+    assert r.state == "NO_FACT" and r.fact is None
+    assert r.reporting_period == unknown
+    assert r.period_keys == ()
+    assert "requested" in r.note
+    # a malformed/partial key can never fuzzy-match an existing period:
+    # exact-match contract, fail-closed with the key named.
+    r2 = resolve_line_at_cutoff(facts, "revenue", CUT, reporting_period="2024-01-01")
+    assert r2.state == "NO_FACT" and r2.reporting_period == "2024-01-01"
+    assert r2.fact is None
+
+
+def test_line_collapse_names_selected_period_and_scopes_chain():
+    # restatement chain lives in the LATEST period; an older clean period is
+    # present. Omitted selection: collapse resolves the latest winner, names
+    # the selected period, and the chain stays scoped to that period.
+    v1 = _fact(fact_id="fact-v1", value=Decimal("900"), restatement_version=1)
+    v2 = _fact(
+        fact_id="fact-v2",
+        value=Decimal("950"),
+        restatement_version=2,
+        supersedes_fact_id="fact-v1",
+        period=_filing(filing_id="f-2", publication_time_utc=dt.datetime(2026, 2, 15, tzinfo=UTC)),
+    )
+    facts = [_fact_2024(), v1, v2]
+    r = resolve_line_at_cutoff(facts, "revenue", CUT)
+    assert r.state == "RESOLVED" and r.fact.fact_id == "fact-v2"
+    assert r.reporting_period == P2025_KEY
+    assert r.superseded_chain == ("fact-v1",), "chain must be scoped to the selected period"
     assert set(r.period_keys) == {P2024_KEY, P2025_KEY}

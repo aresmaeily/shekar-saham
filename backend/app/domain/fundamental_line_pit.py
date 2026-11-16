@@ -33,11 +33,20 @@ Statement-level contract (audit remediation 2026-11-16):
   latest period: older reporting periods are returned side by side, never
   silently discarded; restatement chains and conflicts are scoped to their own
   period, so a conflict in one period cannot hide a valid result in another.
-  ``resolve_line_at_cutoff`` without an explicit ``reporting_period`` remains a
-  SINGLE-line resolution across all periods present and collapses to the one
-  latest-available winner (its ``period_keys`` field always surfaces which
-  periods were considered) — consumers wanting the complete multi-period view
-  MUST use ``resolve_statement_at_cutoff``.
+  ``resolve_line_at_cutoff`` remains a SINGLE-line, SELECTED-period
+  resolution: with an explicit ``reporting_period`` it resolves exactly that
+  period (exact key match, fail-closed on an unknown key); without one it
+  collapses to the MOST RECENT REPORTING PERIOD (period_end, ties by latest
+  availability then fact_id) and conflict detection is scoped to that
+  SELECTED period, so a conflict in an older period can never mask the
+  selected period's result (final RC1 audit remediation 2026-11-17; the full
+  contract is documented in the function docstring and
+  docs/active/RC1_LINE_PIT_CONTRACT_RECORD_2026-11-17.md). Older periods,
+  including any of their conflicts, are never silently resolved — they remain
+  fully inspectable via ``resolve_statement_at_cutoff``, which is what
+  consumers wanting the complete multi-period view MUST use; the collapse
+  result names the period it selected in ``LineResolution.reporting_period``
+  and its ``period_keys`` field always surfaces which periods were present.
 """
 
 from __future__ import annotations
@@ -106,17 +115,46 @@ def resolve_line_at_cutoff(
     retrieval time must be ``<= cutoff``. Restatements win by version; the
     superseded chain is recorded, never deleted.
 
-    Period selection is EXPLICIT when ``reporting_period`` is given (a period
-    key as produced by ``_period_key``); with no selection the pool spans every
-    period present and the result collapses to the winner of the MOST RECENT
-    REPORTING PERIOD (period_end), ties broken by latest availability then
-    fact_id — a documented, deterministic refinement of the previous collapse,
-    which ordered by availability alone and could return an older period when
-    publication times coincided (audit remediation 2026-11-16; no pre-existing
-    test pinned the undefined tie case; single-period behavior unchanged). For
-    the complete multi-period statement view use ``resolve_statement_at_cutoff``,
-    which resolves every (metric, reporting_period) pair independently and
-    never discards older periods.
+    Documented contract (final RC1 audit remediation 2026-11-17; rationale in
+    docs/active/RC1_LINE_PIT_CONTRACT_RECORD_2026-11-17.md):
+
+    * C1 period selection — with an explicit ``reporting_period`` (a period
+      key as produced by ``_period_key``) the pool is EXACTLY that period:
+      exact key match, never fuzzy. A key matching no fact returns ``NO_FACT``
+      with the requested key still named in ``LineResolution.reporting_period``
+      (fail-closed; a missing or ambiguous/malformed key can never silently
+      resolve to something else).
+    * C2 collapse — with no explicit period the pool spans every period
+      present and the result collapses to the MOST RECENT REPORTING PERIOD
+      (period_end, ties broken by latest availability then fact_id — the same
+      deterministic ordering as the winner selection; a documented,
+      deterministic refinement of the previous collapse, which ordered by
+      availability alone and could return an older period when publication
+      times coincided).
+    * C3 conflict scoping — conflict detection applies ONLY to the selected
+      period. A conflict in a non-selected period can never mask the selected
+      period's result. Nothing is silently resolved: older periods — including
+      any of their conflicts — remain fully inspectable via
+      ``resolve_statement_at_cutoff``, which resolves every (metric,
+      reporting_period) pair independently, and ``period_keys`` always
+      surfaces which periods were present in the pool. A conflict in the
+      SELECTED period still refuses to silently choose
+      (``CONFLICTING_SOURCES``).
+    * C4 metadata — ``LineResolution.reporting_period`` is populated on every
+      return path: the requested key for explicit selections (including
+      ``NO_FACT``), the selected period's key for the collapse path whenever a
+      period was selected, and ``None`` only where no period could be selected
+      (empty pool, or no eligible fact with no explicit selection — the pool
+      periods remain visible via ``period_keys``).
+    * C5 chain scoping + unchanged semantics — ``superseded_chain`` is the
+      SELECTED period's chain (history recorded, never deleted); per-period
+      chains for other periods are available through the statement API.
+      Eligibility rules, restatement-version precedence and NOT_AVAILABLE
+      honesty are unchanged.
+
+    For the complete multi-period statement view use
+    ``resolve_statement_at_cutoff``, which resolves every (metric,
+    reporting_period) pair independently and never discards older periods.
     """
     if cutoff.tzinfo is None:
         raise FundamentalLinePitError("cutoff_must_be_timezone_aware")
@@ -125,6 +163,8 @@ def resolve_line_at_cutoff(
         pool = [f for f in pool if _period_key(f) == reporting_period]
     period_keys = tuple(sorted({_period_key(f) for f in pool}))
     if not pool:
+        # C1: an explicit unknown/malformed period key fails closed as NO_FACT
+        # with the requested key still named (never a fuzzy fallback). C4.
         return LineResolution(
             metric=metric,
             state="NO_FACT",
@@ -136,7 +176,12 @@ def resolve_line_at_cutoff(
             currency=None,
             auditor_status="UNKNOWN",
             period_keys=(),
-            note="no fact for this line",
+            reporting_period=reporting_period,
+            note=(
+                "no fact for this line in the requested reporting period"
+                if reporting_period is not None
+                else "no fact for this line"
+            ),
         )
 
     eligible = [f for f in pool if (t := _available_at(f, cutoff)) is not None and t <= cutoff]
@@ -158,6 +203,7 @@ def resolve_line_at_cutoff(
             currency=None,
             auditor_status="UNKNOWN",
             period_keys=period_keys,
+            reporting_period=reporting_period,
             note=(
                 "publication time unknown and retrieval after cutoff — honest unknown, not usable"
                 if state == "PUBLICATION_UNKNOWN"
@@ -165,48 +211,59 @@ def resolve_line_at_cutoff(
             ),
         )
 
-    # restatement chains: highest restatement_version per period wins; chain recorded
-    winners: list[FundamentalFact] = []
-    chain: list[str] = []
+    # restatement chains, scoped PER PERIOD (C5): highest restatement_version
+    # wins; the superseded chain is recorded, never deleted.
+    winners: dict[str, FundamentalFact] = {}
+    chains: dict[str, tuple[str, ...]] = {}
     for key in sorted({_period_key(f) for f in eligible}):
         group = [f for f in eligible if _period_key(f) == key]
         group.sort(key=lambda f: f.restatement_version)
-        win = group[-1]
-        winners.append(win)
-        chain.extend(f.fact_id for f in group[:-1])
+        winners[key] = group[-1]
+        chains[key] = tuple(f.fact_id for f in group[:-1])
 
-    conflicts: list[str] = []
-    for key in sorted({_period_key(f) for f in eligible}):
-        group = [f for f in eligible if _period_key(f) == key]
-        top_version = max(f.restatement_version for f in group)
-        top = [f for f in group if f.restatement_version == top_version]
-        values = {f.value for f in top if f.value is not None}
-        if len(top) > 1 and len(values) > 1:
-            conflicts.extend(sorted(f.fact_id for f in top))
-    if conflicts:
+    # C1/C2: SELECT the target period — the explicitly requested key, or (with
+    # no selection) the documented collapse: the most recent reporting period
+    # by period_end, ties broken by latest availability then fact_id.
+    if reporting_period is not None:
+        selected_key = reporting_period
+    else:
+        selected_key = _period_key(
+            max(
+                winners.values(),
+                key=lambda f: (
+                    f.period.reporting_period.period_end
+                    or dt.datetime.min.replace(tzinfo=dt.timezone.utc),
+                    _available_at(f, cutoff) or dt.datetime.min.replace(tzinfo=dt.timezone.utc),
+                    f.fact_id,
+                ),
+            )
+        )
+
+    # C3: conflict detection is scoped to the SELECTED period only — a
+    # conflict in a non-selected period can never mask this result; it stays
+    # surfaced via resolve_statement_at_cutoff (per-period independence), and
+    # period_keys discloses the other periods present in the pool.
+    group = [f for f in eligible if _period_key(f) == selected_key]
+    top_version = max(f.restatement_version for f in group)
+    top = [f for f in group if f.restatement_version == top_version]
+    values = {f.value for f in top if f.value is not None}
+    if len(top) > 1 and len(values) > 1:
         return LineResolution(
             metric=metric,
             state="CONFLICTING_SOURCES",
             cutoff_utc=cutoff,
             fact=None,
-            conflicting_fact_ids=tuple(sorted(set(conflicts))),
-            superseded_chain=tuple(chain),
+            conflicting_fact_ids=tuple(sorted(f.fact_id for f in top)),
+            superseded_chain=chains[selected_key],
             unit=None,
             currency=None,
             auditor_status="UNKNOWN",
             period_keys=period_keys,
+            reporting_period=selected_key,
             note="conflicting eligible values for the same line/period/version — surfaced, never silently resolved",
         )
 
-    win = winners[0] if len(winners) == 1 else max(
-        winners,
-        key=lambda f: (
-            f.period.reporting_period.period_end
-            or dt.datetime.min.replace(tzinfo=dt.timezone.utc),
-            _available_at(f, cutoff) or dt.datetime.min.replace(tzinfo=dt.timezone.utc),
-            f.fact_id,
-        ),
-    )
+    win = winners[selected_key]
     if win.value_status == "NOT_AVAILABLE" or win.value is None:
         return LineResolution(
             metric=metric,
@@ -214,11 +271,12 @@ def resolve_line_at_cutoff(
             cutoff_utc=cutoff,
             fact=win,
             conflicting_fact_ids=(),
-            superseded_chain=tuple(chain),
+            superseded_chain=chains[selected_key],
             unit=win.unit,
             currency=win.currency,
             auditor_status=win.auditor_status,
             period_keys=period_keys,
+            reporting_period=selected_key,
             note="the winning filing explicitly reports this line as NOT_AVAILABLE",
         )
     return LineResolution(
@@ -227,11 +285,12 @@ def resolve_line_at_cutoff(
         cutoff_utc=cutoff,
         fact=win,
         conflicting_fact_ids=(),
-        superseded_chain=tuple(chain),
+        superseded_chain=chains[selected_key],
         unit=win.unit,
         currency=win.currency,
         auditor_status=win.auditor_status,
         period_keys=period_keys,
+        reporting_period=selected_key,
         note="latest restatement announced by the cutoff",
     )
 
